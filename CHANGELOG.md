@@ -2,6 +2,16 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [0.10.0] — 2026-06-10
+
+### Added
+
+- `docs/briefs/` layer: executive decision requests — the gate between idea and backlog for initiatives needing a non-technical sponsor's approval (CEO/CTO/client). Hard cap 800 words, one explicit ask, immutable after decision, sponsor declared in the ownership map. Wired into the delivery circuit as step 0 (sponsor gate), the taxonomy, the bootstrap script, and product-strategist's canonical deliverables.
+
+### Changed
+
+- All 20 agent `description` fields rewritten as delegation triggers (use-when + owns + boundary with sibling roles) so the main agent auto-delegates consistently.
+
 ## [0.9.0] — 2026-06-10
 
 First publishable version.

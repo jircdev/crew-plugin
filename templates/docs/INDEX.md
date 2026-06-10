@@ -9,6 +9,7 @@ Entry point for all project documentation. If a question maps to a row below, go
 | Understand the project | [`spec.md`](spec.md) |
 | Know where each doc type goes | [`AGENTS.md`](AGENTS.md) |
 | Understand the delivery process (intent → closure) | [`guides/delivery-circuit.md`](guides/delivery-circuit.md) |
+| Validate an initiative with a non-technical sponsor | [`briefs/`](briefs/README.md) |
 | See functional work items (stories) | [`stories/`](stories/README.md) |
 | See technical work items (requirements) | [`requirements/`](requirements/README.md) |
 | Understand a non-obvious decision | [`decisions/`](decisions/README.md) |
@@ -22,6 +23,7 @@ Entry point for all project documentation. If a question maps to a row below, go
 
 | Tree | Nature | Who writes |
 |------|--------|-----------|
+| `docs/briefs/` | Executive decision requests — the idea→backlog gate | `PROD`; sponsor decides |
 | `docs/stories/` | Functional work items with acceptance criteria | `FA` (functional analysis) |
 | `docs/requirements/` | Technical work items, high level | Architect roles (`SYS`, `DA`, ...) |
 | `docs/decisions/` | Decision records (state lives in the file) | Whoever decides, any role |

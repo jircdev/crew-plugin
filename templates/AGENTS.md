@@ -136,6 +136,7 @@ Who approves each role's stage transitions (the PR, the pass to Ready) — not w
 
 | Role(s) | Human owner |
 |---------|-------------|
+| Sponsor (approves `docs/briefs/`) | {CEO / CTO / client name} |
 | {e.g. PROD, SYS, DA, ...} | {name — or "session user"} |
 | {e.g. FA} | {name(s)} |
 | {e.g. QA} | {name} |

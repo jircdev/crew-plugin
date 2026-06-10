@@ -20,6 +20,7 @@ fi
 echo "Scaffolding into: $TARGET"
 
 mkdir -p "$TARGET/.cursor/rules"
+mkdir -p "$TARGET/docs/briefs"
 mkdir -p "$TARGET/docs/decisions"
 mkdir -p "$TARGET/docs/stories"
 mkdir -p "$TARGET/docs/requirements"
@@ -48,6 +49,7 @@ copy_if_absent "$TEMPLATES/docs/MAINTAINING.md"             "$TARGET/docs/MAINTA
 copy_if_absent "$TEMPLATES/docs/DEVIATIONS.md"              "$TARGET/docs/DEVIATIONS.md"
 copy_if_absent "$TEMPLATES/docs/decisions/README.md"        "$TARGET/docs/decisions/README.md"
 copy_if_absent "$TEMPLATES/docs/decisions/0000-template.md" "$TARGET/docs/decisions/0000-template.md"
+copy_if_absent "$TEMPLATES/docs/briefs/README.md"           "$TARGET/docs/briefs/README.md"
 copy_if_absent "$TEMPLATES/docs/stories/README.md"          "$TARGET/docs/stories/README.md"
 copy_if_absent "$TEMPLATES/docs/requirements/README.md"     "$TARGET/docs/requirements/README.md"
 copy_if_absent "$TEMPLATES/docs/proposals/README.md"        "$TARGET/docs/proposals/README.md"

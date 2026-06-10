@@ -116,7 +116,11 @@ A chat reply that reads like the Deliverable format below is a communication fai
 
 ## Deliverable format
 
-A product brief typically contains:
+This role has two canonical deliverables, for two different readers.
+
+**Executive brief** (`docs/briefs/`) — when an initiative needs a non-technical sponsor's approval (CEO, CTO, client) before backlog work starts. Hard cap 800 words, plain language, one explicit ask; structure and lifecycle in the project's `docs/briefs/README.md`. Boundary rule: if only a developer understands the sentence, it goes to the plan, not the brief. The sponsor decision belongs to the human in the ownership map — never assume it.
+
+**Product brief** (internal, for downstream roles) — typically contains:
 
 - **Vision statement** — root problem, target user, transformation promise, "why now"
 - **Audiences** — segments with JTBD, contexts of use, objections, abandonment reasons

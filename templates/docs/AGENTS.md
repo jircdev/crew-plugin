@@ -11,6 +11,12 @@ Prescriptive guide: **when, where, and why** to write documentation in this proj
 
 ## Where to write — decision criteria
 
+### `docs/briefs/` — Executive decision requests
+
+High-level documents for a non-technical sponsor (CEO, CTO, client) to validate an initiative before backlog work starts. Written by `PROD`; decided by the sponsor (ownership map). Hard cap 800 words, one explicit ask, immutable after decision. Boundary rule: if only a developer understands the sentence, it goes to the plan, not the brief. Conventions: [`briefs/README.md`](briefs/README.md).
+
+**Not here:** plans, estimation breakdowns, technical detail (→ `requirements/`/`stories/`); decisions already taken (→ `decisions/`).
+
 ### `docs/stories/` — Functional work items
 
 Units of user-observable behavior with acceptance criteria, written by functional analysis (`FA` role). Grouped by feature (`stories/<feature>/NNN-slug.md`). Template, lifecycle, and the embedded estimation table: [`stories/README.md`](stories/README.md).

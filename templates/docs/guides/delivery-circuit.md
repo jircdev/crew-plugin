@@ -13,6 +13,10 @@ The spec-driven delivery standard. Defines which artifact is created at each ste
    requirements/                                                   the story        if applicable
 ```
 
+### 0. Sponsor gate (when applicable)
+
+Initiatives that need a **non-technical decision-maker's** approval — new projects, new product ideas, requirements with meaningful cost — start as an executive brief in `briefs/` (written by `PROD`, decided by the sponsor declared in the ownership map). No backlog work starts while the brief is unapproved. Small features inside an already-approved scope skip this gate. Conventions: [`../briefs/README.md`](../briefs/README.md).
+
 ### 1. Intent
 
 The product owner (`PROD` role) decides what gets built. Stable business rules → `product/` (or the project's vision doc). Technical work that needs no functional analysis → a requirement in `requirements/<plan>/`, authored by the appropriate architect role. Everything else → open the feature folder in `stories/<feature>/` with a one-line context README.
