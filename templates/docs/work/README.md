@@ -15,7 +15,7 @@ Under this contract, `work/` can grow indefinitely at zero token cost — nothin
 
 ## Convention
 
-- One file per significant change: `work/YYYY-MM/YYYY-MM-DD_slug.md` (kebab-case, descriptive).
+- One file per significant change: `work/YYYY-MM/YYYY-MM-DD-slug.md` (kebab-case, descriptive).
 - Log: merged features, architectural refactors, migrations, incidents and their fixes, closed stories/requirements worth a trace.
 - Skip: self-evident bug fixes, minor renames, doc-only changes.
 

@@ -45,7 +45,7 @@ try {
     JSON.stringify({
       decision: "block",
       reason:
-        `There are commits dated today (${today}) but no docs/work/${month}/${today}_*.md entry. ` +
+        `There are commits dated today (${today}) but no docs/work/${month}/${today}-*.md entry. ` +
         `The crew standard requires a work entry for every significant closed iteration ` +
         `(format: docs/work/README.md — What changed / Why / How / Promoted knowledge / Follow-ups). ` +
         `Write it now, or skip explicitly if the change is below the significance bar ` +
