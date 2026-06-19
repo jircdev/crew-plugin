@@ -2,6 +2,17 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [0.12.0] — 2026-06-19
+
+### Changed
+
+- Marketplace renamed `julio-crew` → `factory-crew`. **Breaking**: the install id changes from `crew@julio-crew` to `crew@factory-crew`. Consumers must update the `extraKnownMarketplaces` key and the `enabledPlugins` id in their `settings.json` and restart Claude Code.
+- README rewrites the install guide as a dedicated "Installation" section: consumer flow (github source) vs author flow (directory source), copy-pasteable `settings.json` JSON with the exact keys, restart + verify step, and troubleshooting for the two field failure modes (wrong `marketplaces` key silently ignored; `directory` source not resolving for teammates).
+
+### Fixed
+
+- `marketplace.json` declared a stale plugin `version` (0.10.0); realigned to the package version.
+
 ## [0.11.1] — 2026-06-11
 
 ### Changed

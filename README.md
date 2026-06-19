@@ -15,23 +15,69 @@ Bundles:
 - **Session baseline** (`standards/session-context.md`) — the always-on context the SessionStart hook injects. Suggestive defaults: the project's own rules always win (see Rule precedence in `templates/AGENTS.md`).
 - **Bootstrap script** (`bin/init-project.sh`) — scaffolds the templates into a new project.
 
-## Install in a project
+## Installation
 
-```bash
-# 1) Add this plugin's directory as a marketplace (one-time; replace the path
-#    with your local clone, or use the repo URL for team distribution)
-/plugin marketplace add C:/w/crew-plugin
+The plugin id is `crew@factory-crew` (marketplace `factory-crew`, plugin `crew`). Install is configured in your user `settings.json` — **not** via `/plugin marketplace add`, which only registers a path on your own machine.
 
-# 2) Install
-/plugin install crew
+- macOS/Linux: `~/.claude/settings.json`
+- Windows: `C:\Users\<user>\.claude\settings.json`
 
-# 3) Verify
-/help        # should list /crew:sys, /crew:ux, /crew:da, /crew:fe, /crew:qa, /crew:sec, /crew:infra, etc.
+You declare the marketplace under `extraKnownMarketplaces` and enable the plugin under `enabledPlugins`. Pick **one** of the two flows below.
+
+### Consumer (recommended — installs from GitHub)
+
+For anyone using the plugin without editing it. Resolves on any machine.
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "factory-crew": {
+      "source": {
+        "source": "github",
+        "repo": "jircdev/crew-plugin"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "crew@factory-crew": true
+  }
+}
 ```
 
-On first session after install, Claude Code will ask you to approve the plugin's two hooks (see Bundles above) — one-time approval.
+### Author / local development (edits the working tree)
 
-For team distribution: push this folder to a Git repo and use `/plugin marketplace add <repo-url>`.
+For maintainers who edit the plugin and want their local clone to be the live source. Identical to the consumer config except the marketplace `source` points at the clone path — so it resolves **only** on your machine.
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "factory-crew": {
+      "source": {
+        "source": "directory",
+        "path": "C:/w/crew-plugin"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "crew@factory-crew": true
+  }
+}
+```
+
+### Restart and verify
+
+`settings.json` is read at startup, so **restart Claude Code** after editing it. Then verify either way:
+
+- A `/crew:<alias>` command resolves — e.g. type `/crew:sys` and it spawns the system-architect.
+- The plugin appears in the `/plugin` list as `crew@factory-crew`.
+
+On the first session after enabling, Claude Code asks you to approve the plugin's two hooks (see Bundles above) — one-time approval.
+
+### Troubleshooting
+
+- **Plugin never appears / `/crew:*` not found.** Check the settings key is exactly `extraKnownMarketplaces`. A key named `marketplaces` is silently ignored — the marketplace is never registered and nothing errors.
+- **Works for you but not for teammates.** The marketplace `source` is `directory` with a local `path`. A local path exists only on your machine; everyone else must use the `github` source above.
+- **Edited settings but nothing changed.** You did not restart. Claude Code only reads `settings.json` at startup.
 
 ## Bootstrap a new project
 
@@ -154,7 +200,7 @@ Roles and templates evolve. To propagate changes to consumers:
 1. Edit the relevant file in `agents/`, `commands/`, or `templates/`.
 2. Bump `version` in `.claude-plugin/plugin.json`.
 3. Commit and push.
-4. Consumers run `/plugin update crew`.
+4. Consumers run `/plugin update crew@factory-crew`. (Author/local-dev installs consume the working tree directly — just pull.)
 
 For template changes, existing projects must re-run `bin/init-project.sh` (which skips existing files) or merge the new template manually.
 

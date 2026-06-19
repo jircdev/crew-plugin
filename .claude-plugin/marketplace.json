@@ -1,5 +1,5 @@
 {
-  "name": "julio-crew",
+  "name": "factory-crew",
   "owner": {
     "name": "Julio",
     "email": "julio@beyondjs.com"
@@ -9,7 +9,7 @@
       "name": "crew",
       "source": "./",
       "description": "Stack-agnostic catalog of specialized agent roles (system-architect, ux-architect, data-architect, etc.) invocable via /crew:<alias>. Conversational by default; produces structured deliverables only when explicitly requested. Includes reusable code-quality rules and documentation skeleton for new projects.",
-      "version": "0.10.0",
+      "version": "0.12.0",
       "category": "workflow",
       "tags": ["agents", "roles", "code-quality", "documentation", "adr"]
     }
