@@ -1,6 +1,6 @@
 # Usar crew
 
-Cómo invocar los roles, hacer scaffolding de un proyecto nuevo y onboarding de uno existente. Para el proceso de punta a punta que siguen los roles, ver el [circuito de entrega](../../templates/docs/guides/delivery-circuit.md).
+Cómo invocar los roles, hacer scaffolding de un proyecto nuevo y onboarding de uno existente. Para el proceso de punta a punta que siguen los roles, ver el [circuito de entrega](../../templates/docs/guides/delivery-circuit.es.md).
 
 ## Bootstrap de un proyecto nuevo
 

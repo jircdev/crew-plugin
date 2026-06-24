@@ -6,7 +6,7 @@ crew es ese proceso, empaquetado como plugin. Convierte a un único agente gener
 
 ## Cómo fluye el trabajo
 
-La crew sigue un circuito spec-driven alineado con Scrum: un artefacto por etapa, leído del repo, nunca re-pegado en un prompt. Estándar completo: [circuito de entrega](../../templates/docs/guides/delivery-circuit.md).
+La crew sigue un circuito spec-driven alineado con Scrum: un artefacto por etapa, leído del repo, nunca re-pegado en un prompt. Estándar completo: [circuito de entrega](../../templates/docs/guides/delivery-circuit.es.md).
 
 | Etapa | Qué pasa | Artefacto | Roles |
 |-------|----------|-----------|-------|
@@ -25,7 +25,7 @@ El diseño técnico (etapa 3) **no** es un gate obligatorio antes de cada story:
 | Conocer los 24 roles y qué posee cada uno | [roles.md](roles.md) |
 | Instalar, actualizar o desinstalar el plugin | [installation.md](installation.md) |
 | Invocar roles, hacer bootstrap de un proyecto, onboarding de uno existente | [using-crew.md](using-crew.md) |
-| Entender el proceso de entrega de punta a punta | [circuito de entrega](../../templates/docs/guides/delivery-circuit.md) |
+| Entender el proceso de entrega de punta a punta | [circuito de entrega](../../templates/docs/guides/delivery-circuit.es.md) |
 | Añadir un rol o modificar el plugin | [contributing.md](contributing.md) |
 
 ## Qué incluye

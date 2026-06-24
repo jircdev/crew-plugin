@@ -7,6 +7,8 @@ The plugin id is `crew@factory-crew` (marketplace `factory-crew`, plugin `crew`)
 
 You declare the marketplace under `extraKnownMarketplaces` and enable the plugin under `enabledPlugins`. Pick **one** of the two flows below.
 
+> **Editing `settings.json` by hand?** Add these two keys to the file that is already there — do not replace the whole file. Keep the JSON valid: every `{` needs its matching `}`, and no comma after the last item in a block. One stray comma stops the file from loading and the plugin will not appear.
+
 ## Consumer (recommended — installs from GitHub)
 
 For anyone using the plugin without editing it. Resolves on any machine.
@@ -49,12 +51,11 @@ For maintainers who edit the plugin and want their local clone to be the live so
 
 ## Restart and verify
 
-`settings.json` is read at startup, so **restart Claude Code** after editing it. Then verify either way:
+`settings.json` is read only at startup, so **fully quit and reopen Claude Code** after editing it — a reload is not enough.
 
-- A `/crew:<alias>` command resolves — e.g. type `/crew:sys` and it spawns the system-architect.
-- The plugin appears in the `/plugin` list as `crew@factory-crew`.
+**Did it work?** Type `/crew:` in the prompt. If the role commands autocomplete (`/crew:sys`, `/crew:da`, …), you are done. If nothing appears, the plugin did not load — see [Troubleshooting](#troubleshooting).
 
-On the first session after enabling, Claude Code asks you to approve the plugin's two hooks — one-time approval.
+On the first session after enabling, Claude Code asks you to approve the plugin's hooks — a one-time prompt; accept it. If you never see that prompt but the commands appear, the hooks were already approved — nothing is wrong.
 
 ## Update the plugin
 
@@ -76,3 +77,4 @@ The GUI **Remove** button alone is not enough: it clears the plugin cache but no
 - **Works for you but not for teammates.** The marketplace `source` is `directory` with a local `path`. A local path exists only on your machine; everyone else must use the `github` source above.
 - **Edited settings but nothing changed.** You did not restart. Claude Code only reads `settings.json` at startup.
 - **Removed it but the chip keeps coming back.** The GUI Remove does not edit `settings.json`. See [Remove the plugin](#remove-the-plugin) above.
+- **Installed but no `/crew:` commands appear.** The marketplace registered but the plugin did not finish loading. Fully quit Claude Code (not just reload) and reopen. If it still does not appear, remove `crew@factory-crew` from the `/plugin` menu and add it again. Maintainers with a local clone can switch the marketplace `source` to `directory` (see the author flow above), which loads the plugin in place and skips the download step.
