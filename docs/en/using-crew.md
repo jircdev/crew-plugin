@@ -31,23 +31,63 @@ The documentation-steward inventories the project against the plugin taxonomy, r
 
 ## Invoking a role
 
-### Slash command
+There are **two ways** to put a role to work. Both end the same way — a specialist answers instead of a generalist — they differ in setup and in how they read.
+
+### 1. Slash command — `/crew:<alias>` (works out of the box)
+
+Type a slash command and the role takes that message:
 
 ```
-/crew:sys add an IPC command for spawning a process with custom env vars
+/crew:sys how should I split the payments module from the rest?
+/crew:ux lay out the home screen for someone opening the app for the first time
 ```
 
-Spawns the `system-architect` subagent. It reads its role doc, restricts itself to the role's authority, and returns the canonical deliverable (in this case: an architectural spec).
+Nothing to set up: the moment the plugin is installed, the 24 commands exist in **every** project. This is the simplest way and the first one to reach for.
 
-### Alias prefix (interpreted by AGENTS.md)
+### 2. Prefix — `ROLE:` (reads like talking to a person)
+
+Start a message with a role's alias and a colon:
 
 ```
-SYS: add an IPC command for spawning a process with custom env vars
-UX: redesign the process panel for the "All" view
-LEA: where is the workspace detection implemented?
+SYS: how should I split the payments module from the rest?
+UX: lay out the home screen for a first-time user
 ```
 
-The project's `AGENTS.md` instructs the main agent to honor the prefix and either spawn the subagent or read the role doc and adopt its constraints.
+It reads more naturally than a slash command, but it does **not** work on its own — it needs the *activation protocol* in context first. You get that in one of two scopes:
+
+- **Per project** — a project bootstrapped with the crew carries it in its `AGENTS.md`, so the prefix works inside that project.
+- **Everywhere (global)** — inject it once into your `~/.claude/CLAUDE.md`, which Claude reads in every session (see below).
+
+### Which one should I use?
+
+| | `/crew:sys …` | `SYS: …` |
+|---|---|---|
+| Setup | none — works once installed | needs activation (project or global) |
+| Where it works | any project | wherever the protocol is injected |
+| Feels like | a command | natural language |
+| Best for | the occasional expert call | working in role mode often |
+
+If in doubt, use the slash command. The prefix is a convenience for people who live in role mode.
+
+### Turn the prefix on everywhere (global)
+
+Run the installer once, pointed at your global config:
+
+```
+/crew:inst activate the crew in my global ~/.claude/CLAUDE.md so the "ROLE:" prefix works in every session
+```
+
+It writes the activation protocol + the alias table into `~/.claude/CLAUDE.md`. From then on `SYS:`, `DA:`, `UX:`, … work in any session and any project. A project's own `AGENTS.md` still wins wherever it disagrees.
+
+### One message, or the whole conversation?
+
+By default the prefix activates the role for **that one message**; the next message is back to the generalist. If you want the role to **stay** for the whole conversation (say `SYS:` once and remain system-architect until you switch), ask the installer for the sticky variant:
+
+```
+/crew:inst … but make it sticky: a "ROLE:" prefix stays active for the whole conversation until a different "ROLE:" is declared
+```
+
+With sticky mode, keep a way back to the generalist (e.g. a `GEN:` reset) so you are never stuck in one role.
 
 ## Composition rules
 

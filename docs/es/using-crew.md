@@ -31,23 +31,63 @@ El documentation-steward inventaría el proyecto contra la taxonomía del plugin
 
 ## Invocar un rol
 
-### Slash command
+Hay **dos formas** de poner un rol a trabajar. Ambas terminan igual —responde un especialista en vez de un generalista— pero difieren en la configuración y en cómo se leen.
+
+### 1. Slash command — `/crew:<alias>` (funciona de una)
+
+Escribe el slash command y el rol toma ese mensaje:
 
 ```
-/crew:sys añade un comando IPC para lanzar un proceso con variables de entorno personalizadas
+/crew:sys ¿cómo separo el módulo de pagos del resto?
+/crew:ux organiza la pantalla de inicio para alguien que abre la app por primera vez
 ```
 
-Lanza el subagente `system-architect`. Lee su doc de rol, se restringe a la autoridad del rol y devuelve el entregable canónico (en este caso: una especificación de arquitectura).
+No hay que configurar nada: en cuanto el plugin está instalado, los 24 comandos existen en **todos** los proyectos. Es la forma más simple y la primera a la que recurrir.
 
-### Prefijo de alias (interpretado por AGENTS.md)
+### 2. Prefijo — `ROL:` (se lee como hablarle a una persona)
+
+Empieza el mensaje con el alias del rol y dos puntos:
 
 ```
-SYS: añade un comando IPC para lanzar un proceso con variables de entorno personalizadas
-UX: rediseña el panel de procesos para la vista "All"
-LEA: dónde está implementada la detección de workspace
+SYS: ¿cómo separo el módulo de pagos del resto?
+UX: organiza la pantalla de inicio para alguien que entra por primera vez
 ```
 
-El `AGENTS.md` del proyecto instruye al agente principal a honrar el prefijo y, o bien lanzar el subagente, o bien leer el doc de rol y adoptar sus restricciones.
+Se lee más natural que un slash command, pero **no** funciona solo — necesita el *protocolo de activación* en contexto primero. Lo tienes en uno de dos alcances:
+
+- **Por proyecto** — un proyecto montado con la crew lo lleva en su `AGENTS.md`, así que el prefijo funciona dentro de ese proyecto.
+- **En todos lados (global)** — se inyecta una vez en tu `~/.claude/CLAUDE.md`, que Claude lee en cada sesión (ver abajo).
+
+### ¿Cuál uso?
+
+| | `/crew:sys …` | `SYS: …` |
+|---|---|---|
+| Configuración | ninguna — funciona ya instalado | necesita activación (proyecto o global) |
+| Dónde funciona | cualquier proyecto | donde esté inyectado el protocolo |
+| Se siente como | un comando | lenguaje natural |
+| Mejor para | una consulta puntual a un experto | trabajar en modo rol seguido |
+
+Si dudas, usa el slash command. El prefijo es una comodidad para quien vive en modo rol.
+
+### Activar el prefijo en todos lados (global)
+
+Corre el instalador una vez, apuntándolo a tu config global:
+
+```
+/crew:inst activa la crew en mi ~/.claude/CLAUDE.md global para que el prefijo "ROL:" funcione en todas las sesiones
+```
+
+Escribe el protocolo de activación + la tabla de alias en `~/.claude/CLAUDE.md`. Desde ahí, `SYS:`, `DA:`, `UX:`, … funcionan en cualquier sesión y proyecto. El `AGENTS.md` propio de un proyecto sigue ganando donde haya conflicto.
+
+### ¿Un mensaje, o toda la conversación?
+
+Por defecto el prefijo activa el rol para **ese mensaje**; el siguiente vuelve al generalista. Si quieres que el rol **se quede** toda la conversación (dices `SYS:` una vez y sigues como system-architect hasta que cambies), pídele al instalador la variante pegajosa:
+
+```
+/crew:inst … pero pegajoso: un prefijo "ROL:" queda activo toda la conversación hasta que se declare otro "ROL:" distinto
+```
+
+Con modo pegajoso, ten una forma de volver al generalista (p. ej. un reset `GEN:`) para no quedar atrapado en un rol.
 
 ## Reglas de composición
 
