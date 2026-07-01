@@ -1,5 +1,7 @@
 # crew
 
+[![version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fjircdev%2Fcrew-plugin%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version&prefix=v&color=blue)](.claude-plugin/plugin.json)
+
 > 🌐 Read this in **English** (below) · ¿Prefieres español? → **[Léelo en español](docs/es/README.md)**
 
 Coding agents are generalists. Point one at your repo and it jumps straight to code — no one owns the decision, the rationale behind the architecture evaporates between sessions, and every new chat relitigates what you already settled. The hard part stopped being *writing the code*; it became *keeping a process sane enough to survive from one session to the next*.

@@ -1,5 +1,7 @@
 # crew
 
+[![version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fjircdev%2Fcrew-plugin%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version&prefix=v&color=blue)](../../.claude-plugin/plugin.json)
+
 > 🌐 Léelo en **español** (abajo) · Prefer English? → **[Read it in English](../../README.md)**
 
 Los agentes de código son generalistas. Apunta uno a tu repo y salta directo a escribir código: nadie es dueño de la decisión, el porqué de la arquitectura se evapora entre sesiones, y cada chat nuevo vuelve a litigar lo que ya habías cerrado. La parte difícil dejó de ser *escribir el código*; pasó a ser *mantener un proceso lo bastante sano como para sobrevivir de una sesión a la siguiente*.
