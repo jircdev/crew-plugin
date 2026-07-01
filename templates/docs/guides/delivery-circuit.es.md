@@ -6,12 +6,7 @@ El estándar de entrega spec-driven (guiado por especificaciones). Define qué a
 
 ## El circuito
 
-```
-1. Intención       2. Análisis          3. Implementación      4. Validación     5. Cierre
-   PROD/dueño   →     FA              →    dev + agentes     →     FA         →     implementador
-   product/ o         stories/<feat>/      branch + PR             veredicto en     work/ + ADR
-   requirements/                                                   la story         si aplica
-```
+![Circuito de entrega: intención, análisis, implementación, validación y cierre](./assets/delivery-circuit.es.jpg)
 
 ### 0. Compuerta del sponsor (cuando aplica)
 

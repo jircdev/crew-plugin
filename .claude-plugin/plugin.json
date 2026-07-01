@@ -1,6 +1,6 @@
 {
   "name": "crew",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Stack-agnostic catalog of specialized agent roles (system-architect, ux-architect, data-architect, etc.) invocable via /crew:<alias>. Conversational by default; produces structured deliverables only when explicitly requested. Includes reusable code-quality rules and documentation skeleton for new projects.",
   "author": {
     "name": "Julio",

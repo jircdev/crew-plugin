@@ -2,6 +2,17 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [0.18.0] — 2026-06-26
+
+### Changed
+
+- **Session baseline trimmed to behavior; process knowledge moved to pointers.** `standards/session-context.md` was inlining summaries of content that already lives in the project's scaffolded files (`standards/code-quality.md`, `docs/guides/delivery-circuit.md`) — paying that always-on token cost and diluting attention in every conversation, code-related or not. The baseline now carries only always-on behavior (conversation style, office rule, two modes, document craft) plus a one-block pointer to where delivery/estimation/history and code-quality rules live, read on demand. This makes the baseline consistent with the plugin's own principle ("conventions live in the repo, written once, read many").
+- **Conversation style hardened.** The loophole "detail only when the conversation warrants it" let a technical topic license unrequested `file:line` dumps. Replaced with: default to a conceptual answer; code, file paths and `file:line` citations appear only when the user explicitly asks — a technical topic does not by itself license them.
+
+### Added
+
+- **Code-quality enforcement hook** (`hooks/guard-code-quality.js`, `PreToolUse` on `Edit|Write`). File-size ceilings from `standards/code-quality.md` were documented but never enforced — prose only. The hook denies an edit/write that would push a code file past its kind's line ceiling (component 150 / page 200 / hook 80 / service 150 / module 200 / test 250 / rust 300), pointing to a split. Kind detection is best-effort from path/name signals; ambiguous or non-code files fail open (allow). Only the deterministic line ceilings are enforced — function length, complexity and nesting stay with the doc and review, never faked in a hook.
+
 ## [0.17.0] — 2026-06-25
 
 ### Added
