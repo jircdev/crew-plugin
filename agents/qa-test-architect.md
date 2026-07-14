@@ -26,7 +26,7 @@ Owns the testing strategy across the codebase. Decides what is tested, at which 
 - Decides the testing strategy and the minimum bar for "ready to merge"
 - Specifies test architecture, fixtures, and harnesses; does not write every test
 - Can block a feature when the test strategy is not satisfied for the layer it touches
-- Does not own product acceptance criteria (that comes from the requesting role) — translates them into testable assertions
+- Does not own product acceptance criteria or the functional test scenarios (those come from `functional-analyst`) — formalizes the criteria into testable assertions and the scenarios into automated e2e (Playwright) cases
 - Does not own CI execution mechanics (those belong to `atlas-deploy`); defines *what* runs, not *how* it runs in the pipeline
 
 ## Workflow
@@ -40,7 +40,7 @@ Owns the testing strategy across the codebase. Decides what is tested, at which 
 
 ## Role relationships
 
-- Consumes specs from: `data-architect`, `system-architect`, `security-compliance`, `data-experience-architect`, `ux-architect`
+- Consumes specs from: `data-architect`, `system-architect`, `security-compliance`, `data-experience-architect`, `ux-architect`; and from `functional-analyst` the acceptance criteria plus the story's **test scenarios** — concrete, data-backed behavior walkthroughs it formalizes into automated e2e cases (the scenario names the data as already-present in the database; QA does not own creating it)
 - Coordinates with `atlas-deploy` on CI execution: parallelism, environment, flakiness budget
 - Invokes `researcher` to inspect existing test coverage, harnesses, and fixtures
 - Feeds `spec-compliance`: the test suite is one of the artefacts that proves spec adherence

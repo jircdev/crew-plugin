@@ -2,6 +2,17 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [0.19.0] — 2026-07-13
+
+### Added
+
+- **Mandatory `Test scenarios` section in the story template**, authored by `FA` as input for `QA`'s end-to-end (Playwright) strategy. Stories carried acceptance criteria and abstract edge cases but nothing concrete for e2e testing. Each scenario is one runnable instance — a human-readable case name (never a Playwright identifier, since the analyst's user may be non-technical), low-level steps (user → screen → action → expected result), the real data it runs on, and the expected result. Distinct from `Edge cases` (which name conditions in the abstract); a `Test scenario` is a concrete instance that exercises them. Preserves the `FA`↔`QA` boundary: `FA` captures behavior in human terms, `QA` formalizes it into automated cases — the section is input to `QA`, not the test implementation. At least one scenario is now required to reach Ready.
+- **Data-existence responsibility made explicit.** Each scenario names the concrete records it needs; the author is responsible for those records already existing in the database. No fixture/seed obligation is created for `QA` or the data roles.
+
+### Changed
+
+- Registered the new section across the anatomy repetitions: `agents/functional-analyst.md` (frontmatter description, Scope, Workflow, Authority boundary, Deliverable format, craft vocabulary — plus the behavior to *interview* the user for each scenario), `agents/qa-test-architect.md` (Authority and Role relationships now reflect consuming scenarios and formalizing them into e2e), `templates/docs/stories/README.md` (template block, Lifecycle, Rules), and both `templates/docs/guides/delivery-circuit.md` and `.es.md` (Analysis step, Ready gate). Enforcement kept in prose, not a hook: unlike the estimation table (structured, gated at the terminal Closed state), Ready is conferred by human PR approval a `PreToolUse` hook cannot observe, and scenario prose is not machine-checkable beyond a placeholder — a gate here would give false confidence at real maintenance cost.
+
 ## [0.18.0] — 2026-06-26
 
 ### Changed

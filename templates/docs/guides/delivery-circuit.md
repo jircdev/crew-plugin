@@ -23,7 +23,7 @@ The product owner (`PROD` role) decides what gets built. Stable business rules �
 
 ### 2. Analysis
 
-The functional analyst (human, assisted by `FA`) decomposes the intent into stories per the template in [`../stories/README.md`](../stories/README.md). Stories enter the repo **via PR** approved by the product owner — that approval makes them Ready. Analysts do not touch code: their writing surface is `docs/stories/` only; they review from the Git host's web UI, no local git needed.
+The functional analyst (human, assisted by `FA`) decomposes the intent into stories per the template in [`../stories/README.md`](../stories/README.md). Each story reaching Ready carries at least one **test scenario** — a concrete, data-backed walkthrough (human-readable name, low-level steps, expected result) that `QA` later formalizes into an automated e2e case; the analyst confirms with the author that the data each scenario references already exists in the database. Stories enter the repo **via PR** approved by the product owner — that approval makes them Ready. Analysts do not touch code: their writing surface is `docs/stories/` only; they review from the Git host's web UI, no local git needed.
 
 If a technical decision surfaces during analysis, the analyst does NOT resolve it: it is recorded as an open question and routed to the owning technical role.
 

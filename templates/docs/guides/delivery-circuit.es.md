@@ -18,7 +18,7 @@ El dueño de producto (rol `PROD`) decide qué se construye. Reglas de negocio e
 
 ### 2. Análisis
 
-El analista funcional (humano, asistido por `FA`) descompone la intención en stories según la plantilla en [`../stories/README.md`](../stories/README.md). Las stories entran al repo **vía PR** aprobado por el dueño de producto — esa aprobación las pone Ready (listas). Los analistas no tocan código: su superficie de escritura es solo `docs/stories/`; revisan desde la UI web del host de Git, sin git local.
+El analista funcional (humano, asistido por `FA`) descompone la intención en stories según la plantilla en [`../stories/README.md`](../stories/README.md). Cada story que llega a Ready lleva al menos un **escenario de prueba** — un recorrido concreto y con datos reales (nombre legible, pasos low-level, resultado esperado) que `QA` formaliza después en un caso e2e automatizado; el analista confirma con el autor que los datos que referencia cada escenario ya existen en la base de datos. Las stories entran al repo **vía PR** aprobado por el dueño de producto — esa aprobación las pone Ready (listas). Los analistas no tocan código: su superficie de escritura es solo `docs/stories/`; revisan desde la UI web del host de Git, sin git local.
 
 Si surge una decisión técnica durante el análisis, el analista NO la resuelve: se registra como pregunta abierta y se enruta al rol técnico dueño.
 
