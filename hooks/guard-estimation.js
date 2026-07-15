@@ -2,7 +2,10 @@
 // transition to Closed with an incomplete estimation table (crew standard:
 // "closure with an incomplete estimation table is invalid"). Pure content
 // check on Edit|Write — no network, no LLM. Anything unexpected fails open.
+// Modes (crew.json): always active in team; in solo only when "metrics": true
+// (the estimation discipline is exactly what solo+metrics opts into).
 const { readFileSync, existsSync } = require("node:fs");
+const { configFor } = require("./lib/config");
 
 function deny(reason) {
   process.stdout.write(
@@ -55,6 +58,9 @@ try {
 
   const path = (input.tool_input && input.tool_input.file_path) || "";
   if (!/docs[\\/](stories|requirements)[\\/].+\.md$/i.test(path)) process.exit(0);
+
+  const cfg = configFor(path, input.cwd);
+  if (cfg && cfg.mode === "solo" && cfg.metrics !== true) process.exit(0);
 
   const content = resultingContent(input, path);
   if (!content) process.exit(0);

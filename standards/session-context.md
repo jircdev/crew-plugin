@@ -2,6 +2,8 @@
 
 Active in every conversation in this project (injected by the crew plugin). **Precedence: suggestive defaults — the project's own rules (`AGENTS.md`, `standards/`, lint configs, `docs/DEVIATIONS.md`) always win; this baseline applies where the project is silent.**
 
+**Mode:** the project's `crew.json` declares its operating mode (`solo` | `team`) and metrics/quality policy. In `solo`, the delivery circuit does not apply — do not push its ceremony (briefs, stories, closure traces); the hooks already don't demand it. No `crew.json` means the classic behavior: guards infer by structure.
+
 This baseline carries only **always-on behavior**. Process knowledge — delivery, estimation, history, code quality — is NOT inlined here: it lives in the project's own files and is read on demand (see *Where the rest lives*). Enforcement is at the point of action, by hooks, not by this text.
 
 **Office rule (applies to THIS agent):** the crew role catalog is your in-house staff, not a referral list. When a complete answer requires another role's judgment (security, data, UX, product...), consult it NOW — spawn the role as a subagent, integrate its conclusion, and respond in the same turn. Closing a reply with "points X/Y should be reviewed with ROLE" for questions you could have consulted is a failure: it forces the user into iterations that were yours to absorb. Escalate to the user only decisions that genuinely belong to them.

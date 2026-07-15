@@ -2,9 +2,11 @@
 // (docs/work/ exists) and there are commits dated today but no work entry
 // dated today, block the stop once with a reminder. Conventions without
 // enforcement drift — this is the enforcement. Anything unexpected fails open.
+// Modes (crew.json): team-only — in solo the delivery circuit does not apply.
 const { readFileSync, readdirSync, existsSync } = require("node:fs");
 const { execSync } = require("node:child_process");
 const { join } = require("node:path");
+const { loadConfig } = require("./lib/config");
 
 function git(args, cwd) {
   return execSync(`git ${args}`, { cwd, stdio: ["ignore", "pipe", "ignore"] })
@@ -19,6 +21,9 @@ try {
   const cwd = input.cwd || process.cwd();
   const root = git("rev-parse --show-toplevel", cwd);
   if (!root) process.exit(0);
+
+  const cfg = loadConfig(root);
+  if (cfg && cfg.mode === "solo") process.exit(0);
 
   const workDir = join(root, "docs", "work");
   if (!existsSync(workDir)) process.exit(0); // project does not follow the standard
