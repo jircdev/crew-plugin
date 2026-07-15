@@ -1,6 +1,6 @@
 # Using crew
 
-How to invoke the roles, scaffold a new project, and onboard an existing one. For the end-to-end process the roles follow, see the [delivery circuit](../../templates/docs/guides/delivery-circuit.md).
+How to invoke the roles, scaffold a new project, onboard an existing one, and customize the scaffolded docs. For the end-to-end process the roles follow, see the [delivery circuit](../../templates/docs/guides/delivery-circuit.md).
 
 ## Set up a new project
 
@@ -27,6 +27,38 @@ Do **not** scaffold over a project that already has docs and conventions. The en
 ```
 
 The documentation-steward inventories the project against the plugin taxonomy, reports aligned/deviated/missing findings, and you decide per finding: converge (becomes a story/requirement) or keep the deviation. Kept deviations are recorded in `docs/DEVIATIONS.md` and the precedence resolution is written into the project's root `AGENTS.md` — binding for all agents, never re-litigated per session. The plugin baseline is suggestive; the project's own rules always win.
+
+## Customize the scaffolded docs
+
+Everything the installer copies stops belonging to the plugin the moment it lands: the scaffolded `AGENTS.md`, `standards/`, and `docs/` tree are **your project's files**. The installer never overwrites an existing file, so whatever you change persists — but not everything in those files carries the same weight. There are two kinds of content, and the procedure differs.
+
+### Project surface — edit freely
+
+Defaults the scaffold ships so you have something to start from. Changing them is normal project maintenance: edit your copy, no audit, no deviation record.
+
+- **Placeholders and project facts** — `{PROJECT_NAME}`, the stack table, folder layout, and commands in `AGENTS.md`.
+- **Tool defaults named in templates.** Example: the stories template names **Playwright** as the end-to-end tool `QA` formalizes test scenarios into. If your project uses a different tool, edit your `docs/stories/README.md` — it is your copy, and editing it is the sanctioned path — and keep `AGENTS.md § Stack` in sync. Per `docs/MAINTAINING.md`, a tooling swap with real trade-offs also gets an ADR.
+- **Project-specific additions** — extra sections in the story template (say, a "Rollout" or "Analytics events" block), extra rows in routing tables, extra guides. Add them in your copy; every new story inherits them.
+- **Wording, examples, and language** of the prose.
+
+### The structural standard — changing it is a deviation
+
+These elements are load-bearing: roles, hooks, and the delivery circuit assume them. Diverging is allowed, but it is a recorded **decision**, never a silent edit:
+
+- Folder = nature, state = field; files never move; kind lives in the slug.
+- The story/requirement lifecycle (`Draft → … → Closed`) and the `Status:` header field.
+- The Ready gate: criteria complete and unambiguous, no open questions, and **at least one Test scenario**.
+- The estimation table, filled before implementation and complete at closure. This one is hook-enforced: the exact `## Estimation` heading and the first five columns (Milestone through Actual hours) filled — renaming the section or leaving cells empty blocks the close.
+- Immutability of Closed work items and `work/` entries.
+- Single source of truth: an external tracker holds only state + link; the file wins.
+
+To diverge from any of these, run the audit conversation (`/crew:doc audit this project's docs against the crew standard`). The owner decides, the deviation lands as a row in `docs/DEVIATIONS.md` with rationale and date, and from then on it is binding — agents respect it and never re-flag it.
+
+**Quick test:** does the change swap the tool or wording the standard runs with, or does it change the standard's shape? Tool/wording → edit your copy. Shape (lifecycle, gates, taxonomy, mandatory sections) → `DEVIATIONS.md` row via `DOC` audit.
+
+### What happens when the plugin updates
+
+Updates never touch your scaffolded files — the bootstrap skips anything that already exists — so customizations survive every update. The flip side: improvements to the plugin's templates do **not** reach your copies automatically. To pick them up, re-run the `DOC` audit after updating: it compares your docs against the new baseline, respects every row already in `DEVIATIONS.md`, and you converge or keep per finding. There is no automated merge; the audit conversation (or a manual merge of the template you care about) is the reconciliation path.
 
 ## Invoking a role
 

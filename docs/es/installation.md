@@ -100,7 +100,7 @@ En la primera sesión tras habilitarlo, Claude Code te pide aprobar los hooks de
 
 ## Actualizar el plugin
 
-Los consumidores ejecutan `/plugin update crew@factory-crew`. Las instalaciones autor/local consumen el working tree directamente — basta con hacer pull. Para cambios en plantillas, los proyectos existentes re-ejecutan `bin/init-project.sh` (que salta los archivos ya existentes) o fusionan la nueva plantilla a mano.
+Los consumidores ejecutan `/plugin update crew@factory-crew`. Las instalaciones autor/local consumen el working tree directamente — basta con hacer pull. Para cambios en plantillas, los proyectos existentes re-ejecutan `bin/init-project.sh` (que salta los archivos ya existentes) o fusionan la nueva plantilla a mano. Las personalizaciones que hiciste a los archivos instalados siempre sobreviven la actualización — nada las sobrescribe; cómo reconciliar tus copias con un baseline nuevo está en [using-crew.md § Personalizar los docs instalados](using-crew.md#personalizar-los-docs-instalados).
 
 ## Desinstalar el plugin
 

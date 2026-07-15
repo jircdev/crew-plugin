@@ -28,7 +28,7 @@ El diseño técnico (etapa 3) **no** es un gate obligatorio antes de cada story:
 |-------------|-----|
 | Conocer los 25 roles y qué posee cada uno | [roles.md](roles.md) |
 | Instalar, actualizar o desinstalar el plugin | [installation.md](installation.md) |
-| Invocar roles, hacer bootstrap de un proyecto, onboarding de uno existente | [using-crew.md](using-crew.md) |
+| Invocar roles, hacer bootstrap de un proyecto, onboarding de uno existente, personalizar los docs instalados | [using-crew.md](using-crew.md) |
 | Entender el proceso de entrega de punta a punta | [circuito de entrega](../../templates/docs/guides/delivery-circuit.es.md) |
 | Añadir un rol o modificar el plugin | [contributing.md](contributing.md) |
 
@@ -36,8 +36,8 @@ El diseño técnico (etapa 3) **no** es un gate obligatorio antes de cada story:
 
 - **25 subagentes** + **25 slash commands** (`agents/`, `commands/`) — uno por rol; `/crew:<alias>` lanza el subagente correspondiente.
 - **Plantillas** (`templates/`) — `AGENTS.md` (contexto canónico de agentes), un puntero `CLAUDE.md`, `standards/` (el núcleo de calidad de código), y la taxonomía completa de `docs/` (stories, requirements, decisions, proposals, el circuito de entrega, historial de work, DEVIATIONS).
-- **Hooks** (`hooks/`) — `SessionStart` inyecta el baseline de sesión; `PreToolUse` protege los artefactos inmutables.
-- **Baseline de sesión** (`standards/session-context.md`) — contexto siempre activo; defaults sugeridos, las reglas propias del proyecto siempre ganan.
+- **Hooks** (`hooks/`) — `SessionStart` inyecta el baseline de sesión; `PreToolUse` protege los artefactos inmutables, la puerta de la tabla de estimación y los techos de tamaño de archivo de calidad de código; `Stop` verifica la trazabilidad del cierre.
+- **Baseline de sesión** (`standards/session-context.md`) — solo **comportamiento** siempre activo (estilo de conversación, regla de oficina, dos modos, oficio de documentos); el conocimiento de proceso no va inline: apunta a los `standards/` y `docs/guides/` instalados en el proyecto. Defaults sugeridos, las reglas propias del proyecto siempre ganan.
 - **Script de bootstrap** (`bin/init-project.sh`) — instala las plantillas en un proyecto nuevo.
 
 ## Licencia

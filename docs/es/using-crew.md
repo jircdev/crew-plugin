@@ -1,6 +1,6 @@
 # Usar crew
 
-Cómo invocar los roles, hacer scaffolding de un proyecto nuevo y onboarding de uno existente. Para el proceso de punta a punta que siguen los roles, ver el [circuito de entrega](../../templates/docs/guides/delivery-circuit.es.md).
+Cómo invocar los roles, hacer scaffolding de un proyecto nuevo, onboarding de uno existente y personalizar los docs instalados. Para el proceso de punta a punta que siguen los roles, ver el [circuito de entrega](../../templates/docs/guides/delivery-circuit.es.md).
 
 ## Configurar un proyecto nuevo
 
@@ -27,6 +27,38 @@ Luego:
 ```
 
 El documentation-steward inventaría el proyecto contra la taxonomía del plugin, reporta hallazgos alineado/desviado/faltante, y tú decides por hallazgo: converger (se vuelve una story/requirement) o conservar la desviación. Las desviaciones conservadas se registran en `docs/DEVIATIONS.md` y la resolución de precedencia se escribe en el `AGENTS.md` raíz del proyecto — vinculante para todos los agentes, nunca re-litigada por sesión. El baseline del plugin es sugerido; las reglas propias del proyecto siempre ganan.
+
+## Personalizar los docs instalados
+
+Todo lo que el instalador copia deja de pertenecer al plugin en el momento en que aterriza: el `AGENTS.md`, `standards/` y el árbol `docs/` instalados son **archivos de tu proyecto**. El instalador nunca sobrescribe un archivo existente, así que lo que cambies persiste — pero no todo en esos archivos pesa igual. Hay dos tipos de contenido, y el procedimiento difiere.
+
+### Superficie del proyecto — edítala libremente
+
+Defaults que el scaffold trae para que tengas de dónde partir. Cambiarlos es mantenimiento normal del proyecto: editas tu copia, sin auditoría, sin registro de desviación.
+
+- **Placeholders y datos del proyecto** — `{PROJECT_NAME}`, la tabla de stack, el layout de carpetas y los comandos en `AGENTS.md`.
+- **Herramientas nombradas por defecto en las plantillas.** Ejemplo: la plantilla de stories nombra **Playwright** como la herramienta end-to-end en la que `QA` formaliza los test scenarios. Si tu proyecto usa otra, edita tu `docs/stories/README.md` — es tu copia, y editarla es la vía sancionada — y mantén sincronizado `AGENTS.md § Stack`. Según `docs/MAINTAINING.md`, un cambio de herramienta con trade-offs reales lleva además un ADR.
+- **Agregados propios del proyecto** — secciones extra en la plantilla de story (p. ej. un bloque "Rollout" o "Eventos de analítica"), filas extra en tablas de ruteo, guías extra. Agrégalas en tu copia; cada story nueva las hereda.
+- **Redacción, ejemplos e idioma** de la prosa.
+
+### El estándar estructural — cambiarlo es una desviación
+
+Estos elementos son estructurales: los roles, los hooks y el circuito de entrega los asumen. Divergir está permitido, pero es una **decisión** registrada, nunca una edición silenciosa:
+
+- Carpeta = naturaleza, estado = campo; los archivos nunca se mueven; el kind vive en el slug.
+- El ciclo de vida de story/requirement (`Draft → … → Closed`) y el campo `Status:` en el encabezado.
+- La puerta de Ready: criterios completos y sin ambigüedad, sin preguntas abiertas, y **al menos un Test scenario**.
+- La tabla de estimación, rellenada antes de implementar y completa al cierre. Esta la hace cumplir un hook: exige el encabezado exacto `## Estimation` y las primeras cinco columnas (Milestone a Actual hours) llenas — renombrar la sección o dejar celdas vacías bloquea el cierre.
+- La inmutabilidad de los work items Closed y de las entradas de `work/`.
+- Fuente única de verdad: un tracker externo guarda solo estado + link; el archivo gana.
+
+Para divergir de cualquiera de estos, corre la conversación de auditoría (`/crew:doc audita los docs de este proyecto contra el estándar crew`). El dueño decide, la desviación queda como fila en `docs/DEVIATIONS.md` con razón y fecha, y desde ahí es vinculante — los agentes la respetan y no la vuelven a señalar.
+
+**Prueba rápida:** ¿el cambio reemplaza la herramienta o la redacción con la que corre el estándar, o cambia la forma del estándar? Herramienta/redacción → edita tu copia. Forma (ciclo de vida, puertas, taxonomía, secciones obligatorias) → fila en `DEVIATIONS.md` vía auditoría `DOC`.
+
+### Qué pasa cuando el plugin se actualiza
+
+Las actualizaciones nunca tocan tus archivos instalados — el bootstrap salta todo lo que ya existe — así que las personalizaciones sobreviven cada actualización. La contracara: las mejoras a las plantillas del plugin **no** llegan solas a tus copias. Para tomarlas, re-corre la auditoría `DOC` después de actualizar: compara tus docs contra el nuevo baseline, respeta cada fila ya registrada en `DEVIATIONS.md`, y tú converges o conservas por hallazgo. No hay merge automático; la conversación de auditoría (o fusionar a mano la plantilla que te interese) es la vía de reconciliación.
 
 ## Invocar un rol
 

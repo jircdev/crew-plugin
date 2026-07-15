@@ -32,6 +32,7 @@ Until Closed, the story is editable. Any criteria change after In progress is lo
 
 - The story defines behavior, never technical decisions. If implementation requires a decision with trade-offs, that is an ADR in `decisions/`, linked under Dependencies.
 - Every story reaching Ready carries at least one **Test scenario** — a concrete, data-backed walkthrough that is input for `QA`'s end-to-end strategy. The author confirms the data each scenario references already exists in the database; the story does not create fixtures or seed data (that is the author's responsibility, not `QA`'s or the data roles').
+- The e2e tool named in this file (Playwright) is a scaffold default, not part of the standard. A project that uses a different tool edits this file — its own copy — to name it, and keeps `AGENTS.md § Stack` in sync. What is structural is the Ready gate (≥1 test scenario), never the tool.
 - The tracker (if any) holds only: link to this file, state, assignee. On any discrepancy, **this file wins**.
 - The estimation table is mandatory before implementation starts (see [`../AGENTS.md`](../AGENTS.md#estimation-discipline-mandatory)).
 

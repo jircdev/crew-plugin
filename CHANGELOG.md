@@ -2,6 +2,21 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [0.20.0] — 2026-07-14
+
+### Added
+
+- **Customization guide for scaffolded docs** (`docs/en/using-crew.md` § "Customize the scaffolded docs", ES mirror in `docs/es/using-crew.md`). The plugin documented the scaffold (installer never overwrites) and the divergence mechanism (rule precedence, `DEVIATIONS.md` via `DOC` audit), but nothing told a project team HOW to customize its copies. The guide draws the line: **project surface** (placeholders, tool defaults such as the e2e tool in the stories template, project-specific sections, wording — edit your copy freely, no audit) vs. the **structural standard** (folder=nature taxonomy, lifecycle + `Status:` field, the Ready gate ≥1 test scenario, the hook-enforced estimation table, immutability, single source of truth — diverging requires a `DEVIATIONS.md` row via `DOC` audit). Includes the update story: plugin updates never touch scaffolded copies, template improvements do not arrive automatically, and the re-run `DOC` audit (or a manual merge) is the reconciliation path — no automated merge exists.
+- **Point-of-use note in the stories template** (`templates/docs/stories/README.md` § Rules): Playwright is a scaffold default, not part of the standard — a project on a different e2e tool edits its own copy and keeps `AGENTS.md § Stack` in sync; the Ready gate is what is structural, never the tool.
+
+### Changed
+
+- Routing to the new guide: README documentation tables (EN root + `docs/es/README.md`) mention customization; the "Update the plugin" section of `installation.md` (EN/ES) now states that customizations survive updates and links the reconciliation path.
+
+### Fixed
+
+- **EN↔ES drift in `docs/es/README.md` § "Qué incluye".** The hooks bullet still described only the immutability guard (the estimation gate, code-quality ceilings, and the `Stop` closure check were missing) and the session-baseline bullet predated the 0.18.0 behavior-only trim. Both realigned with the root README.
+
 ## [0.19.1] — 2026-07-14
 
 ### Changed

@@ -100,7 +100,7 @@ On the first session after enabling, Claude Code asks you to approve the plugin'
 
 ## Update the plugin
 
-Consumers run `/plugin update crew@factory-crew`. Author/local-dev installs consume the working tree directly — just pull. For template changes, existing projects re-run `bin/init-project.sh` (which skips existing files) or merge the new template manually.
+Consumers run `/plugin update crew@factory-crew`. Author/local-dev installs consume the working tree directly — just pull. For template changes, existing projects re-run `bin/init-project.sh` (which skips existing files) or merge the new template manually. Customizations you made to scaffolded files always survive an update — nothing overwrites them; how to reconcile your copies with a new baseline is in [using-crew.md § Customize the scaffolded docs](using-crew.md#customize-the-scaffolded-docs).
 
 ## Remove the plugin
 

@@ -28,7 +28,7 @@ Technical design (stage 3) is **not** a mandatory gate before every story — de
 |-----------------|------|
 | Meet the 25 roles and what each owns | [roles.md](docs/en/roles.md) |
 | Install, update, or remove the plugin | [installation.md](docs/en/installation.md) |
-| Invoke roles, bootstrap a project, onboard an existing one | [using-crew.md](docs/en/using-crew.md) |
+| Invoke roles, bootstrap a project, onboard an existing one, customize the scaffolded docs | [using-crew.md](docs/en/using-crew.md) |
 | Understand the end-to-end delivery process | [delivery circuit](templates/docs/guides/delivery-circuit.md) |
 | Add a role or change the plugin | [contributing.md](docs/en/contributing.md) |
 
