@@ -60,9 +60,12 @@ Not part of the core crew — activate only when the project needs it.
 |-------|------|--------------|
 | `API` | dx-architect | Public API/SDK developer experience: versioning, deprecation, ergonomics. Activate only when the product exposes a public API or SDK. |
 
-## The `writing` skill
+## Skills — crafts, not roles
 
-Communication craft is not a role: `writing` is a **skill** any role loads when it authors a piece — brief, deck, one-pager, essay, technical doc, speech, script. It owns the *how* (idea-force, narrative arc, audience segmentation, impact principles), never the domain content.
+A craft that every role needs is a **skill**, not a seat in the catalog: it is loaded, not invoked, and it owns a *how* rather than a decision.
+
+- **`writing`** — the communication craft, loaded when a role authors a piece (brief, deck, one-pager, essay, technical doc, speech, script). Owns idea-force, narrative arc, audience segmentation, impact principles — never the domain content.
+- **`design`** — the interface craft, loaded by any work that changes what the user **sees, understands, chooses or does**: a screen, a state, an empty view, an error message, the wording of a form. Four modes — `shape`, `handoff`, `implementation-review`, `visual-review` — each with a named fallback for what the project has not declared. It carries method only: what is good *in your product* lives in your `docs/design/`, and what your project can *do* (where it runs, its component registry, how renders are captured) is declared in `crew.json`. See [configuration.md](configuration.md#design-capabilities).
 
 ## By delivery stage
 

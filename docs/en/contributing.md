@@ -17,22 +17,30 @@ crew-plugin/
 │   ├── fa.md
 │   ├── sys.md
 │   ├── ...                   # one file per alias
+├── skills/                   # horizontal crafts any role loads (not subagents)
+│   ├── writing/SKILL.md      # how a piece communicates
+│   └── design/SKILL.md       # how to shape, hand off, review and judge an interface
 ├── hooks/
 │   ├── hooks.json            # registers the plugin hooks
-│   ├── session-start.js      # SessionStart: inject standards/session-context.md
+│   ├── session-start.js      # SessionStart: baseline + project-configuration status
 │   ├── guard-immutable.js    # PreToolUse: deny edits to immutable artifacts
 │   ├── guard-estimation.js   # PreToolUse: estimation table complete before close
 │   ├── guard-timestamps.js   # PreToolUse: real-time Started/Finished cells (metrics)
 │   ├── guard-code-quality.js # PreToolUse: code-quality ceilings (advise/enforce)
-│   └── check-work-log.js     # Stop: session closure check
+│   ├── check-work-log.js     # Stop: session closure check
+│   └── lib/config.js         # THE authorized crew.json interpreter (evolution invariants)
+├── migrations.json           # which versions require action (drives the startup notice)
 ├── standards/
-│   └── session-context.md    # always-on session baseline (suggestive defaults)
+│   ├── session-context.md    # always-on session baseline (suggestive defaults)
+│   └── configuration-interview.md  # the fixed question set /crew:setup follows
+├── evals/
+│   └── design/               # fixtures + rubric: scores agent behavior, never taste
 ├── templates/
 │   ├── AGENTS.md             # canonical agent context (precedence, ownership map, interop)
 │   ├── CLAUDE.md             # thin @AGENTS.md pointer
 │   ├── standards/
 │   │   └── code-quality.md   # universal core (suggestive; project rules win)
-│   └── docs/                 # taxonomy seeded into consumer projects
+│   └── docs/                 # taxonomy seeded into consumer projects (incl. design/)
 ├── bin/
 │   ├── init-project.sh       # scaffold + crew.json (team / --solo)
 │   ├── metrics.js            # /crew:metrics report
@@ -49,16 +57,25 @@ crew-plugin/
 
 Roles and templates evolve. To propagate changes to consumers:
 
-1. Edit the relevant file in `agents/`, `commands/`, or `templates/`.
-2. Bump `version` in `.claude-plugin/plugin.json`.
-3. Commit and push.
-4. Consumers run `/plugin update crew@factory-crew`. (Author/local-dev installs consume the working tree directly — just pull.)
+1. Edit the relevant file in `agents/`, `commands/`, `skills/`, or `templates/`.
+2. Bump `version` in `.claude-plugin/plugin.json` **and** `.claude-plugin/marketplace.json` — they must match.
+3. Add the changelog entry.
+4. Add a `migrations.json` row **if and only if** the version requires the consumer to act. Everything additive or opt-in is `required: false` and must not notify — a startup notice that fires for things nobody has to do is a notice nobody reads.
+5. Commit and push.
+6. Consumers run `/plugin update crew@factory-crew`. (Author/local-dev installs consume the working tree directly — just pull.)
 
 For template changes, existing projects must re-run `bin/init-project.sh` (which skips existing files) or merge the new template manually.
+
+### Changing the `crew.json` contract
+
+`hooks/lib/config.js` is the **single authorized interpreter** — for guards and for roles alike. Its header carries the evolution invariants and they are binding: an existing key never changes meaning · new fields are optional and no default may grant a capability · during a migration both shapes are accepted for one minor version, and retiring the old shape is a mandatory changelog entry · there is no per-section version · **no field may be honored by a role if `normalize()` does not transport it**.
+
+Two consequences worth stating plainly. A role reading `crew.json` directly would create a second interpretation of the same contract — that is the drift the invariant exists to prevent. And the reader, the [configuration reference](configuration.md) and `migrations.json` move in the **same change**, never in a follow-up: the cheapest mechanical check that would close this permanently is verifying that every capability the reader knows appears in the docs.
 
 ## Maintenance
 
 - **Adding a new role**: drop a new `agents/<name>.md` (with frontmatter), a new `commands/<alias>.md`, and add a row to the matching **area** in the `templates/AGENTS.md` alias table — then list it under that same area in [`roles.md`](roles.md) (and its Spanish counterpart in `../es/roles.md`). The grouped alias table in `templates/AGENTS.md` is the source of truth for area assignment; the `roles.md` catalog is its index. Name and alias must follow the [naming and alias rules](#naming-and-alias-rules) below.
+- **Adding a skill**: a craft every role needs is a skill, not a role — it is loaded, not invoked, and owns a *how* rather than a decision. Drop `skills/<name>/SKILL.md` with a `description` precise enough to fire on the real trigger (that description *is* the activation mechanism), then register it in the skills block of `templates/AGENTS.md` and in both `roles.md`. A skill must carry method only: a value, palette, scale, style name or library baked into a skill is the plugin deciding for every consumer project.
 - **Renaming or retiring a role**: a catalog decision that goes through the `CREW` meta-role, never a casual edit. Aliases are a shared vocabulary; any alias change ships with a one-version redirect (see below).
 - **Stack-specific rule**: keep it in the consumer project's own `standards/` or `AGENTS.md`, never in the universal `templates/standards/code-quality.md` core.
 - **Editing the docs**: every human doc is bilingual, with Spanish as the source of truth and English as the mirror (see [canonical language](#canonical-language) below); `templates/docs/guides/delivery-circuit.md` has a Spanish twin `delivery-circuit.es.md` that must move with it. The agent role files, the rest of `templates/`, and the session baseline stay English (the canonical machine layer).

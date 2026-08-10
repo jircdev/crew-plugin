@@ -1,0 +1,19 @@
+{
+  "$comment": "Machine-readable migration registry. The SessionStart hook reads it to decide whether a project's `configuredWith` marker sits below a version that introduced a REQUIRED migration. Written when a version is published — never inferred from the changelog prose. `required: true` means the project behaves differently, or stops working as documented, unless the developer acts; everything additive and opt-in is `required: false` and MUST NOT notify. Adding entries is the only supported way to make the startup notice fire.",
+  "migrations": [
+    {
+      "version": "0.21.0",
+      "required": false,
+      "title": "Operating modes per repo (crew.json)",
+      "summary": "A repo without crew.json keeps behaving exactly as before; adopting modes, metrics and the quality gate is opt-in.",
+      "doc": "docs/en/migration-0.21.md"
+    },
+    {
+      "version": "0.22.0",
+      "required": false,
+      "title": "Design capabilities, design memory and the configuration marker",
+      "summary": "Additive: undeclared capabilities are simply unavailable and the roles say so. Running /crew:setup is optional and always asks before writing.",
+      "doc": "docs/en/migration-0.22.md"
+    }
+  ]
+}

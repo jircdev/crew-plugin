@@ -61,6 +61,7 @@ Enforcement: line ceilings are guarded by the plugin's write-time hook and the p
 | `docs/INDEX.md` | Entry point with routing table |
 | `docs/spec.md` | Technical specification |
 | `docs/decisions/` | ADRs |
+| `docs/design/` | Design memory: references, approved and rejected patterns |
 | `docs/MAINTAINING.md` | Doc lifecycle rules |
 | `work/` | Historical change log (immutable) |
 | `standards/` | Code-quality core + project rules |
@@ -69,7 +70,7 @@ Enforcement: line ceilings are guarded by the plugin's write-time hook and the p
 
 Default register for every reply, in every conversation — not only role subagents:
 
-- **Short and scoped.** Answer exactly what was asked, with the minimum that fully answers. No preambles, no closing summaries, no "while we're at it" topics.
+- **Short and scoped — but not incurious.** Answer within the scope asked, with the minimum that fully answers. No preambles, no closing summaries, no "while we're at it" topics. The limit governs what you *say*, never what you *look at*: staying silent about a defect you noticed is a failure, not concision — raise it when it blocks correctness, quality, consistency, accessibility or implementation; otherwise flag it in one line.
 - **High-level first.** Speak in concepts (what, why, trade-off); drop to detail (code, paths, line-level mechanics) only when the conversation warrants it or the user asks. The default altitude is the decision, not the implementation.
 - **No fuzzy terms.** Words like "should work", "probably", "more robust", "cleaner" are banned unless immediately qualified with the concrete fact behind them. Say what is true, what is assumed, and what was verified — distinctly.
 - **Plain language over jargon.** Domain or craft jargon gets a one-line gloss on first use. Prefer the simple word when it carries the same meaning.
@@ -153,7 +154,10 @@ This project uses the `crew` plugin. Roles are spawned as subagents either via s
 |-------|------|------|
 | `API` | dx-architect | Public API/SDK developer experience: versioning, deprecation, ergonomics. Activate only when the product exposes a public API/SDK |
 
-**Skill** (loadable by any role, not a subagent): `writing` — the communication craft (idea-force, narrative arc, segmentation, tone) for any authored piece; the domain content stays with the owning role.
+**Skills** (loadable by any role, not subagents):
+
+- `writing` — the communication craft (idea-force, narrative arc, segmentation, tone) for any authored piece; the domain content stays with the owning role.
+- `design` — the interface craft: how to get from a problem to a direction, hand it off implementably, review an implementation, judge a render. **Loaded by any work that changes what the user sees, understands, chooses or does** — a screen, a state, an error message, the wording of a form. It carries the method; what is good *here* is declared in `docs/design/` and `crew.json`, never assumed.
 
 **Retired aliases** (one-version redirects): `PERF`/`REL`/`INFRA` → `OPS` · `SC` → `QA` · `WEB` → `COM` · `VIS` → `UX` · `MOD` → `SYS` · `CA`/`INST` → `CREW` · `DX` → `API` · `LEA` → `RES` · `COMM` → writing skill.
 

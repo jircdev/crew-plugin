@@ -13,6 +13,7 @@ Entry point for all project documentation. If a question maps to a row below, go
 | See functional work items (stories) | [`stories/`](stories/README.md) |
 | See technical work items (requirements) | [`requirements/`](requirements/README.md) |
 | Understand a non-obvious decision | [`decisions/`](decisions/README.md) |
+| Know what this product considers good design | [`design/`](design/README.md) |
 | Check ideas nobody owns yet | [`proposals/`](proposals/README.md) |
 | Investigate when/why something was done | [`work/`](work/README.md) |
 | Check accepted deviations from the crew standard | [`DEVIATIONS.md`](DEVIATIONS.md) |
@@ -27,6 +28,7 @@ Entry point for all project documentation. If a question maps to a row below, go
 | `docs/stories/` | Functional work items with acceptance criteria | `FA` (functional analysis) |
 | `docs/requirements/` | Technical work items, high level | Architect roles (`SYS`, `DA`, ...) |
 | `docs/decisions/` | Decision records (state lives in the file) | Whoever decides, any role |
+| `docs/design/` | Design memory — references, approved and rejected patterns | The team; `UX` elicits, never invents |
 | `docs/proposals/` | Ownerless ideas | Anyone |
 | `docs/guides/` | Living behavior docs — how things work today | Implementers |
 | `docs/glossary/` | Domain terms, UI tooltip copy | `FA` / `PROD` |

@@ -17,6 +17,23 @@ Then:
 1. Fill in `AGENTS.md` — `{PROJECT_NAME}`, the stack table, folder layout, and commands.
 2. Write `docs/spec.md` with the project's technical spec.
 3. Adjust `standards/code-quality.md` if your project's rules differ from the baseline.
+4. Run `/crew:setup` to declare what the project can do.
+
+## Tell the crew what this project can do
+
+```
+/crew:setup
+```
+
+Scaffolding gives the crew a *structure*; this gives it *capabilities*. It asks where the app runs in development, where someone looks to see whether a component already exists, whether renders can be captured and at which form factors, and which commands measure accessibility or performance — then writes only what you confirmed into `crew.json`.
+
+Three things make it worth running rather than skipping:
+
+- **Declaring is the permission.** With a runtime URL declared, an agent stops asking "may I open the browser?" every session — you granted it once, in a file you can read and revert. The URL and the launch profile are separate grants, because connecting to a running app and executing a command on your machine are different risks.
+- **What you don't declare is not assumed.** With no component registry, every proposal says *"reuse not verified"* instead of pretending the catalogue was searched. With no way to capture a render, you get code conformity **labeled as such** instead of a confident-sounding verdict on how it looks.
+- **It asks instead of guessing.** At most two questions per turn, your understanding confirmed in one line before anything is written, and "nothing, thanks" as a complete, valid answer.
+
+Fill in `docs/design/` too — one reference, one approved pattern, one rejected pattern is already enough to change what the roles produce. That folder is your product's taste; the plugin never writes into it. Full reference: [configuration.md](configuration.md#design-capabilities).
 
 ## Choose the project mode
 

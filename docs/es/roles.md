@@ -60,9 +60,12 @@ No forma parte de la crew core — actívalo solo cuando el proyecto lo necesita
 |-------|-----|----------|
 | `API` | dx-architect | Experiencia de desarrollador de la API/SDK pública: versionado, deprecación, ergonomía. Actívalo solo cuando el producto expone una API o SDK pública. |
 
-## La skill `writing`
+## Skills — oficios, no roles
 
-La artesanía de la comunicación no es un rol: `writing` es una **skill** que cualquier rol carga cuando redacta una pieza — brief, deck, one-pager, ensayo, doc técnico, discurso, guion. Posee el *cómo* (idea-fuerza, arco narrativo, segmentación por público, principios de impacto), nunca el contenido de dominio.
+Un oficio que necesitan todos los roles es una **skill**, no un asiento del catálogo: se carga, no se invoca, y posee un *cómo* en lugar de una decisión.
+
+- **`writing`** — la artesanía de la comunicación, cargada cuando un rol redacta una pieza (brief, deck, one-pager, ensayo, doc técnico, discurso, guion). Posee idea-fuerza, arco narrativo, segmentación por público, principios de impacto — nunca el contenido de dominio.
+- **`design`** — la artesanía de la interfaz, cargada por todo trabajo que cambie lo que el usuario **ve, entiende, elige o hace**: una pantalla, un estado, una vista vacía, un mensaje de error, el texto de un formulario. Cuatro modos — `shape`, `handoff`, `implementation-review`, `visual-review` — cada uno con su fallback nombrado para lo que el proyecto no declaró. Lleva solo método: qué es bueno *en tu producto* vive en tu `docs/design/`, y qué *puede hacer* tu proyecto (dónde corre, su registro de componentes, cómo se capturan renders) se declara en `crew.json`. Ver [configuration.md](configuration.md#capacidades-de-diseño).
 
 ## Por etapa de entrega
 

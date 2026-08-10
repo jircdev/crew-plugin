@@ -21,9 +21,10 @@ Cada etapa la dotan roles específicos — la tabla etapa por etapa y el catálo
 | Conocer los roles y qué posee cada uno | [roles.md](roles.md) |
 | Instalar, actualizar o desinstalar el plugin | [installation.md](installation.md) |
 | Invocar roles, hacer bootstrap de un proyecto, onboarding de uno existente, personalizar los docs instalados | [using-crew.md](using-crew.md) |
-| Configurar crew por repo — referencia de `crew.json` (modos, métricas, calidad, techos) | [configuration.md](configuration.md) |
+| Configurar crew por repo — referencia de `crew.json` (modos, métricas, calidad, techos, capacidades de diseño) | [configuration.md](configuration.md) |
 | Entender qué exige cada guard y resolver un deny | [enforcement.md](enforcement.md) |
 | Medir la entrega — el flujo estimación → métricas | [metrics.md](metrics.md) |
+| Adoptar capacidades de diseño y memoria de diseño | [migration-0.22.md](migration-0.22.md) |
 | Migrar un proyecto existente desde los aliases retirados | [migration-0.21.md](migration-0.21.md) |
 | Trabajar en solitario con la ceremonia mínima | [solo-quickstart.md](solo-quickstart.md) |
 | Usar crew desde un asiento no técnico (CEO, analista) | [non-technical-roles.md](non-technical-roles.md) |
@@ -34,8 +35,10 @@ Cada etapa la dotan roles específicos — la tabla etapa por etapa y el catálo
 
 - **Subagentes + slash commands** (`agents/`, `commands/`) — uno por rol; `/crew:<alias>` lanza el subagente correspondiente, y los aliases retirados responden con su sucesor durante una versión.
 - **Plantillas** (`templates/`) — `AGENTS.md` (contexto canónico de agentes), un puntero `CLAUDE.md`, `standards/` (el núcleo de calidad de código), y la taxonomía completa de `docs/` (stories, requirements, decisions, proposals, el circuito de entrega, historial de work, DEVIATIONS).
-- **Hooks** (`hooks/`) — `SessionStart` inyecta el baseline de sesión; `PreToolUse` protege los artefactos inmutables, la puerta de estimación, los timestamps de estimación en tiempo real y los techos de calidad de código; `Stop` verifica la trazabilidad del cierre; una puerta de calidad pre-commit (instalada por `init-project.sh`) exige los mismos techos al commitear, con exenciones pre-registradas vía un bloque `crew:exempt` en `docs/DEVIATIONS.md`.
-- **Configuración por repo** (`crew.json`) — `mode: solo|team`, `metrics`, `quality: advise|enforce|off`, `ceilings`. Un repo sin `crew.json` se comporta exactamente igual que antes. Referencia: [configuration.md](configuration.md).
+- **Skills** (`skills/`) — oficios horizontales que cualquier rol carga: `writing` (cómo comunica una pieza) y `design` (cómo pasar de un problema a una composición, entregarla, revisarla y juzgar un render). Solo método — qué es bello en un producto lo declara ese proyecto.
+- **Hooks** (`hooks/`) — `SessionStart` inyecta el baseline de sesión y, solo cuando tiene algo accionable que decir, el estado de configuración del proyecto; `PreToolUse` protege los artefactos inmutables, la puerta de estimación, los timestamps de estimación en tiempo real y los techos de calidad de código; `Stop` verifica la trazabilidad del cierre; una puerta de calidad pre-commit (instalada por `init-project.sh`) exige los mismos techos al commitear, con exenciones pre-registradas vía un bloque `crew:exempt` en `docs/DEVIATIONS.md`.
+- **Configuración por repo** (`crew.json`) — `mode: solo|team`, `metrics`, `quality: advise|enforce|off`, `ceilings`, más las capacidades `design` (dónde corre la app, registro de componentes, captura de renders, checks) y la marca `configuredWith`. Nada se concede por defecto: una capacidad sin declarar es una que los roles reportan que no pudieron usar. Un repo sin `crew.json` se comporta exactamente igual que antes. Referencia: [configuration.md](configuration.md).
+- **Memoria de diseño** (`docs/design/` en tu proyecto) — referencias, patrones aprobados, patrones rechazados. Se instala vacía: el gusto es del proyecto, nunca del plugin. Se declara vía `design.memory`; la configura `/crew:setup`, que pregunta y nunca adivina.
 - **Métricas** — `/crew:metrics` + el reporte `bin/metrics.js`: lead time, tiempo de ejecución, desviación de estimación, exportación `--csv`.
 - **Baseline de sesión** (`standards/session-context.md`) — solo **comportamiento** siempre activo (estilo de conversación, regla de oficina, dos modos, oficio de documentos); el conocimiento de proceso no va inline: apunta a los `standards/` y `docs/guides/` instalados en el proyecto. Defaults sugeridos, las reglas propias del proyecto siempre ganan.
 - **Script de bootstrap** (`bin/init-project.sh`) — instala las plantillas en un proyecto nuevo; `--solo` para el camino de desarrollador único.

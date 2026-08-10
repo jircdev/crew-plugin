@@ -17,22 +17,30 @@ crew-plugin/
 │   ├── fa.md
 │   ├── sys.md
 │   ├── ...                   # un archivo por alias
+├── skills/                   # oficios horizontales que cualquier rol carga (no subagentes)
+│   ├── writing/SKILL.md      # cómo comunica una pieza
+│   └── design/SKILL.md       # cómo formar, entregar, revisar y juzgar una interfaz
 ├── hooks/
 │   ├── hooks.json            # registra los hooks del plugin
-│   ├── session-start.js      # SessionStart: inyecta standards/session-context.md
+│   ├── session-start.js      # SessionStart: baseline + estado de configuración del proyecto
 │   ├── guard-immutable.js    # PreToolUse: deniega ediciones a artefactos inmutables
 │   ├── guard-estimation.js   # PreToolUse: tabla de estimación completa antes de cerrar
 │   ├── guard-timestamps.js   # PreToolUse: celdas Started/Finished en tiempo real (métricas)
 │   ├── guard-code-quality.js # PreToolUse: techos de calidad de código (advise/enforce)
-│   └── check-work-log.js     # Stop: chequeo de cierre de sesión
+│   ├── check-work-log.js     # Stop: chequeo de cierre de sesión
+│   └── lib/config.js         # EL intérprete autorizado de crew.json (invariantes de evolución)
+├── migrations.json           # qué versiones exigen acción (alimenta el aviso de arranque)
 ├── standards/
-│   └── session-context.md    # baseline de sesión siempre activo (defaults sugeridos)
+│   ├── session-context.md    # baseline de sesión siempre activo (defaults sugeridos)
+│   └── configuration-interview.md  # el set fijo de preguntas que sigue /crew:setup
+├── evals/
+│   └── design/               # fixtures + rúbrica: puntúan conducta del agente, nunca gusto
 ├── templates/
 │   ├── AGENTS.md             # contexto canónico de agentes (precedencia, mapa de propiedad, interop)
 │   ├── CLAUDE.md             # puntero fino @AGENTS.md
 │   ├── standards/
 │   │   └── code-quality.md   # núcleo universal (sugerido; las reglas del proyecto ganan)
-│   └── docs/                 # taxonomía sembrada en los proyectos consumidores
+│   └── docs/                 # taxonomía sembrada en los proyectos consumidores (incl. design/)
 ├── bin/
 │   ├── init-project.sh       # scaffold + crew.json (team / --solo)
 │   ├── metrics.js            # reporte de /crew:metrics
@@ -49,16 +57,25 @@ crew-plugin/
 
 Los roles y las plantillas evolucionan. Para propagar cambios a los consumidores:
 
-1. Edita el archivo relevante en `agents/`, `commands/` o `templates/`.
-2. Sube la `version` en `.claude-plugin/plugin.json`.
-3. Commit y push.
-4. Los consumidores ejecutan `/plugin update crew@factory-crew`. (Las instalaciones autor/local consumen el working tree directamente — basta con hacer pull.)
+1. Edita el archivo relevante en `agents/`, `commands/`, `skills/` o `templates/`.
+2. Sube la `version` en `.claude-plugin/plugin.json` **y** en `.claude-plugin/marketplace.json` — tienen que coincidir.
+3. Agrega la entrada de changelog.
+4. Agrega una fila en `migrations.json` **si y solo si** la versión exige que el consumidor actúe. Todo lo aditivo u opt-in va con `required: false` y no debe avisar — un aviso de arranque que salta por cosas que nadie tiene que hacer es un aviso que nadie lee.
+5. Commit y push.
+6. Los consumidores ejecutan `/plugin update crew@factory-crew`. (Las instalaciones autor/local consumen el working tree directamente — basta con hacer pull.)
 
 Para cambios en plantillas, los proyectos existentes deben re-ejecutar `bin/init-project.sh` (que salta los archivos ya existentes) o fusionar la nueva plantilla a mano.
+
+### Cambiar el contrato de `crew.json`
+
+`hooks/lib/config.js` es el **único intérprete autorizado** — para los guards y para los roles por igual. Su header lleva las invariantes de evolución y son vinculantes: una clave existente nunca cambia de significado · los campos nuevos son opcionales y ningún default puede conceder una capacidad · durante una migración se aceptan ambas formas por una versión menor, y retirar la vieja es entrada obligatoria de changelog · no hay versión por sección · **ningún campo puede ser honrado por un rol si `normalize()` no lo transporta**.
+
+Dos consecuencias que conviene decir sin rodeos. Un rol leyendo `crew.json` directamente crearía una segunda interpretación del mismo contrato — ese es exactamente el drift que la invariante existe para impedir. Y el intérprete, la [referencia de configuración](configuration.md) y `migrations.json` se mueven en el **mismo cambio**, nunca en uno posterior: el chequeo mecánico más barato que cerraría esto de forma definitiva es verificar que cada capacidad que el intérprete conoce aparece en la documentación.
 
 ## Mantenimiento
 
 - **Añadir un rol nuevo**: deja un nuevo `agents/<name>.md` (con frontmatter), un nuevo `commands/<alias>.md`, y añade una fila al **área** correspondiente en la tabla de alias de `templates/AGENTS.md` — luego lístalo bajo esa misma área en [`roles.md`](roles.md) (y en su contraparte inglesa `../en/roles.md`). La tabla de alias agrupada en `templates/AGENTS.md` es la fuente de verdad para la asignación de área; el catálogo `roles.md` es su índice. El nombre y el alias deben seguir las [reglas de nombres y alias](#reglas-de-nombres-y-alias) de abajo.
+- **Añadir una skill**: un oficio que necesitan todos los roles es una skill, no un rol — se carga, no se invoca, y posee un *cómo* en lugar de una decisión. Deja `skills/<name>/SKILL.md` con una `description` lo bastante precisa como para dispararse ante el trigger real (esa descripción *es* el mecanismo de activación), y regístrala en el bloque de skills de `templates/AGENTS.md` y en ambos `roles.md`. Una skill lleva solo método: un valor, paleta, escala, nombre de estilo o librería horneado en una skill es el plugin decidiendo por todos los proyectos consumidores.
 - **Renombrar o retirar un rol**: una decisión de catálogo que pasa por el meta-rol `CREW`, nunca una edición casual. Los alias son un vocabulario compartido; todo cambio de alias sale con un redirect de una versión (ver abajo).
 - **Regla específica de stack**: mantenla en el `standards/` o el `AGENTS.md` del proyecto consumidor, nunca en el núcleo universal `templates/standards/code-quality.md`.
 - **Editar la documentación**: cada doc humano es bilingüe, con el español como fuente de verdad y el inglés como espejo (ver [idioma canónico](#idioma-canónico) abajo); `templates/docs/guides/delivery-circuit.md` tiene un gemelo en español `delivery-circuit.es.md` que debe moverse con él. Los archivos de rol, el resto de `templates/` y el baseline de sesión quedan en inglés (la capa canónica para la máquina).

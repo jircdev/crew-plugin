@@ -20,6 +20,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TEMPLATES="$PLUGIN_ROOT/templates"
 TARGET="$(pwd)"
+PLUGIN_VERSION="$(sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' \
+  "$PLUGIN_ROOT/.claude-plugin/plugin.json" | head -1)"
+PLUGIN_VERSION="${PLUGIN_VERSION:-unknown}"
 
 if [ "$TARGET" = "$PLUGIN_ROOT" ]; then
   echo "Refusing to scaffold into the plugin itself. cd to your project first." >&2
@@ -41,16 +44,27 @@ copy_if_absent() {
 write_crew_json() {
   local dest="$TARGET/crew.json"
   if [ -e "$dest" ]; then
-    echo "  skip (exists): crew.json"
+    echo "  skip (exists): crew.json — run /crew:setup to declare what is missing"
     return
   fi
   # Every value explicit: this file IS the project's policy, visible and versioned.
+  # `configuredWith` is state, not policy: which plugin version last configured
+  # this project. Nobody interprets it to decide behavior — it exists so the
+  # session can tell you when a REQUIRED migration landed since then.
+  # `design.memory` is the only capability seeded, because the scaffold creates
+  # the folder it points at. Everything else (where the app runs, the component
+  # registry, how renders are captured) is declared by /crew:setup, which ASKS —
+  # the scaffold never guesses a capability.
   cat > "$dest" <<EOF
 {
   "mode": "$MODE",
   "metrics": true,
   "quality": "advise",
-  "ceilings": {}
+  "ceilings": {},
+  "configuredWith": "$PLUGIN_VERSION",
+  "design": {
+    "memory": "docs/design"
+  }
 }
 EOF
   echo "  wrote:        crew.json"
@@ -59,6 +73,10 @@ EOF
 mkdir -p "$TARGET/standards"
 mkdir -p "$TARGET/docs/decisions"
 mkdir -p "$TARGET/docs/work"
+# Design memory ships in both modes: a solo developer builds interface too, and
+# without declared memory every UI role degrades to "not contrasted against
+# anything". Four files, structure only — the taste is the project's to write.
+mkdir -p "$TARGET/docs/design"
 
 copy_if_absent "$TEMPLATES/AGENTS.md"                       "$TARGET/AGENTS.md"
 copy_if_absent "$TEMPLATES/CLAUDE.md"                       "$TARGET/CLAUDE.md"
@@ -66,6 +84,10 @@ copy_if_absent "$TEMPLATES/standards/code-quality.md"      "$TARGET/standards/co
 copy_if_absent "$TEMPLATES/docs/decisions/README.md"        "$TARGET/docs/decisions/README.md"
 copy_if_absent "$TEMPLATES/docs/decisions/0000-template.md" "$TARGET/docs/decisions/0000-template.md"
 copy_if_absent "$TEMPLATES/docs/work/README.md"             "$TARGET/docs/work/README.md"
+copy_if_absent "$TEMPLATES/docs/design/README.md"           "$TARGET/docs/design/README.md"
+copy_if_absent "$TEMPLATES/docs/design/references.md"       "$TARGET/docs/design/references.md"
+copy_if_absent "$TEMPLATES/docs/design/approved.md"         "$TARGET/docs/design/approved.md"
+copy_if_absent "$TEMPLATES/docs/design/rejected.md"         "$TARGET/docs/design/rejected.md"
 
 if [ "$MODE" = "team" ]; then
   mkdir -p "$TARGET/docs/briefs"
@@ -121,7 +143,11 @@ if [ "$MODE" = "team" ]; then
   echo "  2. Write docs/spec.md."
   echo "  3. Install the plugin in this project: /plugin install crew"
   echo "  4. Test activation: /crew:sys, /crew:ux, /crew:da, etc."
+  echo "  5. Run /crew:setup — it asks what this project can do (where it runs,"
+  echo "     its component registry, how renders are captured) and writes only"
+  echo "     what you confirm. Nothing is assumed."
 else
   echo "  2. Review crew.json — metrics/quality are on with sane values; flip them if unwanted."
   echo "  3. Install the plugin in this project: /plugin install crew"
+  echo "  4. Run /crew:setup to declare what this project can do (optional, asks before writing)."
 fi

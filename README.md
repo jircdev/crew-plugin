@@ -21,9 +21,10 @@ Each stage is staffed by specific roles — the stage-by-stage table and the ful
 | Meet the roles and what each owns | [roles.md](docs/en/roles.md) |
 | Install, update, or remove the plugin | [installation.md](docs/en/installation.md) |
 | Invoke roles, bootstrap a project, onboard an existing one, customize the scaffolded docs | [using-crew.md](docs/en/using-crew.md) |
-| Configure crew per repo — `crew.json` reference (modes, metrics, quality, ceilings) | [configuration.md](docs/en/configuration.md) |
+| Configure crew per repo — `crew.json` reference (modes, metrics, quality, ceilings, design capabilities) | [configuration.md](docs/en/configuration.md) |
 | Understand what each guard enforces and troubleshoot a deny | [enforcement.md](docs/en/enforcement.md) |
 | Measure delivery — the estimation → metrics flow | [metrics.md](docs/en/metrics.md) |
+| Adopt design capabilities and design memory | [migration-0.22.md](docs/en/migration-0.22.md) |
 | Migrate an existing project from the retired aliases | [migration-0.21.md](docs/en/migration-0.21.md) |
 | Work solo with the minimum ceremony | [solo-quickstart.md](docs/en/solo-quickstart.md) |
 | Use crew from a non-technical seat (CEO, analyst) | [non-technical-roles.md](docs/en/non-technical-roles.md) |
@@ -34,8 +35,10 @@ Each stage is staffed by specific roles — the stage-by-stage table and the ful
 
 - **Subagents + slash commands** (`agents/`, `commands/`) — one per role; `/crew:<alias>` spawns the matching subagent, and retired aliases answer with their successor for one version.
 - **Templates** (`templates/`) — `AGENTS.md` (canonical agent context), a `CLAUDE.md` pointer, `standards/` (the code-quality core), and the full `docs/` taxonomy (stories, requirements, decisions, proposals, the delivery circuit, work history, DEVIATIONS).
-- **Hooks** (`hooks/`) — `SessionStart` injects the session baseline; `PreToolUse` guards immutable artifacts, the estimation gate, real-time estimation timestamps, and code-quality ceilings; `Stop` checks closure traceability; a pre-commit quality gate (installed by `init-project.sh`) enforces the same ceilings at commit time, with pre-registered exemptions via a `crew:exempt` block in `docs/DEVIATIONS.md`.
-- **Per-repo config** (`crew.json`) — `mode: solo|team`, `metrics`, `quality: advise|enforce|off`, `ceilings`. A repo without `crew.json` behaves exactly as before. Reference: [configuration.md](docs/en/configuration.md).
+- **Skills** (`skills/`) — horizontal crafts any role loads: `writing` (how a piece communicates) and `design` (how to get from a problem to a composition, hand it off, review it, and judge a render). Method only — what is beautiful in a given product is that project's to declare.
+- **Hooks** (`hooks/`) — `SessionStart` injects the session baseline and, only when it has something actionable to say, the project-configuration status; `PreToolUse` guards immutable artifacts, the estimation gate, real-time estimation timestamps, and code-quality ceilings; `Stop` checks closure traceability; a pre-commit quality gate (installed by `init-project.sh`) enforces the same ceilings at commit time, with pre-registered exemptions via a `crew:exempt` block in `docs/DEVIATIONS.md`.
+- **Per-repo config** (`crew.json`) — `mode: solo|team`, `metrics`, `quality: advise|enforce|off`, `ceilings`, plus `design` capabilities (where the app runs, component registry, render capture, checks) and the `configuredWith` marker. Nothing is granted by default: an undeclared capability is one the roles report they could not use. A repo without `crew.json` behaves exactly as before. Reference: [configuration.md](docs/en/configuration.md).
+- **Design memory** (`docs/design/` in your project) — references, approved patterns, rejected patterns. Scaffolded empty: the taste is the project's, never the plugin's. Declared via `design.memory`; configured by `/crew:setup`, which asks and never guesses.
 - **Metrics** — `/crew:metrics` + `bin/metrics.js` report: lead time, execution time, estimate deviation, `--csv` export.
 - **Session baseline** (`standards/session-context.md`) — always-on **behavior** only (conversation style, office rule, two modes, document craft); process knowledge is not inlined, it points to the project's scaffolded `standards/` and `docs/guides/`. Suggestive defaults, the project's own rules always win.
 - **Bootstrap script** (`bin/init-project.sh`) — scaffolds the templates into a new project; `--solo` for the single-dev path.

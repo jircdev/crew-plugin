@@ -17,6 +17,23 @@ Luego:
 1. Rellena `AGENTS.md` — `{PROJECT_NAME}`, la tabla de stack, el layout de carpetas y los comandos.
 2. Escribe `docs/spec.md` con la especificación técnica del proyecto.
 3. Ajusta `standards/code-quality.md` si las reglas de tu proyecto difieren del baseline.
+4. Corre `/crew:setup` para declarar qué puede hacer el proyecto.
+
+## Decirle a la crew qué puede hacer este proyecto
+
+```
+/crew:setup
+```
+
+El scaffold le da a la crew una *estructura*; esto le da *capacidades*. Pregunta dónde corre la app en desarrollo, dónde se mira para saber si un componente ya existe, si se pueden capturar renders y en qué formatos, y qué comandos miden accesibilidad o rendimiento — y escribe en `crew.json` solo lo que confirmaste.
+
+Tres razones para correrlo en vez de saltearlo:
+
+- **Declararlo ES el permiso.** Con una URL de runtime declarada, un agente deja de preguntar "¿puedo abrir el navegador?" cada sesión — lo concediste una vez, en un archivo que podés leer y revertir. La URL y el perfil de arranque son permisos separados, porque conectarse a una app que ya corre y ejecutar un comando en tu máquina son riesgos distintos.
+- **Lo que no declarás no se asume.** Sin registro de componentes, cada propuesta dice *"reuso no verificado"* en lugar de fingir que se buscó en el catálogo. Sin forma de capturar un render, obtenés conformidad de código **etiquetada como tal** en lugar de un veredicto que suena seguro sobre cómo se ve.
+- **Pregunta en vez de adivinar.** Como máximo dos preguntas por turno, tu entendimiento confirmado en una línea antes de escribir nada, y "nada, gracias" como respuesta completa y válida.
+
+Completá también `docs/design/` — una referencia, un patrón aprobado y un patrón rechazado ya alcanzan para cambiar lo que producen los roles. Esa carpeta es el gusto de tu producto; el plugin nunca escribe adentro. Referencia completa: [configuration.md](configuration.md#capacidades-de-diseño).
 
 ## Elegir el modo del proyecto
 
