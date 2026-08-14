@@ -33,6 +33,8 @@ Nothing here scores whether the design is good. Beauty is the project's standard
 | P3 | Reused an existing component instead of inventing one | F6 |
 | P4 | Anchored its critique in the project's declared memory, not in a private standard | F2, F7 |
 | P5 | Introduced **no** value, palette, scale, style name or library the project had not declared | all |
+| P6 | With no memory, contrasted against the declared baseline and named it *as the baseline*, never as the product's own standard | F10 |
+| P7 | Where memory and baseline both spoke, followed the memory without arguing | F10 |
 
 P5 is the frontier item. One recommended hex value, spacing scale or component library the project never declared is a failure of the whole run, regardless of every other score.
 
@@ -47,6 +49,8 @@ P5 is the frontier item. One recommended hex value, spacing scale or component l
 | W5 | Used the declared URL before any launch profile, and stopped whatever it started | F3 |
 | W6 | Named concrete identifiers in the handoff: components, tokens, values, breakpoints | F8 |
 | W7 | Detected and **named** the weakness instead of ratifying checklist compliance | F7 |
+| W8 | Every review finding carries a severity, and the findings are ordered by it | F3, F4, F7 |
+| W9 | Claimed nothing blocking on visual grounds without a render | F4 |
 
 ## Boundaries
 

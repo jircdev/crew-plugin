@@ -20,6 +20,7 @@ Read `crew.json` and `docs/design/`. Each declared capability enables something 
 | Declared | Enables | Absent → you must say |
 |---|---|---|
 | `design.memory` | Contrasting your direction against this product's references, approved patterns and rejected patterns | "no design memory declared: the direction was not contrasted against the product's references" |
+| `design.baseline` | Falling back to an aesthetic baseline the project named — a skill or a document — when the memory is silent on the question at hand | "no memory and no baseline declared: the direction rests on the brief alone" |
 | `design.sources` | Deriving direction from the design source (design file, reference screenshots) | Direction derived from the brief and the registry only |
 | `design.registry` | Verifying reuse before proposing a new component | "reuse not verified: the project declares no component registry" |
 | `design.runtime.url` | Connecting to and inspecting a running app **without asking permission each turn** | Ask, as before |
@@ -33,6 +34,8 @@ Two permission rules, because they are separate risks — connecting to somethin
 - **Symmetry**: whatever you start, you stop.
 
 An unrecognized capability form (a `kind` the plugin does not know) is treated as absent — and named in the evidence seal, never skipped.
+
+**Memory first, baseline second, plugin taste never.** `design.memory` says what is good *here*. A declared `design.baseline` is the fallback for questions the memory does not answer — not a second opinion competing with it: on any conflict the memory wins and the baseline is dropped without discussion. Load or read the baseline only when the memory is silent, and name it in the seal whenever it was used. With neither declared the method still runs, and the deliverable says the direction rests on the brief alone. The gap is reported; the plugin does not fill it with taste of its own.
 
 ## The four modes
 
@@ -52,7 +55,7 @@ This mode produces **questions and a procedure, never a catalogue of answers**. 
 8. **Anti-generic pass**: could this surface be lifted into a different product of the same category and nobody would notice? If yes, name what makes it *this* product's and change it. The criterion for "generic" is the project's rejected patterns and its stated references — never a list of proscribed patterns written here.
 9. **Enumerate every state before proposing**: loading, empty, partial, error, success. A missing state is a defect discovered by users, not a detail.
 
-**Fallback**: with no design memory declared, `shape` still runs — but its output declares that the direction was not contrasted against anything the product has approved.
+**Fallback**: with no design memory declared, `shape` still runs against the declared baseline, and its output says the direction was contrasted against that baseline rather than against anything the product itself has approved. With no baseline either, it says the direction rests on the brief alone.
 
 ### 2. `handoff` — from direction to implementable specification
 
@@ -68,7 +71,7 @@ Consult the registry **before** proposing anything new. When the registry contra
 
 Verify what the code does against the specification and the project's declared standards. Name files, components and values freely — this mode exists to be actionable.
 
-This mode alone **cannot** produce a verdict on visual quality. Its output is *code conformity*, labeled as such, and it says so even when everything matches.
+This mode alone **cannot** produce a verdict on visual quality. Its output is *code conformity*, labeled as such, and it says so even when everything matches. Findings carry severity (see *Severity* below), bounded by the evidence this mode has: no render, no blocking claim on visual grounds.
 
 ### 4. `visual-review` — judgment on the render
 
@@ -92,6 +95,19 @@ Qualitative vocabulary is licensed here — "it reads as noise", "the hierarchy 
 
 **Author is not judge.** This self-critique is the author checking their own work. The independent verdict belongs to `qa-test-architect`, which receives the specification and the evidence — not your rationale for why the design is right.
 
+## Severity — both review modes
+
+Every finding carries one severity, and findings are ordered by it. A flat list of observations hands the triage back to the reader, and the triage is the part the review exists to perform.
+
+- **Blocking** — the surface fails its job for someone: the primary action is unreachable, content is unreadable, a state is missing, an interaction is unusable by keyboard or screen reader, or something other than the intended dominant element takes the first read.
+- **Important** — the job survives, but the surface degrades under real content, at a viewport the project declares, or it repeats a pattern the design memory records as rejected.
+- **Refinement** — everything else: the absence costs nothing you can name. Say that plainly instead of inflating it.
+
+Two rules keep the scale worth reading:
+
+- **Severity is bounded by the evidence.** A finding reasoned from code with no render cannot be blocking on visual grounds — the most it may claim is a suspected defect to confirm against the render. Accessibility findings may be blocking without `design.checks`, and are then labeled reasoned, not measured.
+- **Inflation empties the scale.** If everything is blocking, nothing is. A review that returns no blockers, or none at all, is a legitimate result; padding either end is a defect of the review.
+
 ## Questions before inference
 
 Configuration and design decisions are asked, not guessed. Before proposing, ask what the project alone can answer — and ask it **as a short, closed list**, not an interrogation:
@@ -109,7 +125,7 @@ Rules: maximum two open questions per turn (pick the ones that unblock the next 
 
 Every reply from this skill ends with one line, not a section:
 
-> Mode · what was loaded (memory, registry, spec) · capabilities used · what stayed unverified.
+> Mode · what was loaded (memory, baseline, registry, spec) · capabilities used · what stayed unverified.
 
 It reports facts. It never scores quality, and it never claims a verdict the evidence does not support.
 
@@ -120,6 +136,7 @@ It reports facts. It never scores quality, and it never claims a verdict the evi
 - A new component when the registry was never consulted and the absence was not declared.
 - A specification missing states, or a handoff without concrete identifiers.
 - "Meets the checklist" offered as a design judgment: conformity is the floor, not the deliverable.
+- A review whose findings carry no severity, or a severity the available evidence does not support.
 - An unbounded render-and-fix loop, or a self-critique presented as an independent verdict.
 
 ## Boundaries

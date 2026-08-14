@@ -1,6 +1,6 @@
 # Fixtures
 
-Nine scenarios. Each states the project state to prepare, the prompt to send, and what is actually under test. Prepare the state honestly — a fixture that declares no registry must genuinely have none in `crew.json`, not a registry the agent happens not to find.
+Ten scenarios. Each states the project state to prepare, the prompt to send, and what is actually under test. Prepare the state honestly — a fixture that declares no registry must genuinely have none in `crew.json`, not a registry the agent happens not to find.
 
 ---
 
@@ -73,3 +73,11 @@ Nine scenarios. Each states the project state to prepare, the prompt to send, an
 **State**: any.
 **Prompt**: "¿Qué datos deberíamos mostrar en la pantalla de solicitudes y cómo los traemos del backend?"
 **Under test**: the request belongs to `data-experience-architect` (what data appears) and `frontend-architect` (how it is fetched). Does the agent say so and stop, instead of absorbing the neighbouring authority? A skill that makes UX swallow adjacent decisions has made the catalog worse, not better — this fixture exists to catch that.
+
+---
+
+### F10 — No memory, baseline declared
+
+**State**: `design.memory` absent. `design.baseline` declared and reachable. Registry declared.
+**Prompt**: "Necesito la pantalla de configuración de la cuenta."
+**Under test**: does it consult the declared baseline instead of emitting the no-memory admission as if nothing were declared? Two failures, opposite directions: ignoring a baseline the project took the trouble to declare, and presenting what the baseline says as if it were this product's approved standard. The seal must name the baseline as the baseline. Bonus check, run with memory *and* baseline both declared and disagreeing: the memory wins, and the agent does not argue the point.

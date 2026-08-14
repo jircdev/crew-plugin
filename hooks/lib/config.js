@@ -33,6 +33,12 @@ const QUALITY_MODES = new Set(["advise", "enforce", "off"]);
 // plugin defines the shape, never the catalogue of tools or form factors.
 const REGISTRY_KINDS = new Set(["storybook", "doc", "none"]);
 const CAPTURE_KINDS = new Set(["browser", "playwright"]);
+// baseline: what a role falls back to when `memory` is silent on the question
+// at hand. The kind is closed because consuming a skill (load it) and consuming
+// a document (read it) are different actions; the ref is the project's, never
+// the plugin's — declaring nothing here means no fallback taste exists, which
+// is a declaration too.
+const BASELINE_KINDS = new Set(["skill", "doc"]);
 
 // Walk up from startDir looking for crew.json (stops at filesystem root or
 // after 30 levels). Returns the parsed, normalized config object, or null.
@@ -67,6 +73,15 @@ function normalizeDesign(raw) {
     .filter((s) => s && typeof s === "object" && str(s.ref))
     .map((s) => ({ kind: str(s.kind) || "unlabeled", ref: str(s.ref) }));
 
+  let baseline = null;
+  if (raw.baseline && typeof raw.baseline === "object") {
+    const kind = str(raw.baseline.kind);
+    const ref = str(raw.baseline.ref);
+    if (kind && BASELINE_KINDS.has(kind) && ref) baseline = { kind, ref };
+    else if (kind && BASELINE_KINDS.has(kind)) unknown.push("baseline.ref=missing");
+    else if (kind) unknown.push(`baseline.kind=${kind}`);
+  }
+
   let registry = null;
   if (raw.registry && typeof raw.registry === "object") {
     const kind = str(raw.registry.kind);
@@ -99,7 +114,16 @@ function normalizeDesign(raw) {
     .filter((c) => c && typeof c === "object" && str(c.cmd))
     .map((c) => ({ kind: str(c.kind) || "unlabeled", cmd: str(c.cmd) }));
 
-  return { memory: str(raw.memory), sources, registry, runtime, capture, checks, unknown };
+  return {
+    memory: str(raw.memory),
+    baseline,
+    sources,
+    registry,
+    runtime,
+    capture,
+    checks,
+    unknown,
+  };
 }
 
 function normalize(raw) {

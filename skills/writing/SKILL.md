@@ -27,6 +27,29 @@ Formerly the communications-strategist role; now a horizontal craft any role loa
 - **Length sized to the decision**, not to the template.
 - Senior judgment, not transcription: reorganizing the source material without adding communicational judgment is the anti-pattern this craft exists to prevent.
 
+## Voice — writing that does not read generated
+
+Generated text betrays itself by structure more than by vocabulary: word lists age in months (a flagged term drops out of model output within a generation), while the structural scaffolds persist across model families. Attack structure first. These rules apply to every piece this skill governs, in every language.
+
+**Structures (the durable tells — banned):**
+
+- **Negative parallelism**: "it's not X, it's Y", "not just X, but Y" — ES: "no se trata solo de…, sino de…", "no es X, es Y". State the claim directly; the contrast frame is a crutch.
+- **"From X to Y" sweeps** ("desde… hasta…") as a coverage gesture. Name what actually matters instead of gesturing at a range.
+- **Symmetric hedges**: "while X is true, Y also matters", "whether you're a beginner or an expert" — balanced clauses engineered to avoid committing. A piece with an objective takes a position.
+- **Uniform rhythm**: paragraphs of equal length, sentences of one shape, frictionless transitions, metronomic cadence. Human prose accelerates, digresses, stops short. Vary deliberately.
+- **Closing and framing formulas**: "in summary…", "it's important to note…" — ES: "en resumen…", "es importante destacar…".
+
+**Format:**
+
+- **No emoji** in authored pieces — the ✅ especially is a statistical signature of generated text.
+- **Headings in sentence case.** Title Case is a tell in English and an anglicism in Spanish.
+- **Prose where the content argues; bullets only where it enumerates.** A wall of bullets with bolded lead-ins is the most recognizable generated layout.
+- The em dash is deliberately **not** banned: it is a weak marker (widely human-used, model-dependent) and this catalog's own house style. Density, not presence, is what reads generated.
+
+**Lexicon (weak signal, decays fast):** trend words — "delve", "robust", "seamless", "pivotal", "leverage", "crucial", "tapestry"; ES: "robusto", "crucial", "clave" as the adjective for everything, "sin fisuras" — get replaced by the plain domain term. Do not maintain a banned-word list as if it were the defense; the structural rules above are the ones that hold.
+
+**Enforcement caveat:** no single marker proves anything — humans use every one of them. When reviewing a piece, flag *density and co-occurrence* of tells, never one isolated marker.
+
 ## Refuse to write
 
 - A piece without idea-force, objective, or audience — ask for them first.

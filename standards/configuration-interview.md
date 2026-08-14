@@ -72,6 +72,14 @@ Ask them separately. They are different risks: connecting to something already r
 - **Is `docs/design/` filled in, or still the empty scaffold?** If empty, the useful next step is not a wizard — it is three entries: one reference, one approved pattern, one rejected one. Offer to walk through those three; do not generate them.
 - Never write content into the design memory on the project's behalf. References and rejected patterns are the project's taste; an agent that invents them has replaced the memory with its own preference, which is exactly what this whole mechanism exists to prevent.
 
+### 8. Fallback taste
+
+Ask this only after block 7, and only when the design memory is empty or thin — a project with a filled memory rarely needs it.
+
+- **When your memory says nothing about a question, what should a role fall back to?** An installed skill, a design-system document, a public design system's docs — or nothing. → `design.baseline`
+- Say what each answer means: declared, the role contrasts against that baseline and names it; undeclared, the direction rests on the brief alone and the deliverable says so. The plugin never fills the gap with taste of its own, which is why the honest-but-generic output happens and why this key exists.
+- Never propose a baseline the project did not name. Offering a menu of design systems is the plugin choosing taste through the back door.
+
 ## Closing the interview
 
 1. Show what will be written, in full, before writing it.
@@ -82,7 +90,7 @@ Ask them separately. They are different risks: connecting to something already r
 ## Anti-patterns
 
 - Guessing a dev-server command from `package.json` and declaring it without confirmation.
-- Asking all seven blocks at once.
+- Asking all eight blocks at once.
 - Re-asking something `crew.json` already declares.
 - Writing design-memory content — references, approved or rejected patterns — instead of eliciting it.
 - Leaving the marker un-updated, so the notice repeats after a successful interview.

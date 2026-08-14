@@ -86,6 +86,7 @@ Read the third column first. It is the one that tells you what a missing declara
 | What you declare | What it enables | What happens if you don't |
 |---|---|---|
 | `memory` — folder holding this product's references, approved and rejected patterns | Proposals are contrasted against what *this* product considers good | Every deliverable carries *"no design memory declared: the direction was not contrasted against the product's references"* |
+| `baseline` — the fallback taste for what your memory does not answer: a skill to load, or a document to read | Questions your memory is silent on fall back to a standard **you** named | The deliverable says the direction rests on the brief alone; the plugin never substitutes taste of its own |
 | `sources` — the design file or reference screenshots that are the source of truth | Direction can be derived from the design source | Direction comes from the brief and the registry only |
 | `registry` — where someone looks to see whether a component already exists | Reuse is verified before anything new is proposed | Every proposal carries *"reuse not verified"*, and new components are marked *unconfirmed new* |
 | `runtime.url` — the URL the app runs on in development | An agent connects and inspects **without asking you every time** | You are asked for permission each turn |
@@ -99,6 +100,7 @@ Read the third column first. It is the one that tells you what a missing declara
 {
   "design": {
     "memory": "docs/design",
+    "baseline": { "kind": "skill", "ref": "frontend-design" },
     "sources":  [ { "kind": "figma", "ref": "https://…" } ],
     "registry": { "kind": "storybook", "ref": "http://localhost:6006" },
     "runtime":  { "url": "http://localhost:3000", "launch": ".claude/launch.json#dev" },
@@ -114,7 +116,9 @@ Every key is optional and independent. `{"design": {"memory": "docs/design"}}` i
 
 **Declaring is the permission.** This is the point of the section: you grant it once, in a file you can read and revert, instead of approving the same action every session.
 
-**Closed vs free values.** `registry.kind` (`storybook` | `doc` | `none`) and `capture.kind` (`browser` | `playwright`) are closed, because a role has to know *how* to consume them. Everything else is a free label — `viewports`, `checks.kind`, `sources.kind` — because form factors and tooling belong to your product, not to this plugin. There is no default viewport set: a kiosk or a desktop-only tool is not an oversight.
+**Memory outranks baseline.** They are not two opinions. `memory` is what is good in *this* product; `baseline` is only consulted where the memory says nothing, and it loses every conflict without discussion. A baseline is worth declaring when your design memory is young: it stops the honest-but-generic output you get from a role that has nothing to contrast against. Point it at whatever you trust — an installed skill, your own design-system document, a public design system's docs.
+
+**Closed vs free values.** `registry.kind` (`storybook` | `doc` | `none`), `capture.kind` (`browser` | `playwright`) and `baseline.kind` (`skill` | `doc`) are closed, because a role has to know *how* to consume them — loading a skill and reading a document are different actions. A `baseline` without a `ref` is treated as undeclared and named at session start. Everything else is a free label — `viewports`, `checks.kind`, `sources.kind` — because form factors and tooling belong to your product, not to this plugin. There is no default viewport set: a kiosk or a desktop-only tool is not an oversight.
 
 **Unrecognized values are named, not swallowed.** A `kind` this plugin version does not know is treated as if the capability were absent, and the session start says so. It never blocks anything.
 

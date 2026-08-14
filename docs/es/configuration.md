@@ -86,6 +86,7 @@ Leé primero la tercera columna. Es la que te dice qué te cuesta cada declaraci
 | Qué declarás | Qué habilita | Qué pasa si no lo declarás |
 |---|---|---|
 | `memory` — carpeta con las referencias, patrones aprobados y rechazados de este producto | Las propuestas se contrastan contra lo que *este* producto considera bueno | Cada entregable arrastra *"sin memoria de diseño declarada: la dirección no se contrastó contra las referencias del producto"* |
+| `baseline` — el gusto de respaldo para lo que tu memoria no contesta: un skill que se carga, o un documento que se lee | Las preguntas sobre las que tu memoria calla caen a un estándar que elegiste **vos** | El entregable dice que la dirección se apoya solo en el brief; el plugin nunca pone gusto propio |
 | `sources` — el archivo de diseño o los screenshots de referencia que son fuente de verdad | La dirección puede derivarse de la fuente de diseño | La dirección sale solo del brief y del registro |
 | `registry` — dónde se mira para saber si un componente ya existe | El reuso se verifica antes de proponer algo nuevo | Cada propuesta arrastra *"reuso no verificado"*, y los componentes nuevos quedan marcados como *nuevo sin confirmar* |
 | `runtime.url` — la URL donde corre la app en desarrollo | Un agente se conecta e inspecciona **sin pedirte permiso cada vez** | Te pide permiso en cada turno |
@@ -99,6 +100,7 @@ Leé primero la tercera columna. Es la que te dice qué te cuesta cada declaraci
 {
   "design": {
     "memory": "docs/design",
+    "baseline": { "kind": "skill", "ref": "frontend-design" },
     "sources":  [ { "kind": "figma", "ref": "https://…" } ],
     "registry": { "kind": "storybook", "ref": "http://localhost:6006" },
     "runtime":  { "url": "http://localhost:3000", "launch": ".claude/launch.json#dev" },
@@ -114,7 +116,9 @@ Cada clave es opcional e independiente. `{"design": {"memory": "docs/design"}}` 
 
 **Declararlo ES el permiso.** Ese es el punto de la sección: lo concedés una vez, en un archivo que podés leer y revertir, en lugar de aprobar la misma acción cada sesión.
 
-**Valores cerrados y libres.** `registry.kind` (`storybook` | `doc` | `none`) y `capture.kind` (`browser` | `playwright`) son cerrados, porque un rol necesita saber *cómo* consumirlos. Todo lo demás es etiqueta libre — `viewports`, `checks.kind`, `sources.kind` — porque los formatos y las herramientas son de tu producto, no de este plugin. No hay set de viewports por defecto: un kiosco o una herramienta solo-escritorio no son un olvido.
+**La memoria manda sobre el baseline.** No son dos opiniones. `memory` es lo que es bueno en *este* producto; `baseline` se consulta únicamente donde la memoria calla, y pierde todo conflicto sin discusión. Declarar un baseline vale la pena cuando tu memoria de diseño es joven: evita la salida honesta-pero-genérica de un rol que no tiene contra qué contrastar. Apuntalo a lo que confíes — un skill instalado, tu propio documento de design system, la documentación de un design system público.
+
+**Valores cerrados y libres.** `registry.kind` (`storybook` | `doc` | `none`), `capture.kind` (`browser` | `playwright`) y `baseline.kind` (`skill` | `doc`) son cerrados, porque un rol necesita saber *cómo* consumirlos — cargar un skill y leer un documento son acciones distintas. Un `baseline` sin `ref` se trata como no declarado y se nombra al arrancar la sesión. Todo lo demás es etiqueta libre — `viewports`, `checks.kind`, `sources.kind` — porque los formatos y las herramientas son de tu producto, no de este plugin. No hay set de viewports por defecto: un kiosco o una herramienta solo-escritorio no son un olvido.
 
 **Los valores desconocidos se nombran, no se tragan.** Un `kind` que esta versión del plugin no conoce se trata como si la capacidad estuviera ausente, y el arranque de sesión lo dice. Nunca bloquea nada.
 
