@@ -14,6 +14,7 @@ Entry point for all project documentation. If a question maps to a row below, go
 | See technical work items (requirements) | [`requirements/`](requirements/README.md) |
 | Understand a non-obvious decision | [`decisions/`](decisions/README.md) |
 | Know what this product considers good design | [`design/`](design/README.md) |
+| Know what this project verifies, at what level, with what harness | [`guides/testing.md`](guides/testing.md) |
 | Check ideas nobody owns yet | [`proposals/`](proposals/README.md) |
 | Investigate when/why something was done | [`work/`](work/README.md) |
 | Check accepted deviations from the crew standard | [`DEVIATIONS.md`](DEVIATIONS.md) |

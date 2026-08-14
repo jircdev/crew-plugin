@@ -2,6 +2,30 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [0.23.0] — 2026-08-14
+
+Two questions a plan could previously leave unanswered now have a place to be answered: how many hours is this in total, and how does anyone know it works. Migration guide: [`docs/en/migration-0.23.md`](docs/en/migration-0.23.md) / [`docs/es/migration-0.23.md`](docs/es/migration-0.23.md).
+
+**The frontier this release draws:** the plugin carries the **question** (for each behavior, at what level is it verified, with what artifact, and what stays uncovered); the project carries the **answer** — its levels, its harness, its adoption bar. No template names a test tool, and none ever will: a standard that mandated one would produce specs that never run in every repo that uses a different one.
+
+### Added
+
+- **`## Verification` table in every work item**, written at planning by whoever executes, next to the estimation and by the same hand — one row per behavior: scenario, level (unit / integration / contract / e2e / manual), harness, artifact, status. It carries the **method only**, referencing the story's scenario by its human-readable name; the story keeps owning what must be true and one concrete run of it. Three failures it exists to close: *tests as a loose line item* (one bullet inside a milestone hides whether the harness exists at all, which is routinely the largest number in the estimate), *a verification that cannot fail* (an assertion reading the class string passes while a geometric contract is broken — what runs without a layout engine cannot answer a geometric question), and *silence read as coverage* (an absent row is indistinguishable from a covered one). `not verified` **with its reason** is a valid row.
+- **`testing` capabilities in `crew.json`**: `guide`, `e2e` (`{ kind, specs }`), `commands`. Each declaration enables something and names what its absence costs, same contract as `design`. **`e2e.kind` is a free label** — no closed enum, because whatever the harness is called the role's action is identical (write the scenario as a spec under `specs`); cataloguing test tools would be the plugin choosing the stack. An `e2e` without `specs` is treated as undeclared and named at session start.
+- **Declaring `testing` turns the verification table into a closure gate** ([`guard-estimation.js`](hooks/guard-estimation.js)), in **both** modes and independently of `metrics`: the estimation gate is the metrics discipline, this one is the project's own declaration. The two opt-ins are now evaluated separately, so a solo repo without metrics still gets the verification gate if it declared `testing`.
+- **Testing guide scaffold** (`templates/docs/guides/testing.md` + `.es.md` → `docs/guides/`): levels in use, harness, configuration traps, the pixels-contract rule, adoption bar, manual protocol (profiles, entry, rounds, report fields, mandatory conditions), and *what is not verified*. **Ships empty in both `team` and `solo`** — a developer working alone verifies work too — with **zero tool names and zero precharged practices**, the same rule as the design memory.
+- **Interview block 9** (`standards/configuration-interview.md`): whether a testing strategy is documented, whether an e2e harness exists and where its specs live, which commands run the suites. Looks before asking, never declares a harness from an installed dependency alone (a package is not an adopted practice), and never proposes a tool the project did not name.
+
+### Changed
+
+- **The estimation table closes with a `**Total**` row** (estimated and actual), enforced at closure wherever the estimation gate already ran. A document whose reader has to add the column is storing numbers rather than reporting them. The total row is exempt from the per-milestone timestamp requirement — it sums milestones, it is not one.
+- **No template names a test tool anymore.** The stories template no longer says Playwright; the harness is read from `crew.json` `testing.e2e` by every role. `qa-test-architect` gains the capability table, authority over the project's testing guide and the verification discipline; the delivery circuit gains the verification gate at planning and at closure; `docs/AGENTS.md` gains the verification-discipline section.
+- **`init-project.sh`** scaffolds `docs/guides/testing.md` in both modes and seeds `"testing": { "guide": "docs/guides/testing.md" }` — the second capability seeded, and for the same reason as the first: the scaffold creates the file it points at. New projects therefore get the verification gate from day one; existing repos change nothing until their `crew.json` says so.
+
+### Not changed
+
+- No hook watches whether a test went stale when its work item changed. It was considered and dropped: the check needs a link that only exists once the verification table names paths, it cannot run as a blocking pre-write gate (the condition is only satisfiable *after* the edit), and keyed on any edit it would fire on every milestone timestamp until nobody reads it. The declaration in `crew.json` is what makes plans include the spec — enforcement at closure, not surveillance during work.
+
 ## [0.22.0] — 2026-08-02
 
 Interface work gets a method that ships with the plugin, and capabilities and taste that stay in the repository. Everything is additive and opt-in; a repo that changes nothing behaves exactly as in 0.21.1. Migration guide: [`docs/en/migration-0.22.md`](docs/en/migration-0.22.md) / [`docs/es/migration-0.22.md`](docs/es/migration-0.22.md).

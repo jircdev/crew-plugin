@@ -42,6 +42,41 @@ Guard: [`../../hooks/guard-estimation.js`](../../hooks/guard-estimation.js). It 
 
 **Fix.** Complete every started row before flipping `Status:` to `Closed`. If a planned milestone was never executed, remove the row or fold it into another — an empty row is not a valid record. The point of the gate is that closure certifies the numbers [metrics](metrics.md) will consume.
 
+### "Cannot close this work item: the estimation table has no **Total** row"
+
+**Cause.** The table's milestones are complete but nothing sums them. A document whose reader has to add the column is storing numbers, not reporting them.
+
+**Fix.** Close the table with a row whose first cell is `Total` (markdown emphasis optional, case-insensitive), carrying estimated and actual hours. The timestamp columns stay empty or a dash — the total sums milestones, it is not one:
+
+```
+| **Total** | 12 | — | — | 15 | |
+```
+
+## Verification closure gate
+
+Same guard, different opt-in: it runs when `crew.json` declares a `testing` section, in **both** modes, independently of `metrics`. A project that declared what it can verify has said that "how was this verified?" is an answerable question — leaving it blank at closure is a gap by the project's own standard. Undeclared, nothing here fires.
+
+### "Cannot close this work item: no Verification section found"
+
+**Cause.** The file has no `## Verification` heading. It is added at planning, next to the estimation, by whoever executes.
+
+**Fix.** Add the table — one row per behavior — and fill it:
+
+```
+| Scenario | Level | Harness | Artifact | Status |
+|---|---|---|---|---|
+| Manager approves a pending request | e2e | playwright | tests/e2e/approve.spec.ts | passing |
+| Bulk import over 10k rows | none | none | — | not verified — no fixture at that volume |
+```
+
+The heading may be `## Verification` or `## Verificación`. Every column except none is required: `not verified` **with its reason** is a valid status, silence is not — an absent row is indistinguishable from a covered one.
+
+### "Cannot close this work item: verification row … is missing level, harness, artifact or status"
+
+**Cause.** A row has an empty cell. Most often the artifact, when the test was planned and never written.
+
+**Fix.** Write what is true. If no test exists, the artifact is `—` and the status says why it does not exist. The gate wants the honest record, not a full one.
+
 ## Timestamps
 
 Guard: [`../../hooks/guard-timestamps.js`](../../hooks/guard-timestamps.js). Active **only** when `crew.json` has `"metrics": true`. It validates a cell only when the edit writes it for the first time (empty → value); historical rows are never re-validated, so editing other parts of a file with a complete table never triggers it.

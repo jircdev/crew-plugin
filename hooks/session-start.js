@@ -82,15 +82,20 @@ try {
     // (`kind=…`) and a declaration missing what makes it usable
     // (`ref=missing`). Both cost the capability, so both are reported — with
     // the wording that matches which one it is.
-    for (const unknown of (config.design && config.design.unknown) || []) {
-      const incomplete = unknown.endsWith("=missing");
-      lines.push(
-        `- \`crew.json\` declares \`design.${unknown}\`, which ` +
-          (incomplete
-            ? "is incomplete. "
-            : "this plugin version does not recognize. ") +
-          "That capability is treated as unavailable — the roles will say so rather than assume it."
-      );
+    for (const [section, cfg] of [
+      ["design", config.design],
+      ["testing", config.testing],
+    ]) {
+      for (const unknown of (cfg && cfg.unknown) || []) {
+        const incomplete = unknown.endsWith("=missing");
+        lines.push(
+          `- \`crew.json\` declares \`${section}.${unknown}\`, which ` +
+            (incomplete
+              ? "is incomplete. "
+              : "this plugin version does not recognize. ") +
+            "That capability is treated as unavailable — the roles will say so rather than assume it."
+        );
+      }
     }
 
     if (lines.length) {

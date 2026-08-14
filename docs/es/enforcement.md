@@ -44,6 +44,41 @@ Guard: [`../../hooks/guard-estimation.js`](../../hooks/guard-estimation.js). Dis
 
 **Solución.** Completá toda fila iniciada antes de poner `Status:` en `Closed`. Si un hito planificado nunca se ejecutó, borrá la fila o fusionala con otra — una fila vacía no es un registro válido. El sentido de la puerta es que el cierre certifica los números que van a consumir las [métricas](metrics.md).
 
+### "Cannot close this work item: the estimation table has no **Total** row"
+
+**Causa.** Los hitos están completos pero nada los suma. Un documento cuyo lector tiene que sumar la columna guarda números, no los reporta.
+
+**Solución.** Cerrá la tabla con una fila cuya primera celda sea `Total` (el énfasis markdown es opcional, no distingue mayúsculas), con horas estimadas y reales. Las columnas de timestamp quedan vacías o con un guion — el total suma hitos, no es uno:
+
+```
+| **Total** | 12 | — | — | 15 | |
+```
+
+## Puerta de verificación al cierre
+
+Mismo guard, otro opt-in: corre cuando `crew.json` declara una sección `testing`, en **ambos** modos e independientemente de `metrics`. Un proyecto que declaró qué puede verificar dijo que "¿cómo se verificó esto?" es una pregunta respondible — dejarla en blanco al cerrar es un hueco según su propio estándar. Sin declarar, nada de esto dispara.
+
+### "Cannot close this work item: no Verification section found"
+
+**Causa.** El archivo no tiene heading `## Verification`. Se agrega en planning, junto a la estimación, por quien ejecuta.
+
+**Solución.** Agregá la tabla — una fila por comportamiento — y llenala:
+
+```
+| Scenario | Level | Harness | Artifact | Status |
+|---|---|---|---|---|
+| El manager aprueba una solicitud pendiente | e2e | playwright | tests/e2e/approve.spec.ts | passing |
+| Importación masiva de más de 10k filas | none | none | — | no verificado — sin fixture a ese volumen |
+```
+
+El heading puede ser `## Verification` o `## Verificación`. Ninguna columna puede quedar vacía: `no verificado` **con su motivo** es un estado válido, el silencio no — una fila ausente es indistinguible de una cubierta.
+
+### "Cannot close this work item: verification row … is missing level, harness, artifact or status"
+
+**Causa.** Una fila tiene una celda vacía. Lo más común es el artefacto, cuando el test se planificó y nunca se escribió.
+
+**Solución.** Escribí lo que es cierto. Si no existe el test, el artefacto es `—` y el estado dice por qué no existe. La puerta quiere el registro honesto, no el completo.
+
 ## Timestamps
 
 Guard: [`../../hooks/guard-timestamps.js`](../../hooks/guard-timestamps.js). Activo **solo** con `"metrics": true` en `crew.json`. Valida una celda únicamente cuando la edición la escribe por primera vez (vacía → valor); las filas históricas nunca se re-validan, así que editar otras partes de un archivo con tabla completa jamás lo dispara.

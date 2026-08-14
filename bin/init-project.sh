@@ -51,10 +51,13 @@ write_crew_json() {
   # `configuredWith` is state, not policy: which plugin version last configured
   # this project. Nobody interprets it to decide behavior — it exists so the
   # session can tell you when a REQUIRED migration landed since then.
-  # `design.memory` is the only capability seeded, because the scaffold creates
-  # the folder it points at. Everything else (where the app runs, the component
-  # registry, how renders are captured) is declared by /crew:setup, which ASKS —
-  # the scaffold never guesses a capability.
+  # Only capabilities whose target this scaffold actually creates are seeded:
+  # `design.memory` and `testing.guide`. Everything else (where the app runs,
+  # the component registry, how renders are captured, which e2e harness) is
+  # declared by /crew:setup, which ASKS — the scaffold never guesses a tool.
+  # Consequence worth knowing: a declared `testing` section turns the
+  # verification table into a closure gate. That is the intent for a project
+  # starting today; delete the section to opt out.
   cat > "$dest" <<EOF
 {
   "mode": "$MODE",
@@ -64,6 +67,9 @@ write_crew_json() {
   "configuredWith": "$PLUGIN_VERSION",
   "design": {
     "memory": "docs/design"
+  },
+  "testing": {
+    "guide": "docs/guides/testing.md"
   }
 }
 EOF
@@ -77,6 +83,11 @@ mkdir -p "$TARGET/docs/work"
 # without declared memory every UI role degrades to "not contrasted against
 # anything". Four files, structure only — the taste is the project's to write.
 mkdir -p "$TARGET/docs/design"
+# Same argument for the testing guide: a solo developer verifies work too, and
+# without a declared strategy every plan either invents a harness or hides the
+# cost of building one. Ships empty — the levels and the tooling are the
+# project's to write.
+mkdir -p "$TARGET/docs/guides"
 
 copy_if_absent "$TEMPLATES/AGENTS.md"                       "$TARGET/AGENTS.md"
 copy_if_absent "$TEMPLATES/CLAUDE.md"                       "$TARGET/CLAUDE.md"
@@ -88,13 +99,14 @@ copy_if_absent "$TEMPLATES/docs/design/README.md"           "$TARGET/docs/design
 copy_if_absent "$TEMPLATES/docs/design/references.md"       "$TARGET/docs/design/references.md"
 copy_if_absent "$TEMPLATES/docs/design/approved.md"         "$TARGET/docs/design/approved.md"
 copy_if_absent "$TEMPLATES/docs/design/rejected.md"         "$TARGET/docs/design/rejected.md"
+copy_if_absent "$TEMPLATES/docs/guides/testing.md"          "$TARGET/docs/guides/testing.md"
+copy_if_absent "$TEMPLATES/docs/guides/testing.es.md"       "$TARGET/docs/guides/testing.es.md"
 
 if [ "$MODE" = "team" ]; then
   mkdir -p "$TARGET/docs/briefs"
   mkdir -p "$TARGET/docs/stories"
   mkdir -p "$TARGET/docs/requirements"
   mkdir -p "$TARGET/docs/proposals"
-  mkdir -p "$TARGET/docs/guides"
 
   copy_if_absent "$TEMPLATES/docs/INDEX.md"                   "$TARGET/docs/INDEX.md"
   copy_if_absent "$TEMPLATES/docs/AGENTS.md"                  "$TARGET/docs/AGENTS.md"
@@ -143,9 +155,10 @@ if [ "$MODE" = "team" ]; then
   echo "  2. Write docs/spec.md."
   echo "  3. Install the plugin in this project: /plugin install crew"
   echo "  4. Test activation: /crew:sys, /crew:ux, /crew:da, etc."
-  echo "  5. Run /crew:setup — it asks what this project can do (where it runs,"
-  echo "     its component registry, how renders are captured) and writes only"
-  echo "     what you confirm. Nothing is assumed."
+  echo "  5. Fill docs/guides/testing.md — levels, harness, adoption bar. It ships empty."
+  echo "  6. Run /crew:setup — it asks what this project can do (where it runs,"
+  echo "     its component registry, how renders are captured, which e2e harness)"
+  echo "     and writes only what you confirm. Nothing is assumed."
 else
   echo "  2. Review crew.json — metrics/quality are on with sane values; flip them if unwanted."
   echo "  3. Install the plugin in this project: /plugin install crew"

@@ -137,6 +137,32 @@ Anclado al work item y al estado del árbol, no a un commit — las capturas ocu
 
 Deliberadamente **no** es una puerta. Un recibo que un agente escribe sobre su propio trabajo prueba que hay imágenes, no que alguien las miró — la misma razón por la que los timestamps reconstruidos están guardados en otra parte. Su valor es hacer la evidencia revisable, y no se vende como prueba.
 
+## Capacidades de testing
+
+La misma regla que `design`, aplicada al otro lugar donde un agente suena seguro de algo que nunca verificó: **lo que no declaras no se asume.** La sección responde una pregunta que ningún plan puede esquivar — por cada comportamiento, en qué nivel se verifica, con qué, y cuánto cuesta.
+
+| Qué declaras | Qué habilita | Qué pasa si no |
+|---|---|---|
+| `guide` — el documento que dice qué prueba este proyecto, en qué niveles, con qué barra | Los planes se contrastan contra una estrategia establecida | *"el proyecto no declara estrategia de testing: los niveles son propuestos, no establecidos"* |
+| `e2e` — el arnés end-to-end y dónde viven sus specs | El plan **especifica la spec**: arnés, ruta, y las horas de escribirla | El escenario se queda en recorrido; el plan nombra el arnés faltante como costo a estimar |
+| `commands` — los comandos que corren las suites | El estado de una suite se reporta como **corrido** | Pass/fail se reporta como afirmado, nunca como observado |
+
+```json
+{
+  "testing": {
+    "guide": "docs/guides/testing.md",
+    "e2e": { "kind": "playwright", "specs": "tests/e2e" },
+    "commands": [ { "kind": "e2e", "cmd": "npm run test:e2e" } ]
+  }
+}
+```
+
+**`e2e.kind` es una etiqueta libre.** A diferencia de `registry.kind` o `baseline.kind`, acá no hay enum cerrado: como se llame el arnés, la acción del rol es la misma — escribir el escenario como spec bajo `specs`. Catalogar herramientas de test sería el plugin eligiendo tu stack. `specs` es lo que hace usable la declaración; un `e2e` sin ella se trata como no declarado y se nombra al iniciar sesión.
+
+**Declarar convierte la tabla de verificación en compuerta.** Con `testing` presente en cualquier forma, una story o requirement no llega a `Closed` sin su tabla `## Verification` — una fila por comportamiento: escenario, nivel, arnés, artefacto, estado. Vale en **ambos** modos, solo incluido, y es independiente de `metrics`: la compuerta de estimación es la disciplina de métricas, esta es tu propia declaración. `no verificado — sin arnés` es una fila perfectamente válida; una tabla ausente no, porque el silencio se lee igual que la cobertura.
+
+**Lo que el estándar nunca impone.** Una herramienta concreta. Un plan que exige Playwright en un repo que nunca lo adoptó produce specs que no corren y una tabla que se lee cubierta mientras no se ejecuta nada. Declara el arnés una vez, acá, y todos los roles derivan de ahí.
+
 ## La marca: `configuredWith`
 
 Una línea que registra con qué versión del plugin se configuró este proyecto por última vez. Es **estado, no política**: ningún comportamiento la lee. Borrala y lo único que perdés es el aviso.
@@ -170,6 +196,7 @@ El set de preguntas que sigue está fijo y versionado en el plugin (`standards/c
 | Entradas de `docs/work/` inmutables ([guard-immutable](../../hooks/guard-immutable.js)) | nada | inmutables | inmutables | inmutables |
 | Historias/requerimientos Closed inmutables (guard-immutable) | `mode` | inmutables | **editables** | inmutables |
 | Estimación completa al cierre ([guard-estimation](../../hooks/guard-estimation.js)) | `mode`, `metrics` | siempre activo | solo con `metrics: true` | activo |
+| Tabla de verificación al cierre (guard-estimation) | `testing` | con `testing` declarado | con `testing` declarado | apagado |
 | Timestamps en tiempo real ([guard-timestamps](../../hooks/guard-timestamps.js)) | `metrics` | con `metrics: true` | con `metrics: true` | apagado |
 | Techos de tamaño al escribir ([guard-code-quality](../../hooks/guard-code-quality.js)) | `quality`, `ceilings` | según `quality` | según `quality` | enforce |
 | Recordatorio de work-log al cerrar sesión ([check-work-log](../../hooks/check-work-log.js)) | `mode` | activo donde exista `docs/work/` | apagado | activo donde exista `docs/work/` |
@@ -191,13 +218,18 @@ La última fila es el patrón a recordar: **el reporte corre en cualquier lado; 
   "configuredWith": "<versión actual del plugin>",
   "design": {
     "memory": "docs/design"
+  },
+  "testing": {
+    "guide": "docs/guides/testing.md"
   }
 }
 ```
 
-`design.memory` es la única capacidad sembrada, porque el scaffold crea la carpeta a la que apunta. Todo lo demás — dónde corre la app, el registro de componentes, la captura de renders — queda sin declarar a propósito: el scaffold nunca adivina una capacidad. `/crew:setup` pregunta.
+Se siembran dos capacidades, y solo porque el scaffold crea el archivo al que cada una apunta: `design.memory` y `testing.guide`. Todo lo demás — dónde corre la app, el registro de componentes, la captura de renders, qué arnés e2e — queda sin declarar a propósito: el scaffold nunca adivina una capacidad, y menos una herramienta. `/crew:setup` pregunta.
 
-Con `--solo` escribe `"mode": "solo"` (mismos otros valores) y scaffoldea solo la estructura mínima: `AGENTS.md`, `CLAUDE.md`, `standards/`, `docs/decisions/`, `docs/work/`, `docs/design/` — sin la taxonomía de stories/requirements/briefs. La memoria de diseño viaja en ambos modos: quien trabaja solo también construye interfaz. En ambos modos instala además la puerta de calidad como `.git/hooks/pre-commit`: si ya existe un hook pre-commit, la línea de la puerta se **agrega al final**, nunca sobreescribe; si ya corre `check-quality.sh`, lo deja en paz; si no hay `.git`, avisa que hagas `git init` y vuelvas a correr el script. Los archivos existentes — incluido un `crew.json` existente — nunca se sobreescriben.
+Sembrar `testing` tiene una consecuencia que conviene saber de entrada: convierte la tabla de verificación del work item en compuerta de cierre desde el día uno. Esa es la intención para un proyecto que arranca hoy; borra la sección para optar por lo contrario.
+
+Con `--solo` escribe `"mode": "solo"` (mismos otros valores) y scaffoldea solo la estructura mínima: `AGENTS.md`, `CLAUDE.md`, `standards/`, `docs/decisions/`, `docs/work/`, `docs/design/`, `docs/guides/testing.md` — sin la taxonomía de stories/requirements/briefs. La memoria de diseño y la guía de testing viajan en ambos modos: quien trabaja solo también construye interfaz y verifica su trabajo. En ambos modos instala además la puerta de calidad como `.git/hooks/pre-commit`: si ya existe un hook pre-commit, la línea de la puerta se **agrega al final**, nunca sobreescribe; si ya corre `check-quality.sh`, lo deja en paz; si no hay `.git`, avisa que hagas `git init` y vuelvas a correr el script. Los archivos existentes — incluido un `crew.json` existente — nunca se sobreescriben.
 
 ## Ejemplos trabajados
 

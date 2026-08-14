@@ -32,9 +32,10 @@ Until Closed, the story is editable. Any criteria change after In progress is lo
 
 - The story defines behavior, never technical decisions. If implementation requires a decision with trade-offs, that is an ADR in `decisions/`, linked under Dependencies.
 - Every story reaching Ready carries at least one **Test scenario** — a concrete, data-backed walkthrough that is input for `QA`'s end-to-end strategy. The author confirms the data each scenario references already exists in the database; the story does not create fixtures or seed data (that is the author's responsibility, not `QA`'s or the data roles').
-- The e2e tool named in this file (Playwright) is a scaffold default, not part of the standard. A project that uses a different tool edits this file — its own copy — to name it, and keeps `AGENTS.md § Stack` in sync. What is structural is the Ready gate (≥1 test scenario), never the tool.
+- **The story names no test tool.** The harness this project uses is declared once, in `crew.json` `testing.e2e`, and read from there by every role — a tool named inside a functional artifact drifts the day the tool changes. What is structural here is the Ready gate (≥1 test scenario); *how* each scenario gets verified is written at planning, in the work item's `## Verification` table (see [`../guides/testing.md`](../guides/testing.md)).
 - The tracker (if any) holds only: link to this file, state, assignee. On any discrepancy, **this file wins**.
-- **A story is authored without estimation** — hours are not the analyst's deliverable, and an estimation block in a functional artifact is a process antipattern. Estimation happens at **planning**: when the story is taken for implementation, whoever executes adds the `## Estimation` table (milestones, estimated hours) before coding and records real start/finish per milestone during execution. Closing a story without a complete table is still invalid (see [`../AGENTS.md`](../AGENTS.md#estimation-discipline-mandatory)).
+- **A story is authored without estimation** — hours are not the analyst's deliverable, and an estimation block in a functional artifact is a process antipattern. Estimation happens at **planning**: when the story is taken for implementation, whoever executes adds the `## Estimation` table (milestones, estimated hours, closed by a **Total** row) before coding and records real start/finish per milestone during execution. Closing a story without a complete table is still invalid (see [`../AGENTS.md`](../AGENTS.md#estimation-discipline-mandatory)).
+- **A story is authored without a verification table either** — for the same reason. The analyst owns *what* must be true (criteria) and *one concrete run of it* (test scenarios); the level, the harness and the artifact are decided at planning by whoever executes, in a `## Verification` table added next to the estimation. The two tables never restate the scenario: they reference it by its human-readable name.
 
 ## Story template
 
@@ -62,9 +63,9 @@ As a (actor), I want (behavior), so that (outcome).
 
 ## Test scenarios
 
-Concrete, data-backed walkthroughs that exercise the behavior end to end — the input `QA` formalizes into automated e2e (Playwright) cases. Distinct from **Edge cases** above, which name *conditions* to cover in the abstract: each scenario here is one runnable instance with a human-readable name, ordered steps, and the real data it runs on. At least one is required to reach Ready.
+Concrete, data-backed walkthroughs that exercise the behavior end to end — the input `QA` formalizes into automated cases in whatever harness the project declares. Distinct from **Edge cases** above, which name *conditions* to cover in the abstract: each scenario here is one runnable instance with a human-readable name, ordered steps, and the real data it runs on. At least one is required to reach Ready.
 
-- **(Human-readable case name — one a non-technical reader understands, e.g. "Manager approves a pending leave request"; never a Playwright/test identifier.)**
+- **(Human-readable case name — one a non-technical reader understands, e.g. "Manager approves a pending leave request"; never a test-file identifier.)**
   - **Steps:** (user → screen → action → expected on-screen result; one line per step.)
   - **Data:** (the concrete records the run needs, e.g. user `ana@acme.com`, request #4821 in state Pending. This data must already exist in the database — creating it is the author's responsibility, not `QA`'s.)
   - **Expected result:** (what is observably true at the end.)

@@ -65,7 +65,7 @@ Everything the installer copies stops belonging to the plugin the moment it land
 Defaults the scaffold ships so you have something to start from. Changing them is normal project maintenance: edit your copy, no audit, no deviation record.
 
 - **Placeholders and project facts** — `{PROJECT_NAME}`, the stack table, folder layout, and commands in `AGENTS.md`.
-- **Tool defaults named in templates.** Example: the stories template names **Playwright** as the end-to-end tool `QA` formalizes test scenarios into. If your project uses a different tool, edit your `docs/stories/README.md` — it is your copy, and editing it is the sanctioned path — and keep `AGENTS.md § Stack` in sync. Per `docs/MAINTAINING.md`, a tooling swap with real trade-offs also gets an ADR.
+- **Tools are declared, never templated.** No template names a test tool: the end-to-end harness `QA` formalizes scenarios into comes from `crew.json` `testing.e2e`, read from one place by every role. Declare it once there and keep `AGENTS.md § Stack` in sync. Per `docs/MAINTAINING.md`, a tooling swap with real trade-offs also gets an ADR.
 - **Project-specific additions** — extra sections in the story template (say, a "Rollout" or "Analytics events" block), extra rows in routing tables, extra guides. Add them in your copy; every new story inherits them.
 - **Wording, examples, and language** of the prose.
 

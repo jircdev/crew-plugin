@@ -20,8 +20,8 @@
 //      an absent field equals the previous behavior. A genuinely global break
 //      would need a schemaVersion for the WHOLE file, never for one section.
 //   5. An unknown `kind` is treated as absent, never as a blocking error, and
-//      is recorded in `design.unknown` so the role can NAME it instead of
-//      degrading in silence.
+//      is recorded in that section's `unknown` list so the role can NAME it
+//      instead of degrading in silence.
 //   6. No field may be honored by a role if normalize() does not transport it.
 //      One interpretation of the contract, never two.
 const { readFileSync, existsSync } = require("node:fs");
@@ -39,6 +39,12 @@ const CAPTURE_KINDS = new Set(["browser", "playwright"]);
 // the plugin's — declaring nothing here means no fallback taste exists, which
 // is a declaration too.
 const BASELINE_KINDS = new Set(["skill", "doc"]);
+
+// testing.e2e.kind is deliberately a FREE label, unlike registry/capture/
+// baseline: whatever the harness is called, the action a role takes is the
+// same — write the scenario as a spec under `specs`. The plugin never
+// catalogues test tools; naming Playwright here would be the plugin choosing
+// the stack through the back door.
 
 // Walk up from startDir looking for crew.json (stops at filesystem root or
 // after 30 levels). Returns the parsed, normalized config object, or null.
@@ -126,6 +132,31 @@ function normalizeDesign(raw) {
   };
 }
 
+// testing: what this project can verify, and with what. Declaring it is what
+// turns the verification block of a work item into a closure gate — a project
+// that declares nothing keeps the pre-0.23 behavior exactly.
+function normalizeTesting(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const unknown = [];
+
+  let e2e = null;
+  if (raw.e2e && typeof raw.e2e === "object") {
+    const kind = str(raw.e2e.kind);
+    const specs = str(raw.e2e.specs);
+    // A harness with nowhere to write the spec cannot be acted on: the role
+    // would have to invent a location, which is the guessing this whole
+    // mechanism exists to prevent.
+    if (kind && specs) e2e = { kind, specs };
+    else if (kind) unknown.push("e2e.specs=missing");
+  }
+
+  const commands = (Array.isArray(raw.commands) ? raw.commands : [])
+    .filter((c) => c && typeof c === "object" && str(c.cmd))
+    .map((c) => ({ kind: str(c.kind) || "unlabeled", cmd: str(c.cmd) }));
+
+  return { guide: str(raw.guide), e2e, commands, unknown };
+}
+
 function normalize(raw) {
   try {
     const parsed = JSON.parse(raw.replace(/^﻿/, ""));
@@ -141,6 +172,7 @@ function normalize(raw) {
       // lost is the pending-configuration notice.
       configuredWith: str(parsed.configuredWith),
       design: normalizeDesign(parsed.design),
+      testing: normalizeTesting(parsed.testing),
     };
   } catch {
     return null; // invalid JSON ⇒ legacy behavior, never block

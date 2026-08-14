@@ -14,6 +14,13 @@
       "title": "Design capabilities, design memory and the configuration marker",
       "summary": "Additive: undeclared capabilities are simply unavailable and the roles say so. Running /crew:setup is optional and always asks before writing.",
       "doc": "docs/en/migration-0.22.md"
+    },
+    {
+      "version": "0.23.0",
+      "required": true,
+      "title": "Estimation totals and the verification table",
+      "summary": "Closing a work item now requires a Total row in the estimation table wherever that gate already ran — one line per item. The verification table binds only where crew.json declares `testing`.",
+      "doc": "docs/en/migration-0.23.md"
     }
   ]
 }

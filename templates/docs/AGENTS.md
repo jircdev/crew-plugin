@@ -66,10 +66,24 @@ A story is written without estimation — hours are not the analyst's deliverabl
 
 Timestamps are timezone-stamped: `YYYY-MM-DD HH:MM -ZZ:ZZ`, taken from the clock (`date "+%Y-%m-%d %H:%M %z"`), never reconstructed from memory. Closure with an incomplete table is invalid and hook-enforced.
 
+**The table closes with a `**Total**` row** — estimated and actual hours summed. A document whose reader has to add the column themselves is not reporting a number, it is storing one. The total is what makes a plan comparable to its outcome at a glance, and it is hook-enforced at closure like the rest of the table.
+
+## Verification discipline
+
+Every work item states **how it was verified**, in a `## Verification` table written at planning by whoever executes — the same moment and the same hand as the estimation. One row per behavior: scenario, level (unit / integration / contract / e2e / manual), harness, artifact, status.
+
+Three rules give it its shape:
+
+1. **It never restates the scenario.** The story owns what must be true and one concrete run of it; this table adds only the method, referencing the scenario by its human-readable name. Duplication here is drift tomorrow.
+2. **It names no tool of its own.** The harness comes from `crew.json` `testing.e2e`; if the project declares none, the row says `none` and the status says why. A plan that mandates a specific test tool the project never adopted produces tests that never run.
+3. **"Not verified" is a valid status; silence is not.** Missing infrastructure, a behavior only checkable by hand, a deliberate decision to skip — all legitimate, all written down with the reason. The cost of verification belongs in the estimate, and work that is not in the table is work nobody costed.
+
+When `crew.json` declares `testing`, closure without this table is invalid and hook-enforced, in both team and solo mode. Undeclared, the table is still the standard and nothing blocks. What the project can verify, at what levels and with what harness, lives in [`guides/testing.md`](guides/testing.md).
+
 ## Completeness check (when closing a task)
 
 - [ ] Did observable behavior change? → changelog entry (project-specific location).
-- [ ] Did you implement a story/requirement? → state, branch, and estimation table updated in its file.
+- [ ] Did you implement a story/requirement? → state, branch, estimation table (with its Total) and verification table updated in its file.
 - [ ] Did you make a decision with trade-offs? → ADR in `decisions/`.
 - [ ] Did cross-cutting behavior change? → update/create the guide.
 - [ ] Did you close a significant iteration? → entry in `work/YYYY-MM/`.

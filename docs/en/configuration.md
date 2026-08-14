@@ -137,6 +137,32 @@ Anchored to the work item and the tree state, not to a commit — captures happe
 
 Deliberately **not** a gate. A receipt an agent writes about its own work proves images exist, not that anyone looked at them — the same reason reconstructed timestamps are guarded elsewhere. Its value is making the evidence reviewable, and it is not sold as proof.
 
+## Testing capabilities
+
+The same rule as `design`, applied to the other place an agent sounds confident about something it never checked: **what you do not declare is not assumed.** The section answers one question a plan cannot dodge — for each behavior, at what level is it verified, with what, and what does that cost.
+
+| What you declare | What it enables | What happens if you don't |
+|---|---|---|
+| `guide` — the document stating what this project tests, at what levels, with what bar | Plans are contrasted against an established strategy | *"the project declares no testing strategy: the levels are proposed, not established"* |
+| `e2e` — the end-to-end harness and where its specs live | A plan **specifies the spec**: harness, path, and the hours to write it | A scenario stays a walkthrough; the plan names the missing harness as a cost to estimate |
+| `commands` — the commands that run the suites | Suite status is reported as **run** | Pass/fail is reported as claimed, never as observed |
+
+```json
+{
+  "testing": {
+    "guide": "docs/guides/testing.md",
+    "e2e": { "kind": "playwright", "specs": "tests/e2e" },
+    "commands": [ { "kind": "e2e", "cmd": "npm run test:e2e" } ]
+  }
+}
+```
+
+**`e2e.kind` is a free label.** Unlike `registry.kind` or `baseline.kind`, nothing here is a closed enum: whatever the harness is called, the action a role takes is the same — write the scenario as a spec under `specs`. Cataloguing test tools would be this plugin choosing your stack. `specs` is what makes the declaration usable; an `e2e` without it is treated as undeclared and named at session start.
+
+**Declaring turns the verification table into a gate.** With `testing` present in any form, a story or requirement cannot reach `Closed` without a `## Verification` table — one row per behavior: scenario, level, harness, artifact, status. This holds in **both** modes, including solo, and it is independent of `metrics`: the estimation gate is the metrics discipline, this one is your own declaration. `not verified — no harness` is a perfectly valid row; an absent table is not, because silence reads exactly like coverage.
+
+**What the standard never mandates.** A specific tool. A plan that requires Playwright in a repo that never adopted it produces specs that never run and a table that reads covered while nothing executes. Declare the harness once, here, and every role derives from it.
+
 ## The marker: `configuredWith`
 
 One line recording which plugin version last configured this project. It is **state, not policy**: no behavior reads it. Delete it and the only thing you lose is the notice.
@@ -170,6 +196,7 @@ The question set it follows is fixed and versioned in the plugin (`standards/con
 | `docs/work/` entries immutable ([guard-immutable](../../hooks/guard-immutable.js)) | nothing | immutable | immutable | immutable |
 | Closed stories/requirements immutable (guard-immutable) | `mode` | immutable | **editable** | immutable |
 | Estimation complete at closure ([guard-estimation](../../hooks/guard-estimation.js)) | `mode`, `metrics` | always active | only when `metrics: true` | active |
+| Verification table at closure (guard-estimation) | `testing` | when `testing` is declared | when `testing` is declared | off |
 | Real-time timestamps ([guard-timestamps](../../hooks/guard-timestamps.js)) | `metrics` | when `metrics: true` | when `metrics: true` | off |
 | File-size ceilings at write ([guard-code-quality](../../hooks/guard-code-quality.js)) | `quality`, `ceilings` | per `quality` mode | per `quality` mode | enforce |
 | Work-log reminder on Stop ([check-work-log](../../hooks/check-work-log.js)) | `mode` | active where `docs/work/` exists | off | active where `docs/work/` exists |
@@ -191,13 +218,18 @@ The last row is the pattern to remember: **the report runs anywhere; only the di
   "configuredWith": "<current plugin version>",
   "design": {
     "memory": "docs/design"
+  },
+  "testing": {
+    "guide": "docs/guides/testing.md"
   }
 }
 ```
 
-`design.memory` is the only capability seeded, because the scaffold creates the folder it points at. Everything else — where the app runs, the component registry, render capture — is left undeclared on purpose: the scaffold never guesses a capability. `/crew:setup` asks.
+Two capabilities are seeded, and only because the scaffold creates the file each one points at: `design.memory` and `testing.guide`. Everything else — where the app runs, the component registry, render capture, which e2e harness — is left undeclared on purpose: the scaffold never guesses a capability, least of all a tool. `/crew:setup` asks.
 
-With `--solo` it writes `"mode": "solo"` (same other values) and scaffolds only the minimal structure: `AGENTS.md`, `CLAUDE.md`, `standards/`, `docs/decisions/`, `docs/work/`, `docs/design/` — no stories/requirements/briefs taxonomy. Design memory ships in both modes: a developer working alone builds interface too. In both modes it also installs the quality gate as `.git/hooks/pre-commit`: if a pre-commit hook already exists, the gate line is **appended**, never overwriting; if it already runs `check-quality.sh`, it is left alone; if there is no `.git`, it tells you to `git init` and re-run. Existing files — including an existing `crew.json` — are never overwritten.
+Seeding `testing` has one consequence worth knowing up front: it turns the work item's verification table into a closure gate from day one. That is the intent for a project starting today; delete the section to opt out.
+
+With `--solo` it writes `"mode": "solo"` (same other values) and scaffolds only the minimal structure: `AGENTS.md`, `CLAUDE.md`, `standards/`, `docs/decisions/`, `docs/work/`, `docs/design/`, `docs/guides/testing.md` — no stories/requirements/briefs taxonomy. Design memory and the testing guide ship in both modes: a developer working alone builds interface and verifies work too. In both modes it also installs the quality gate as `.git/hooks/pre-commit`: if a pre-commit hook already exists, the gate line is **appended**, never overwriting; if it already runs `check-quality.sh`, it is left alone; if there is no `.git`, it tells you to `git init` and re-run. Existing files — including an existing `crew.json` — are never overwritten.
 
 ## Worked examples
 

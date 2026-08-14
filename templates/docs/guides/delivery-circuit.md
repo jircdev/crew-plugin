@@ -33,7 +33,8 @@ A dev takes a Ready story or requirement:
 
 - **Branch:** `story/<feature>-NNN-slug` or `req/<plan>-NNN-slug`.
 - Note the branch in the work item's header; state → In progress (commit in the same branch).
-- **Estimation gate (planning):** a story is authored without estimation — hours are not the analyst's deliverable; project-level rough sizing lives in the brief. When the work item is taken for implementation, **whoever executes adds** the `## Estimation` table (milestones, estimated hours) before coding. During execution, real start/finish per milestone is recorded **in real time**: write `Started` when the milestone begins and `Finished` immediately when it closes — before starting the next one; timestamps carry a timezone offset and reconstructed values are rejected by the guard. If a session is interrupted mid-milestone, `Finished` is the real resumption-close time and the gap is noted in Notes. No work item proceeds with an empty estimation table.
+- **Estimation gate (planning):** a story is authored without estimation — hours are not the analyst's deliverable; project-level rough sizing lives in the brief. When the work item is taken for implementation, **whoever executes adds** the `## Estimation` table (milestones, estimated hours, closed by a **Total** row) before coding.
+- **Verification gate (planning, same moment):** alongside the estimation, the same person adds the `## Verification` table — one row per behavior: level, harness, artifact, status. It carries the *method*; the story keeps owning the scenario. Writing the tests is work, so it is a milestone in the table above, not an afterthought discovered at review. The harness comes from `crew.json` `testing`, never from this guide; where the project declares none, the row says so and the reason is written. Full rules: [`../AGENTS.md`](../AGENTS.md#verification-discipline) · what this project verifies: [`testing.md`](testing.md). During execution, real start/finish per milestone is recorded **in real time**: write `Started` when the milestone begins and `Finished` immediately when it closes — before starting the next one; timestamps carry a timezone offset and reconstructed values are rejected by the guard. If a session is interrupted mid-milestone, `Finished` is the real resumption-close time and the gap is noted in Notes. No work item proceeds with an empty estimation table.
 - The implementing agent reads the work item as its spec: the kickoff prompt is "implement `docs/stories/<feature>/NNN-slug.md`" — nothing more. If the agent needs more context, the gap is in the file: fix it there, not in the chat.
 - The implementation PR links the work item file. On merge, state → Delivered.
 
@@ -45,7 +46,7 @@ Requirements: verified against the Expected deliverable by the authoring role or
 
 ### 5. Closure
 
-State → Closed (file freezes). Significant work → entry in `work/YYYY-MM/`. Actual hours per milestone completed in the estimation table — closure with an incomplete estimation table is invalid.
+State → Closed (file freezes). Significant work → entry in `work/YYYY-MM/`. Actual hours per milestone completed in the estimation table, totals included, and the verification table reflecting what actually got written — closure with an incomplete estimation table is invalid, and so is closure with an unanswered verification table when the project declares `testing`.
 
 ## Role → artifact matrix
 
