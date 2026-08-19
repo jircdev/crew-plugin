@@ -41,7 +41,7 @@ crew-plugin/
 │   ├── standards/
 │   │   └── code-quality.md   # universal core (suggestive; project rules win)
 │   └── docs/                 # taxonomy seeded into consumer projects (incl. design/)
-├── bin/
+├── scripts/
 │   ├── init-project.sh       # scaffold + crew.json (team / --solo)
 │   ├── metrics.js            # /crew:metrics report
 │   ├── check-quality.sh      # pre-commit quality gate (installed by init)
@@ -64,7 +64,7 @@ Roles and templates evolve. To propagate changes to consumers:
 5. Commit and push.
 6. Consumers run `/plugin update crew@factory-crew`. (Author/local-dev installs consume the working tree directly — just pull.)
 
-For template changes, existing projects must re-run `bin/init-project.sh` (which skips existing files) or merge the new template manually.
+For template changes, existing projects must re-run `scripts/init-project.sh` (which skips existing files) or merge the new template manually.
 
 ### Changing the `crew.json` contract
 

@@ -16,7 +16,7 @@ Cada guard resuelve la configuración subiendo desde el directorio del archivo q
 - Calidad de código: **enforce** — las escrituras que superan el techo se deniegan.
 - Stop hook del work-log: activo donde exista `docs/work/`.
 
-Dos consecuencias que conviene internalizar. Primera, el plugin **no tiene defaults ocultos**: los valores más amables que reciben los proyectos nuevos (`advise`, métricas activadas) no vienen de fábrica — existen solo porque [`../../bin/init-project.sh`](../../bin/init-project.sh) los escribe explícitamente en el `crew.json` scaffoldeado. Segunda, un `crew.json` con un error de sintaxis JSON se comporta como si no existiera — lo que convierte silenciosamente `"quality": "advise"` en enforce. Si un guard se puso más estricto de golpe, verificá que el JSON parsea.
+Dos consecuencias que conviene internalizar. Primera, el plugin **no tiene defaults ocultos**: los valores más amables que reciben los proyectos nuevos (`advise`, métricas activadas) no vienen de fábrica — existen solo porque [`../../scripts/init-project.sh`](../../scripts/init-project.sh) los escribe explícitamente en el `crew.json` scaffoldeado. Segunda, un `crew.json` con un error de sintaxis JSON se comporta como si no existiera — lo que convierte silenciosamente `"quality": "advise"` en enforce. Si un guard se puso más estricto de golpe, verificá que el JSON parsea.
 
 ## Referencia de campos
 
@@ -59,7 +59,7 @@ Controla **solo** el guard en tiempo de escritura ([`../../hooks/guard-code-qual
 | `enforce` | La escritura se deniega | Bloquea el commit |
 | `off` | Silencio | Sigue bloqueando — la puerta se gestiona aparte |
 
-`advise` es lo que el scaffold escribe para proyectos nuevos: el agente no pierde impulso y el freno duro está en el commit. Ojo: la puerta pre-commit ([`../../bin/check-quality.sh`](../../bin/check-quality.sh)) **no** lee `quality` — poner calidad en `off` silencia el hook, no la puerta. Para quitar la puerta, borrá su línea de `.git/hooks/pre-commit`.
+`advise` es lo que el scaffold escribe para proyectos nuevos: el agente no pierde impulso y el freno duro está en el commit. Ojo: la puerta pre-commit ([`../../scripts/check-quality.sh`](../../scripts/check-quality.sh)) **no** lee `quality` — poner calidad en `off` silencia el hook, no la puerta. Para quitar la puerta, borrá su línea de `.git/hooks/pre-commit`.
 
 ### `ceilings`
 
@@ -200,14 +200,14 @@ El set de preguntas que sigue está fijo y versionado en el plugin (`standards/c
 | Timestamps en tiempo real ([guard-timestamps](../../hooks/guard-timestamps.js)) | `metrics` | con `metrics: true` | con `metrics: true` | apagado |
 | Techos de tamaño al escribir ([guard-code-quality](../../hooks/guard-code-quality.js)) | `quality`, `ceilings` | según `quality` | según `quality` | enforce |
 | Recordatorio de work-log al cerrar sesión ([check-work-log](../../hooks/check-work-log.js)) | `mode` | activo donde exista `docs/work/` | apagado | activo donde exista `docs/work/` |
-| Puerta de calidad pre-commit ([check-staged.js](../../bin/check-staged.js)) | `ceilings` | siempre, una vez instalada | siempre, una vez instalada | siempre, una vez instalada |
-| Reporte `/crew:metrics` ([metrics.js](../../bin/metrics.js)) | nada | corre | corre | corre |
+| Puerta de calidad pre-commit ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | siempre, una vez instalada | siempre, una vez instalada | siempre, una vez instalada |
+| Reporte `/crew:metrics` ([metrics.js](../../scripts/metrics.js)) | nada | corre | corre | corre |
 
 La última fila es el patrón a recordar: **el reporte corre en cualquier lado; lo que `metrics: true` habilita es la disciplina**. Detalles en [metrics.md](metrics.md).
 
 ## Cómo lo escribe `init-project.sh`
 
-`bash <plugin>/bin/init-project.sh` (desde la raíz de tu proyecto) scaffoldea la estructura del crew y escribe `crew.json` con **todos los valores explícitos**:
+`bash <plugin>/scripts/init-project.sh` (desde la raíz de tu proyecto) scaffoldea la estructura del crew y escribe `crew.json` con **todos los valores explícitos**:
 
 ```json
 {

@@ -41,4 +41,4 @@ Stories, requirements, estimation tables, ADRs, work entries, guards, the qualit
 
 ## For an already-scaffolded project
 
-The plugin never overwrites your files. To get `docs/design/` in an existing repo, re-run `bash <plugin>/bin/init-project.sh` from your project root: it skips everything that already exists and adds only what is missing. Your `crew.json` is left untouched — that is what `/crew:setup` is for, and it asks before writing.
+The plugin never overwrites your files. To get `docs/design/` in an existing repo, re-run `bash <plugin>/scripts/init-project.sh` from your project root: it skips everything that already exists and adds only what is missing. Your `crew.json` is left untouched — that is what `/crew:setup` is for, and it asks before writing.

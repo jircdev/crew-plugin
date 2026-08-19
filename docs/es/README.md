@@ -40,9 +40,9 @@ Cada etapa la dotan roles específicos — la tabla etapa por etapa y el catálo
 - **Configuración por repo** (`crew.json`) — `mode: solo|team`, `metrics`, `quality: advise|enforce|off`, `ceilings`, más las capacidades `design` (dónde corre la app, registro de componentes, captura de renders, checks, gusto de respaldo), las capacidades `testing` (guía de estrategia, arnés e2e y dónde viven sus specs, comandos de suite) y la marca `configuredWith`. Nada se concede por defecto: una capacidad sin declarar es una que los roles reportan que no pudieron usar. Un repo sin `crew.json` se comporta exactamente igual que antes. Referencia: [configuration.md](configuration.md).
 - **Memoria de diseño** (`docs/design/` en tu proyecto) — referencias, patrones aprobados, patrones rechazados. Se instala vacía: el gusto es del proyecto, nunca del plugin. Se declara vía `design.memory`; la configura `/crew:setup`, que pregunta y nunca adivina.
 - **Estrategia de testing** (`docs/guides/testing.md` en tu proyecto) — niveles, arnés, barra de adopción, protocolo manual, y qué no se verifica a propósito. Se instala vacía en ambos modos: la herramienta es del proyecto. Todo work item lleva una tabla `## Verification` escrita en planning junto a su estimación — nivel, arnés, artefacto y estado por comportamiento. Declarar `testing` en `crew.json` convierte esa tabla en compuerta de cierre.
-- **Métricas** — `/crew:metrics` + el reporte `bin/metrics.js`: lead time, tiempo de ejecución, desviación de estimación, exportación `--csv`.
+- **Métricas** — `/crew:metrics` + el reporte `scripts/metrics.js`: lead time, tiempo de ejecución, desviación de estimación, exportación `--csv`.
 - **Baseline de sesión** (`standards/session-context.md`) — solo **comportamiento** siempre activo (estilo de conversación, regla de oficina, dos modos, oficio de documentos); el conocimiento de proceso no va inline: apunta a los `standards/` y `docs/guides/` instalados en el proyecto. Defaults sugeridos, las reglas propias del proyecto siempre ganan.
-- **Script de bootstrap** (`bin/init-project.sh`) — instala las plantillas en un proyecto nuevo; `--solo` para el camino de desarrollador único.
+- **Script de bootstrap** (`scripts/init-project.sh`) — instala las plantillas en un proyecto nuevo; `--solo` para el camino de desarrollador único.
 
 ## Licencia
 

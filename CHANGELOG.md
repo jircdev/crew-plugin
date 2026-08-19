@@ -2,6 +2,13 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [Unreleased]
+
+### Changed
+
+- **`bin/` renamed to `scripts/`.** claude.ai-hosted installs reject a plugin with a top-level `bin/` directory: on the CLI its contents are added to `PATH`, but they are not shown on the admin approval surface, so the validator refuses the plugin outright — both when syncing the marketplace from the desktop app and when installing a packaged `.plugin`. The four executables (`init-project.sh`, `metrics.js`, `check-quality.sh`, `check-staged.js`) are unchanged; only their directory moved. Every reference moved with them: `commands/metrics.md` (the `${CLAUDE_PLUGIN_ROOT}` invocation), `agents/crew.md`, the hook comments, and the `docs/es` + `docs/en` trees in the same commit. CLI installs are unaffected by the rename.
+- **`scripts/init-project.sh` migrates a pre-existing pre-commit hook** that still points at `bin/check-quality.sh`, rewriting the path in place. Without this the gate would silently stop resolving in every project scaffolded before the rename: the existing "already runs the crew quality gate" branch matches on the filename alone, so a re-run would report `skip (exists)` over a hook that no longer works.
+
 ## [0.23.0] — 2026-08-14
 
 Two questions a plan could previously leave unanswered now have a place to be answered: how many hours is this in total, and how does anyone know it works. Migration guide: [`docs/en/migration-0.23.md`](docs/en/migration-0.23.md) / [`docs/es/migration-0.23.md`](docs/es/migration-0.23.md).

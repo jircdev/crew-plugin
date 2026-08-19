@@ -15,7 +15,7 @@ Seguí la [guía de instalación](installation.md). Un comando en Claude Code:
 Desde la raíz de tu repo:
 
 ```
-bash <plugin>/bin/init-project.sh --solo
+bash <plugin>/scripts/init-project.sh --solo
 ```
 
 donde `<plugin>` es la ruta donde Claude Code instaló el plugin. Esto scaffoldea:

@@ -103,15 +103,15 @@ On the first session after enabling, Claude Code asks you to approve the plugin'
 Installing makes the roles available everywhere; each repo then decides how much process it wants. In the project you'll work in, run the plugin's init script:
 
 ```bash
-bin/init-project.sh          # team — full delivery circuit + all guards
-bin/init-project.sh --solo   # solo — the catalog without the ceremony
+scripts/init-project.sh          # team — full delivery circuit + all guards
+scripts/init-project.sh --solo   # solo — the catalog without the ceremony
 ```
 
 Both write a `crew.json` at the project root with explicit values (`mode`, `metrics`, `quality`, `ceilings`), so the repo's behavior is visible and editable — no hidden defaults. A repo **without** `crew.json` keeps the legacy behavior: guards infer by structure and quality enforces at write time. Every field and its effects are documented in [configuration.md](configuration.md).
 
 ## Update the plugin
 
-Consumers run `/plugin update crew@factory-crew`. Author/local-dev installs consume the working tree directly — just pull. For template changes, existing projects re-run `bin/init-project.sh` (which skips existing files) or merge the new template manually. Customizations you made to scaffolded files always survive an update — nothing overwrites them; how to reconcile your copies with a new baseline is in [using-crew.md § Customize the scaffolded docs](using-crew.md#customize-the-scaffolded-docs).
+Consumers run `/plugin update crew@factory-crew`. Author/local-dev installs consume the working tree directly — just pull. For template changes, existing projects re-run `scripts/init-project.sh` (which skips existing files) or merge the new template manually. Customizations you made to scaffolded files always survive an update — nothing overwrites them; how to reconcile your copies with a new baseline is in [using-crew.md § Customize the scaffolded docs](using-crew.md#customize-the-scaffolded-docs).
 
 ## Remove the plugin
 

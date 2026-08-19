@@ -41,7 +41,7 @@ crew-plugin/
 │   ├── standards/
 │   │   └── code-quality.md   # núcleo universal (sugerido; las reglas del proyecto ganan)
 │   └── docs/                 # taxonomía sembrada en los proyectos consumidores (incl. design/)
-├── bin/
+├── scripts/
 │   ├── init-project.sh       # scaffold + crew.json (team / --solo)
 │   ├── metrics.js            # reporte de /crew:metrics
 │   ├── check-quality.sh      # puerta de calidad pre-commit (instalada por init)
@@ -64,7 +64,7 @@ Los roles y las plantillas evolucionan. Para propagar cambios a los consumidores
 5. Commit y push.
 6. Los consumidores ejecutan `/plugin update crew@factory-crew`. (Las instalaciones autor/local consumen el working tree directamente — basta con hacer pull.)
 
-Para cambios en plantillas, los proyectos existentes deben re-ejecutar `bin/init-project.sh` (que salta los archivos ya existentes) o fusionar la nueva plantilla a mano.
+Para cambios en plantillas, los proyectos existentes deben re-ejecutar `scripts/init-project.sh` (que salta los archivos ya existentes) o fusionar la nueva plantilla a mano.
 
 ### Cambiar el contrato de `crew.json`
 

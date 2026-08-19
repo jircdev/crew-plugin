@@ -37,7 +37,7 @@ Session dies mid-milestone, you resume tomorrow: write `Finished` with the **rea
 /crew:metrics --csv       # also write docs/work/metrics.csv
 ```
 
-The command runs [`../../bin/metrics.js`](../../bin/metrics.js), which scans `docs/stories/**` and `docs/requirements/**` for items with `Status: Closed` and a usable estimation table (at least one parseable `Started` and `Finished`). Per item:
+The command runs [`../../scripts/metrics.js`](../../scripts/metrics.js), which scans `docs/stories/**` and `docs/requirements/**` for items with `Status: Closed` and a usable estimation table (at least one parseable `Started` and `Finished`). Per item:
 
 | Column | Meaning |
 |---|---|

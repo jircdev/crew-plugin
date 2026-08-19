@@ -111,7 +111,7 @@ Empezaste un hito, la sesión murió, y retomás al día siguiente. **No** retro
 
 ## Calidad de código
 
-Guard: [`../../hooks/guard-code-quality.js`](../../hooks/guard-code-quality.js) al escribir; puerta: [`../../bin/check-staged.js`](../../bin/check-staged.js) al commitear. Ambos comparten los mismos techos, overrides (`"ceilings"` en `crew.json`) y exenciones — la tabla de tipos y defaults está en [configuration.md](configuration.md#ceilings).
+Guard: [`../../hooks/guard-code-quality.js`](../../hooks/guard-code-quality.js) al escribir; puerta: [`../../scripts/check-staged.js`](../../scripts/check-staged.js) al commitear. Ambos comparten los mismos techos, overrides (`"ceilings"` en `crew.json`) y exenciones — la tabla de tipos y defaults está en [configuration.md](configuration.md#ceilings).
 
 ### "This file would be N lines; the crew ceiling for a KIND file is C"
 
@@ -143,7 +143,7 @@ Las rutas que matchean se permiten **en silencio, en ambos lados**: el guard de 
 
 ### "crew code-quality gate: ceiling exceeded" (pre-commit)
 
-**Causa.** `git commit` ejecutó el hook pre-commit (instalado por `init-project.sh` como una llamada a [`../../bin/check-quality.sh`](../../bin/check-quality.sh)), que revisa cada archivo **staged** (`git diff --cached`, agregados/copiados/modificados/renombrados) contra los techos. Algo se pasó; el commit abortó con un reporte:
+**Causa.** `git commit` ejecutó el hook pre-commit (instalado por `init-project.sh` como una llamada a [`../../scripts/check-quality.sh`](../../scripts/check-quality.sh)), que revisa cada archivo **staged** (`git diff --cached`, agregados/copiados/modificados/renombrados) contra los techos. Algo se pasó; el commit abortó con un reporte:
 
 ```
 crew code-quality gate: ceiling exceeded
@@ -154,7 +154,7 @@ Split the file (extract a symbol into its own file), or pre-register the path
 in the crew:exempt block of docs/DEVIATIONS.md with its rationale, then retry.
 ```
 
-**Solución y reintento.** Partí el/los archivo(s) señalados o agregá un glob de exención, `git add` los cambios, y corré `git commit` de nuevo — la puerta re-revisa el nuevo set staged. No hay estado que resetear; cada intento de commit es una revisión fresca. Para CI, `bash <plugin>/bin/check-quality.sh --all` revisa todos los archivos trackeados en lugar del set staged.
+**Solución y reintento.** Partí el/los archivo(s) señalados o agregá un glob de exención, `git add` los cambios, y corré `git commit` de nuevo — la puerta re-revisa el nuevo set staged. No hay estado que resetear; cada intento de commit es una revisión fresca. Para CI, `bash <plugin>/scripts/check-quality.sh --all` revisa todos los archivos trackeados en lugar del set staged.
 
 ## Cierre de sesión
 

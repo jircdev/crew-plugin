@@ -5,7 +5,7 @@
 // Quality modes (crew.json "quality"):
 //   advise  — scaffold default for new projects: the write proceeds and the
 //             agent sees the notice; the hard stop is the pre-commit gate
-//             (bin/check-quality.sh), which covers agents and humans alike.
+//             (scripts/check-quality.sh), which covers agents and humans alike.
 //   enforce — deny at write time. Also the behavior when there is NO
 //             crew.json: exact v0.19.1 compatibility.
 //   off     — this hook stays silent (the pre-commit gate is managed apart).

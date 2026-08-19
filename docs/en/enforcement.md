@@ -109,7 +109,7 @@ You started a milestone, the session died, and you resume the next day. Do **not
 
 ## Code quality
 
-Guard: [`../../hooks/guard-code-quality.js`](../../hooks/guard-code-quality.js) at write time; gate: [`../../bin/check-staged.js`](../../bin/check-staged.js) at commit time. Both share the same ceilings, overrides (`crew.json` `"ceilings"`) and exemptions — table of kinds and defaults in [configuration.md](configuration.md#ceilings).
+Guard: [`../../hooks/guard-code-quality.js`](../../hooks/guard-code-quality.js) at write time; gate: [`../../scripts/check-staged.js`](../../scripts/check-staged.js) at commit time. Both share the same ceilings, overrides (`crew.json` `"ceilings"`) and exemptions — table of kinds and defaults in [configuration.md](configuration.md#ceilings).
 
 ### "This file would be N lines; the crew ceiling for a KIND file is C"
 
@@ -141,7 +141,7 @@ Matched paths are allowed **silently by both** the write-time guard and the pre-
 
 ### "crew code-quality gate: ceiling exceeded" (pre-commit)
 
-**Cause.** `git commit` ran the pre-commit hook (installed by `init-project.sh` as a call to [`../../bin/check-quality.sh`](../../bin/check-quality.sh)), which checks every **staged** file (`git diff --cached`, added/copied/modified/renamed) against the ceilings. Something exceeded; the commit aborted with a report:
+**Cause.** `git commit` ran the pre-commit hook (installed by `init-project.sh` as a call to [`../../scripts/check-quality.sh`](../../scripts/check-quality.sh)), which checks every **staged** file (`git diff --cached`, added/copied/modified/renamed) against the ceilings. Something exceeded; the commit aborted with a report:
 
 ```
 crew code-quality gate: ceiling exceeded
@@ -152,7 +152,7 @@ Split the file (extract a symbol into its own file), or pre-register the path
 in the crew:exempt block of docs/DEVIATIONS.md with its rationale, then retry.
 ```
 
-**Fix and retry.** Split the offending file(s) or add an exemption glob, `git add` the changes, and run `git commit` again — the gate re-checks the new staged set. There is no state to reset; every commit attempt is a fresh check. For CI, `bash <plugin>/bin/check-quality.sh --all` checks every tracked file instead of the staged set.
+**Fix and retry.** Split the offending file(s) or add an exemption glob, `git add` the changes, and run `git commit` again — the gate re-checks the new staged set. There is no state to reset; every commit attempt is a fresh check. For CI, `bash <plugin>/scripts/check-quality.sh --all` checks every tracked file instead of the staged set.
 
 ## Session close
 

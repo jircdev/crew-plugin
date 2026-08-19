@@ -16,7 +16,7 @@ Every guard resolves the config by walking **up** from the directory of the file
 - Code quality: **enforce** — writes over the ceiling are denied.
 - Work-log Stop hook: active wherever `docs/work/` exists.
 
-Two consequences worth internalizing. First, the plugin has **no hidden defaults**: the friendlier values new projects get (`advise`, metrics on) are not built in — they exist only because [`../../bin/init-project.sh`](../../bin/init-project.sh) writes them explicitly into the scaffolded `crew.json`. Second, a `crew.json` with a JSON syntax error behaves like no file at all — which silently turns `"quality": "advise"` back into enforce. If a guard suddenly got stricter, check the JSON parses.
+Two consequences worth internalizing. First, the plugin has **no hidden defaults**: the friendlier values new projects get (`advise`, metrics on) are not built in — they exist only because [`../../scripts/init-project.sh`](../../scripts/init-project.sh) writes them explicitly into the scaffolded `crew.json`. Second, a `crew.json` with a JSON syntax error behaves like no file at all — which silently turns `"quality": "advise"` back into enforce. If a guard suddenly got stricter, check the JSON parses.
 
 ## Field reference
 
@@ -59,7 +59,7 @@ Controls the **write-time** guard only ([`../../hooks/guard-code-quality.js`](..
 | `enforce` | Write is denied | Blocks the commit |
 | `off` | Silent | Still blocks — the gate is managed separately |
 
-`advise` is what the scaffold writes for new projects: the agent keeps momentum and the hard stop is the commit. Note that the pre-commit gate ([`../../bin/check-quality.sh`](../../bin/check-quality.sh)) does **not** read `quality` at all — turning quality `off` silences the hook, not the gate. To remove the gate, delete its line from `.git/hooks/pre-commit`.
+`advise` is what the scaffold writes for new projects: the agent keeps momentum and the hard stop is the commit. Note that the pre-commit gate ([`../../scripts/check-quality.sh`](../../scripts/check-quality.sh)) does **not** read `quality` at all — turning quality `off` silences the hook, not the gate. To remove the gate, delete its line from `.git/hooks/pre-commit`.
 
 ### `ceilings`
 
@@ -200,14 +200,14 @@ The question set it follows is fixed and versioned in the plugin (`standards/con
 | Real-time timestamps ([guard-timestamps](../../hooks/guard-timestamps.js)) | `metrics` | when `metrics: true` | when `metrics: true` | off |
 | File-size ceilings at write ([guard-code-quality](../../hooks/guard-code-quality.js)) | `quality`, `ceilings` | per `quality` mode | per `quality` mode | enforce |
 | Work-log reminder on Stop ([check-work-log](../../hooks/check-work-log.js)) | `mode` | active where `docs/work/` exists | off | active where `docs/work/` exists |
-| Pre-commit quality gate ([check-staged.js](../../bin/check-staged.js)) | `ceilings` | always, once installed | always, once installed | always, once installed |
-| `/crew:metrics` report ([metrics.js](../../bin/metrics.js)) | nothing | runs | runs | runs |
+| Pre-commit quality gate ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | always, once installed | always, once installed | always, once installed |
+| `/crew:metrics` report ([metrics.js](../../scripts/metrics.js)) | nothing | runs | runs | runs |
 
 The last row is the pattern to remember: **the report runs anywhere; only the discipline is gated** by `metrics: true`. Details in [metrics.md](metrics.md).
 
 ## How `init-project.sh` writes it
 
-`bash <plugin>/bin/init-project.sh` (from your project root) scaffolds the crew structure and writes `crew.json` with **every value explicit**:
+`bash <plugin>/scripts/init-project.sh` (from your project root) scaffolds the crew structure and writes `crew.json` with **every value explicit**:
 
 ```json
 {

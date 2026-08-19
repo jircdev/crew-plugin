@@ -65,7 +65,7 @@ Nombrar tu herramienta de test. `e2e.kind` es una etiqueta libre — como se lla
 
 ## Nuevo en el scaffold
 
-`bin/init-project.sh` ahora escribe `docs/guides/testing.md` en **ambos** modos (vacío a propósito: niveles, arnés, barra de adopción y protocolo manual los llenás vos) y siembra `"testing": { "guide": "docs/guides/testing.md" }`. Los proyectos nuevos arrancan entonces con la compuerta de verificación desde el día uno. Los repos existentes no cambian nada hasta que edites `crew.json`; `/crew:setup` pregunta por esto y escribe solo lo que confirmes.
+`scripts/init-project.sh` ahora escribe `docs/guides/testing.md` en **ambos** modos (vacío a propósito: niveles, arnés, barra de adopción y protocolo manual los llenás vos) y siembra `"testing": { "guide": "docs/guides/testing.md" }`. Los proyectos nuevos arrancan entonces con la compuerta de verificación desde el día uno. Los repos existentes no cambian nada hasta que edites `crew.json`; `/crew:setup` pregunta por esto y escribe solo lo que confirmes.
 
 ## Checklist
 

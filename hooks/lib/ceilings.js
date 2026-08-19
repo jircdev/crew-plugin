@@ -1,7 +1,7 @@
 // Shared code-quality ceiling logic: kind detection, line ceilings (with
 // crew.json overrides) and pre-registered exemptions (docs/DEVIATIONS.md
 // crew:exempt block). Consumed by the PreToolUse guard (agent writes) and by
-// bin/check-staged.js (authoritative pre-commit gate, agents and humans alike).
+// scripts/check-staged.js (authoritative pre-commit gate, agents and humans alike).
 const { readFileSync, existsSync } = require("node:fs");
 const { join, dirname } = require("node:path");
 

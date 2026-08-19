@@ -3,8 +3,8 @@
 # into the current project. Run from the root of an empty (or new) project.
 #
 # Usage:
-#   bash /path/to/crew-plugin/bin/init-project.sh          # team mode (full circuit)
-#   bash /path/to/crew-plugin/bin/init-project.sh --solo   # solo mode (minimal structure)
+#   bash /path/to/crew-plugin/scripts/init-project.sh          # team mode (full circuit)
+#   bash /path/to/crew-plugin/scripts/init-project.sh --solo   # solo mode (minimal structure)
 #
 # Modes are written explicitly into crew.json — the plugin has no hidden
 # defaults: a repo without crew.json behaves exactly like v0.19.1.
@@ -127,14 +127,20 @@ write_crew_json
 install_pre_commit() {
   local hooks_dir="$TARGET/.git/hooks"
   local hook="$hooks_dir/pre-commit"
-  local line="bash \"$PLUGIN_ROOT/bin/check-quality.sh\" || exit 1  # crew quality gate"
+  local line="bash \"$PLUGIN_ROOT/scripts/check-quality.sh\" || exit 1  # crew quality gate"
   if [ ! -d "$TARGET/.git" ]; then
     echo "  skip (no .git): pre-commit quality gate — run 'git init' and re-run this script"
     return
   fi
   mkdir -p "$hooks_dir"
   if [ -e "$hook" ]; then
-    if grep -q "check-quality.sh" "$hook" 2>/dev/null; then
+    if grep -q "bin/check-quality.sh" "$hook" 2>/dev/null; then
+      # Pre-0.24 projects point the gate at the old bin/ path. Rewrite it in place:
+      # the plain "already runs the gate" branch below would otherwise skip a hook
+      # that no longer resolves. -i with a suffix keeps this portable across GNU and BSD sed.
+      sed -i.crewbak 's|/bin/check-quality\.sh|/scripts/check-quality.sh|g' "$hook" && rm -f "$hook.crewbak"
+      echo "  migrated:     .git/hooks/pre-commit now points at scripts/check-quality.sh"
+    elif grep -q "check-quality.sh" "$hook" 2>/dev/null; then
       echo "  skip (exists): .git/hooks/pre-commit already runs the crew quality gate"
     else
       printf '\n%s\n' "$line" >> "$hook"

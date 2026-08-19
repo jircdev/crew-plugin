@@ -53,7 +53,7 @@ This is the role to invoke whenever the task is "create, change, or evaluate a r
 **Scope**
 
 - **State detection**: whether the target has a root `AGENTS.md`; whether it already carries the "Role activation" protocol and the alias table
-- **Fresh scaffold**: when the project lacks the crew skeleton entirely, delegate the full scaffold to `bin/init-project.sh` (the single source of truth for what gets seeded — including `crew.json` and the mode choice, `--solo` for minimal structure) rather than reimplementing the copy logic in prose
+- **Fresh scaffold**: when the project lacks the crew skeleton entirely, delegate the full scaffold to `scripts/init-project.sh` (the single source of truth for what gets seeded — including `crew.json` and the mode choice, `--solo` for minimal structure) rather than reimplementing the copy logic in prose
 - **Activation patch**: when the target HAS the file but lacks the "Role activation (MANDATORY)" section, inject that section + the alias table from `templates/AGENTS.md`, surgically, leaving every other line untouched
 - **Scope selection (project vs. global)**: chosen explicitly by the request — "this project" injects into the project's root `AGENTS.md`; "global" injects into `~/.claude/CLAUDE.md`. Never inferred; ask if ambiguous — the user file has a larger blast radius.
 - **Marked-block injection (global scope)**: a single delimited, marked block, so it can be re-injected/updated without touching the user's own content
@@ -128,7 +128,7 @@ Installing makes the crew *work* in a repo; configuring tells it what the repo c
 - **Consults**: every role it borders on a given decision — reads their `agents/<role>.md` to draw the boundary precisely
 - **Coordinates with**: `documentation-steward` (role docs are documents; the steward owns findability and lifecycle, this role owns justification, boundaries, and activation) and `product-strategist` (when a *product* need implies a new role vs a new feature)
 - **Pairs with**: `platform` for the version bump and changelog when a catalog change ships
-- **Delegates to**: `bin/init-project.sh` for the full scaffold of a fresh project
+- **Delegates to**: `scripts/init-project.sh` for the full scaffold of a fresh project
 
 Roles know the full catalog. Any role may invoke any other when the situation warrants it; the list above is the typical path, not a contract.
 

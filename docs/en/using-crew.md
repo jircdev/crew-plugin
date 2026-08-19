@@ -39,8 +39,8 @@ Fill in `docs/design/` too — one reference, one approved pattern, one rejected
 
 Not every repo wants the full process. The mode is declared per repo in a `crew.json` file at the project root, written by the scaffold with explicit values (`mode`, `metrics`, `quality`, `ceilings`):
 
-- **`team`** — the full delivery circuit and all guards. `bin/init-project.sh` scaffolds the complete `docs/` taxonomy and writes `crew.json`.
-- **`solo`** — the catalog without the ceremony: Closed-item immutability off, the session-stop closure check off, and the estimation gate only if metrics are on. `bin/init-project.sh --solo` scaffolds a minimal tree (`AGENTS.md`, `CLAUDE.md`, `standards/`, `docs/decisions/`, `docs/work/`, `crew.json`) — no briefs, stories, requirements, or proposals.
+- **`team`** — the full delivery circuit and all guards. `scripts/init-project.sh` scaffolds the complete `docs/` taxonomy and writes `crew.json`.
+- **`solo`** — the catalog without the ceremony: Closed-item immutability off, the session-stop closure check off, and the estimation gate only if metrics are on. `scripts/init-project.sh --solo` scaffolds a minimal tree (`AGENTS.md`, `CLAUDE.md`, `standards/`, `docs/decisions/`, `docs/work/`, `crew.json`) — no briefs, stories, requirements, or proposals.
 
 `metrics` is orthogonal to the mode: `solo` with `"metrics": true` gives you just the estimation-and-timestamps discipline — for when you work alone but still want to measure what each requirement costs.
 

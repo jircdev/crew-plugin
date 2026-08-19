@@ -40,9 +40,9 @@ Each stage is staffed by specific roles — the stage-by-stage table and the ful
 - **Per-repo config** (`crew.json`) — `mode: solo|team`, `metrics`, `quality: advise|enforce|off`, `ceilings`, plus `design` capabilities (where the app runs, component registry, render capture, checks, fallback taste), `testing` capabilities (strategy guide, e2e harness and where its specs live, suite commands), and the `configuredWith` marker. Nothing is granted by default: an undeclared capability is one the roles report they could not use. A repo without `crew.json` behaves exactly as before. Reference: [configuration.md](docs/en/configuration.md).
 - **Design memory** (`docs/design/` in your project) — references, approved patterns, rejected patterns. Scaffolded empty: the taste is the project's, never the plugin's. Declared via `design.memory`; configured by `/crew:setup`, which asks and never guesses.
 - **Testing strategy** (`docs/guides/testing.md` in your project) — levels, harness, adoption bar, manual protocol, and what is deliberately not verified. Scaffolded empty in both modes: the tooling is the project's. Every work item carries a `## Verification` table written at planning next to its estimation — level, harness, artifact, status per behavior. Declaring `testing` in `crew.json` makes that table a closure gate.
-- **Metrics** — `/crew:metrics` + `bin/metrics.js` report: lead time, execution time, estimate deviation, `--csv` export.
+- **Metrics** — `/crew:metrics` + `scripts/metrics.js` report: lead time, execution time, estimate deviation, `--csv` export.
 - **Session baseline** (`standards/session-context.md`) — always-on **behavior** only (conversation style, office rule, two modes, document craft); process knowledge is not inlined, it points to the project's scaffolded `standards/` and `docs/guides/`. Suggestive defaults, the project's own rules always win.
-- **Bootstrap script** (`bin/init-project.sh`) — scaffolds the templates into a new project; `--solo` for the single-dev path.
+- **Bootstrap script** (`scripts/init-project.sh`) — scaffolds the templates into a new project; `--solo` for the single-dev path.
 
 ## License
 

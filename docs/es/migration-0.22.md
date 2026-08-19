@@ -41,4 +41,4 @@ Stories, requirements, tablas de estimación, ADRs, entradas de work, guards, la
 
 ## Para un proyecto ya scaffoldeado
 
-El plugin nunca sobreescribe tus archivos. Para obtener `docs/design/` en un repo existente, volvé a correr `bash <plugin>/bin/init-project.sh` desde la raíz de tu proyecto: saltea todo lo que ya existe y agrega solo lo que falta. Tu `crew.json` queda intacto — para eso está `/crew:setup`, y pregunta antes de escribir.
+El plugin nunca sobreescribe tus archivos. Para obtener `docs/design/` en un repo existente, volvé a correr `bash <plugin>/scripts/init-project.sh` desde la raíz de tu proyecto: saltea todo lo que ya existe y agrega solo lo que falta. Tu `crew.json` queda intacto — para eso está `/crew:setup`, y pregunta antes de escribir.

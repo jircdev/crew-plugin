@@ -65,7 +65,7 @@ Name your test tool. `e2e.kind` is a free label — whatever your harness is cal
 
 ## New in the scaffold
 
-`bin/init-project.sh` now writes `docs/guides/testing.md` in **both** modes (empty by design: levels, harness, adoption bar and manual protocol are yours to fill) and seeds `"testing": { "guide": "docs/guides/testing.md" }`. New projects therefore get the verification gate from day one. Existing repos change nothing until you edit `crew.json` yourself; `/crew:setup` asks about it and writes only what you confirm.
+`scripts/init-project.sh` now writes `docs/guides/testing.md` in **both** modes (empty by design: levels, harness, adoption bar and manual protocol are yours to fill) and seeds `"testing": { "guide": "docs/guides/testing.md" }`. New projects therefore get the verification gate from day one. Existing repos change nothing until you edit `crew.json` yourself; `/crew:setup` asks about it and writes only what you confirm.
 
 ## Checklist
 

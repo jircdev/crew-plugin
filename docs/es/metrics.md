@@ -37,7 +37,7 @@ La sesión muere a mitad de un hito y retomás mañana: escribí `Finished` con 
 /crew:metrics --csv       # además escribe docs/work/metrics.csv
 ```
 
-El comando corre [`../../bin/metrics.js`](../../bin/metrics.js), que escanea `docs/stories/**` y `docs/requirements/**` buscando ítems con `Status: Closed` y una tabla de estimación usable (al menos un `Started` y un `Finished` parseables). Por ítem:
+El comando corre [`../../scripts/metrics.js`](../../scripts/metrics.js), que escanea `docs/stories/**` y `docs/requirements/**` buscando ítems con `Status: Closed` y una tabla de estimación usable (al menos un `Started` y un `Finished` parseables). Por ítem:
 
 | Columna | Significado |
 |---|---|

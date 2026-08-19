@@ -39,8 +39,8 @@ Completá también `docs/design/` — una referencia, un patrón aprobado y un p
 
 No todo repo quiere el proceso completo. El modo se declara por repo en un archivo `crew.json` en la raíz del proyecto, escrito por el scaffold con valores explícitos (`mode`, `metrics`, `quality`, `ceilings`):
 
-- **`team`** — el circuito de entrega completo y todos los guards. `bin/init-project.sh` instala la taxonomía completa de `docs/` y escribe `crew.json`.
-- **`solo`** — el catálogo sin la ceremonia: inmutabilidad de items Closed apagada, chequeo de cierre al terminar la sesión apagado, y la puerta de estimación solo si las métricas están activas. `bin/init-project.sh --solo` instala un árbol mínimo (`AGENTS.md`, `CLAUDE.md`, `standards/`, `docs/decisions/`, `docs/work/`, `crew.json`) — sin briefs, stories, requirements ni proposals.
+- **`team`** — el circuito de entrega completo y todos los guards. `scripts/init-project.sh` instala la taxonomía completa de `docs/` y escribe `crew.json`.
+- **`solo`** — el catálogo sin la ceremonia: inmutabilidad de items Closed apagada, chequeo de cierre al terminar la sesión apagado, y la puerta de estimación solo si las métricas están activas. `scripts/init-project.sh --solo` instala un árbol mínimo (`AGENTS.md`, `CLAUDE.md`, `standards/`, `docs/decisions/`, `docs/work/`, `crew.json`) — sin briefs, stories, requirements ni proposals.
 
 `metrics` es ortogonal al modo: `solo` con `"metrics": true` te da solo la disciplina de estimación y timestamps — para cuando trabajas solo pero igual quieres medir lo que cuesta cada requerimiento.
 

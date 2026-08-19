@@ -2,7 +2,7 @@
 // crew.json (or an unreadable/invalid one) means exact v0.19.1 behavior —
 // loadConfig returns null and each guard falls back to inferring by structure,
 // with quality enforcing. The new defaults (advise, metrics on, ...) are NOT
-// plugin defaults: they exist only as values bin/init-project.sh writes
+// plugin defaults: they exist only as values scripts/init-project.sh writes
 // explicitly into the crew.json of new projects. Absent fields stay
 // legacy-equivalent.
 //
