@@ -2,7 +2,9 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
-## [Unreleased]
+## [0.24.0] — 2026-08-19
+
+The plugin can now be installed outside the CLI. A top-level `bin/` directory made the claude.ai-hosted validator reject it outright, so the marketplace sync from the desktop app and any packaged `.plugin` failed — the directory is now `scripts/`. Migration guide: [`docs/en/migration-0.24.md`](docs/en/migration-0.24.md) / [`docs/es/migration-0.24.md`](docs/es/migration-0.24.md).
 
 ### Changed
 

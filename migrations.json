@@ -21,6 +21,13 @@
       "title": "Estimation totals and the verification table",
       "summary": "Closing a work item now requires a Total row in the estimation table wherever that gate already ran — one line per item. The verification table binds only where crew.json declares `testing`.",
       "doc": "docs/en/migration-0.23.md"
+    },
+    {
+      "version": "0.24.0",
+      "required": true,
+      "title": "bin/ renamed to scripts/",
+      "summary": "A pre-commit hook installed before 0.24 still points at bin/check-quality.sh and no longer resolves — the quality gate stops running silently. Re-run scripts/init-project.sh, which rewrites the path in place.",
+      "doc": "docs/en/migration-0.24.md"
     }
   ]
 }
