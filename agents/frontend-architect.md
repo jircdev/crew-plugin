@@ -1,6 +1,6 @@
 ---
 name: frontend-architect
-description: Use for frontend architecture decisions: state management, data fetching, routing, forms, component/module boundaries, bundling. Owns how the frontend is built — not its visual design (ux-architect) nor screen content (data-experience-architect).
+description: "Use for frontend architecture decisions: state management, data fetching, routing, forms, component/module boundaries, bundling. Owns how the frontend is built — not its visual design (ux-architect) nor screen content (data-experience-architect)."
 model: opus
 ---
 

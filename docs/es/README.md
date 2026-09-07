@@ -16,6 +16,10 @@ Cada etapa la dotan roles específicos — la tabla etapa por etapa y el catálo
 
 ## Documentación
 
+Crew admite Claude Code y Codex con un catálogo compartido. Consulta
+[compatibilidad e instalación en Codex](compatibility.md) para la activación,
+configuración, verificación, actualización y cobertura de hooks.
+
 | Si quieres… | Lee |
 |-------------|-----|
 | Conocer los roles y qué posee cada uno | [roles.md](roles.md) |
@@ -35,7 +39,7 @@ Cada etapa la dotan roles específicos — la tabla etapa por etapa y el catálo
 
 - **Subagentes + slash commands** (`agents/`, `commands/`) — uno por rol; `/crew:<alias>` lanza el subagente correspondiente, y los aliases retirados responden con su sucesor durante una versión.
 - **Plantillas** (`templates/`) — `AGENTS.md` (contexto canónico de agentes), un puntero `CLAUDE.md`, `standards/` (el núcleo de calidad de código), y la taxonomía completa de `docs/` (stories, requirements, decisions, proposals, el circuito de entrega, historial de work, DEVIATIONS).
-- **Skills** (`skills/`) — oficios horizontales que cualquier rol carga: `writing` (cómo comunica una pieza) y `design` (cómo pasar de un problema a una composición, entregarla, revisarla y juzgar un render). Solo método — qué es bello en un producto lo declara ese proyecto.
+- **Skills** (`skills/`) — 31 entradas generadas para los alias comparten los criterios de roles/comandos entre Claude y Codex. Los oficios horizontales siguen siendo `writing` (cómo comunica una pieza) y `design` (composición, entrega, revisión de implementación y juicio de renders). Solo método — qué es bello en un producto lo declara ese proyecto.
 - **Hooks** (`hooks/`) — `SessionStart` inyecta el baseline de sesión y, solo cuando tiene algo accionable que decir, el estado de configuración del proyecto; `PreToolUse` protege los artefactos inmutables, la puerta de estimación, los timestamps de estimación en tiempo real y los techos de calidad de código; `Stop` verifica la trazabilidad del cierre; una puerta de calidad pre-commit (instalada por `init-project.sh`) exige los mismos techos al commitear, con exenciones pre-registradas vía un bloque `crew:exempt` en `docs/DEVIATIONS.md`.
 - **Configuración por repo** (`crew.json`) — `mode: solo|team`, `metrics`, `quality: advise|enforce|off`, `ceilings`, más las capacidades `design` (dónde corre la app, registro de componentes, captura de renders, checks, gusto de respaldo), las capacidades `testing` (guía de estrategia, arnés e2e y dónde viven sus specs, comandos de suite) y la marca `configuredWith`. Nada se concede por defecto: una capacidad sin declarar es una que los roles reportan que no pudieron usar. Un repo sin `crew.json` se comporta exactamente igual que antes. Referencia: [configuration.md](configuration.md).
 - **Memoria de diseño** (`docs/design/` en tu proyecto) — referencias, patrones aprobados, patrones rechazados. Se instala vacía: el gusto es del proyecto, nunca del plugin. Se declara vía `design.memory`; la configura `/crew:setup`, que pregunta y nunca adivina.
@@ -43,6 +47,7 @@ Cada etapa la dotan roles específicos — la tabla etapa por etapa y el catálo
 - **Métricas** — `/crew:metrics` + el reporte `scripts/metrics.js`: lead time, tiempo de ejecución, desviación de estimación, exportación `--csv`.
 - **Baseline de sesión** (`standards/session-context.md`) — solo **comportamiento** siempre activo (estilo de conversación, regla de oficina, dos modos, oficio de documentos); el conocimiento de proceso no va inline: apunta a los `standards/` y `docs/guides/` instalados en el proyecto. Defaults sugeridos, las reglas propias del proyecto siempre ganan.
 - **Script de bootstrap** (`scripts/init-project.sh`) — instala las plantillas en un proyecto nuevo; `--solo` para el camino de desarrollador único.
+- **Release para ambos hosts** — manifiestos `.claude-plugin/` y `.codex-plugin/`, adaptador de `apply_patch` que usa los guards existentes y archivos `.plugin`/ZIP más catálogo Codex generados por `scripts/build-release.py`. Las escrituras shell/MCP siguen fuera de los guards de archivo. La [guía de compatibilidad](compatibility.md) cubre instalación, configuración, activación, verificación, actualización y evidencia de pruebas de runtime controladas con sus límites.
 
 ## Licencia
 

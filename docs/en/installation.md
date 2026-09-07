@@ -1,5 +1,8 @@
 # Installation
 
+This page covers Claude Code. For Codex local installation and dual-host
+packages, see [Claude Code and Codex](compatibility.md).
+
 You are installing the **crew** plugin from the **factory-crew** marketplace, hosted at the GitHub repo `jircdev/crew-plugin`. Pick whichever method fits — they all end up at the same place.
 
 ## Easiest — ask Claude

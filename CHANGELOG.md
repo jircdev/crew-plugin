@@ -2,6 +2,36 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [0.25.0] — 2026-09-07
+
+### Added
+
+- Codex manifest and 31 generated alias skills referencing the canonical commands
+  and 17 roles, alongside the existing shared design/writing crafts.
+- Codex apply_patch adapter reusing the four existing guards, with explicit
+  rejection of unsupported/ambiguous patch shapes and shared SessionStart/Stop.
+- Portable dual-host packaging, synchronization checks, guard-parity tests and
+  Windows/Linux CI. Installation and coverage guides in English and Spanish.
+
+### Fixed
+
+- Quote descriptions containing YAML colons in eight agents and the ops command;
+  Claude's native validator previously rejected those metadata blocks.
+- SessionStart uses the hook payload cwd before environment fallbacks, so nested
+  and explicit project sessions load the intended crew.json.
+
+### Compatibility
+
+- The shared alias skills can take precedence over same-name Claude commands;
+  they route back to those commands and retain native Claude delegation.
+- Isolated native-runtime smoke tests discover all skills/roles and reject
+  protected-file writes, using a loopback deterministic response provider.
+  Real-model adherence, interactive trust UI and hosted uploads remain untested.
+  Shell/MCP writes stay outside the guards. No new consumer migration is required.
+- Preserve the 0.24.0 `scripts/` layout and its pre-commit migration. Release
+  artifacts include identical ZIP/.plugin payloads, a Codex marketplace ZIP and
+  checksums, all generated from the same canonical source.
+
 ## [0.24.0] — 2026-08-19
 
 The plugin can now be installed outside the CLI. A top-level `bin/` directory made the claude.ai-hosted validator reject it outright, so the marketplace sync from the desktop app and any packaged `.plugin` failed — the directory is now `scripts/`. Migration guide: [`docs/en/migration-0.24.md`](docs/en/migration-0.24.md) / [`docs/es/migration-0.24.md`](docs/es/migration-0.24.md).

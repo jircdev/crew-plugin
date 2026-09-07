@@ -1,5 +1,5 @@
 ---
-description: Activate platform role (OPS) — releases, deploys, infra, SLOs: everything post-merge
+description: "Activate platform role (OPS) — releases, deploys, infra, SLOs: everything post-merge"
 argument-hint: <task>
 ---
 

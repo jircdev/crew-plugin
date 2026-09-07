@@ -1,5 +1,9 @@
 # Contributing & maintenance
 
+For shared Claude/Codex entry points, generation checks and packaging, see
+[compatibility maintenance](compatibility.md#maintain-and-verify). Edit canonical
+roles and commands, then run `node scripts/sync-codex.js`; CI checks for drift.
+
 ## Folder structure
 
 ```
@@ -61,8 +65,20 @@ Roles and templates evolve. To propagate changes to consumers:
 2. Bump `version` in `.claude-plugin/plugin.json` **and** `.claude-plugin/marketplace.json` — they must match.
 3. Add the changelog entry.
 4. Add a `migrations.json` row **if and only if** the version requires the consumer to act. Everything additive or opt-in is `required: false` and must not notify — a startup notice that fires for things nobody has to do is a notice nobody reads.
-5. Commit and push.
-6. Consumers run `/plugin update crew@factory-crew`. (Author/local-dev installs consume the working tree directly — just pull.)
+5. Regenerate with `node scripts/sync-codex.js`, run
+   `node --test tests/compatibility.test.js` and `python tests/release-test.py`,
+   and validate both manifests. For host integration changes, also run the
+   [isolated runtime smoke](compatibility.md#tests-and-maintenance).
+6. Commit and push; wait for Windows/Linux CI. Tag that commit as `vX.Y.Z`.
+   Build with `python scripts/build-release.py --output work/release-X.Y.Z`
+   and attach all files in `assets/` to the GitHub release for that tag.
+   The builder checks Claude/Codex/catalog versions and refuses existing targets.
+   Claude's `.plugin` and `.zip` contain identical ZIP bytes; the Codex ZIP
+   contains a local catalog and generated plugin copy. `SHA256SUMS` identifies
+   the published bytes. These outputs are not independent sources to maintain.
+7. Consumers run `/plugin update crew@factory-crew` in Claude or follow
+   [Codex updates](compatibility.md#verify-and-update). Author/local installs
+   consume the working tree: pull and regenerate before starting a new session.
 
 For template changes, existing projects must re-run `scripts/init-project.sh` (which skips existing files) or merge the new template manually.
 

@@ -1,6 +1,6 @@
 ---
 name: product-strategist
-description: Use when the question is WHAT to build, for WHOM, and WHY NOW: new feature requests, scope decisions, prioritization, roadmap, success metrics definition, kill/continue calls. Upstream of every other product-facing role — invoke FIRST when an initiative is still an idea.
+description: "Use when the question is WHAT to build, for WHOM, and WHY NOW: new feature requests, scope decisions, prioritization, roadmap, success metrics definition, kill/continue calls. Upstream of every other product-facing role — invoke FIRST when an initiative is still an idea."
 model: opus
 ---
 

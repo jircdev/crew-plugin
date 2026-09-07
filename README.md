@@ -16,6 +16,10 @@ Each stage is staffed by specific roles — the stage-by-stage table and the ful
 
 ## Documentation
 
+Crew supports Claude Code and Codex through one shared catalog. See
+[compatibility and Codex installation](docs/en/compatibility.md) for activation,
+configuration, verification, updates, hook coverage and runtime test evidence.
+
 | If you want to… | Read |
 |-----------------|------|
 | Meet the roles and what each owns | [roles.md](docs/en/roles.md) |
@@ -35,7 +39,7 @@ Each stage is staffed by specific roles — the stage-by-stage table and the ful
 
 - **Subagents + slash commands** (`agents/`, `commands/`) — one per role; `/crew:<alias>` spawns the matching subagent, and retired aliases answer with their successor for one version.
 - **Templates** (`templates/`) — `AGENTS.md` (canonical agent context), a `CLAUDE.md` pointer, `standards/` (the code-quality core), and the full `docs/` taxonomy (stories, requirements, decisions, proposals, the delivery circuit, work history, DEVIATIONS).
-- **Skills** (`skills/`) — horizontal crafts any role loads: `writing` (how a piece communicates) and `design` (how to get from a problem to a composition, hand it off, review it, and judge a render). Method only — what is beautiful in a given product is that project's to declare.
+- **Skills** (`skills/`) — 31 generated alias entry points share the original role/command criteria across Claude and Codex. The horizontal crafts remain `writing` (how a piece communicates) and `design` (composition, handoff, implementation review and render judgment). Method only — what is beautiful in a given product is that project's to declare.
 - **Hooks** (`hooks/`) — `SessionStart` injects the session baseline and, only when it has something actionable to say, the project-configuration status; `PreToolUse` guards immutable artifacts, the estimation gate, real-time estimation timestamps, and code-quality ceilings; `Stop` checks closure traceability; a pre-commit quality gate (installed by `init-project.sh`) enforces the same ceilings at commit time, with pre-registered exemptions via a `crew:exempt` block in `docs/DEVIATIONS.md`.
 - **Per-repo config** (`crew.json`) — `mode: solo|team`, `metrics`, `quality: advise|enforce|off`, `ceilings`, plus `design` capabilities (where the app runs, component registry, render capture, checks, fallback taste), `testing` capabilities (strategy guide, e2e harness and where its specs live, suite commands), and the `configuredWith` marker. Nothing is granted by default: an undeclared capability is one the roles report they could not use. A repo without `crew.json` behaves exactly as before. Reference: [configuration.md](docs/en/configuration.md).
 - **Design memory** (`docs/design/` in your project) — references, approved patterns, rejected patterns. Scaffolded empty: the taste is the project's, never the plugin's. Declared via `design.memory`; configured by `/crew:setup`, which asks and never guesses.
@@ -43,6 +47,7 @@ Each stage is staffed by specific roles — the stage-by-stage table and the ful
 - **Metrics** — `/crew:metrics` + `scripts/metrics.js` report: lead time, execution time, estimate deviation, `--csv` export.
 - **Session baseline** (`standards/session-context.md`) — always-on **behavior** only (conversation style, office rule, two modes, document craft); process knowledge is not inlined, it points to the project's scaffolded `standards/` and `docs/guides/`. Suggestive defaults, the project's own rules always win.
 - **Bootstrap script** (`scripts/init-project.sh`) — scaffolds the templates into a new project; `--solo` for the single-dev path.
+- **Dual-host release** — `.claude-plugin/` and `.codex-plugin/` manifests, a Codex `apply_patch` adapter using the existing guards, and versioned `.plugin`/ZIP plus Codex marketplace archives from `scripts/build-release.py`. Shell/MCP writes remain outside file guards. The [compatibility guide](docs/en/compatibility.md) includes installation through verification and updates, plus controlled-runtime test evidence and limits.
 
 ## License
 

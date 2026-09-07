@@ -1,5 +1,8 @@
 # Instalación
 
+Esta página describe Claude Code. Para Codex y el paquete compartido, consulta
+[compatibilidad](compatibility.md).
+
 Vas a instalar el plugin **crew** del marketplace **factory-crew**, alojado en el repo de GitHub `jircdev/crew-plugin`. Elige el método que te encaje — todos terminan en el mismo lugar.
 
 ## Lo más fácil — pídeselo a Claude

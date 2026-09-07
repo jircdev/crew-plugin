@@ -20,10 +20,15 @@ const { readFileSync } = require("node:fs");
 const { join } = require("node:path");
 const { loadConfig } = require("./lib/config.js");
 
-const root = process.env.CLAUDE_PLUGIN_ROOT || join(__dirname, "..");
+const root = process.env.PLUGIN_ROOT || process.env.CLAUDE_PLUGIN_ROOT || join(__dirname, "..");
+let event = {};
+try { event = JSON.parse(readFileSync(0, "utf8").replace(/^\uFEFF/, "")); } catch { /* Legacy/manual invocation. */ }
 
 try {
   process.stdout.write(readFileSync(join(root, "standards", "session-context.md"), "utf8"));
+  if (process.env.PLUGIN_ROOT) {
+    process.stdout.write(`\n\nCrew plugin root: ${root}\n` + readFileSync(join(root, "integrations", "codex", "README.md"), "utf8"));
+  }
 } catch {
   // A missing baseline must never break the session.
 }
@@ -57,7 +62,7 @@ function pendingRequired(from) {
 }
 
 try {
-  const cwd = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const cwd = event.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
   const config = loadConfig(cwd);
   if (config) {
     const lines = [];

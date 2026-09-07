@@ -1,0 +1,4 @@
+*.js text eol=lf
+*.py text eol=lf
+skills/*/SKILL.md text eol=lf
+.codex-plugin/plugin.json text eol=lf

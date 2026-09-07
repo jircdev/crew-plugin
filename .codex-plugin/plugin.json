@@ -1,0 +1,33 @@
+{
+  "name": "crew",
+  "version": "0.25.0",
+  "description": "Shared Crew roles, crafts and project standards for Claude Code and Codex.",
+  "author": {
+    "name": "Julio",
+    "email": "julio@beyondjs.com"
+  },
+  "homepage": "https://github.com/jircdev/crew-plugin",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "roles",
+    "code-quality",
+    "documentation"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Crew",
+    "shortDescription": "Specialized roles and shared engineering standards",
+    "longDescription": "One role catalog, shared crafts and crew.json, with host-specific entry points and guarded file edits.",
+    "developerName": "Julio",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/jircdev/crew-plugin",
+    "defaultPrompt": [
+      "Use Crew to review this project."
+    ]
+  }
+}

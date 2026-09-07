@@ -1,5 +1,9 @@
 # Contribuir y mantenimiento
 
+La [guía de compatibilidad](compatibility.md) explica la base compartida y las
+pruebas para Claude/Codex. Edita roles y comandos canónicos y ejecuta
+`node scripts/sync-codex.js`; CI detecta las entradas generadas desactualizadas.
+
 ## Estructura de carpetas
 
 ```
@@ -61,8 +65,21 @@ Los roles y las plantillas evolucionan. Para propagar cambios a los consumidores
 2. Sube la `version` en `.claude-plugin/plugin.json` **y** en `.claude-plugin/marketplace.json` — tienen que coincidir.
 3. Agrega la entrada de changelog.
 4. Agrega una fila en `migrations.json` **si y solo si** la versión exige que el consumidor actúe. Todo lo aditivo u opt-in va con `required: false` y no debe avisar — un aviso de arranque que salta por cosas que nadie tiene que hacer es un aviso que nadie lee.
-5. Commit y push.
-6. Los consumidores ejecutan `/plugin update crew@factory-crew`. (Las instalaciones autor/local consumen el working tree directamente — basta con hacer pull.)
+5. Regenera con `node scripts/sync-codex.js`, ejecuta
+   `node --test tests/compatibility.test.js` y `python tests/release-test.py`,
+   y valida ambos manifiestos. Si cambia la integración con el host, ejecuta
+   el [smoke aislado de runtime](compatibility.md#pruebas-y-mantenimiento).
+6. Commit y push; espera el CI Windows/Linux. Etiqueta ese commit como `vX.Y.Z`.
+   Genera con `python scripts/build-release.py --output work/release-X.Y.Z`
+   y adjunta todos los archivos de `assets/` a la release GitHub del tag.
+   El generador comprueba versiones Claude/Codex/catálogo y rechaza destinos
+   existentes. El `.plugin` de Claude y el `.zip` tienen los mismos bytes ZIP;
+   el ZIP Codex contiene un catálogo local y una copia generada del plugin.
+   `SHA256SUMS` identifica los bytes publicados. No son fuentes independientes.
+7. Los consumidores ejecutan `/plugin update crew@factory-crew` en Claude o
+   siguen la [actualización Codex](compatibility.md#verificar-y-actualizar).
+   Las instalaciones autor/local consumen el working tree: pull y regeneración
+   antes de abrir una sesión nueva.
 
 Para cambios en plantillas, los proyectos existentes deben re-ejecutar `scripts/init-project.sh` (que salta los archivos ya existentes) o fusionar la nueva plantilla a mano.
 

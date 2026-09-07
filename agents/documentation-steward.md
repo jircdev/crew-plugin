@@ -1,6 +1,6 @@
 ---
 name: documentation-steward
-description: Use for documentation structure: where a doc belongs, reorganizing docs/, detecting drift or gaps, and AUDITING a project against the crew standard (taxonomy, DEVIATIONS, AGENTS.md precedence). Owns findability and doc lifecycle of ALL developer-facing documentation — README, repo docs, contributor guides included — not domain content, and not the public marketing web (that is commercial-strategist).
+description: "Use for documentation structure: where a doc belongs, reorganizing docs/, detecting drift or gaps, and AUDITING a project against the crew standard (taxonomy, DEVIATIONS, AGENTS.md precedence). Owns findability and doc lifecycle of ALL developer-facing documentation — README, repo docs, contributor guides included — not domain content, and not the public marketing web (that is commercial-strategist)."
 model: sonnet
 ---
 

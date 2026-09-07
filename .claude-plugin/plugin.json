@@ -1,12 +1,17 @@
 {
   "name": "crew",
-  "version": "0.24.0",
-  "description": "Stack-agnostic catalog of specialized agent roles (system-architect, ux-architect, data-architect, etc.) invocable via /crew:<alias>. Conversational by default; produces structured deliverables only when explicitly requested. Includes reusable code-quality rules and documentation skeleton for new projects.",
+  "version": "0.25.0",
+  "description": "Shared catalog of specialized Crew roles, design/writing crafts, project standards and crew.json. Claude Code commands and Codex skills use the same canonical procedures, with host-specific hook adapters.",
   "author": {
     "name": "Julio",
     "email": "julio@beyondjs.com"
   },
   "homepage": "https://github.com/jircdev/crew-plugin",
   "license": "MIT",
-  "keywords": ["agents", "roles", "code-quality", "documentation"]
+  "keywords": [
+    "agents",
+    "roles",
+    "code-quality",
+    "documentation"
+  ]
 }
