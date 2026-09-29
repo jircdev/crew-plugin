@@ -118,6 +118,7 @@ y reinstala Crew. No edites la caché instalada.
 | Roles y oficios | Comandos/subagentes y skills | Skills que leen los mismos originales; delegación según host |
 | Inmutabilidad, estimación, verificación, fechas, calidad | Guards Edit/Write | apply_patch traducido por archivo y evaluado por los mismos guards |
 | Registro de trabajo | Stop | Mismo script: Git y cwd, sin interpretar transcripciones |
+| Captura de actividad (modo factory) | SessionStart, UserPromptSubmit, Stop, SessionEnd, PostToolUse Edit/Write/MultiEdit | Mismos eventos que emita el host; la tarea sale de las cabeceras de archivo de apply_patch en PostToolUse |
 | Tamaños en commit | Hook Git opcional del scaffold | Mismo hook; `node /ruta/crew/scripts/check-staged.js --all` comprueba archivos versionados |
 
 El adaptador admite altas, bajas, cambios, renombrados, varios archivos y hunks
@@ -144,7 +145,7 @@ instrucción y debe declarar que no verificó el control mecánico.
 Edita los roles/comandos canónicos y ejecuta `node scripts/sync-codex.js`.
 `--check` detecta entradas faltantes, obsoletas o retiradas. El manifiesto Codex
 deriva versión/autor del Claude; no se edita a mano. La prueba de contratos es
-`node --test tests/compatibility.test.js`. CI la ejecuta en Windows y Linux.
+`node --test "tests/*.test.js"`. CI la ejecuta en Windows y Linux.
 `python scripts/build-release.py --output <carpeta-nueva>` genera archivos
 `.plugin`, `.zip`, el ZIP de catálogo Codex y `SHA256SUMS` sin publicar nada.
 

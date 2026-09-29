@@ -51,6 +51,24 @@ Aggregates: **median and p90 execution time** across items, **average estimate d
 
 The report runs in **both modes, with or without `crew.json`** — it just reads what the tables contain. What `"metrics": true` gates is the *discipline*: without the guards, nothing certifies the timestamps were real, and the report is only as honest as the tables. Configuration details in [configuration.md](configuration.md).
 
+## Factory mode
+
+When `crew.json` declares a `factory` block ([configuration.md](configuration.md#factory-mode)), the numbers come from factory: estimates are set there, and consumed hours are the time the capture hooks recorded and each person confirmed. `/crew:metrics` then asks factory for the project backlog (the MCP tool `project_backlog`, using your personal token) and prints one row per task:
+
+| Column | Meaning |
+|---|---|
+| # | The task number in factory. |
+| Task | Its title. |
+| Status | `backlog`, `todo`, `in_progress`, `in_review`, `done` or `cancelled`. |
+| Original est (h) | The estimate the task was planned with. |
+| Current est (h) | The estimate as it stands today, after any re-estimation. |
+| Consumed (h) | Confirmed person time imputed to the task. |
+| Deviation | For finished tasks, consumed against the original estimate. For open tasks, the current estimate against the original, which shows how far the plan has drifted so far. Positive means more hours than planned. |
+
+Below the table comes the project summary: **approved** hours (the approved cost center), **consumed**, **pending** (current estimate of the open tasks), and **forecast** (consumed + pending), with the forecast's deviation against the approved figure.
+
+The period argument and `--csv` belong to the markdown report; in factory mode the report always shows the live backlog. Without a token it stops and says where to create one.
+
 ## Reading the numbers
 
 **Lead time vs execution time.** The gap between them is queue time: how long the item sat written-but-not-started. A story with 20 days of lead and 6 hours of exec is not a slow story — it is a prioritization signal. Execution time is the one to compare against estimates; lead time is the one the requester feels.

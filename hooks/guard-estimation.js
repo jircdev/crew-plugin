@@ -8,8 +8,14 @@
 //   · verification — no transition to Closed without stating how the work was
 //     verified. Active only when crew.json declares `testing`, in either mode:
 //     declaring what the project can verify is what makes the silence a defect.
+//
+// In factory mode (crew.json `factory` with a projectId) the estimate lives in
+// the factory task, so the estimation gate asks for the `**Factory task:**`
+// header link instead of the table, in either mode.
 const { readFileSync, existsSync } = require("node:fs");
 const { configFor } = require("./lib/config");
+const { factoryMode } = require("./lib/factory");
+const { factoryTaskId } = require("./lib/activity-rules");
 
 function deny(reason) {
   process.stdout.write(
@@ -103,7 +109,8 @@ try {
   // (solo skips it unless metrics are on); the verification gate is the
   // `testing` declaration, which stands on its own — a solo repo that declared
   // what it can verify still has to say how it verified.
-  const gateEstimation = !(cfg && cfg.mode === "solo" && cfg.metrics !== true);
+  const factory = factoryMode(cfg);
+  const gateEstimation = factory || !(cfg && cfg.mode === "solo" && cfg.metrics !== true);
   const gateVerification = !!(cfg && cfg.testing);
   if (!gateEstimation && !gateVerification) process.exit(0);
 
@@ -120,7 +127,16 @@ try {
     if (/\*\*(Status|Estado):\*\*\s*(Closed|Cerrada)\b/i.test(header)) process.exit(0);
   }
 
-  const problem = gateEstimation ? estimationIncomplete(content) : null;
+  if (factory && !factoryTaskId(content)) {
+    deny(
+      `Cannot close this work item: no **Factory task:** header. This project runs in ` +
+        `factory mode (crew.json \`factory\`): the estimate, state and time live in the ` +
+        `factory task, not in an Estimation table. Add a header line ` +
+        `\`- **Factory task:** <task uuid>\` linking the task, then close.`,
+    );
+  }
+
+  const problem = gateEstimation && !factory ? estimationIncomplete(content) : null;
   if (problem) {
     deny(
       `Cannot close this work item: ${problem}. Complete the estimation table ` +

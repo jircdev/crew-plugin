@@ -28,6 +28,8 @@ Two consequences worth internalizing. First, the plugin has **no hidden defaults
 | `ceilings` | object `{ kind: lines }` | `{}` | Per-kind overrides of the file-size line ceilings. Non-object values fall back to `{}`. |
 | `configuredWith` | version string | `null` | **State, not policy**: which plugin version last configured this project. Nobody interprets it to decide behavior — see [The marker](#the-marker-configuredwith). |
 | `design` | object | `null` | What this project *can do* for interface work. Nothing is granted by default — see [Design capabilities](#design-capabilities). |
+| `testing` | object | `null` | What this project can verify, and with what — see [Testing capabilities](#testing-capabilities). |
+| `factory` | object | `null` | Tasks, estimates and work time live in factory — see [Factory mode](#factory-mode). |
 
 Absent fields normalize to the legacy-equivalent value in the third column — a `crew.json` containing only `{"mode": "solo"}` is valid and means solo, no metrics, quality enforce, default ceilings.
 
@@ -163,6 +165,34 @@ The same rule as `design`, applied to the other place an agent sounds confident 
 
 **What the standard never mandates.** A specific tool. A plan that requires Playwright in a repo that never adopted it produces specs that never run and a table that reads covered while nothing executes. Declare the harness once, here, and every role derives from it.
 
+## Factory mode
+
+A project whose tasks and work time are managed in factory declares it with one block:
+
+```json
+{
+  "factory": {
+    "projectId": "3f0c9a52-…",
+    "url": "https://api.factory.balearesgroup.com/api/v1",
+    "capture": true
+  }
+}
+```
+
+| Key | Required | Default | Meaning |
+|---|---|---|---|
+| `projectId` | yes | — | The factory project this repository works for. A block without it is incomplete: session start names it, and everything behaves as if the block were absent. |
+| `url` | no | `https://api.factory.balearesgroup.com/api/v1` | The factory API base. Use `https://api.dev.factory.balearesgroup.com/api/v1` to work against the development environment. |
+| `capture` | no | `true` | Whether the activity hooks record work time for this project. `false` pauses capture for everyone working in the repository. |
+
+**What changes when the block is present.** The story or requirement keeps the spec and the criteria. The task (estimate, state, time) lives in factory and is linked from the work item by a `**Factory task:** <uuid>` header line. The estimation gate asks for that header in place of an `## Estimation` table, the timestamps guard stands down because the capture hooks keep the clock, and `/crew:metrics` reads the backlog from factory. Details in [enforcement.md](enforcement.md#factory-mode) and [metrics.md](metrics.md#factory-mode).
+
+**The token is personal and stays out of the repository.** The hooks and the metrics report read it from the `FACTORY_TOKEN` environment variable, or else from the file `~/.crew/factory-token`. `crew.json` is versioned and shared, so it has no token field.
+
+**Pausing capture.** Any one of three switches is enough: `CREW_CAPTURE=off` in your environment (you, on this machine), `"capture": false` (the whole project), or no token at all. Paused capture writes nothing, local state included.
+
+The circuit as the people using it see it (what is captured, how to create the token, how to connect the MCP server, the weekly review) is in [factory.md](factory.md).
+
 ## The marker: `configuredWith`
 
 One line recording which plugin version last configured this project. It is **state, not policy**: no behavior reads it. Delete it and the only thing you lose is the notice.
@@ -201,9 +231,12 @@ The question set it follows is fixed and versioned in the plugin (`standards/con
 | File-size ceilings at write ([guard-code-quality](../../hooks/guard-code-quality.js)) | `quality`, `ceilings` | per `quality` mode | per `quality` mode | enforce |
 | Work-log reminder on Stop ([check-work-log](../../hooks/check-work-log.js)) | `mode` | active where `docs/work/` exists | off | active where `docs/work/` exists |
 | Pre-commit quality gate ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | always, once installed | always, once installed | always, once installed |
-| `/crew:metrics` report ([metrics.js](../../scripts/metrics.js)) | nothing | runs | runs | runs |
+| `/crew:metrics` report ([metrics.js](../../scripts/metrics.js)) | `factory` | runs | runs | runs |
+| Activity capture ([capture-activity](../../hooks/capture-activity.js)) | `factory` | only in factory mode, with a token | only in factory mode, with a token | off |
 
-The last row is the pattern to remember: **the report runs anywhere; only the discipline is gated** by `metrics: true`. Details in [metrics.md](metrics.md).
+The metrics row is the pattern to remember: **the report runs anywhere; only the discipline is gated** by `metrics: true`. Details in [metrics.md](metrics.md).
+
+**Factory mode overrides three rows**, in either mode: the estimation gate asks for the `**Factory task:**` header in place of the table, the timestamps guard is off, and the metrics report reads factory's backlog. Verification, immutability, quality and the work-log reminder are unchanged.
 
 ## How `init-project.sh` writes it
 

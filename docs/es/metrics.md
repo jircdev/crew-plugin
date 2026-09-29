@@ -51,6 +51,24 @@ Agregados: **mediana y p90 del tiempo de ejecución** entre ítems, **desviació
 
 El reporte corre en **ambos modos, con o sin `crew.json`** — simplemente lee lo que las tablas contienen. Lo que `"metrics": true` habilita es la *disciplina*: sin los guards, nada certifica que los timestamps fueron reales, y el reporte es tan honesto como las tablas. Detalles de configuración en [configuration.md](configuration.md).
 
+## Modo factory
+
+Cuando `crew.json` declara un bloque `factory` ([configuration.md](configuration.md#modo-factory)), los números salen de factory: las estimaciones se cargan allí, y las horas consumidas son el tiempo que registraron los hooks de captura y que cada persona confirmó. `/crew:metrics` le pide entonces a factory el backlog del proyecto (la herramienta MCP `project_backlog`, con tu token personal) e imprime una fila por tarea:
+
+| Columna | Significado |
+|---|---|
+| # | El número de la tarea en factory. |
+| Task | Su título. |
+| Status | `backlog`, `todo`, `in_progress`, `in_review`, `done` o `cancelled`. |
+| Original est (h) | La estimación con la que se planificó la tarea. |
+| Current est (h) | La estimación vigente hoy, después de cualquier re-estimación. |
+| Consumed (h) | Tiempo de personas confirmado e imputado a la tarea. |
+| Deviation | En tareas terminadas, lo consumido contra la estimación original. En tareas abiertas, la estimación vigente contra la original, que muestra cuánto se movió el plan hasta ahora. Positivo significa más horas que las planificadas. |
+
+Debajo de la tabla va el resumen del proyecto: horas **aprobadas** (el centro de costo aprobado), **consumidas**, **pendientes** (estimación vigente de las tareas abiertas) y **pronóstico** (consumidas + pendientes), con la desviación del pronóstico contra lo aprobado.
+
+El argumento de período y `--csv` pertenecen al reporte en markdown; en modo factory el reporte muestra siempre el backlog vivo. Sin token se detiene y dice dónde crear uno.
+
 ## Cómo leer los números
 
 **Lead time vs tiempo de ejecución.** La brecha entre ambos es tiempo de cola: cuánto estuvo el ítem escrito-pero-no-empezado. Una historia con 20 días de lead y 6 horas de exec no es una historia lenta — es una señal de priorización. El tiempo de ejecución es el que se compara contra las estimaciones; el lead time es el que siente quien pidió el trabajo.

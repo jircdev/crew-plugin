@@ -28,6 +28,8 @@ Dos consecuencias que conviene internalizar. Primera, el plugin **no tiene defau
 | `ceilings` | objeto `{ kind: líneas }` | `{}` | Overrides por tipo de los techos de líneas por archivo. Valores no-objeto caen a `{}`. |
 | `configuredWith` | string de versión | `null` | **Estado, no política**: con qué versión del plugin se configuró este proyecto por última vez. Nadie lo interpreta para decidir comportamiento — ver [La marca](#la-marca-configuredwith). |
 | `design` | objeto | `null` | Qué *puede hacer* este proyecto para el trabajo de interfaz. Nada se concede por defecto — ver [Capacidades de diseño](#capacidades-de-diseño). |
+| `testing` | objeto | `null` | Qué puede verificar este proyecto, y con qué — ver [Capacidades de testing](#capacidades-de-testing). |
+| `factory` | objeto | `null` | Las tareas, las estimaciones y el tiempo de trabajo viven en factory — ver [Modo factory](#modo-factory). |
 
 Los campos ausentes se normalizan al valor equivalente-legacy de la tercera columna — un `crew.json` que contiene solo `{"mode": "solo"}` es válido y significa solo, sin métricas, calidad enforce, techos por defecto.
 
@@ -163,6 +165,34 @@ La misma regla que `design`, aplicada al otro lugar donde un agente suena seguro
 
 **Lo que el estándar nunca impone.** Una herramienta concreta. Un plan que exige Playwright en un repo que nunca lo adoptó produce specs que no corren y una tabla que se lee cubierta mientras no se ejecuta nada. Declara el arnés una vez, acá, y todos los roles derivan de ahí.
 
+## Modo factory
+
+Un proyecto cuyas tareas y tiempo de trabajo se gestionan en factory lo declara con un bloque:
+
+```json
+{
+  "factory": {
+    "projectId": "3f0c9a52-…",
+    "url": "https://api.factory.balearesgroup.com/api/v1",
+    "capture": true
+  }
+}
+```
+
+| Clave | Obligatoria | Default | Significado |
+|---|---|---|---|
+| `projectId` | sí | — | El proyecto de factory para el que trabaja este repositorio. Un bloque sin él está incompleto: el arranque de sesión lo nombra, y todo se comporta como si el bloque no existiera. |
+| `url` | no | `https://api.factory.balearesgroup.com/api/v1` | La base de la API de factory. Usá `https://api.dev.factory.balearesgroup.com/api/v1` para trabajar contra el entorno de desarrollo. |
+| `capture` | no | `true` | Si los hooks de actividad registran el tiempo de trabajo de este proyecto. `false` pausa la captura para todas las personas que trabajan en el repositorio. |
+
+**Qué cambia cuando el bloque está presente.** La historia o requerimiento conserva la especificación y los criterios. La tarea (estimación, estado, tiempo) vive en factory y se enlaza desde el work item con una línea de cabecera `**Factory task:** <uuid>`. La puerta de estimación pide esa cabecera en lugar de la tabla `## Estimation`, el guard de timestamps se retira porque el reloj lo llevan los hooks de captura, y `/crew:metrics` lee el backlog desde factory. Detalle en [enforcement.md](enforcement.md#modo-factory) y [metrics.md](metrics.md#modo-factory).
+
+**El token es personal y queda fuera del repositorio.** Los hooks y el reporte de métricas lo leen de la variable de entorno `FACTORY_TOKEN`, o si falta, del archivo `~/.crew/factory-token`. `crew.json` está versionado y compartido, así que no tiene campo para el token.
+
+**Pausar la captura.** Alcanza con cualquiera de tres interruptores: `CREW_CAPTURE=off` en tu entorno (vos, en esta máquina), `"capture": false` (todo el proyecto), o no tener token. Con la captura en pausa no se escribe nada, tampoco estado local.
+
+El circuito tal como lo ven quienes lo usan (qué se captura, cómo crear el token, cómo conectar el servidor MCP, la revisión semanal) está en [factory.md](factory.md).
+
 ## La marca: `configuredWith`
 
 Una línea que registra con qué versión del plugin se configuró este proyecto por última vez. Es **estado, no política**: ningún comportamiento la lee. Borrala y lo único que perdés es el aviso.
@@ -201,9 +231,12 @@ El set de preguntas que sigue está fijo y versionado en el plugin (`standards/c
 | Techos de tamaño al escribir ([guard-code-quality](../../hooks/guard-code-quality.js)) | `quality`, `ceilings` | según `quality` | según `quality` | enforce |
 | Recordatorio de work-log al cerrar sesión ([check-work-log](../../hooks/check-work-log.js)) | `mode` | activo donde exista `docs/work/` | apagado | activo donde exista `docs/work/` |
 | Puerta de calidad pre-commit ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | siempre, una vez instalada | siempre, una vez instalada | siempre, una vez instalada |
-| Reporte `/crew:metrics` ([metrics.js](../../scripts/metrics.js)) | nada | corre | corre | corre |
+| Reporte `/crew:metrics` ([metrics.js](../../scripts/metrics.js)) | `factory` | corre | corre | corre |
+| Captura de actividad ([capture-activity](../../hooks/capture-activity.js)) | `factory` | solo en modo factory, con token | solo en modo factory, con token | apagada |
 
-La última fila es el patrón a recordar: **el reporte corre en cualquier lado; lo que `metrics: true` habilita es la disciplina**. Detalles en [metrics.md](metrics.md).
+La fila de métricas es el patrón a recordar: **el reporte corre en cualquier lado; lo que `metrics: true` habilita es la disciplina**. Detalles en [metrics.md](metrics.md).
+
+**El modo factory reemplaza tres filas**, en cualquiera de los dos modos: la puerta de estimación pide la cabecera `**Factory task:**` en lugar de la tabla, el guard de timestamps queda apagado y el reporte de métricas lee el backlog de factory. Verificación, inmutabilidad, calidad y recordatorio de work-log siguen igual.
 
 ## Cómo lo escribe `init-project.sh`
 

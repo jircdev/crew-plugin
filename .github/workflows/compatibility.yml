@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: 22
       - run: node scripts/sync-codex.js --check
-      - run: node --test tests/compatibility.test.js
+      - run: node --test "tests/*.test.js"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

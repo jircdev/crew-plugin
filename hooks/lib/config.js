@@ -24,8 +24,9 @@
 //      instead of degrading in silence.
 //   6. No field may be honored by a role if normalize() does not transport it.
 //      One interpretation of the contract, never two.
-const { readFileSync, existsSync } = require("node:fs");
+const { readFileSync } = require("node:fs");
 const { join, dirname } = require("node:path");
+const { configDir } = require("./config-dir");
 
 const QUALITY_MODES = new Set(["advise", "enforce", "off"]);
 // Enums exist ONLY where a role must know HOW to consume the capability.
@@ -50,14 +51,8 @@ const BASELINE_KINDS = new Set(["skill", "doc"]);
 // after 30 levels). Returns the parsed, normalized config object, or null.
 function loadConfig(startDir) {
   try {
-    let dir = startDir;
-    for (let i = 0; i < 30 && dir; i++) {
-      const candidate = join(dir, "crew.json");
-      if (existsSync(candidate)) return normalize(readFileSync(candidate, "utf8"));
-      const parent = dirname(dir);
-      if (parent === dir) break;
-      dir = parent;
-    }
+    const dir = configDir(startDir);
+    if (dir) return normalize(readFileSync(join(dir, "crew.json"), "utf8"));
   } catch {
     // fall through — unreadable config behaves like no config
   }
@@ -157,6 +152,17 @@ function normalizeTesting(raw) {
   return { guide: str(raw.guide), e2e, commands, unknown };
 }
 
+// factory: tasks and work time live in factory. Declaring the block is the
+// opt-in; the token never lives here (env or ~/.crew only).
+const FACTORY_URL = "https://api.factory.balearesgroup.com/api/v1";
+function normalizeFactory(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const projectId = str(raw.projectId);
+  const url = (str(raw.url) || FACTORY_URL).replace(/\/+$/, "");
+  const unknown = projectId ? [] : ["projectId=missing"];
+  return { projectId, url, capture: raw.capture !== false, unknown };
+}
+
 function normalize(raw) {
   try {
     const parsed = JSON.parse(raw.replace(/^﻿/, ""));
@@ -173,6 +179,7 @@ function normalize(raw) {
       configuredWith: str(parsed.configuredWith),
       design: normalizeDesign(parsed.design),
       testing: normalizeTesting(parsed.testing),
+      factory: normalizeFactory(parsed.factory),
     };
   } catch {
     return null; // invalid JSON ⇒ legacy behavior, never block
@@ -187,4 +194,4 @@ function configFor(filePath, cwd) {
   return cwd ? loadConfig(cwd) : null;
 }
 
-module.exports = { loadConfig, configFor };
+module.exports = { loadConfig, configDir, configFor };

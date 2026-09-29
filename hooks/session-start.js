@@ -90,6 +90,7 @@ try {
     for (const [section, cfg] of [
       ["design", config.design],
       ["testing", config.testing],
+      ["factory", config.factory],
     ]) {
       for (const unknown of (cfg && cfg.unknown) || []) {
         const incomplete = unknown.endsWith("=missing");

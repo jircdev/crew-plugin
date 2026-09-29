@@ -109,6 +109,27 @@ Guard: [`../../hooks/guard-timestamps.js`](../../hooks/guard-timestamps.js). Act
 
 Empezaste un hito, la sesión murió, y retomás al día siguiente. **No** retro-datees `Finished` a cuando el trabajo "habría" terminado — el guard lo va a rechazar, y retro-datear es exactamente la falsificación que existe para impedir. En cambio: escribí `Finished` con la **hora real de reanudación** cuando cierres el hito, y anotá el hueco en `Notes` (p. ej. "sesión interrumpida, hueco de ~16h"). Que el wall-clock incluya pausas es de diseño — la métrica mide el costo de punta a punta del requerimiento, no el tiempo de teclado. En [metrics.md](metrics.md) está cómo leer los números resultantes.
 
+## Modo factory
+
+Cuando `crew.json` declara un bloque `factory` con `projectId` ([configuration.md](configuration.md#modo-factory)), la estimación, el estado y el tiempo de trabajo de cada tarea viven en factory. Dos guards se adaptan, igual en team que en solo; el resto se comporta como se describe arriba.
+
+- **Timestamps** se retira por completo. Los hooks de captura registran cuándo ocurrió el trabajo, así que no quedan celdas `Started`/`Finished` que vigilar.
+- **La puerta de estimación al cierre** pide el enlace a la tarea de factory en lugar de la tabla. La puerta de verificación sigue igual: con `testing` declarado, la tabla `## Verification` sigue siendo obligatoria.
+
+El adaptador de `apply_patch` de Codex corre estos mismos guards, así que ambos hosts aplican la misma regla.
+
+### "Cannot close this work item: no **Factory task:** header"
+
+**Causa.** Estás pasando una historia o requerimiento a `Closed` y sus primeras 40 líneas no tienen una línea `**Factory task:** <uuid>`. En modo factory esa línea es la que ata la especificación del repo con la tarea cuya estimación y horas guarda factory; sin ella, el ítem cerrado apunta a algo imposible de medir.
+
+**Solución.** Buscá o creá la tarea en factory (las herramientas MCP de `factory` `project_backlog`, `create_task` o `get_task` lo hacen desde la sesión), agregá la línea a la cabecera y después cerrá:
+
+```
+- **Factory task:** 3f0c9a52-8d1e-4c7a-9b6f-2a1d0e5c7b44
+```
+
+En este modo la tabla `## Estimation` es opcional y ningún guard la revisa.
+
 ## Calidad de código
 
 Guard: [`../../hooks/guard-code-quality.js`](../../hooks/guard-code-quality.js) al escribir; puerta: [`../../scripts/check-staged.js`](../../scripts/check-staged.js) al commitear. Ambos comparten los mismos techos, overrides (`"ceilings"` en `crew.json`) y exenciones — la tabla de tipos y defaults está en [configuration.md](configuration.md#ceilings).

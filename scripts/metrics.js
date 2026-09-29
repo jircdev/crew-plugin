@@ -2,6 +2,7 @@
 // Estimation metrics consumer (M2). Scans docs/stories/** and
 // docs/requirements/** for Closed items, parses each estimation table and
 // reports per-item and aggregate timing metrics. Pure Node, no dependencies.
+// In factory mode (crew.json `factory`) it reports factory's backlog instead.
 //
 // Usage: node metrics.js [YYYY-MM] [--csv]
 //   YYYY-MM  only items closed in that month
@@ -9,6 +10,8 @@
 const { readFileSync, readdirSync, writeFileSync, existsSync, statSync } = require("node:fs");
 const { execSync } = require("node:child_process");
 const { join, relative, dirname, sep } = require("node:path");
+const { loadConfig } = require("../hooks/lib/config");
+const { factoryMode } = require("../hooks/lib/factory");
 
 const args = process.argv.slice(2);
 const csv = args.includes("--csv");
@@ -23,6 +26,15 @@ function git(cmd, cwd) {
 }
 
 const root = git("rev-parse --show-toplevel", process.cwd()) || process.cwd();
+
+// Factory mode: tasks, estimates and time live in factory, so the markdown
+// tables are not the source. (CommonJS allows this top-level return.)
+const config = loadConfig(root);
+if (factoryMode(config)) {
+  require("./metrics-factory").factoryReport(config.factory, args)
+    .then((code) => { process.exitCode = code; });
+  return;
+}
 
 function mdFiles(dir) {
   if (!existsSync(dir)) return [];
