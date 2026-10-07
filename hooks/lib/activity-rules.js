@@ -46,6 +46,11 @@ function makeInterval(kind, from, to, state, ctx) {
 }
 
 // event: { name, hint? } — hint is only present for PostToolUse edits.
+// Human time runs while the person has the turn: from the end of an agent
+// reply (or the session start) to the next prompt, cut at IDLE_MS. Agent time
+// runs from a prompt to the end of its reply, however long it takes, so the
+// two never overlap. A prompt that arrives with a reply still pending (an
+// interrupted turn, no Stop) closes that run, cut at IDLE_MS like human time.
 function applyEvent(prev, event, now, ctx) {
   const state = { lastEventAt: null, promptAt: null, taskHint: null, ...prev };
   const intervals = [];
@@ -54,16 +59,21 @@ function applyEvent(prev, event, now, ctx) {
     return { state, intervals };
   }
   if (!PRESENCE.has(event.name)) return { state, intervals };
-  const gap = state.lastEventAt === null ? null : now - state.lastEventAt;
-  if (gap !== null && gap > 0 && gap <= IDLE_MS) {
-    intervals.push(makeInterval("human", state.lastEventAt, now, state, ctx));
+  if (state.promptAt !== null) {
+    const run = now - state.promptAt;
+    const closes = event.name === "Stop" || event.name === "UserPromptSubmit";
+    if (closes && run > 0 && (event.name === "Stop" || run <= IDLE_MS)) {
+      intervals.push(makeInterval("agent", state.promptAt, now, state, ctx));
+    }
+    state.promptAt = null;
+  } else {
+    const gap = state.lastEventAt === null ? null : now - state.lastEventAt;
+    if (gap !== null && gap > 0 && gap <= IDLE_MS) {
+      intervals.push(makeInterval("human", state.lastEventAt, now, state, ctx));
+    }
   }
   state.lastEventAt = now;
   if (event.name === "UserPromptSubmit") state.promptAt = now;
-  if (event.name === "Stop" && state.promptAt !== null) {
-    if (now > state.promptAt) intervals.push(makeInterval("agent", state.promptAt, now, state, ctx));
-    state.promptAt = null;
-  }
   return { state, intervals };
 }
 

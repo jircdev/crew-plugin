@@ -58,20 +58,26 @@ function seedState(home, sessionId, state) {
   put(home, `activity/${sessionId}.json`, JSON.stringify(state));
 }
 
-test('scripted events with a fake clock build human and agent intervals and cut idle gaps', () => {
+test('scripted events build human time on the person turn and agent time on the reply, never overlapping', () => {
   let n = 0;
   const ctx = { sessionId: 's1', projectId: PROJECT, newId: () => `id-${++n}` };
   let state = {};
   const out = [];
   for (const [name, at] of [['SessionStart', 0], ['UserPromptSubmit', 5], ['Stop', 10],
-    ['UserPromptSubmit', 40], ['Stop', 41], ['SessionEnd', 42]]) {
+    ['UserPromptSubmit', 40], ['Stop', 41], ['SessionEnd', 42],
+    ['SessionStart', 60], ['UserPromptSubmit', 62], ['Stop', 82], ['UserPromptSubmit', 90],
+    ['UserPromptSubmit', 95], ['UserPromptSubmit', 200]]) {
     const step = applyEvent(state, { name }, T0 + at * MIN, ctx);
     state = step.state;
     out.push(...step.intervals.map((i) => [i.kind, (Date.parse(i.startedAt) - T0) / MIN, (Date.parse(i.endedAt) - T0) / MIN]));
   }
   assert.deepEqual(out, [
-    ['human', 0, 5], ['human', 5, 10], ['agent', 5, 10],
-    ['human', 40, 41], ['agent', 40, 41], ['human', 41, 42],
+    ['human', 0, 5], ['agent', 5, 10],
+    ['agent', 40, 41], ['human', 41, 42],
+    // A 20-minute reply stays agent time and the person's turn after it still counts.
+    ['human', 60, 62], ['agent', 62, 82], ['human', 82, 90],
+    // An interrupted turn closes its run; one pending past the idle cut is dropped.
+    ['agent', 90, 95],
   ]);
 });
 
@@ -114,7 +120,7 @@ test('prompt content is never captured and an offline flush keeps the queue', t 
   runSync({ session_id: 's2', hook_event_name: 'Stop', cwd: dir, prompt: 'SECRET PROMPT',
     last_assistant_message: 'SECRET ANSWER', transcript_path: put(dir, 't.jsonl', 'SECRET') }, home);
   const items = queued(home);
-  assert.deepEqual(items.map((i) => i.kind).sort(), ['agent', 'human']);
+  assert.deepEqual(items.map((i) => i.kind), ['agent']);
   const raw = fs.readFileSync(path.join(home, 'activity', 'queue.jsonl'), 'utf8');
   assert.equal(raw.includes('SECRET'), false);
   for (const item of items) assert.deepEqual(Object.keys(item).sort(), ['endedAt', 'id', 'kind', 'projectId', 'sessionId', 'startedAt']);
