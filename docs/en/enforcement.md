@@ -112,21 +112,23 @@ You started a milestone, the session died, and you resume the next day. Do **not
 When `crew.json` declares a `factory` block with a `projectId` ([configuration.md](configuration.md#factory-mode)), the estimate, the state and the work time of each task live in factory. Two guards adapt, in team and solo alike; the rest behave as described above.
 
 - **Timestamps** stand down entirely. The capture hooks record when work happened, so there are no `Started`/`Finished` cells to police.
-- **The estimation closure gate** asks for the link to the factory task in place of the table. The verification gate is unchanged: with `testing` declared, the `## Verification` table is still required.
+- **The estimation closure gate** asks for the link to the factory activity in place of the table. The verification gate is unchanged: with `testing` declared, the `## Verification` table is still required.
 
 The Codex `apply_patch` adapter runs these same guards, so both hosts apply the same rule.
 
-### "Cannot close this work item: no **Factory task:** header"
+### "Cannot close this work item: no **Factory activity:** header"
 
-**Cause.** You are moving a story or requirement to `Closed` and its first 40 lines carry no `**Factory task:** <uuid>` line. In factory mode that line is what ties the spec in the repo to the task whose estimate and hours factory holds; without it, the closed item points at nothing measurable.
+**Cause.** You are moving a story or requirement to `Closed` and its first 40 lines carry no `**Factory activity:** <uuid>` line (or the older `**Factory task:** <uuid>`). In factory mode that line ties the spec in the repo to the activity whose estimate and hours factory holds. Without it, the closed item points at nothing measurable.
 
-**Fix.** Find or create the task in factory (the `factory` MCP tools `project_backlog`, `create_task` or `get_task` do this from the session) and add the line to the header, then close:
+**Fix.** Find or create the activity in factory (the `factory` MCP tools `project_backlog`, `get_activity`, `create_activity` or `upsert_requirement` do this from the session), add the line to the header, then close:
 
 ```
-- **Factory task:** 3f0c9a52-8d1e-4c7a-9b6f-2a1d0e5c7b44
+- **Factory activity:** 3f0c9a52-8d1e-4c7a-9b6f-2a1d0e5c7b44
 ```
 
 An `## Estimation` table is optional in this mode and never checked.
+
+## Estimation` table is optional in this mode and never checked.
 
 ## Code quality
 

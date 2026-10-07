@@ -1,12 +1,14 @@
 // Factory-mode metrics: the backlog, estimates and consumed hours live in
 // factory, so the report reads them through factory's MCP endpoint (tool
-// `project_backlog`) instead of parsing markdown tables.
-const { postJson, factoryToken } = require("../hooks/lib/factory");
+// `project_backlog`) instead of parsing markdown tables. When factory cannot
+// answer, the caller falls back to the local markdown report.
+const { postJson, factoryToken, factoryApi } = require("../hooks/lib/factory");
 
 const TIMEOUT_MS = 15000;
-const PROTOCOL_VERSION = "2025-03-26";
 const MCP_HEADERS = { Accept: "application/json, text/event-stream" };
 const OPEN = new Set(["backlog", "todo", "in_progress", "in_review"]);
+
+class FactoryError extends Error {}
 
 // Streamable HTTP may answer as plain JSON or as an SSE stream.
 function parseRpc(res, id) {
@@ -23,35 +25,21 @@ function parseRpc(res, id) {
   try { return JSON.parse(res.body); } catch { return null; }
 }
 
-async function rpc(url, token, message, headers = {}) {
-  const res = await postJson(`${url}/mcp`, token, { jsonrpc: "2.0", ...message }, TIMEOUT_MS,
-    { ...MCP_HEADERS, ...headers });
-  if (res.status === 401 || res.status === 403) {
-    throw new Error(`factory rejected the token (HTTP ${res.status}); create a new one in factory`);
-  }
-  return { res, msg: message.id === undefined ? null : parseRpc(res, message.id) };
-}
-
-// Each POST is independent on a stateless server. If it still insists on a
-// handshake, do initialize + notifications/initialized and retry once.
-async function handshake(url, token) {
-  const params = { protocolVersion: PROTOCOL_VERSION, capabilities: {},
-    clientInfo: { name: "crew-metrics", version: "1" } };
-  const { res } = await rpc(url, token, { id: 1, method: "initialize", params });
-  const session = res.headers.get("mcp-session-id");
-  const headers = session ? { "Mcp-Session-Id": session } : {};
-  await rpc(url, token, { method: "notifications/initialized" }, headers);
-  return headers;
-}
-
+// factory's MCP endpoint is stateless: tools/call needs no handshake.
 async function callTool(url, token, name, args) {
-  const call = { method: "tools/call", params: { name, arguments: args } };
-  let { res, msg } = await rpc(url, token, { id: 2, ...call });
-  if (!msg || msg.error) ({ res, msg } = await rpc(url, token, { id: 3, ...call }, await handshake(url, token)));
-  if (!msg) throw new Error(`factory answered HTTP ${res.status} without a JSON-RPC message`);
-  if (msg.error) throw new Error(msg.error.message || "JSON-RPC error");
+  const res = await postJson(`${url}/mcp`, token,
+    { jsonrpc: "2.0", id: 1, method: "tools/call", params: { name, arguments: args } }, TIMEOUT_MS, MCP_HEADERS);
+  if (res.status === 401) {
+    throw new FactoryError("factory rejected the token (revoked or expired). Run /crew:factory login");
+  }
+  if (res.status === 403) {
+    throw new FactoryError("factory denied access: the person needs tasks.list and must take part in the project");
+  }
+  const msg = parseRpc(res, 1);
+  if (!msg) throw new FactoryError(`factory answered HTTP ${res.status} without a JSON-RPC message`);
+  if (msg.error) throw new FactoryError(msg.error.message || "JSON-RPC error");
   const text = (msg.result && msg.result.content && msg.result.content[0] && msg.result.content[0].text) || "";
-  if (msg.result.isError) throw new Error(text || "tool error");
+  if (msg.result.isError) throw new FactoryError(text || "tool error");
   return JSON.parse(text);
 }
 
@@ -67,36 +55,64 @@ function deviation(task) {
   return typeof now === "number" ? ((now - base) / base) * 100 : null;
 }
 
+// The backlog is a flat list of every activity kind; render it as the tree
+// its parentId describes. Appointments are calendar items, never backlog.
+// Consumed hours are each activity's own (factory does not roll children up
+// here), so only leaves carry a deviation.
+function tree(tasks) {
+  const work = tasks.filter((t) => t.kind !== "appointment");
+  const ids = new Set(work.map((t) => t.id));
+  const children = new Map();
+  for (const t of work) {
+    const parent = t.parentId && ids.has(t.parentId) ? t.parentId : null;
+    (children.get(parent) || children.set(parent, []).get(parent)).push(t);
+  }
+  const out = [];
+  const walk = (parent, depth) => {
+    for (const t of children.get(parent) || []) {
+      out.push({ task: t, depth, leaf: !children.has(t.id) });
+      walk(t.id, depth + 1);
+    }
+  };
+  walk(null, 0);
+  return out;
+}
+
 function render(backlog) {
   const lines = [`Project: ${backlog.projectName || backlog.projectId} (factory)`, ""];
-  lines.push("| # | Task | Status | Original est (h) | Current est (h) | Consumed (h) | Deviation |");
-  lines.push("|---|---|---|---|---|---|---|");
-  for (const t of backlog.tasks || []) {
-    lines.push(`| ${t.number} | ${t.title} | ${t.status} | ${hours(t.originalEstimatedHours)} | ` +
-      `${hours(t.estimatedHours)} | ${hours(t.consumedHours)} | ${pct(deviation(t))} |`);
+  lines.push("| Code | Activity | Kind | Status | Original est (h) | Current est (h) | Own consumed (h) | Deviation |");
+  lines.push("|---|---|---|---|---|---|---|---|");
+  for (const { task: t, depth, leaf } of tree(backlog.tasks || [])) {
+    const code = t.code || (t.number !== null && t.number !== undefined ? `#${t.number}` : "");
+    lines.push(`| ${code} | ${"↳ ".repeat(depth)}${t.title} | ${t.kind || "task"} | ${t.status} | ` +
+      `${hours(t.originalEstimatedHours)} | ${hours(t.estimatedHours)} | ${hours(t.consumedHours)} | ` +
+      `${leaf ? pct(deviation(t)) : "—"} |`);
   }
   const s = backlog.summary || {};
   const drift = s.approvedHours > 0 ? ((s.forecastHours - s.approvedHours) / s.approvedHours) * 100 : null;
-  lines.push("", `Approved ${hours(s.approvedHours)}h · consumed ${hours(s.consumedHours)}h · ` +
-    `pending ${hours(s.pendingHours)}h · forecast ${hours(s.forecastHours)}h (${pct(drift)} vs approved)`);
+  lines.push("", `Quoted ${hours(s.approvedHours)}h · consumed ${hours(s.consumedHours)}h · ` +
+    `pending ${hours(s.pendingHours)}h · forecast ${hours(s.forecastHours)}h (${pct(drift)} vs quoted)`);
   return lines.join("\n");
 }
 
-async function factoryReport(factory, args) {
+// Returns "ok", or "fallback" after printing why factory could not answer.
+async function factoryReport(config, args) {
   const token = factoryToken();
   if (!token) {
-    console.error("Factory mode: no token. Set FACTORY_TOKEN or write it to ~/.crew/factory-token " +
-      "(create it in factory: Mis horas → Conectar con la IA).");
-    return 1;
+    console.log("Factory mode: this machine is not connected to factory (run /crew:factory login). " +
+      "Showing the local report.\n");
+    return "fallback";
   }
   if (args.length) console.log("Note: period and --csv apply to the markdown report only; factory shows the live backlog.\n");
+  const url = factoryApi(config);
   try {
-    console.log(render(await callTool(factory.url, token, "project_backlog", { projectId: factory.projectId })));
-    return 0;
+    console.log(render(await callTool(url, token, "project_backlog", { projectId: config.factory.projectId })));
+    return "ok";
   } catch (error) {
-    console.error(`Could not read the backlog from factory (${factory.url}): ${error.message}`);
-    return 1;
+    const reason = error instanceof FactoryError ? error.message : `factory unreachable (${url})`;
+    console.log(`Factory mode: ${reason}. Showing the local report.\n`);
+    return "fallback";
   }
 }
 
-module.exports = { factoryReport, render, deviation, parseRpc };
+module.exports = { factoryReport, render, deviation, parseRpc, tree };

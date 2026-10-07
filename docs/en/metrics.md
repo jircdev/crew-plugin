@@ -53,21 +53,22 @@ The report runs in **both modes, with or without `crew.json`** — it just reads
 
 ## Factory mode
 
-When `crew.json` declares a `factory` block ([configuration.md](configuration.md#factory-mode)), the numbers come from factory: estimates are set there, and consumed hours are the time the capture hooks recorded and each person confirmed. `/crew:metrics` then asks factory for the project backlog (the MCP tool `project_backlog`, using your personal token) and prints one row per task:
+When `crew.json` declares a `factory` block ([configuration.md](configuration.md#factory-mode)), the numbers come from factory: estimates are set there, and consumed hours are the time the capture hooks recorded and each person confirmed. `/crew:metrics` then asks factory for the project backlog (the MCP tool `project_backlog`, using your personal token) and prints it as a tree of activities: each requirement, with its milestones, stories and tasks indented below it. Appointments are left out.
 
 | Column | Meaning |
 |---|---|
-| # | The task number in factory. |
-| Task | Its title. |
+| Code | The activity's code in factory, or its number. |
+| Activity | Its title, indented under its parent. |
+| Kind | `requirement`, `milestone`, `story` or `task`. |
 | Status | `backlog`, `todo`, `in_progress`, `in_review`, `done` or `cancelled`. |
-| Original est (h) | The estimate the task was planned with. |
+| Original est (h) | The estimate the activity was planned with. |
 | Current est (h) | The estimate as it stands today, after any re-estimation. |
-| Consumed (h) | Confirmed person time imputed to the task. |
-| Deviation | For finished tasks, consumed against the original estimate. For open tasks, the current estimate against the original, which shows how far the plan has drifted so far. Positive means more hours than planned. |
+| Own consumed (h) | Confirmed person time imputed to that activity itself. Factory does not add the children's hours here, so a requirement whose work lives in its stories shows little or none. |
+| Deviation | Shown on activities without children. For finished ones, consumed against the original estimate. For open ones, the current estimate against the original, which shows how far the plan has drifted so far. Positive means more hours than planned. |
 
-Below the table comes the project summary: **approved** hours (the approved cost center), **consumed**, **pending** (current estimate of the open tasks), and **forecast** (consumed + pending), with the forecast's deviation against the approved figure.
+Below the tree comes the project summary: **quoted** hours (what the approved packages were quoted at), **consumed**, **pending** (current estimate of the open activities), and **forecast** (consumed + pending), with the forecast's deviation against the quoted figure.
 
-The period argument and `--csv` belong to the markdown report; in factory mode the report always shows the live backlog. Without a token it stops and says where to create one.
+The period argument and `--csv` belong to the markdown report; in factory mode the report shows the live backlog. When this machine is not connected, or factory cannot answer (token rejected, missing permission, factory down), the report says so in one line and shows the local markdown report instead.
 
 ## Reading the numbers
 

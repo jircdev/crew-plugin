@@ -27,14 +27,6 @@ function git(cmd, cwd) {
 
 const root = git("rev-parse --show-toplevel", process.cwd()) || process.cwd();
 
-// Factory mode: tasks, estimates and time live in factory, so the markdown
-// tables are not the source. (CommonJS allows this top-level return.)
-const config = loadConfig(root);
-if (factoryMode(config)) {
-  require("./metrics-factory").factoryReport(config.factory, args)
-    .then((code) => { process.exitCode = code; });
-  return;
-}
 
 function mdFiles(dir) {
   if (!existsSync(dir)) return [];
@@ -91,44 +83,58 @@ function percentile(sorted, p) {
   return sorted[Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1)];
 }
 
-const files = [...mdFiles(join(root, "docs", "stories")), ...mdFiles(join(root, "docs", "requirements"))];
-let items = files.map(analyze).filter(Boolean);
-if (period) items = items.filter((i) => i.month === period);
+function markdownReport() {
+  const files = [...mdFiles(join(root, "docs", "stories")), ...mdFiles(join(root, "docs", "requirements"))];
+  let items = files.map(analyze).filter(Boolean);
+  if (period) items = items.filter((i) => i.month === period);
 
-if (!items.length) {
-  console.log(period ? `No closed items with estimation data for ${period}.` : "No closed items with estimation data found.");
-  process.exit(0);
-}
+  if (!items.length) {
+    console.log(period ? `No closed items with estimation data for ${period}.` : "No closed items with estimation data found.");
+    return;
+  }
 
-const n = (x, d = 1) => (x === null ? "—" : x.toFixed(d));
-console.log(`Closed items${period ? ` (${period})` : ""}: ${items.length}\n`);
-console.log("| Item | Lead (days) | Exec (h) | Est (h) | Actual (h) | Deviation |");
-console.log("|---|---|---|---|---|---|");
-for (const i of items.sort((a, b) => a.month.localeCompare(b.month))) {
-  console.log(`| ${i.item} | ${n(i.leadDays)} | ${n(i.execHours)} | ${n(i.est)} | ${n(i.actual)} | ${i.deviation === null ? "—" : n(i.deviation, 0) + "%"} |`);
-}
+  const n = (x, d = 1) => (x === null ? "—" : x.toFixed(d));
+  console.log(`Closed items${period ? ` (${period})` : ""}: ${items.length}\n`);
+  console.log("| Item | Lead (days) | Exec (h) | Est (h) | Actual (h) | Deviation |");
+  console.log("|---|---|---|---|---|---|");
+  for (const i of items.sort((a, b) => a.month.localeCompare(b.month))) {
+    console.log(`| ${i.item} | ${n(i.leadDays)} | ${n(i.execHours)} | ${n(i.est)} | ${n(i.actual)} | ${i.deviation === null ? "—" : n(i.deviation, 0) + "%"} |`);
+  }
 
-const exec = items.map((i) => i.execHours).sort((a, b) => a - b);
-const devs = items.filter((i) => i.deviation !== null).map((i) => i.deviation);
-console.log(`\nExecution time: median ${n(percentile(exec, 50))}h · p90 ${n(percentile(exec, 90))}h`);
-if (devs.length) console.log(`Estimate deviation: avg ${n(devs.reduce((a, b) => a + b, 0) / devs.length, 0)}%`);
+  const exec = items.map((i) => i.execHours).sort((a, b) => a - b);
+  const devs = items.filter((i) => i.deviation !== null).map((i) => i.deviation);
+  console.log(`\nExecution time: median ${n(percentile(exec, 50))}h · p90 ${n(percentile(exec, 90))}h`);
+  if (devs.length) console.log(`Estimate deviation: avg ${n(devs.reduce((a, b) => a + b, 0) / devs.length, 0)}%`);
 
-for (const key of ["folder", "month"]) {
-  const groups = new Map();
-  for (const i of items) (groups.get(i[key]) || groups.set(i[key], []).get(i[key])).push(i);
-  console.log(`\nBy ${key}:`);
-  for (const [g, list] of [...groups].sort()) {
-    const ex = list.map((i) => i.execHours).sort((a, b) => a - b);
-    console.log(`  ${g}: ${list.length} items · median exec ${n(percentile(ex, 50))}h · est ${n(list.reduce((a, i) => a + i.est, 0))}h → actual ${n(list.reduce((a, i) => a + i.actual, 0))}h`);
+  for (const key of ["folder", "month"]) {
+    const groups = new Map();
+    for (const i of items) (groups.get(i[key]) || groups.set(i[key], []).get(i[key])).push(i);
+    console.log(`\nBy ${key}:`);
+    for (const [g, list] of [...groups].sort()) {
+      const ex = list.map((i) => i.execHours).sort((a, b) => a - b);
+      console.log(`  ${g}: ${list.length} items · median exec ${n(percentile(ex, 50))}h · est ${n(list.reduce((a, i) => a + i.est, 0))}h → actual ${n(list.reduce((a, i) => a + i.actual, 0))}h`);
+    }
+  }
+
+  if (csv) {
+    const out = join(root, "docs", "work", "metrics.csv");
+    const lines = ["item,folder,month,lead_days,exec_hours,est_hours,actual_hours,deviation_pct"];
+    for (const i of items) {
+      lines.push([i.item, i.folder, i.month, n(i.leadDays, 2), n(i.execHours, 2), n(i.est, 2), n(i.actual, 2), i.deviation === null ? "" : n(i.deviation, 1)].join(","));
+    }
+    writeFileSync(out, lines.join("\n") + "\n");
+    console.log(`\nCSV written: ${relative(process.cwd(), out)}`);
   }
 }
 
-if (csv) {
-  const out = join(root, "docs", "work", "metrics.csv");
-  const lines = ["item,folder,month,lead_days,exec_hours,est_hours,actual_hours,deviation_pct"];
-  for (const i of items) {
-    lines.push([i.item, i.folder, i.month, n(i.leadDays, 2), n(i.execHours, 2), n(i.est, 2), n(i.actual, 2), i.deviation === null ? "" : n(i.deviation, 1)].join(","));
-  }
-  writeFileSync(out, lines.join("\n") + "\n");
-  console.log(`\nCSV written: ${relative(process.cwd(), out)}`);
+// Factory mode: tasks, estimates and time live in factory, so the markdown
+// tables are not the source. When factory cannot answer, the local report
+// runs instead, after a one-line notice.
+const config = loadConfig(root);
+if (factoryMode(config)) {
+  require("./metrics-factory").factoryReport(config, args).then((outcome) => {
+    if (outcome === "fallback") markdownReport();
+  });
+} else {
+  markdownReport();
 }

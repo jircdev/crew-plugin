@@ -167,13 +167,13 @@ La misma regla que `design`, aplicada al otro lugar donde un agente suena seguro
 
 ## Modo factory
 
-Un proyecto cuyas tareas y tiempo de trabajo se gestionan en factory lo declara con un bloque:
+Un proyecto cuyas actividades y tiempo de trabajo se gestionan en factory lo declara con un bloque:
 
 ```json
 {
   "factory": {
     "projectId": "3f0c9a52-…",
-    "url": "https://api.factory.balearesgroup.com/api/v1",
+    "environment": "prod",
     "capture": true
   }
 }
@@ -182,12 +182,16 @@ Un proyecto cuyas tareas y tiempo de trabajo se gestionan en factory lo declara 
 | Clave | Obligatoria | Default | Significado |
 |---|---|---|---|
 | `projectId` | sí | — | El proyecto de factory para el que trabaja este repositorio. Un bloque sin él está incompleto: el arranque de sesión lo nombra, y todo se comporta como si el bloque no existiera. |
-| `url` | no | `https://api.factory.balearesgroup.com/api/v1` | La base de la API de factory. Usá `https://api.dev.factory.balearesgroup.com/api/v1` para trabajar contra el entorno de desarrollo. |
+| `environment` | no | `prod` | Qué factory: `prod` (`https://api.factory.balearesgroup.com/api/v1`) o `dev` (`https://api.dev.factory.balearesgroup.com/api/v1`). Un nombre desconocido cae en `prod` y el arranque de sesión lo avisa. |
+| `url` | no | — | Una base de API completa para cualquier otro host (un factory local, por ejemplo). Reemplaza a `environment`. |
+| `web` | no | — | La base web donde las personas aprueban `/crew:factory login`, cuando `url` apunta a un lugar sin dirección web conocida. |
 | `capture` | no | `true` | Si los hooks de actividad registran el tiempo de trabajo de este proyecto. `false` pausa la captura para todas las personas que trabajan en el repositorio. |
 
-**Qué cambia cuando el bloque está presente.** La historia o requerimiento conserva la especificación y los criterios. La tarea (estimación, estado, tiempo) vive en factory y se enlaza desde el work item con una línea de cabecera `**Factory task:** <uuid>`. La puerta de estimación pide esa cabecera en lugar de la tabla `## Estimation`, el guard de timestamps se retira porque el reloj lo llevan los hooks de captura, y `/crew:metrics` lee el backlog desde factory. Detalle en [enforcement.md](enforcement.md#modo-factory) y [metrics.md](metrics.md#modo-factory).
+Una persona puede apuntar su propia máquina a otro lado sin editar el archivo compartido: `CREW_FACTORY_ENV` (`prod` o `dev`) o `CREW_FACTORY_URL` (una base de API completa), más `CREW_FACTORY_WEB_URL` para la web. Lo de la máquina gana sobre `crew.json`.
 
-**El token es personal y queda fuera del repositorio.** Los hooks y el reporte de métricas lo leen de la variable de entorno `FACTORY_TOKEN`, o si falta, del archivo `~/.crew/factory-token`. `crew.json` está versionado y compartido, así que no tiene campo para el token.
+**Qué cambia cuando el bloque está presente.** La historia o requerimiento conserva la especificación y los criterios. La tarea (estimación, estado, tiempo) vive en factory y se enlaza desde el work item con una línea de cabecera `**Factory activity:** <uuid>` (también se acepta `**Factory task:**`). La puerta de estimación pide esa cabecera en lugar de la tabla `## Estimation`, el guard de timestamps se retira porque el reloj lo llevan los hooks de captura, y `/crew:metrics` lee el backlog desde factory. Detalle en [enforcement.md](enforcement.md#modo-factory) y [metrics.md](metrics.md#modo-factory).
+
+**El token es personal y queda fuera del repositorio.** Cada persona conecta su máquina con `/crew:factory login` ([factory.md](factory.md#cómo-se-configura)), que guarda el token en `~/.crew/factory-token`, legible solo por ella. La variable de entorno `FACTORY_TOKEN` tiene prioridad cuando está definida. `crew.json` está versionado y compartido, así que no tiene campo para el token.
 
 **Pausar la captura.** Alcanza con cualquiera de tres interruptores: `CREW_CAPTURE=off` en tu entorno (vos, en esta máquina), `"capture": false` (todo el proyecto), o no tener token. Con la captura en pausa no se escribe nada, tampoco estado local.
 
@@ -236,7 +240,7 @@ El set de preguntas que sigue está fijo y versionado en el plugin (`standards/c
 
 La fila de métricas es el patrón a recordar: **el reporte corre en cualquier lado; lo que `metrics: true` habilita es la disciplina**. Detalles en [metrics.md](metrics.md).
 
-**El modo factory reemplaza tres filas**, en cualquiera de los dos modos: la puerta de estimación pide la cabecera `**Factory task:**` en lugar de la tabla, el guard de timestamps queda apagado y el reporte de métricas lee el backlog de factory. Verificación, inmutabilidad, calidad y recordatorio de work-log siguen igual.
+**El modo factory reemplaza tres filas**, en cualquiera de los dos modos: la puerta de estimación pide la cabecera `**Factory activity:**` en lugar de la tabla, el guard de timestamps queda apagado y el reporte de métricas lee el backlog de factory. Verificación, inmutabilidad, calidad y recordatorio de work-log siguen igual.
 
 ## Cómo lo escribe `init-project.sh`
 

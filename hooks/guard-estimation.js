@@ -10,7 +10,7 @@
 //     declaring what the project can verify is what makes the silence a defect.
 //
 // In factory mode (crew.json `factory` with a projectId) the estimate lives in
-// the factory task, so the estimation gate asks for the `**Factory task:**`
+// the factory activity, so the estimation gate asks for the `**Factory activity:**`
 // header link instead of the table, in either mode.
 const { readFileSync, existsSync } = require("node:fs");
 const { configFor } = require("./lib/config");
@@ -129,10 +129,10 @@ try {
 
   if (factory && !factoryTaskId(content)) {
     deny(
-      `Cannot close this work item: no **Factory task:** header. This project runs in ` +
-        `factory mode (crew.json \`factory\`): the estimate, state and time live in the ` +
-        `factory task, not in an Estimation table. Add a header line ` +
-        `\`- **Factory task:** <task uuid>\` linking the task, then close.`,
+      `Cannot close this work item: no **Factory activity:** header. This project runs in ` +
+        `factory mode (crew.json \`factory\`), where the estimate, state and time live in ` +
+        `the factory activity. Add a header line \`- **Factory activity:** <activity uuid>\` ` +
+        `linking it (\`**Factory task:**\` is accepted too), then close.`,
     );
   }
 

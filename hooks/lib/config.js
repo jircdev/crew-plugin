@@ -27,6 +27,7 @@
 const { readFileSync } = require("node:fs");
 const { join, dirname } = require("node:path");
 const { configDir } = require("./config-dir");
+const { normalizeFactory } = require("./factory-env");
 
 const QUALITY_MODES = new Set(["advise", "enforce", "off"]);
 // Enums exist ONLY where a role must know HOW to consume the capability.
@@ -150,17 +151,6 @@ function normalizeTesting(raw) {
     .map((c) => ({ kind: str(c.kind) || "unlabeled", cmd: str(c.cmd) }));
 
   return { guide: str(raw.guide), e2e, commands, unknown };
-}
-
-// factory: tasks and work time live in factory. Declaring the block is the
-// opt-in; the token never lives here (env or ~/.crew only).
-const FACTORY_URL = "https://api.factory.balearesgroup.com/api/v1";
-function normalizeFactory(raw) {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-  const projectId = str(raw.projectId);
-  const url = (str(raw.url) || FACTORY_URL).replace(/\/+$/, "");
-  const unknown = projectId ? [] : ["projectId=missing"];
-  return { projectId, url, capture: raw.capture !== false, unknown };
 }
 
 function normalize(raw) {

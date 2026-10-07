@@ -37,25 +37,28 @@ function patch(dir, content) {
 }
 const reason = (out) => out?.hookSpecificOutput?.permissionDecisionReason || '';
 
-test('crew.json factory block normalizes url, capture and a missing projectId', t => {
+test('crew.json factory block normalizes url, environment, capture and a missing projectId', t => {
   const full = loadConfig(fixture(t, { factory: { projectId: PROJECT, url: 'https://x/api/v1/', capture: false } }));
-  assert.deepEqual(full.factory, { projectId: PROJECT, url: 'https://x/api/v1', capture: false, unknown: [] });
+  assert.deepEqual(full.factory, { projectId: PROJECT, environment: null, url: 'https://x/api/v1', web: null,
+    capture: false, unknown: [] });
   const bare = loadConfig(fixture(t, { factory: FACTORY }));
-  assert.equal(bare.factory.url, 'https://api.factory.balearesgroup.com/api/v1');
+  assert.equal(bare.factory.url, null);
   assert.equal(bare.factory.capture, true);
+  assert.deepEqual(loadConfig(fixture(t, { factory: { ...FACTORY, environment: 'qa' } })).factory.unknown, ['environment=qa']);
   assert.deepEqual(loadConfig(fixture(t, { factory: {} })).factory.unknown, ['projectId=missing']);
   assert.equal(loadConfig(fixture(t, { mode: 'team' })).factory, null);
 });
 
-test('factory mode closes on the Factory task header instead of the estimation table, on both transports', t => {
+test('factory mode closes on the Factory activity header instead of the estimation table, on both transports', t => {
   for (const mode of ['team', 'solo']) {
     const dir = fixture(t, { mode, factory: FACTORY });
     const missing = write(dir, '# 001\n- **Status:** Closed\n');
-    assert.match(reason(missing), /no \*\*Factory task:\*\* header/);
+    assert.match(reason(missing), /no \*\*Factory activity:\*\* header/);
     assert.deepEqual(patch(dir, '# 001\n- **Status:** Closed\n'), missing);
     const linked = `# 001\n- **Status:** Closed\n- **Factory task:** ${TASK}\n`;
     assert.equal(write(dir, linked), null);
     assert.equal(patch(dir, linked), null);
+    assert.equal(write(dir, linked.replace('Factory task', 'Factory activity')), null);
   }
 });
 
@@ -87,22 +90,27 @@ const BACKLOG = {
   projectId: PROJECT, projectName: 'Portal',
   summary: { approvedHours: 100, consumedHours: 30, pendingHours: 80, forecastHours: 110 },
   tasks: [
-    { number: 1, title: 'Login', status: 'done', originalEstimatedHours: 10, estimatedHours: 12, consumedHours: 15 },
-    { number: 2, title: 'Reports', status: 'in_progress', originalEstimatedHours: 20, estimatedHours: 25, consumedHours: 15 },
+    { id: 'r1', kind: 'requirement', code: 'R-1', parentId: null, title: 'Accounts', status: 'in_progress',
+      originalEstimatedHours: 30, estimatedHours: 37, consumedHours: 0 },
+    { id: 't1', kind: 'story', number: 1, parentId: 'r1', title: 'Login', status: 'done', originalEstimatedHours: 10, estimatedHours: 12, consumedHours: 15 },
+    { id: 't2', kind: 'task', number: 2, parentId: 'r1', title: 'Reports', status: 'in_progress', originalEstimatedHours: 20, estimatedHours: 25, consumedHours: 15 },
+    { id: 'a1', kind: 'appointment', parentId: null, title: 'Kickoff', status: 'done', consumedHours: 1 },
   ],
 };
 
-test('metrics renders tasks with deviation and the project summary', () => {
-  assert.equal(deviation(BACKLOG.tasks[0]), 50);
-  assert.equal(deviation(BACKLOG.tasks[1]), 25);
+test('metrics renders the activity tree with leaf deviation and the quoted summary', () => {
+  assert.equal(deviation(BACKLOG.tasks[1]), 50);
+  assert.equal(deviation(BACKLOG.tasks[2]), 25);
   const text = render(BACKLOG);
-  assert.ok(text.includes('| 1 | Login | done | 10.0 | 12.0 | 15.0 | +50% |'));
-  assert.ok(text.includes('Approved 100.0h · consumed 30.0h · pending 80.0h · forecast 110.0h (+10% vs approved)'));
+  assert.ok(text.includes('| R-1 | Accounts | requirement | in_progress | 30.0 | 37.0 | 0.0 | — |'));
+  assert.ok(text.includes('| #1 | ↳ Login | story | done | 10.0 | 12.0 | 15.0 | +50% |'));
+  assert.equal(text.includes('Kickoff'), false);
+  assert.ok(text.includes('Quoted 100.0h · consumed 30.0h · pending 80.0h · forecast 110.0h (+10% vs quoted)'));
   const sse = { type: 'text/event-stream', body: 'event: message\ndata: {"jsonrpc":"2.0","id":7,"result":{}}\n\n' };
   assert.deepEqual(parseRpc(sse, 7), { jsonrpc: '2.0', id: 7, result: {} });
 });
 
-test('metrics in factory mode calls project_backlog over MCP after a handshake when required', async t => {
+function mcp(t, status) {
   const calls = [];
   const srv = http.createServer((req, res) => {
     let body = '';
@@ -110,29 +118,46 @@ test('metrics in factory mode calls project_backlog over MCP after a handshake w
     req.on('end', () => {
       const msg = JSON.parse(body);
       calls.push({ method: msg.method, accept: req.headers.accept, auth: req.headers.authorization });
-      const initialized = calls.some((c) => c.method === 'notifications/initialized');
-      if (msg.method === 'notifications/initialized') return res.writeHead(202).end();
-      if (msg.method === 'tools/call' && !initialized) {
-        return res.writeHead(400, { 'Content-Type': 'application/json' })
-          .end(JSON.stringify({ jsonrpc: '2.0', id: msg.id, error: { code: -32000, message: 'not initialized' } }));
-      }
-      const result = msg.method === 'initialize' ? { protocolVersion: '2025-03-26' }
-        : { content: [{ type: 'text', text: JSON.stringify(BACKLOG) }] };
+      if (status !== 200) return res.writeHead(status).end('{}');
+      const result = { content: [{ type: 'text', text: JSON.stringify(BACKLOG) }] };
       res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify({ jsonrpc: '2.0', id: msg.id, result }));
     });
   });
   t.after(() => srv.close());
-  await new Promise((resolve) => srv.listen(0, '127.0.0.1', resolve));
-  const dir = fixture(t, { factory: { ...FACTORY, url: `http://127.0.0.1:${srv.address().port}/api/v1` } });
-  const out = await new Promise((resolve) => {
+  return new Promise((resolve) => srv.listen(0, '127.0.0.1', () => resolve({ port: srv.address().port, calls })));
+}
+function metrics(dir, extra) {
+  return new Promise((resolve) => {
     const child = spawn(process.execPath, [path.join(root, 'scripts/metrics.js')], {
-      cwd: dir, windowsHide: true, env: { ...process.env, FACTORY_TOKEN: 'fct_test', CREW_HOME: dir } });
+      cwd: dir, windowsHide: true,
+      env: { ...process.env, CREW_HOME: dir, CREW_FACTORY_ENV: '', CREW_FACTORY_URL: '', ...extra } });
     let stdout = '';
     child.stdout.on('data', (d) => { stdout += d; });
     child.on('close', (status) => resolve({ status, stdout }));
   });
+}
+
+test('metrics in factory mode calls project_backlog over MCP with one stateless call', async t => {
+  const api = await mcp(t, 200);
+  const dir = fixture(t, { factory: { ...FACTORY, url: `http://127.0.0.1:${api.port}/api/v1` } });
+  const out = await metrics(dir, { FACTORY_TOKEN: 'fct_test' });
   assert.equal(out.status, 0);
   assert.ok(out.stdout.includes('Project: Portal (factory)'));
-  assert.deepEqual(calls.map((c) => c.method), ['tools/call', 'initialize', 'notifications/initialized', 'tools/call']);
-  assert.ok(calls.every((c) => c.auth === 'Bearer fct_test' && c.accept.includes('text/event-stream')));
+  assert.deepEqual(api.calls.map((c) => c.method), ['tools/call']);
+  assert.ok(api.calls.every((c) => c.auth === 'Bearer fct_test' && c.accept.includes('text/event-stream')));
+});
+
+test('metrics falls back to the local report with one notice when factory cannot answer', async t => {
+  for (const [status, notice] of [[401, /revoked or expired/], [403, /tasks\.list/]]) {
+    const api = await mcp(t, status);
+    const dir = fixture(t, { factory: { ...FACTORY, url: `http://127.0.0.1:${api.port}/api/v1` } });
+    const out = await metrics(dir, { FACTORY_TOKEN: 'fct_test' });
+    assert.equal(out.status, 0);
+    assert.match(out.stdout, notice);
+    assert.match(out.stdout, /No closed items with estimation data/);
+  }
+  const offline = fixture(t, { factory: { ...FACTORY, url: 'http://127.0.0.1:9/api/v1' } });
+  assert.match((await metrics(offline, { FACTORY_TOKEN: 'fct_test' })).stdout, /factory unreachable/);
+  const noToken = fixture(t, { factory: FACTORY });
+  assert.match((await metrics(noToken, { FACTORY_TOKEN: '' })).stdout, /not connected to factory/);
 });

@@ -92,10 +92,10 @@ Ask this whenever the project has code, in either mode. It is the block that dec
 
 ### 10. Factory (optional)
 
-Ask once, in either mode: **does this project track its tasks and work time in factory? If so, what is the factory project id?** → `factory.projectId` (plus `factory.url` only when the project works against a non-production factory). "No" leaves the block out, and nothing changes.
+Ask once, in either mode: **does this project track its tasks and work time in factory? If so, what is the factory project id?** → `factory.projectId` (plus `factory.environment: "dev"` only when the whole team works against factory's development environment). "No" leaves the block out, and nothing changes.
 
-- Say what declaring does: closing a work item then requires a `**Factory task:** <uuid>` header in place of the estimation table, the timestamps guard stands down, `/crew:metrics` reads factory's backlog, and the plugin's hooks capture work-time intervals (timestamps only) for everyone with a token.
-- Never ask for, write or store the token. It is personal: each person keeps it in `FACTORY_TOKEN` or `~/.crew/factory-token`. Point them to the plugin's `docs/en/factory.md` for creating it and connecting the MCP server.
+- Say what declaring does: closing a work item then requires a `**Factory activity:** <uuid>` header in place of the estimation table, the timestamps guard stands down, `/crew:metrics` reads factory's backlog, and the plugin's hooks capture work-time intervals (timestamps only) for each person who connects their machine with `/crew:factory login`. The block uses factory's production environment unless it declares `"environment": "dev"`.
+- Never ask for, write or store the token, and keep it out of the chat. It is personal: each person connects their own machine with `/crew:factory login`. Point them to the plugin's `docs/en/factory.md` for that and for connecting the MCP server.
 
 ## Closing the interview
 

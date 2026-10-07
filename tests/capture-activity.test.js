@@ -30,7 +30,7 @@ function project(t, factory = { projectId: PROJECT, url: 'http://127.0.0.1:9' })
   return { dir, home: tmp(t, 'home') };
 }
 function env(home, extra = {}) {
-  return { ...process.env, CREW_HOME: home, FACTORY_TOKEN: '', CREW_CAPTURE: '', ...extra };
+  return { ...process.env, CREW_HOME: home, FACTORY_TOKEN: '', CREW_CAPTURE: '', CREW_FACTORY_ENV: '', CREW_FACTORY_URL: '', ...extra };
 }
 function runSync(input, home, extra) {
   const run = spawnSync(process.execPath, [path.join(root, 'hooks/capture-activity.js')], {

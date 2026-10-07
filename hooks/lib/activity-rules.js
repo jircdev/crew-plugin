@@ -8,8 +8,10 @@ const { relative, basename, isAbsolute, resolve, sep } = require("node:path");
 const IDLE_MS = 15 * 60 * 1000;
 const PRESENCE = new Set(["SessionStart", "UserPromptSubmit", "Stop", "SessionEnd"]);
 const HEADER_LINES = 40;
+// `Factory activity:` is factory's current word (ADR costing/003); `Factory
+// task:` stays valid for work items written before it.
 const FACTORY_TASK =
-  /\*\*Factory task:\*\*\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;
+  /\*\*Factory (?:task|activity):\*\*\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;
 const WORK_ITEM = /^docs\/(stories|requirements)\//i;
 
 function factoryTaskId(text) {

@@ -11,7 +11,7 @@ const fs = require("node:fs");
 const { join, dirname, isAbsolute, resolve } = require("node:path");
 const { randomUUID } = require("node:crypto");
 const { loadConfig, configDir } = require("./lib/config");
-const { captureToken } = require("./lib/factory");
+const { captureToken, factoryApi } = require("./lib/factory");
 const { applyEvent, taskHintFor } = require("./lib/activity-rules");
 const { activityDir, enqueue, flush } = require("./lib/activity-queue");
 
@@ -76,7 +76,7 @@ async function capture(input) {
   enqueue(intervals);
   if (name === "SessionEnd") fs.rmSync(path, { force: true });
   else fs.writeFileSync(path, JSON.stringify(state));
-  if (FLUSH_ON.has(name)) await flush(cfg.factory.url, token, now);
+  if (FLUSH_ON.has(name)) await flush(factoryApi(cfg), token, now);
 }
 
 async function main() {

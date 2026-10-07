@@ -35,7 +35,7 @@ Until Closed, the story is editable. Any criteria change after In progress is lo
 - **The story names no test tool.** The harness this project uses is declared once, in `crew.json` `testing.e2e`, and read from there by every role — a tool named inside a functional artifact drifts the day the tool changes. What is structural here is the Ready gate (≥1 test scenario); *how* each scenario gets verified is written at planning, in the work item's `## Verification` table (see [`../guides/testing.md`](../guides/testing.md)).
 - The tracker (if any) holds only: link to this file, state, assignee. On any discrepancy, **this file wins**.
 - **A story is authored without estimation** — hours are not the analyst's deliverable, and an estimation block in a functional artifact is a process antipattern. Estimation happens at **planning**: when the story is taken for implementation, whoever executes adds the `## Estimation` table (milestones, estimated hours, closed by a **Total** row) before coding and records real start/finish per milestone during execution. Closing a story without a complete table is still invalid (see [`../AGENTS.md`](../AGENTS.md#estimation-discipline-mandatory)).
-- **Factory mode** (when `crew.json` declares `factory`): the story keeps the spec and the criteria; the task (estimate, state, time) lives in factory. Link it with a header line `- **Factory task:** <uuid>` — that line replaces the `## Estimation` table as the closure requirement.
+- **Factory mode** (when `crew.json` declares `factory`): the story keeps the spec and the criteria; the activity (estimate, state, time) lives in factory. Link it with a header line `- **Factory activity:** <uuid>`, which replaces the `## Estimation` table as the closure requirement.
 - **A story is authored without a verification table either** — for the same reason. The analyst owns *what* must be true (criteria) and *one concrete run of it* (test scenarios); the level, the harness and the artifact are decided at planning by whoever executes, in a `## Verification` table added next to the estimation. The two tables never restate the scenario: they reference it by its human-readable name.
 
 ## Story template
@@ -48,7 +48,7 @@ Until Closed, the story is editable. Any criteria change after In progress is lo
 - **Date:** YYYY-MM-DD
 - **Branch:** (on In progress: `story/<feature>-NNN-slug`)
 - **Depends on:** (stories or ADRs that must land first; "None" if none)
-- **Factory task:** (factory mode only: the task's uuid)
+- **Factory activity:** (factory mode only: the activity's uuid)
 
 ## Narrative
 

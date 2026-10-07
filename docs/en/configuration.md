@@ -167,13 +167,13 @@ The same rule as `design`, applied to the other place an agent sounds confident 
 
 ## Factory mode
 
-A project whose tasks and work time are managed in factory declares it with one block:
+A project whose activities and work time are managed in factory declares it with one block:
 
 ```json
 {
   "factory": {
     "projectId": "3f0c9a52-…",
-    "url": "https://api.factory.balearesgroup.com/api/v1",
+    "environment": "prod",
     "capture": true
   }
 }
@@ -182,12 +182,16 @@ A project whose tasks and work time are managed in factory declares it with one 
 | Key | Required | Default | Meaning |
 |---|---|---|---|
 | `projectId` | yes | — | The factory project this repository works for. A block without it is incomplete: session start names it, and everything behaves as if the block were absent. |
-| `url` | no | `https://api.factory.balearesgroup.com/api/v1` | The factory API base. Use `https://api.dev.factory.balearesgroup.com/api/v1` to work against the development environment. |
+| `environment` | no | `prod` | Which factory: `prod` (`https://api.factory.balearesgroup.com/api/v1`) or `dev` (`https://api.dev.factory.balearesgroup.com/api/v1`). An unknown name falls back to `prod`, and session start says so. |
+| `url` | no | — | A full API base for any other host (a local factory, for instance). It takes the place of `environment`. |
+| `web` | no | — | The web base where people approve `/crew:factory login`, when `url` points somewhere without a known web address. |
 | `capture` | no | `true` | Whether the activity hooks record work time for this project. `false` pauses capture for everyone working in the repository. |
 
-**What changes when the block is present.** The story or requirement keeps the spec and the criteria. The task (estimate, state, time) lives in factory and is linked from the work item by a `**Factory task:** <uuid>` header line. The estimation gate asks for that header in place of an `## Estimation` table, the timestamps guard stands down because the capture hooks keep the clock, and `/crew:metrics` reads the backlog from factory. Details in [enforcement.md](enforcement.md#factory-mode) and [metrics.md](metrics.md#factory-mode).
+A person can point their own machine elsewhere without editing the shared file: `CREW_FACTORY_ENV` (`prod` or `dev`) or `CREW_FACTORY_URL` (a full API base), plus `CREW_FACTORY_WEB_URL` for the web. Machine variables win over `crew.json`.
 
-**The token is personal and stays out of the repository.** The hooks and the metrics report read it from the `FACTORY_TOKEN` environment variable, or else from the file `~/.crew/factory-token`. `crew.json` is versioned and shared, so it has no token field.
+**What changes when the block is present.** The story or requirement keeps the spec and the criteria. The task (estimate, state, time) lives in factory and is linked from the work item by a `**Factory activity:** <uuid>` header line (`**Factory task:**` is accepted too). The estimation gate asks for that header in place of an `## Estimation` table, the timestamps guard stands down because the capture hooks keep the clock, and `/crew:metrics` reads the backlog from factory. Details in [enforcement.md](enforcement.md#factory-mode) and [metrics.md](metrics.md#factory-mode).
+
+**The token is personal and stays out of the repository.** Each person connects their machine with `/crew:factory login` ([factory.md](factory.md#setting-it-up)), which stores the token in `~/.crew/factory-token`, readable only by them. The `FACTORY_TOKEN` environment variable takes precedence when set. `crew.json` is versioned and shared, so it has no token field.
 
 **Pausing capture.** Any one of three switches is enough: `CREW_CAPTURE=off` in your environment (you, on this machine), `"capture": false` (the whole project), or no token at all. Paused capture writes nothing, local state included.
 
@@ -236,7 +240,7 @@ The question set it follows is fixed and versioned in the plugin (`standards/con
 
 The metrics row is the pattern to remember: **the report runs anywhere; only the discipline is gated** by `metrics: true`. Details in [metrics.md](metrics.md).
 
-**Factory mode overrides three rows**, in either mode: the estimation gate asks for the `**Factory task:**` header in place of the table, the timestamps guard is off, and the metrics report reads factory's backlog. Verification, immutability, quality and the work-log reminder are unchanged.
+**Factory mode overrides three rows**, in either mode: the estimation gate asks for the `**Factory activity:**` header in place of the table, the timestamps guard is off, and the metrics report reads factory's backlog. Verification, immutability, quality and the work-log reminder are unchanged.
 
 ## How `init-project.sh` writes it
 

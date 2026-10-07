@@ -53,21 +53,22 @@ El reporte corre en **ambos modos, con o sin `crew.json`** — simplemente lee l
 
 ## Modo factory
 
-Cuando `crew.json` declara un bloque `factory` ([configuration.md](configuration.md#modo-factory)), los números salen de factory: las estimaciones se cargan allí, y las horas consumidas son el tiempo que registraron los hooks de captura y que cada persona confirmó. `/crew:metrics` le pide entonces a factory el backlog del proyecto (la herramienta MCP `project_backlog`, con tu token personal) e imprime una fila por tarea:
+Cuando `crew.json` declara un bloque `factory` ([configuration.md](configuration.md#modo-factory)), los números salen de factory: las estimaciones se cargan allí, y las horas consumidas son el tiempo que registraron los hooks de captura y que cada persona confirmó. `/crew:metrics` le pide entonces a factory el backlog del proyecto (la herramienta MCP `project_backlog`, con tu token personal) y lo muestra como un árbol de actividades: cada requerimiento, con sus hitos, historias y tareas indentados debajo. Las citas quedan afuera.
 
 | Columna | Significado |
 |---|---|
-| # | El número de la tarea en factory. |
-| Task | Su título. |
+| Code | El código de la actividad en factory, o su número. |
+| Activity | Su título, indentado bajo su padre. |
+| Kind | `requirement`, `milestone`, `story` o `task`. |
 | Status | `backlog`, `todo`, `in_progress`, `in_review`, `done` o `cancelled`. |
-| Original est (h) | La estimación con la que se planificó la tarea. |
+| Original est (h) | La estimación con la que se planificó la actividad. |
 | Current est (h) | La estimación vigente hoy, después de cualquier re-estimación. |
-| Consumed (h) | Tiempo de personas confirmado e imputado a la tarea. |
-| Deviation | En tareas terminadas, lo consumido contra la estimación original. En tareas abiertas, la estimación vigente contra la original, que muestra cuánto se movió el plan hasta ahora. Positivo significa más horas que las planificadas. |
+| Own consumed (h) | Tiempo de personas confirmado e imputado a esa actividad en sí. Factory no suma acá las horas de las hijas, así que un requerimiento cuyo trabajo vive en sus historias muestra poco o nada. |
+| Deviation | Aparece en las actividades sin hijas. En las terminadas, lo consumido contra la estimación original. En las abiertas, la estimación vigente contra la original, que muestra cuánto se movió el plan hasta ahora. Positivo significa más horas que las planificadas. |
 
-Debajo de la tabla va el resumen del proyecto: horas **aprobadas** (el centro de costo aprobado), **consumidas**, **pendientes** (estimación vigente de las tareas abiertas) y **pronóstico** (consumidas + pendientes), con la desviación del pronóstico contra lo aprobado.
+Debajo del árbol va el resumen del proyecto: horas **cotizadas** (lo que se cotizó en los paquetes aprobados), **consumidas**, **pendientes** (estimación vigente de las actividades abiertas) y **pronóstico** (consumidas + pendientes), con la desviación del pronóstico contra lo cotizado.
 
-El argumento de período y `--csv` pertenecen al reporte en markdown; en modo factory el reporte muestra siempre el backlog vivo. Sin token se detiene y dice dónde crear uno.
+El argumento de período y `--csv` pertenecen al reporte en markdown; en modo factory el reporte muestra el backlog vivo. Cuando esta máquina no está conectada, o factory no puede responder (token rechazado, permiso faltante, factory caído), el reporte lo dice en una línea y muestra en su lugar el reporte local en markdown.
 
 ## Cómo leer los números
 
