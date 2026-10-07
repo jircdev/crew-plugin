@@ -24,11 +24,12 @@ function factory(t) {
         const expected = challenges.get(code);
         challenges.delete(code);
         const ok = expected && createHash('sha256').update(verifier).digest('base64url') === expected;
-        return ok ? json(200, { status: true, data: { token: TOKEN, expiresAt: '2027-01-05T00:00:00Z' } }) : json(400, {});
+        return ok ? json(200, { success: true, data: { token: TOKEN, expiresAt: '2027-01-05T00:00:00Z' } })
+          : json(400, { status: false, error: { message: 'Invalid or expired authorization code' } });
       }
       const authed = req.headers.authorization === `Bearer ${TOKEN}`;
       if (req.url === '/api/v1/access-tokens/self' && req.method === 'GET') {
-        return authed ? json(200, { data: { personName: 'Ana', expiresAt: '2027-01-05T00:00:00Z' } }) : json(401, {});
+        return authed ? json(200, { success: true, data: { personName: 'Ana', expiresAt: '2027-01-05T00:00:00Z' } }) : json(401, {});
       }
       if (req.url === '/api/v1/access-tokens/self' && req.method === 'DELETE') { seen.deleted++; return res.writeHead(204).end(); }
       json(404, {});
@@ -95,12 +96,21 @@ test('a forged state, a foreign Host header or a denial never stores a token', a
   const hostile = await run(t, 'login', fake.api, browser(fake, { host: 'evil.example' }));
   assert.match(hostile.stdout, /timed out/);
   const denied = await run(t, 'login', fake.api, browser(fake, { deny: true }));
-  assert.match(denied.stdout, /declined/);
+  assert.match(denied.stdout, /declined.*aviso formal/);
   for (const out of [forged, hostile, denied]) {
     assert.equal(out.status, 1);
     assert.equal(fs.existsSync(path.join(out.home, 'factory-token')), false);
   }
   assert.equal(fake.seen.exchange.length, 0);
+});
+
+test('a code factory refuses ends the login with the reason factory gave and no token', async t => {
+  const fake = await factory(t);
+  fake.approve = () => {};
+  const out = await run(t, 'login', fake.api, browser(fake));
+  assert.equal(out.status, 1);
+  assert.match(out.stdout, /Invalid or expired authorization code/);
+  assert.equal(fs.existsSync(path.join(out.home, 'factory-token')), false);
 });
 
 test('status reports the person and expiry; logout revokes and deletes even when factory is down', async t => {

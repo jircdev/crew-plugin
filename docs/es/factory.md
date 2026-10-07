@@ -27,7 +27,7 @@ Se abre factory en el navegador. Leés qué registra la captura, aprobás y volv
 - `/crew:factory status` te dice a qué factory estás conectado, con qué persona y cuándo vence el token (a los 90 días).
 - `/crew:factory logout` revoca el token en factory y lo borra de tu máquina.
 
-Conectarte es decisión tuya, y es lo que prende la captura para vos. Sin token, el plugin no registra nada sobre vos, ni siquiera localmente. Antes de prender la captura en un equipo hay que avisar formalmente a sus personas (ver la guía de seguimiento del trabajo de factory).
+Conectarte es decisión tuya, y es lo que prende la captura para vos. Sin token, el plugin no registra nada sobre vos, ni siquiera localmente. Antes de prender la captura en un equipo hay que avisar formalmente a sus personas (ver la guía de seguimiento del trabajo de factory). Mientras factory no tenga registrado ese aviso, la página de aprobación muestra la captura como bloqueada y el login termina sin conectar; pedile a Gestión el aviso formal.
 
 **Alternativa manual.** También podés crear el token en factory (**Mis horas → Conectar con la IA**, se muestra una sola vez) y ponerlo en la variable de entorno `FACTORY_TOKEN` o en `~/.crew/factory-token`, escribiéndolo en tu propia terminal.
 

@@ -19,8 +19,13 @@ const { factoryToken, saveToken, forgetToken, request, crewHome } = require("../
 const TIMEOUT_MS = Number(process.env.CREW_LOGIN_TIMEOUT_MS) || 5 * 60000;
 const HTTP_MS = 10000;
 const b64url = (buf) => buf.toString("base64url");
+// factory answers {success, data} on success and {status:false, error:{message}}
+// on failure; error messages carry no secrets, so they are relayed as-is.
 const unwrap = (body) => {
   try { const json = JSON.parse(body); return (json && json.data) || json || {}; } catch { return {}; }
+};
+const errorOf = (body) => {
+  try { return (JSON.parse(body).error || {}).message || ""; } catch { return ""; }
 };
 const DONE_PAGE = (ok) => `<!doctype html><meta charset="utf-8"><title>crew</title>` +
   `<p style="font:16px system-ui;margin:3em">${ok ? "Listo. Ya podés volver a Claude." :
@@ -78,11 +83,15 @@ async function login(target) {
   console.log(`Opening factory (${target.name}) to approve this machine. If the browser does not open, use:\n${page}\n`);
   openBrowser(page);
   const code = await callback;
-  if (!code) return fail("the connection was declined in factory");
+  if (!code) {
+    return fail("the connection was declined in factory. If the page said capture is blocked, the formal notice " +
+      "is missing: pedile a Gestión el aviso formal");
+  }
   const res = await request("POST", `${target.api}/access-tokens/loopback/exchange`, null, { code, verifier }, HTTP_MS);
   const data = unwrap(res.body);
   if (res.status < 200 || res.status >= 300 || !data.token) {
-    return fail(`factory did not complete the connection (HTTP ${res.status}). Run the login again`);
+    const why = res.status === 429 ? "too many attempts, wait a minute" : errorOf(res.body) || `HTTP ${res.status}`;
+    return fail(`factory did not complete the connection (${why}). Run the login again`);
   }
   const file = saveToken(data.token);
   console.log(`Connected to factory ${target.name}. Token stored owner-only in ${file}` +

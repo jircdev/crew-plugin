@@ -27,7 +27,7 @@ Factory opens in the browser. Read what capture records, approve, and go back to
 - `/crew:factory status` tells you which factory you are connected to, as whom, and when the token expires (after 90 days).
 - `/crew:factory logout` revokes the token in factory and removes it from your machine.
 
-Connecting is your choice, and it is what turns capture on for you. Without a token, the plugin records nothing about you, not even locally. Before a team turns capture on, its people must be formally notified (see factory's work-tracking guide).
+Connecting is your choice, and it is what turns capture on for you. Without a token, the plugin records nothing about you, not even locally. Before a team turns capture on, its people must be formally notified (see factory's work-tracking guide). Until factory has that notice on record, the approval page shows capture as blocked and the login ends without connecting; ask Gestión for the formal notice.
 
 **Manual fallback.** You can also create the token in factory (**Mis horas → Conectar con la IA**, shown once) and put it in the `FACTORY_TOKEN` environment variable or in `~/.crew/factory-token`, typing it in your own terminal.
 
