@@ -54,8 +54,8 @@ El proyecto elige el entorno en `crew.json` (`"environment": "dev"`, o un `url` 
 
 Solo **momentos**. El plugin anota la hora cuando empieza una sesión, cuando recibe un prompt tuyo, cuando el agente termina de responder y cuando la sesión termina. Con esos momentos arma dos clases de intervalo:
 
-- **Tu presencia**: el tramo entre dos momentos seguidos, siempre que estén a 15 minutos o menos. Un hueco más largo cuenta como pausa y no suma.
-- **El trabajo del agente**: desde que mandás un prompt hasta que el agente termina de responder.
+- **Tu tiempo**: mientras tenés el turno, desde que empieza la sesión o el agente termina de responder hasta tu próximo prompt. Un turno de más de 15 minutos cuenta como pausa y no suma.
+- **El trabajo del agente**: desde que mandás un prompt hasta que el agente termina de responder, dure lo que dure. Los dos nunca se superponen.
 
 Cada intervalo lleva el id de sesión, el proyecto de factory y la actividad en la que estabas. La actividad sale de las historias y requerimientos que el agente edita durante la sesión. La ruta del archivo es su referencia en factory (`<carpeta de crew.json>:<ruta>`, enlazada con `add_task_reference` o `upsert_requirement`), y la línea de cabecera `**Factory activity:**`, cuando está, nombra la actividad directamente.
 

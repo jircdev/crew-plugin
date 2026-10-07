@@ -54,8 +54,8 @@ The project picks the environment in `crew.json` (`"environment": "dev"`, or a `
 
 Only **moments in time**. The plugin notes the time when a session starts, when it receives a prompt from you, when the agent finishes answering, and when the session ends. From those moments it builds two kinds of interval:
 
-- **Your presence**: the stretch between two consecutive moments, as long as they are at most 15 minutes apart. A longer gap counts as a break and adds nothing.
-- **The agent's work**: from the moment you send a prompt until the agent finishes answering.
+- **Your time**: while you have the turn, from the start of the session or the end of the agent's answer until your next prompt. A turn longer than 15 minutes counts as a break and adds nothing.
+- **The agent's work**: from the moment you send a prompt until the agent finishes answering, however long that takes. The two never overlap.
 
 Each interval carries the session id, the factory project and the activity you were working on. The activity comes from the stories and requirements the agent edits during the session. The file's path is its reference in factory (`<folder of crew.json>:<path>`, linked with `add_task_reference` or `upsert_requirement`), and its `**Factory activity:**` header line, when present, names the factory activity directly.
 
