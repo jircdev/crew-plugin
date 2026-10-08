@@ -63,6 +63,13 @@
       "title": "Catalog usage per person, retro and LF shell scripts",
       "summary": "Additive. Usage recording is opt-in per person and never versioned; the doctor blocks if a personal crew log was committed.",
       "doc": "docs/en/migration-0.30.md"
+    },
+    {
+      "version": "0.31.0",
+      "required": false,
+      "title": "Factory mode",
+      "summary": "Additive: only projects that declare a factory block change. Closing a story there requires the Factory activity header; time capture starts only after each person runs /crew:factory login.",
+      "doc": "docs/en/migration-0.31.md"
     }
   ]
 }

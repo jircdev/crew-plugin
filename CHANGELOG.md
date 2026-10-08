@@ -2,7 +2,9 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
-## [Unreleased]
+## [0.31.0] — 2026-10-08
+
+Factory mode merged from `feat/factory-work-tracking`, and the host runtime smoke pinned to Codex 0.130.0-alpha.5. Migration guide: [`docs/en/migration-0.31.md`](docs/en/migration-0.31.md) / [`docs/es/migration-0.31.md`](docs/es/migration-0.31.md).
 
 ### Added
 
