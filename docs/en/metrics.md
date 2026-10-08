@@ -51,6 +51,10 @@ Aggregates: **median and p90 execution time** across items, **average estimate d
 
 The report runs in **both modes, with or without `crew.json`** — it just reads what the tables contain. What `"metrics": true` gates is the *discipline*: without the guards, nothing certifies the timestamps were real, and the report is only as honest as the tables. Configuration details in [configuration.md](configuration.md).
 
+## By size
+
+Items that carry the optional `Size:` header (trivial, small, standard, large — the rubric lives in the delivery circuit) are also grouped by size, with the average estimate deviation per size, and `--csv` adds a `size` column. That is the evidence that sizing holds: if "small" items keep running 80% over, either the rubric is too generous or the estimates for small work are. Items without a size are grouped as `unsized`.
+
 ## Reading the numbers
 
 **Lead time vs execution time.** The gap between them is queue time: how long the item sat written-but-not-started. A story with 20 days of lead and 6 hours of exec is not a slow story — it is a prioritization signal. Execution time is the one to compare against estimates; lead time is the one the requester feels.

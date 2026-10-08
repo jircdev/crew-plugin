@@ -87,6 +87,7 @@ Ask this whenever the project has code, in either mode. It is the block that dec
 - **Is there a document saying what this project tests, at what levels, and with what?** If `docs/guides/testing.md` is the empty scaffold, say so plainly — the honest answer is "nothing declared yet", and that is what gets written. → `testing.guide`
 - **Is there an end-to-end harness, and where do its specs live?** Look before asking: a config file, a `tests/` folder, a script in `package.json`. Confirm what you found; never declare a harness from a dependency alone — an installed package is not an adopted practice. → `testing.e2e` (`kind` is a free label: whatever the project calls its tool)
 - **Which commands run the suites?** Only ones the project confirms. → `testing.commands`
+- **Should a `passing` verification row require a receipt of the run?** Ask only once commands are declared; explain that `/crew:check` writes the receipt and that closure then needs it. Default is no. → `testing.receipts: true`
 - Say what declaring costs and what it buys: with `e2e` declared, plans specify scenarios as specs in that harness at that path and the estimate carries writing them; undeclared, a scenario stays a walkthrough and the plan names the missing harness as a cost. Declaring `testing` at all makes the work item's verification table a closure gate.
 - Never propose a tool the project did not name. Suggesting a harness because it is popular is the plugin choosing the stack through the back door — the same failure the design blocks exist to prevent.
 

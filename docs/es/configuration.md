@@ -161,6 +161,8 @@ La misma regla que `design`, aplicada al otro lugar donde un agente suena seguro
 
 **Declarar convierte la tabla de verificación en compuerta.** Con `testing` presente en cualquier forma, una story o requirement no llega a `Closed` sin su tabla `## Verification` — una fila por comportamiento: escenario, nivel, arnés, artefacto, estado. Vale en **ambos** modos, solo incluido, y es independiente de `metrics`: la compuerta de estimación es la disciplina de métricas, esta es tu propia declaración. `no verificado — sin arnés` es una fila perfectamente válida; una tabla ausente no, porque el silencio se lee igual que la cobertura.
 
+**`receipts: true` vuelve comprobable un pass.** Es opcional, porque un campo ausente mantiene el comportamiento anterior. Con él, una fila de verificación `passing` cierra solo si cita un recibo escrito por `/crew:check` (`scripts/verify.js` corre los `commands` declarados y registra código de salida, horarios, HEAD de git y el final de la salida, con un hash para que no se pueda editar sin que se note). Sin `commands` no puede haber recibos, así que hay que declarar ambos.
+
 **Lo que el estándar nunca impone.** Una herramienta concreta. Un plan que exige Playwright en un repo que nunca lo adoptó produce specs que no corren y una tabla que se lee cubierta mientras no se ejecuta nada. Declara el arnés una vez, acá, y todos los roles derivan de ahí.
 
 ## La marca: `configuredWith`
@@ -202,6 +204,7 @@ El set de preguntas que sigue está fijo y versionado en el plugin (`standards/c
 | Forma del work item en cada escritura ([guard-shape](../../hooks/guard-shape.js)) | `quality`, `mode`, `docs/DEVIATIONS.md` | niega con `enforce`, avisa con `advise` | aviso | aviso |
 | Evasión de hooks en comandos de shell ([guard-shell](../../hooks/guard-shell.js)) | presencia de `crew.json` | niega (falla cerrado) | niega (falla cerrado) | aviso |
 | Relajar `crew.json` o los settings del host ([guard-policy](../../hooks/guard-policy.js)) | `quality`, `mode`, bloque `crew:policy` | niega con `enforce`, avisa con `advise` | aviso | aviso |
+| Aviso de alcance tras escribir ([nudge-scope](../../hooks/nudge-scope.js)) | `mode`, el `Size:` del item activo | aviso | apagado | aviso |
 | Recordatorio de work-log al cerrar sesión ([check-work-log](../../hooks/check-work-log.js)) | `mode` | activo donde exista `docs/work/` | apagado | activo donde exista `docs/work/` |
 | Puerta de calidad pre-commit ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | siempre, una vez instalada | siempre, una vez instalada | siempre, una vez instalada |
 | Reporte `/crew:metrics` ([metrics.js](../../scripts/metrics.js)) | nada | corre | corre | corre |

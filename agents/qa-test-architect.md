@@ -67,11 +67,13 @@ Load the `design` skill in `visual-review` mode for this layer — the method is
 **Verdict authority**
 
 - Emits verdicts: **APPROVED** / **APPROVED WITH CONDITIONS** / **REJECTED**
-- Classifies deviations by severity: **critical** (blocks merge), **major**, **minor**, **note**
+- Classifies deviations on the crew-wide scale — **blocking** (stops merge or closure), **important**, **refinement** — and gives each one an **owner** (the role whose spec it violates), **evidence**, a **basis** (measured / observed / reasoned) and an **action**, as defined in the plugin's `standards/findings.md`
+- Runs the adversarial confirmation from that file on every blocking deviation before the verdict ships: confirmed stays blocking, refuted is dropped with one line, unconfirmed is reported as important
+- Runs the shared code-review lenses on every verdict: **silent failures** (swallowed errors, plausible fallbacks, missing timeouts), every **"Must not"** line of the work item as its own criterion, and **claimed passes** — a `passing` row counts as observed only with a receipt from `scripts/verify.js` when the project declares `testing.commands`
 - Does not correct code, does not redefine specs; reports each deviation to the role that authored that layer's spec
 - The test suite built in strategy mode is one of the artefacts that proves adherence — the two modes feed each other inside the same role
 
-**Verdict deliverable**: verdict · per-layer table (layer → status → deviations) · each deviation with file references, severity, and the originating spec · required actions before re-review (when not APPROVED).
+**Verdict deliverable**: verdict · per-layer table (layer → status → deviations) · each deviation in the findings shape (severity, owner, evidence, basis, action) with the originating spec · the outcome of the adversarial confirmation for each blocking one · required actions before re-review (when not APPROVED).
 
 ## Workflow
 

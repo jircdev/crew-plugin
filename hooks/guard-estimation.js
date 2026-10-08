@@ -9,7 +9,10 @@
 //     verified. Active only when crew.json declares `testing`, in either mode:
 //     declaring what the project can verify is what makes the silence a defect.
 const { readFileSync, existsSync } = require("node:fs");
+const { dirname } = require("node:path");
 const { configFor } = require("./lib/config");
+const { findRoot } = require("./lib/ceilings");
+const { unbacked } = require("./lib/receipts");
 
 function deny(reason) {
   process.stdout.write(
@@ -78,7 +81,7 @@ function estimationIncomplete(content) {
 // Only reachable when crew.json declares `testing`: the project said what it
 // can verify, so a work item closing without saying how it was verified is
 // incomplete by its own declaration. Undeclared ⇒ never checked.
-function verificationIncomplete(content) {
+function verificationIncomplete(content, receiptsRoot) {
   const rows = tableRows(content, "Verification|Verificación");
   if (rows === null) return "no Verification section found";
   if (rows.length === 0) return "the Verification table has no rows";
@@ -86,6 +89,11 @@ function verificationIncomplete(content) {
     // cells: [Scenario, Level, Harness, Artifact, Status]
     if (cells.slice(0, 5).some((c) => c === "")) {
       return `verification row "${cells[0] || "?"}" is missing level, harness, artifact or status`;
+    }
+    // testing.receipts: a pass must point at a run, never at a claim.
+    if (receiptsRoot && /^passing/i.test(cells[4])) {
+      const gap = unbacked(receiptsRoot, cells);
+      if (gap) return `verification row "${cells[0]}" is passing but ${gap}`;
     }
   }
   return null;
@@ -131,7 +139,8 @@ try {
   }
 
   if (gateVerification) {
-    const gap = verificationIncomplete(content);
+    const receiptsRoot = cfg.testing.receipts ? findRoot(dirname(path)) || dirname(path) : null;
+    const gap = verificationIncomplete(content, receiptsRoot);
     if (gap) {
       deny(
         `Cannot close this work item: ${gap}. This project declares \`testing\` in ` +

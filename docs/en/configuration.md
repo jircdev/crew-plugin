@@ -161,6 +161,8 @@ The same rule as `design`, applied to the other place an agent sounds confident 
 
 **Declaring turns the verification table into a gate.** With `testing` present in any form, a story or requirement cannot reach `Closed` without a `## Verification` table — one row per behavior: scenario, level, harness, artifact, status. This holds in **both** modes, including solo, and it is independent of `metrics`: the estimation gate is the metrics discipline, this one is your own declaration. `not verified — no harness` is a perfectly valid row; an absent table is not, because silence reads exactly like coverage.
 
+**`receipts: true` makes a pass checkable.** Opt-in, because an absent field keeps the previous behavior. With it, a `passing` verification row closes only when it cites a receipt written by `/crew:check` (`scripts/verify.js` runs the declared `commands` and records exit code, times, git HEAD and output tail, hashed so it cannot be edited unnoticed). Without `commands`, receipts cannot exist, so declare both.
+
 **What the standard never mandates.** A specific tool. A plan that requires Playwright in a repo that never adopted it produces specs that never run and a table that reads covered while nothing executes. Declare the harness once, here, and every role derives from it.
 
 ## The marker: `configuredWith`
@@ -202,6 +204,7 @@ The question set it follows is fixed and versioned in the plugin (`standards/con
 | Work-item shape at every write ([guard-shape](../../hooks/guard-shape.js)) | `quality`, `mode`, `docs/DEVIATIONS.md` | deny under `enforce`, notice under `advise` | notice | notice |
 | Hook bypass in shell commands ([guard-shell](../../hooks/guard-shell.js)) | presence of `crew.json` | deny (fails closed) | deny (fails closed) | notice |
 | Relaxing `crew.json` or host settings ([guard-policy](../../hooks/guard-policy.js)) | `quality`, `mode`, `crew:policy` block | deny under `enforce`, notice under `advise` | notice | notice |
+| Scope notice after writes ([nudge-scope](../../hooks/nudge-scope.js)) | `mode`, the active item's `Size:` | notice | off | notice |
 | Work-log reminder on Stop ([check-work-log](../../hooks/check-work-log.js)) | `mode` | active where `docs/work/` exists | off | active where `docs/work/` exists |
 | Pre-commit quality gate ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | always, once installed | always, once installed | always, once installed |
 | `/crew:metrics` report ([metrics.js](../../scripts/metrics.js)) | nothing | runs | runs | runs |

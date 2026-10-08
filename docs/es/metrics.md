@@ -51,6 +51,10 @@ Agregados: **mediana y p90 del tiempo de ejecución** entre ítems, **desviació
 
 El reporte corre en **ambos modos, con o sin `crew.json`** — simplemente lee lo que las tablas contienen. Lo que `"metrics": true` habilita es la *disciplina*: sin los guards, nada certifica que los timestamps fueron reales, y el reporte es tan honesto como las tablas. Detalles de configuración en [configuration.md](configuration.md).
 
+## Por tamaño
+
+Los items que llevan el campo opcional `Size:` (trivial, small, standard, large; la rúbrica está en el circuito de entrega) también se agrupan por tamaño, con el desvío promedio de estimación por tamaño, y `--csv` agrega una columna `size`. Es la evidencia de que el dimensionamiento se sostiene: si los items "small" se pasan un 80% una y otra vez, o la rúbrica es generosa o lo son las estimaciones del trabajo chico. Los items sin tamaño se agrupan como `unsized`.
+
 ## Cómo leer los números
 
 **Lead time vs tiempo de ejecución.** La brecha entre ambos es tiempo de cola: cuánto estuvo el ítem escrito-pero-no-empezado. Una historia con 20 días de lead y 6 horas de exec no es una historia lenta — es una señal de priorización. El tiempo de ejecución es el que se compara contra las estimaciones; el lead time es el que siente quien pidió el trabajo.

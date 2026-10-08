@@ -4,6 +4,8 @@
 // reports per-item and aggregate timing metrics. Pure Node, no dependencies.
 //
 // Usage: node metrics.js [YYYY-MM] [--csv]
+// Items carrying the optional `Size:` header are also grouped by size, with the
+// average estimate deviation per size: the evidence that sizing holds.
 //   YYYY-MM  only items closed in that month
 //   --csv    also write docs/work/metrics.csv
 const { readFileSync, readdirSync, writeFileSync, existsSync, statSync } = require("node:fs");
@@ -53,6 +55,8 @@ function analyze(file) {
   for (const row of rows) {
     const c = row.split("|").slice(1, -1).map((x) => x.trim());
     if (c.length < 5 || c.every((x) => x.replace(/[-\s]/g, "") === "")) continue;
+    // The Total row sums the milestones; counting it would double every figure.
+    if (/^\**\s*totals?\s*\**$/i.test(c[0])) continue;
     est += parseFloat(c[1].replace(",", ".")) || 0;
     actual += parseFloat(c[4].replace(",", ".")) || 0;
     const s = parseStamp(c[2]), f = parseStamp(c[3]);
@@ -63,9 +67,11 @@ function analyze(file) {
   const rel = relative(root, file).split(sep).join("/");
   const created = git(`log --follow --diff-filter=A --format=%aI -- "${rel}"`, root).split("\n").pop()
     || new Date(statSync(file).birthtime).toISOString();
+  const size = ((content.slice(0, 800).match(/\*\*Size:\*\*\s*(trivial|small|standard|large)\b/i) || [])[1] || "unsized").toLowerCase();
   return {
     item: rel,
     folder: dirname(rel),
+    size,
     month: new Date(last).toISOString().slice(0, 7),
     leadDays: Math.max(0, (last - Date.parse(created)) / 86400000),
     execHours: (last - first) / 3600000,
@@ -101,21 +107,23 @@ const devs = items.filter((i) => i.deviation !== null).map((i) => i.deviation);
 console.log(`\nExecution time: median ${n(percentile(exec, 50))}h · p90 ${n(percentile(exec, 90))}h`);
 if (devs.length) console.log(`Estimate deviation: avg ${n(devs.reduce((a, b) => a + b, 0) / devs.length, 0)}%`);
 
-for (const key of ["folder", "month"]) {
+for (const key of ["folder", "month", "size"]) {
   const groups = new Map();
   for (const i of items) (groups.get(i[key]) || groups.set(i[key], []).get(i[key])).push(i);
   console.log(`\nBy ${key}:`);
   for (const [g, list] of [...groups].sort()) {
     const ex = list.map((i) => i.execHours).sort((a, b) => a - b);
-    console.log(`  ${g}: ${list.length} items · median exec ${n(percentile(ex, 50))}h · est ${n(list.reduce((a, i) => a + i.est, 0))}h → actual ${n(list.reduce((a, i) => a + i.actual, 0))}h`);
+    const dv = list.filter((i) => i.deviation !== null).map((i) => i.deviation);
+    const avg = dv.length ? ` · avg deviation ${n(dv.reduce((a, b) => a + b, 0) / dv.length, 0)}%` : "";
+    console.log(`  ${g}: ${list.length} items · median exec ${n(percentile(ex, 50))}h · est ${n(list.reduce((a, i) => a + i.est, 0))}h → actual ${n(list.reduce((a, i) => a + i.actual, 0))}h${key === "size" ? avg : ""}`);
   }
 }
 
 if (csv) {
   const out = join(root, "docs", "work", "metrics.csv");
-  const lines = ["item,folder,month,lead_days,exec_hours,est_hours,actual_hours,deviation_pct"];
+  const lines = ["item,folder,month,size,lead_days,exec_hours,est_hours,actual_hours,deviation_pct"];
   for (const i of items) {
-    lines.push([i.item, i.folder, i.month, n(i.leadDays, 2), n(i.execHours, 2), n(i.est, 2), n(i.actual, 2), i.deviation === null ? "" : n(i.deviation, 1)].join(","));
+    lines.push([i.item, i.folder, i.month, i.size, n(i.leadDays, 2), n(i.execHours, 2), n(i.est, 2), n(i.actual, 2), i.deviation === null ? "" : n(i.deviation, 1)].join(","));
   }
   writeFileSync(out, lines.join("\n") + "\n");
   console.log(`\nCSV written: ${relative(process.cwd(), out)}`);

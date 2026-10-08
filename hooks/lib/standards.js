@@ -58,7 +58,11 @@ function parseTemplate(markdown) {
   const fence = markdown.match(/^#{2,3}[^\n]*template[^\n]*\n[\s\S]*?```markdown\r?\n([\s\S]*?)\r?\n```/im);
   if (!fence) return null;
   const body = fence[1].replace(/\r\n/g, "\n");
-  const header = [...body.matchAll(/^- \*\*([^:*]+):\*\*/gm)].map((m) => m[1].trim());
+  // A field whose placeholder starts with "(optional)" is part of the shape
+  // but never required.
+  const header = [...body.matchAll(/^- \*\*([^:*]+):\*\*(.*)$/gm)]
+    .filter((m) => !/^\s*\(optional\)/i.test(m[2]))
+    .map((m) => m[1].trim());
   const tables = {};
   let total = false;
   const names = [];

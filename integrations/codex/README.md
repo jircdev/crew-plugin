@@ -15,7 +15,8 @@ Interpret canonical Claude transport syntax in Codex as follows:
 - `/crew:<alias>` means select Crew's skill named `<alias>` in Codex's skill
   picker (for example `fe`, `setup`, `metrics`). `$ARGUMENTS` means the user's
   task text, not a literal shell variable. Pass only validated arguments to
-  executables; metrics accepts an optional YYYY-MM and explicit `--csv`.
+  executables; metrics accepts an optional YYYY-MM and explicit `--csv`;
+  check accepts an optional test kind passed as `--kind <kind>`.
 - `Spawn <role> subagent` means use the host's delegation facility when it is
   available and allowed. Supply the canonical `agents/<role>.md` body and this
   adapter to the child; a skill is not a registered native Codex subagent type.

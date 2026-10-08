@@ -42,6 +42,13 @@
       "title": "Security triggers, hook bypass and policy relaxations",
       "summary": "No action required. In projects with crew.json, agents can no longer run --no-verify or set core.hooksPath, and relaxing crew.json or host settings under team + enforce needs a crew:policy entry in docs/DEVIATIONS.md.",
       "doc": "docs/en/migration-0.27.md"
+    },
+    {
+      "version": "0.28.0",
+      "required": false,
+      "title": "Findings shape, receipts and sized ceremony",
+      "summary": "Additive and opt-in. Note: /crew:metrics doubled estimated and actual hours since 0.23 by counting the Total row; regenerate any exported metrics.csv.",
+      "doc": "docs/en/migration-0.28.md"
     }
   ]
 }

@@ -146,6 +146,10 @@ By default the prefix activates the role for **that one message**; the next mess
 
 `GEN:` is the built-in way back — you are never stuck in one role.
 
+## Reviews you can check
+
+Every review — QA's verdict, a design review, a SEC ruling, a DOC audit — reports findings in one shape: severity (blocking, important, refinement), the role whose decision it concerns, the evidence, whether it was measured, observed or reasoned, and the action. Blocking findings are re-checked once by trying to refute them before the review ships. Code reviews always look for silent failures, check each "Must not" line of the story, and never repeat a pass nobody ran: `/crew:check` runs the project's declared test commands and leaves a receipt the verification table can cite. The shape lives in the plugin's `standards/findings.md`.
+
 ## Pick up where the last session left off
 
 Every session in a `team` project (or one without `crew.json`) opens with a short **work in progress** block, at most six lines, read straight from the repo: milestones with `Started` and no `Finished`, items `Delivered` and still awaiting validation, and delivered items whose verification rows are still `planned`. The same block appears after a compaction, and the compaction itself lists the open milestones so the summary keeps them.

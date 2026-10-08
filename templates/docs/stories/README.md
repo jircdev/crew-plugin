@@ -47,6 +47,7 @@ Until Closed, the story is editable. Any criteria change after In progress is lo
 - **Date:** YYYY-MM-DD
 - **Branch:** (on In progress: `story/<feature>-NNN-slug`)
 - **Depends on:** (stories or ADRs that must land first; "None" if none)
+- **Size:** (optional) trivial | small | standard | large
 
 ## Narrative
 
@@ -56,6 +57,10 @@ As a (actor), I want (behavior), so that (outcome).
 
 1. (Observable and verifiable by using the product, without reading code.)
 2. ...
+
+## Must not
+
+- (Behavior that must never happen, each with how it is checked — e.g. "Must not email a rejected applicant · checked by: scenario *Rejected applicant gets no email*". Write "None" when nothing applies; an empty section reads as unconsidered.)
 
 ## Edge cases
 

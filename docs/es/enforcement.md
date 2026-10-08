@@ -79,6 +79,12 @@ El heading puede ser `## Verification` o `## Verificación`. Ninguna columna pue
 
 **Solución.** Escribí lo que es cierto. Si no existe el test, el artefacto es `—` y el estado dice por qué no existe. La puerta quiere el registro honesto, no el completo.
 
+### "verification row … is passing but cites no receipt" (y sus variantes)
+
+**Causa.** El proyecto declara `testing.receipts: true`, así que una fila `passing` tiene que apuntar a una corrida: su celda Status o Artifact cita `receipt: <id>`, y `docs/verification/receipts/` tiene ese recibo, sin editar, con código de salida 0. Las variantes dicen cuál falló: sin cita, recibo inexistente, recibo cuyo contenido ya no coincide con su id, o uno que registró una falla.
+
+**Solución.** Correr `/crew:check` (ejecuta `scripts/verify.js`, que corre solo los comandos que declara `crew.json` y escribe un recibo por corrida) y citar el id: `passing (receipt: 3f9c1a0b2e7d)`. El recibo se commitea con el trabajo. Una fila honestamente sin cobertura no necesita recibo: `not verified — <motivo>` cierra sin problema.
+
 ## Timestamps
 
 Guard: [`../../hooks/guard-timestamps.js`](../../hooks/guard-timestamps.js). Activo **solo** con `"metrics": true` en `crew.json`. Valida una celda únicamente cuando la edición la escribe por primera vez (vacía → valor); las filas históricas nunca se re-validan, así que editar otras partes de un archivo con tabla completa jamás lo dispara.
@@ -176,6 +182,10 @@ crew.json quality   # advise mientras se migra el módulo legacy · owner: ana �
 ## Excepciones con vencimiento
 
 Cada bloque de `docs/DEVIATIONS.md` (`crew:exempt`, `crew:standard`, `crew:policy`) acepta `owner:` y `expires: AAAA-MM-DD` en el comentario. Pasada su fecha, la entrada deja de aplicar: la ruta exenta se vuelve a medir, la desviación se informa como ignorada y la relajación se vuelve a marcar.
+
+## Aviso de alcance
+
+Hook: [`../../hooks/nudge-scope.js`](../../hooks/nudge-scope.js) (PostToolUse sobre Edit/Write). Cuando exactamente un work item tiene un hito abierto y lleva `Size:`, los archivos cambiados desde que arrancó ese hito se cuentan contra el tamaño (trivial 3, small 10, standard 30, large sin límite). Pasado el techo, un aviso por item pide re-dimensionar el trabajo en voz alta o dividirlo. Nunca niega; calla en modo `solo` y cuando no hay tamaño.
 
 ## Calidad de código
 

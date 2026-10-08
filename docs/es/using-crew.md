@@ -146,6 +146,10 @@ Por defecto el prefijo activa el rol para **ese mensaje**; el siguiente vuelve a
 
 `GEN:` es la vuelta incorporada al generalista — nunca quedas atrapado en un rol.
 
+## Revisiones que se pueden comprobar
+
+Toda revisión (el veredicto de QA, una revisión de diseño, un dictamen de SEC, una auditoría de DOC) reporta sus hallazgos con una sola forma: severidad (blocking, important, refinement), el rol cuya decisión toca, la evidencia, si fue medido, observado o razonado, y la acción. Los hallazgos bloqueantes se vuelven a revisar una vez intentando refutarlos antes de entregar. Las revisiones de código siempre buscan fallas silenciosas, revisan cada línea "Must not" de la story y nunca repiten un pass que nadie corrió: `/crew:check` corre los comandos de test declarados por el proyecto y deja un recibo que la tabla de verificación puede citar. La forma vive en `standards/findings.md` del plugin.
+
 ## Retomar donde quedó la sesión anterior
 
 Cada sesión en un proyecto `team` (o sin `crew.json`) abre con un bloque corto de **trabajo en curso**, de seis líneas como máximo, leído directo del repo: hitos con `Started` y sin `Finished`, items `Delivered` que esperan validación, e items entregados con filas de verificación todavía en `planned`. El mismo bloque aparece después de compactar, y la propia compactación lista los hitos abiertos para que el resumen los conserve.

@@ -2,6 +2,29 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [0.28.0] — 2026-10-07
+
+Reviews whose findings someone else can check, passes that point at a run, and ceremony sized to the request. Requirements 006 and 007 of plan [`ecc-adoption`](docs/requirements/ecc-adoption/README.md). Migration guide: [`docs/en/migration-0.28.md`](docs/en/migration-0.28.md) / [`docs/es/migration-0.28.md`](docs/es/migration-0.28.md).
+
+### Added
+
+- **Findings shape** ([`standards/findings.md`](standards/findings.md)): severity (blocking, important, refinement — one scale for QA and design), owner role, evidence, basis (measured, observed, reasoned) and action; adversarial confirmation of blocking findings; three lenses every code review runs — silent failures, "must not" lines, claimed passes.
+- **`/crew:check` and [`scripts/verify.js`](scripts/verify.js)**: run only the commands `crew.json` declares, write a hashed receipt per run under `docs/verification/receipts/`, report READY or NOT READY.
+- **`testing.receipts: true`** (opt-in): a `passing` verification row closes only when it cites an existing, unedited, green receipt.
+- **"Must not" section** in the story template and in the functional analyst's craft.
+- **Size rubric** in the delivery circuit and the coordinator role (trivial, small, standard, large; any security trigger is at least standard); optional `Size:` field in both templates — the shape guard does not require fields marked `(optional)`.
+- **Scope notice** ([`hooks/nudge-scope.js`](hooks/nudge-scope.js)): once per item, when the change outgrows its size.
+- **Metrics by size**, with average deviation per size and a `size` CSV column.
+- **Evaluation set** [`evals/review/`](evals/review/README.md).
+
+### Fixed
+
+- `/crew:metrics` counted the **Total** row as a milestone since 0.23, doubling every item's estimated and actual hours. It is skipped now.
+
+### Compatibility
+
+- `required: false`. Receipts are opt-in; the new template section and field reach existing projects only when they adopt them.
+
 ## [0.27.0] — 2026-10-07
 
 Agents stop being able to switch off their own controls, and every session opens knowing what is still in flight. Requirements 003, 004 and 005 of plan [`ecc-adoption`](docs/requirements/ecc-adoption/README.md). Migration guide: [`docs/en/migration-0.27.md`](docs/en/migration-0.27.md) / [`docs/es/migration-0.27.md`](docs/es/migration-0.27.md).

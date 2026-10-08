@@ -39,6 +39,7 @@ Same semantics as stories, minus functional validation: a requirement is verifie
 - **Author role:** SYS | DA | INFRA | ...
 - **Branch:** (on In progress: `req/<plan>-NNN-slug`)
 - **Depends on:** (requirements, stories, or ADRs that must land first; "None" if none)
+- **Size:** (optional) trivial | small | standard | large
 
 ## Context
 

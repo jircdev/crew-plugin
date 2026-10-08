@@ -43,6 +43,19 @@ Requirements: verificados contra el Entregable esperado por el rol autor o `QA` 
 
 Estado → Closed (el archivo se congela). Trabajo significativo → entrada en `work/YYYY-MM/`. Horas reales por hito completadas en la tabla de estimación, totales incluidos, y la tabla de verificación reflejando lo que realmente quedó escrito — cerrar con una tabla de estimación incompleta es inválido, y también lo es cerrar con una tabla de verificación sin responder cuando el proyecto declara `testing`.
 
+## Tamaño — ceremonia proporcional al pedido
+
+No todo pedido necesita todos los pasos. Antes de arrancar el circuito, el rol que coordina dimensiona el pedido con la señal más alta que aplique y lo registra en el campo opcional `Size:` del work item:
+
+| Tamaño | Señales (gana la más alta) | Pasos que corren |
+|---|---|---|
+| **trivial** | 1–3 archivos, sin contrato nuevo, sin ambigüedad sobre lo pedido | un requirement o una story, implementación, cierre |
+| **small** | hasta ~10 archivos, sin contrato ni dependencia nuevos | análisis sin compuerta del sponsor, implementación, validación, cierre |
+| **standard** | un contrato, una dependencia o una pantalla nuevos; preguntas de diseño abiertas; **o cualquier disparador de seguridad** | el circuito completo salvo la compuerta del sponsor, a menos que el costo la pida |
+| **large** | varios módulos, una migración o un costo significativo | el circuito completo: brief y compuerta del sponsor, ADRs, plan por fases |
+
+**El tamaño quita pasos, nunca cierres.** Todo work item que existe cierra con sus tablas de estimación y de verificación, sea del tamaño que sea. Un disparador de seguridad nunca es trivial ni small. `/crew:metrics` informa el desvío de estimación por tamaño, así el equipo ve si su dimensionamiento se sostiene.
+
 ## Matriz rol → artefacto
 
 | Paso | Humano | Rol de agente | Escribe | Lee |

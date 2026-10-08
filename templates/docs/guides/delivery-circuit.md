@@ -48,6 +48,19 @@ Requirements: verified against the Expected deliverable by the authoring role or
 
 State → Closed (file freezes). Significant work → entry in `work/YYYY-MM/`. Actual hours per milestone completed in the estimation table, totals included, and the verification table reflecting what actually got written — closure with an incomplete estimation table is invalid, and so is closure with an unanswered verification table when the project declares `testing`.
 
+## Size — ceremony proportional to the request
+
+Not every request needs every step. Before the circuit starts, the coordinating role sizes the request with the highest signal that applies, and records it in the work item's optional `Size:` field:
+
+| Size | Signals (the highest one wins) | Steps that run |
+|---|---|---|
+| **trivial** | 1–3 files, no new contract, no ambiguity about what is wanted | one requirement or story, implementation, closure |
+| **small** | up to ~10 files, no new contract or dependency | analysis without a sponsor gate, implementation, validation, closure |
+| **standard** | a new contract, dependency or screen; open design questions; **or any security trigger** | the full circuit except the sponsor gate unless the cost calls for it |
+| **large** | several modules, a migration, or significant cost | the full circuit: brief and sponsor gate, ADRs, phased plan |
+
+**Size removes steps, never closures.** Any work item that exists closes with its estimation and verification tables, whatever its size. A security trigger is never trivial or small. `/crew:metrics` reports estimate deviation by size, so a team can see whether its sizing holds.
+
 ## Role → artifact matrix
 
 | Step | Human | Agent role | Writes | Reads |

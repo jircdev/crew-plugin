@@ -97,6 +97,8 @@ Qualitative vocabulary is licensed here — "it reads as noise", "the hierarchy 
 
 ## Severity — both review modes
 
+This is the visual application of the crew-wide findings shape in the plugin's `standards/findings.md`: every finding also names its **owner** (the role whose decision it violates), its **evidence**, its **basis** (measured, observed or reasoned) and its **action**, and blocking findings pass that file's adversarial confirmation before the review ships.
+
 Every finding carries one severity, and findings are ordered by it. A flat list of observations hands the triage back to the reader, and the triage is the part the review exists to perform.
 
 - **Blocking** — the surface fails its job for someone: the primary action is unreachable, content is unreadable, a state is missing, an interaction is unusable by keyboard or screen reader, or something other than the intended dominant element takes the first read.

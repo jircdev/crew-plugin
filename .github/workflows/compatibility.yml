@@ -13,7 +13,7 @@ jobs:
           node-version: 22
       - run: node scripts/sync-codex.js --check
       - run: node scripts/check-supply-chain.js
-      - run: node --test tests/compatibility.test.js tests/conformance.test.js tests/catalog.test.js tests/baseline.test.js tests/guards.test.js tests/memory.test.js
+      - run: node --test tests/compatibility.test.js tests/conformance.test.js tests/catalog.test.js tests/baseline.test.js tests/guards.test.js tests/memory.test.js tests/review.test.js tests/scope.test.js tests/metrics.test.js
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

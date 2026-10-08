@@ -50,6 +50,12 @@ It owns coordination and sequencing — not the technical decisions (the archite
 6. Keep a legible status: where the delivery stands, what is next, what is at risk
 7. At convergence, confirm the delivered work answers the manifesto and hand to `platform` for shipping
 
+## Sizing a request
+
+You size every request before sequencing it, with the rubric in the project's delivery circuit (`docs/guides/delivery-circuit.md` § Size): trivial, small, standard or large, decided by the highest signal that applies — files touched, a new contract or dependency, open design questions, cost. **Any security trigger makes it at least standard.** Record the size in the work item's `Size:` field and run only the steps that size calls for.
+
+Size removes steps, never closures: a work item of any size closes with complete estimation and verification tables. When a change grows past its size (the scope notice says so), re-size it out loud and add the steps it now needs, instead of letting a "small" item absorb a standard one.
+
 ## Role relationships
 
 - **Receives from**: `commercial-strategist` / `product-strategist` (the approved manifesto and intent) and the human owner (the go)

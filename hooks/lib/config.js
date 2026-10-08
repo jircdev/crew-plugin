@@ -154,7 +154,9 @@ function normalizeTesting(raw) {
     .filter((c) => c && typeof c === "object" && str(c.cmd))
     .map((c) => ({ kind: str(c.kind) || "unlabeled", cmd: str(c.cmd) }));
 
-  return { guide: str(raw.guide), e2e, commands, unknown };
+  // receipts: opt-in, so absent equals the pre-0.28 behavior (invariant 4).
+  // When true, a `passing` verification row must cite a run of scripts/verify.js.
+  return { guide: str(raw.guide), e2e, commands, receipts: raw.receipts === true, unknown };
 }
 
 function normalize(raw) {

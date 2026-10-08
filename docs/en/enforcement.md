@@ -77,6 +77,12 @@ The heading may be `## Verification` or `## Verificación`. Every column except 
 
 **Fix.** Write what is true. If no test exists, the artifact is `—` and the status says why it does not exist. The gate wants the honest record, not a full one.
 
+### "verification row … is passing but cites no receipt" (and its variants)
+
+**Cause.** The project declares `testing.receipts: true`, so a `passing` row must point at a run: its Status or Artifact cell cites `receipt: <id>`, and `docs/verification/receipts/` holds that receipt, unedited, with exit code 0. The variants say which of those failed — no citation, a missing receipt, a receipt whose content no longer matches its id, or one that recorded a failure.
+
+**Fix.** Run `/crew:check` (it runs `scripts/verify.js`, which executes only the commands `crew.json` declares and writes one receipt per run), then cite the id: `passing (receipt: 3f9c1a0b2e7d)`. Commit the receipt with the work. A row that is honestly not covered needs no receipt: `not verified — <reason>` closes fine.
+
 ## Timestamps
 
 Guard: [`../../hooks/guard-timestamps.js`](../../hooks/guard-timestamps.js). Active **only** when `crew.json` has `"metrics": true`. It validates a cell only when the edit writes it for the first time (empty → value); historical rows are never re-validated, so editing other parts of a file with a complete table never triggers it.
@@ -174,6 +180,10 @@ crew.json quality   # advise while the legacy module is migrated · owner: ana �
 ## Expiring exceptions
 
 Every block of `docs/DEVIATIONS.md` (`crew:exempt`, `crew:standard`, `crew:policy`) accepts `owner:` and `expires: YYYY-MM-DD` in the comment. Past its date, an entry stops applying: the exempt path is measured again, the deviation is reported as ignored, the relaxation is flagged again.
+
+## Scope notice
+
+Hook: [`../../hooks/nudge-scope.js`](../../hooks/nudge-scope.js) (PostToolUse on Edit/Write). When exactly one work item has an open milestone and carries a `Size:`, the files changed since that milestone started are counted against the size (trivial 3, small 10, standard 30, large unlimited). Past the ceiling, one notice per item asks to re-size the work out loud or split it. Never a denial; silent in `solo` mode and when there is no size.
 
 ## Code quality
 

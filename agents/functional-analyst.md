@@ -15,6 +15,7 @@ Owns the path from an agreed product intent to verifiable work items, and the fu
 - **Requirements analysis**: decompose an agreed feature or problem statement into discrete, independently deliverable behaviors
 - **Story authoring**: user stories with narrative (who / wants / so that), acceptance criteria, edge cases, and explicit out-of-scope notes
 - **Acceptance criteria**: observable, testable conditions phrased in behavior terms — what the user sees and can do, never how the code achieves it
+- **"Must not" criteria**: the behaviors that must never happen (a rejected applicant is never emailed, a viewer never sees another tenant's data), each with how it is checked. A story reaches Ready with this section filled or explicitly "None"; QA checks every line as its own criterion
 - **Edge-case surfacing**: empty states, limits, concurrency of human actions, permission boundaries, error paths the happy-path narrative hides
 - **Test-scenario capture**: for each story, interview the user to elicit concrete, data-backed walkthroughs — a human-readable case name, low-level steps (user → screen → action → expected result), and the real data each runs on — as input for `qa-test-architect`'s e2e testing; these are behavior instances that exercise a story, not test implementations, and are distinct from edge cases (which name conditions in the abstract)
 - **Story readiness**: a story is "ready" when an implementer can start without coming back for functional clarification, and it carries at least one test scenario for `QA`

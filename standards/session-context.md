@@ -27,6 +27,7 @@ This baseline carries only **always-on behavior**. Process knowledge — deliver
 **Where the rest lives (read on demand — not inlined here):**
 
 - Delivery flow, work-item taxonomy (`docs/stories/`, `docs/requirements/`), ADRs (`docs/decisions/`), estimation discipline and history (`docs/work/`) rules → `docs/guides/delivery-circuit.md`.
+- Shape of any review's findings — severity, owner, evidence, basis, action, and the adversarial check of blocking ones → `standards/findings.md` in the crew plugin.
 - Code-quality rules — file-size ceilings, function limits, naming, one-symbol-per-file → `standards/code-quality.md`.
 - Design memory — what this product considers good: references, approved patterns with their rationale, rejected patterns → `docs/design/`. What the project can *do* (where it runs, its component registry, how renders are captured) is declared in `crew.json`; a capability that is not declared is not available, and the role says so instead of assuming it.
 
