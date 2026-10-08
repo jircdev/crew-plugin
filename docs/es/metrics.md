@@ -59,6 +59,27 @@ El reporte corre en **ambos modos, con o sin `crew.json`** — simplemente lee l
 
 Los items que llevan el campo opcional `Size:` (trivial, small, standard, large; la rúbrica está en el circuito de entrega) también se agrupan por tamaño, con el desvío promedio de estimación por tamaño, y `--csv` agrega una columna `size`. Es la evidencia de que el dimensionamiento se sostiene: si los items "small" se pasan un 80% una y otra vez, o la rúbrica es generosa o lo son las estimaciones del trabajo chico. Los items sin tamaño se agrupan como `unsized`.
 
+## Modo factory
+
+Cuando `crew.json` declara un bloque `factory` ([configuration.md](configuration.md#modo-factory)), los números salen de factory: las estimaciones se cargan allí, y las horas consumidas son el tiempo que registraron los hooks de captura y que cada persona confirmó. `/crew:metrics` le pide entonces a factory el backlog del proyecto (la herramienta MCP `project_backlog`, con tu token personal) y lo muestra como un árbol de actividades: cada requerimiento, con sus hitos, historias y tareas indentados debajo. Las citas quedan afuera.
+
+| Columna | Significado |
+|---|---|
+| Code | El código de la actividad en factory, o su número. |
+| Activity | Su título, indentado bajo su padre. |
+| Kind | `requirement`, `milestone`, `story` o `task`. |
+| Status | `backlog`, `todo`, `in_progress`, `in_review`, `done` o `cancelled`. |
+| Original est (h) | La estimación con la que se planificó la actividad. |
+| Current est (h) | La estimación vigente hoy, después de cualquier re-estimación. |
+| Own consumed (h) | Tiempo de personas confirmado e imputado a esa actividad en sí. Factory no suma acá las horas de las hijas, así que un requerimiento cuyo trabajo vive en sus historias muestra poco o nada. |
+| Deviation | Aparece en las actividades sin hijas. En las terminadas, lo consumido contra la estimación original. En las abiertas, la estimación vigente contra la original, que muestra cuánto se movió el plan hasta ahora. Positivo significa más horas que las planificadas. |
+
+Debajo del árbol va el resumen del proyecto: horas **cotizadas** (lo que se cotizó en los paquetes aprobados), **consumidas**, **pendientes** (estimación vigente de las actividades abiertas) y **pronóstico** (consumidas + pendientes), con la desviación del pronóstico contra lo cotizado.
+
+El argumento de período y `--csv` pertenecen al reporte en markdown; en modo factory el reporte muestra el backlog vivo. Cuando esta máquina no está conectada, o factory no puede responder (token rechazado, permiso faltante, factory caído), el reporte lo dice en una línea y muestra en su lugar el reporte local en markdown.
+
+`/crew:metrics catalog` funciona igual en modo factory: lee el registro local de uso del catálogo y nunca consulta a factory.
+
 ## Cómo leer los números
 
 **Lead time vs tiempo de ejecución.** La brecha entre ambos es tiempo de cola: cuánto estuvo el ítem escrito-pero-no-empezado. Una historia con 20 días de lead y 6 horas de exec es una señal de priorización: el trabajo fue rápido, la espera fue larga. El tiempo de ejecución es el que se compara contra las estimaciones; el lead time es el que siente quien pidió el trabajo.

@@ -204,6 +204,29 @@ Pasada su fecha, la entrada deja de aplicar: la ruta exenta se vuelve a medir, l
 
 Hook: [`../../hooks/nudge-scope.js`](../../hooks/nudge-scope.js) (PostToolUse sobre Edit/Write). Cuando exactamente un work item tiene un hito abierto y lleva `Size:`, los archivos cambiados desde que arrancó ese hito se cuentan contra el tamaño (trivial 3, small 10, standard 30, large sin límite). Pasado el techo, un aviso por item pide re-dimensionar el trabajo en voz alta o dividirlo. Nunca niega; calla en modo `solo` y cuando no hay tamaño.
 
+## Modo factory
+
+Cuando `crew.json` declara un bloque `factory` con `projectId` ([configuration.md](configuration.md#modo-factory)), la estimación, el estado y el tiempo de trabajo de cada tarea viven en factory. Dos guards se adaptan, igual en team que en solo; el resto se comporta como se describe arriba.
+
+- **Timestamps** se retira por completo. Los hooks de captura registran cuándo ocurrió el trabajo, así que no quedan celdas `Started`/`Finished` que vigilar.
+- **La puerta de estimación al cierre** pide el enlace a la actividad de factory en lugar de la tabla. La puerta de verificación sigue igual: con `testing` declarado, la tabla `## Verification` sigue siendo obligatoria.
+
+El adaptador de `apply_patch` de Codex corre estos mismos guards, así que ambos hosts aplican la misma regla.
+
+### "Cannot close this work item: no **Factory activity:** header"
+
+**Causa.** Estás pasando una historia o requerimiento a `Closed` y sus primeras 40 líneas no tienen una línea `**Factory activity:** <uuid>` (ni la anterior `**Factory task:** <uuid>`). En modo factory esa línea ata la especificación del repo con la actividad cuya estimación y horas guarda factory. Sin ella, el ítem cerrado apunta a algo imposible de medir.
+
+**Solución.** Buscá o creá la actividad en factory (las herramientas MCP de `factory` `project_backlog`, `get_activity`, `create_activity` o `upsert_requirement` lo hacen desde la sesión), agregá la línea a la cabecera y después cerrá:
+
+```
+- **Factory activity:** 3f0c9a52-8d1e-4c7a-9b6f-2a1d0e5c7b44
+```
+
+En este modo la tabla `## Estimation` es opcional y ningún guard la revisa.
+
+## Estimation` es opcional y ningún guard la revisa.
+
 ## Calidad de código
 
 Guard: [`../../hooks/guard-code-quality.js`](../../hooks/guard-code-quality.js) al escribir; puerta: [`../../scripts/check-staged.js`](../../scripts/check-staged.js) al commitear. Ambos comparten los mismos techos, overrides (`"ceilings"` en `crew.json`) y exenciones — la tabla de tipos y defaults está en [configuration.md](configuration.md#ceilings).

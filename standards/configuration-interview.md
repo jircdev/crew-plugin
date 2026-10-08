@@ -91,6 +91,13 @@ Ask this whenever the project has code, in either mode. It is the block that dec
 - Say what declaring costs and what it buys: with `e2e` declared, plans specify scenarios as specs in that harness at that path and the estimate carries writing them; undeclared, a scenario stays a walkthrough and the plan names the missing harness as a cost. Declaring `testing` at all makes the work item's verification table a closure gate.
 - Never propose a tool the project did not name. Suggesting a harness because it is popular is the plugin choosing the stack through the back door — the same failure the design blocks exist to prevent.
 
+### 10. Factory (optional)
+
+Ask once, in either mode: **does this project track its tasks and work time in factory? If so, what is the factory project id?** → `factory.projectId` (plus `factory.environment: "dev"` only when the whole team works against factory's development environment). "No" leaves the block out, and nothing changes.
+
+- Say what declaring does: closing a work item then requires a `**Factory activity:** <uuid>` header in place of the estimation table, the timestamps guard stands down, `/crew:metrics` reads factory's backlog, and the plugin's hooks capture work-time intervals (timestamps only) for each person who connects their machine with `/crew:factory login`. The block uses factory's production environment unless it declares `"environment": "dev"`.
+- Never ask for, write or store the token, and keep it out of the chat. It is personal: each person connects their own machine with `/crew:factory login`. Point them to the plugin's `docs/en/factory.md` for that and for connecting the MCP server.
+
 ## Closing the interview
 
 1. Show what will be written, in full, before writing it.

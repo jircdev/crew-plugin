@@ -59,6 +59,27 @@ The report runs in **both modes, with or without `crew.json`** — it just reads
 
 Items that carry the optional `Size:` header (trivial, small, standard, large — the rubric lives in the delivery circuit) are also grouped by size, with the average estimate deviation per size, and `--csv` adds a `size` column. That is the evidence that sizing holds: if "small" items keep running 80% over, either the rubric is too generous or the estimates for small work are. Items without a size are grouped as `unsized`.
 
+## Factory mode
+
+When `crew.json` declares a `factory` block ([configuration.md](configuration.md#factory-mode)), the numbers come from factory: estimates are set there, and consumed hours are the time the capture hooks recorded and each person confirmed. `/crew:metrics` then asks factory for the project backlog (the MCP tool `project_backlog`, using your personal token) and prints it as a tree of activities: each requirement, with its milestones, stories and tasks indented below it. Appointments are left out.
+
+| Column | Meaning |
+|---|---|
+| Code | The activity's code in factory, or its number. |
+| Activity | Its title, indented under its parent. |
+| Kind | `requirement`, `milestone`, `story` or `task`. |
+| Status | `backlog`, `todo`, `in_progress`, `in_review`, `done` or `cancelled`. |
+| Original est (h) | The estimate the activity was planned with. |
+| Current est (h) | The estimate as it stands today, after any re-estimation. |
+| Own consumed (h) | Confirmed person time imputed to that activity itself. Factory does not add the children's hours here, so a requirement whose work lives in its stories shows little or none. |
+| Deviation | Shown on activities without children. For finished ones, consumed against the original estimate. For open ones, the current estimate against the original, which shows how far the plan has drifted so far. Positive means more hours than planned. |
+
+Below the tree comes the project summary: **quoted** hours (what the approved packages were quoted at), **consumed**, **pending** (current estimate of the open activities), and **forecast** (consumed + pending), with the forecast's deviation against the quoted figure.
+
+The period argument and `--csv` belong to the markdown report; in factory mode the report shows the live backlog. When this machine is not connected, or factory cannot answer (token rejected, missing permission, factory down), the report says so in one line and shows the local markdown report instead.
+
+`/crew:metrics catalog` works the same in factory mode: it reads the local catalog usage log and never asks factory.
+
 ## Reading the numbers
 
 **Lead time vs execution time.** The gap between them is queue time: how long the item sat written-but-not-started. A story with 20 days of lead and 6 hours of exec is a prioritization signal: the work was fast, the wait was long. Execution time is the one to compare against estimates; lead time is the one the requester feels.

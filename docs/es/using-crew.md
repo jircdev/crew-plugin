@@ -13,7 +13,8 @@ En Claude Code cada comando se escribe `/crew:<nombre>`. En Codex se elige la sk
 | `/crew:check [tipo]` | Corre los comandos de test que declara `crew.json`, deja un recibo por corrida y responde READY o NOT READY. | [configuration.md § Capacidades de testing](configuration.md#capacidades-de-testing) |
 | `/crew:doctor` | Revisa la instalación del proyecto sin cambiar nada. `repair` restaura archivos faltantes del scaffold y la puerta pre-commit; `uninstall` quita lo que escribió crew. Ambos aceptan `--dry-run` y nunca tocan un archivo que editaste. | [installation.md](installation.md#después-de-instalar--elige-el-modo-del-proyecto) |
 | `/crew:adopt [capacidad]` | Extrae en `docs/as-is/` lo que hace hoy un sistema existente. | [Onboarding de un proyecto existente](#onboarding-de-un-proyecto-existente) |
-| `/crew:metrics [AAAA-MM]` | Reporte de estimación: lead time, tiempo de ejecución y desvío; `--csv` lo exporta. `/crew:metrics catalog` informa el uso de roles, skills y comandos. | [metrics.md](metrics.md) |
+| `/crew:metrics [AAAA-MM]` | Reporte de estimación: lead time, tiempo de ejecución y desvío; `--csv` lo exporta. `/crew:metrics catalog` informa el uso de roles, skills y comandos. En modo factory muestra el backlog de factory. | [metrics.md](metrics.md) |
+| `/crew:factory [login\|status\|logout]` | Conecta esta máquina con factory, dice con qué factory habla y como quién, o la desconecta. Solo para proyectos cuyo `crew.json` declara un bloque `factory`. | [factory.md](factory.md) |
 
 ## Configurar un proyecto nuevo
 

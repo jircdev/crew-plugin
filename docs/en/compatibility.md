@@ -155,6 +155,7 @@ trust changed hooks again. Do not edit files inside an installed version.
 | Agent configuration security scan | `scripts/sec-scan.js`, doctor, SessionStart notice | Same script; Codex config files are not yet among the scanned targets |
 | Catalog usage (opt-in per person) | PostToolUse on Agent/Skill, UserPromptSubmit | UserPromptSubmit and PostToolUse fire; whether Codex's own delegation reaches PostToolUse is unverified |
 | Work log | Stop | Same script: Git and cwd, no transcript parsing |
+| Activity capture (factory mode) | SessionStart, UserPromptSubmit, Stop, SessionEnd, PostToolUse Edit/Write/MultiEdit | Same events as far as the host emits them; the task comes from apply_patch file headers on PostToolUse |
 | Size at commit | Optional scaffolded Git hook | Same hook; `node /path/crew/scripts/check-staged.js --all` checks tracked files |
 
 The adapter supports additions, deletions, updates, moves, multiple files and
@@ -182,7 +183,7 @@ instructions and must disclose that mechanical enforcement was not verified.
 Edit canonical roles/commands and run `node scripts/sync-codex.js`. `--check`
 detects missing, stale or retired entries. The Codex manifest derives version
 and author from Claude's, so it is not edited by hand. The contract suite is
-`node --test tests/compatibility.test.js`. CI runs it on Windows and Linux.
+`node --test "tests/*.test.js"`. CI runs it on Windows and Linux.
 `python scripts/build-release.py --output <new-directory>` generates `.plugin`,
 `.zip`, the Codex catalog ZIP and `SHA256SUMS` without publishing anything.
 

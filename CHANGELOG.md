@@ -4,6 +4,22 @@ All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepa
 
 ## [Unreleased]
 
+### Added
+
+- Factory mode: an optional `factory` block in `crew.json` (`projectId`, `url`, `capture`) for projects whose tasks and work time live in factory. The personal token comes from `FACTORY_TOKEN` or `~/.crew/factory-token`, never from the repository. Guide: [`docs/en/factory.md`](docs/en/factory.md) / [`docs/es/factory.md`](docs/es/factory.md).
+- `hooks/capture-activity.js` on SessionStart, UserPromptSubmit, Stop, SessionEnd and PostToolUse (Edit|Write|MultiEdit, and Codex `apply_patch` through its file headers): records human-presence intervals (gaps of 15 minutes or less between events) and agent intervals (prompt → stop), tagged with the work item being edited, queues them in `~/.crew/activity/` and sends them to factory's `/activity/intervals`. Timestamps only; prompt and response content is never read. Silent, fails open, paused by `CREW_CAPTURE=off`, `"capture": false` or a missing token. SessionStart prunes session state older than 48 h.
+- `/crew:setup` asks one optional factory question; the templates' `AGENTS.md` estimation discipline covers factory mode.
+- `/crew:metrics` in factory mode reads the project backlog through factory's MCP tool `project_backlog`: per task original and current estimate, consumed hours and deviation, plus approved / consumed / pending / forecast.
+
+### Changed
+
+- In factory mode the estimation closure gate requires a `**Factory task:** <uuid>` header line in place of the `## Estimation` table, and the timestamps guard stands down. Without the block, behavior is unchanged. The Codex `apply_patch` adapter inherits both through the shared guards.
+- The contract suite runs every `tests/*.test.js`.
+
+### Compatibility
+
+- Additive and opt-in: no `crew.json` field changes meaning and no migration is required. A `factory` block without `projectId` is named at session start and otherwise ignored.
+
 ### Verified
 
 - `tests/runtime-smoke.py` is pinned to Codex 0.130.0-alpha.5 and adds three host cases. On 2026-10-08: Codex's native shell reaches hooks as `Bash` and `git commit --no-verify` is denied; an MCP tool reaches PreToolUse as `mcp__<server>__<tool>` and the off-repo notice reaches the model; Claude Code 2.1.227 shows the PreCompact notice and re-emits the work-in-progress block after compaction.

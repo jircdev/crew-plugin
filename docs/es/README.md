@@ -28,14 +28,15 @@ Qué roles trabajan en cada etapa, y el catálogo completo por área: [roles.md]
 | Instalar en Codex | [compatibility.md § Instalar en Codex](compatibility.md#instalar-en-codex) |
 | Configurar un proyecto nuevo o adoptar uno existente | [using-crew.md](using-crew.md) |
 | Elegir el modo del proyecto (team o solo) | [using-crew.md § Elegir el modo](using-crew.md#elegir-el-modo-del-proyecto) |
-| Ver todos los comandos: roles, `/crew:setup`, `/crew:check`, `/crew:doctor`, `/crew:adopt`, `/crew:metrics` | [using-crew.md § Comandos](using-crew.md#comandos-de-crew) |
+| Ver todos los comandos: roles, `/crew:setup`, `/crew:check`, `/crew:doctor`, `/crew:adopt`, `/crew:metrics`, `/crew:factory` | [using-crew.md § Comandos](using-crew.md#comandos-de-crew) |
 | Conocer los roles y qué decide cada uno | [roles.md](roles.md) |
-| Configurar `crew.json`: modo, métricas, calidad, techos, diseño, testing y recibos, auditoría, telemetría | [configuration.md](configuration.md) |
+| Configurar `crew.json`: modo, métricas, calidad, techos, diseño, testing y recibos, auditoría, telemetría, factory | [configuration.md](configuration.md) |
 | Entender qué hace cada guard y resolver un bloqueo | [enforcement.md](enforcement.md) |
 | Registrar una excepción en `docs/DEVIATIONS.md` (`crew:exempt`, `crew:standard`, `crew:policy`, `crew:security`, con `owner:` y `expires:`) | [enforcement.md § Bloques](enforcement.md#bloques-de-docsdeviationsmd) |
 | Planificar y estimar trabajo (skill `planning`, estándar efectivo) | [using-crew.md § Planificar](using-crew.md#planificar-y-estimar-trabajo) |
 | Escanear la configuración del agente en busca de riesgos de seguridad | [using-crew.md § Seguridad](using-crew.md#disparadores-de-seguridad-y-frontera-de-instrucciones) |
 | Medir la entrega y el uso del catálogo | [metrics.md](metrics.md) |
+| Trabajar en un proyecto cuyas tareas y tiempo viven en factory | [factory.md](factory.md) |
 | Trabajar solo, con la ceremonia mínima | [solo-quickstart.md](solo-quickstart.md) |
 | Usar crew sin ser desarrollador (CEO, analista) | [non-technical-roles.md](non-technical-roles.md) |
 | Entender el proceso de entrega de punta a punta | [circuito de entrega](../../templates/docs/guides/delivery-circuit.es.md) |
@@ -46,13 +47,14 @@ Qué roles trabajan en cada etapa, y el catálogo completo por área: [roles.md]
 ## Qué incluye
 
 - **Roles** (`agents/`, `commands/`): 17 roles, cada uno con su comando `/crew:<alias>`. Los alias retirados todavía responden y derivan a su sucesor.
-- **Skills** (`skills/`): 34 entradas de alias generadas a partir de los comandos, que comparten Claude y Codex, y tres oficios que cualquier rol carga: `planning` (planes y estimaciones como work items en el estándar del proyecto), `writing` (cómo comunica una pieza) y `design` (composición, entrega, revisión de implementación y juicio de renders). Los oficios llevan solo método; el gusto de cada producto lo declara su proyecto.
-- **Hooks** (`hooks/`): `SessionStart` carga el baseline de sesión, el estado de configuración y el trabajo en curso. Los guards de `PreToolUse` protegen los artefactos inmutables, las tablas de estimación y verificación, los timestamps, los techos de tamaño, la forma de los work items, la evasión de hooks y la relajación de políticas. `Stop` revisa el registro de trabajo. Detalle: [enforcement.md](enforcement.md).
+- **Skills** (`skills/`): 35 entradas de alias generadas a partir de los comandos, que comparten Claude y Codex, y tres oficios que cualquier rol carga: `planning` (planes y estimaciones como work items en el estándar del proyecto), `writing` (cómo comunica una pieza) y `design` (composición, entrega, revisión de implementación y juicio de renders). Los oficios llevan solo método; el gusto de cada producto lo declara su proyecto.
+- **Hooks** (`hooks/`): `SessionStart` carga el baseline de sesión, el estado de configuración y el trabajo en curso. Los guards de `PreToolUse` protegen los artefactos inmutables, las tablas de estimación y verificación, los timestamps, los techos de tamaño, la forma de los work items, la evasión de hooks y la relajación de políticas. `Stop` revisa el registro de trabajo. En modo factory, `capture-activity` registra intervalos de tiempo de trabajo (solo marcas de tiempo) y los envía a factory. Detalle: [enforcement.md](enforcement.md).
 - **Puerta pre-commit**: la instala el scaffold y exige los mismos techos de tamaño al commitear. Las exenciones se pre-registran en el bloque `crew:exempt` de `docs/DEVIATIONS.md`.
 - **Plantillas** (`templates/`): `AGENTS.md` (contexto canónico de agentes), un puntero `CLAUDE.md`, `standards/` y la taxonomía de `docs/` (stories, requirements, decisions, briefs, proposals, as-is, guides, work, DEVIATIONS). La memoria de diseño (`docs/design/`) y la estrategia de testing (`docs/guides/testing.md`) se instalan vacías: las completa el proyecto.
 - **Configuración por repo** (`crew.json`): modo, métricas, calidad, techos y capacidades. Nada se concede por defecto, y un repo sin `crew.json` conserva el comportamiento anterior. Referencia: [configuration.md](configuration.md).
 - **Baseline de sesión** (`standards/session-context.md`): reglas de conducta siempre activas. El conocimiento de proceso queda en los `standards/` y `docs/guides/` del proyecto, y las reglas propias del proyecto siempre ganan.
-- **Scripts** (`scripts/`): scaffold (`init-project.js`, con el envoltorio `init-project.sh`), doctor, verificación con recibos, métricas, escaneo de seguridad y generación de releases.
+- **Scripts** (`scripts/`): scaffold (`init-project.js`, con el envoltorio `init-project.sh`), doctor, verificación con recibos, métricas, escaneo de seguridad, login de factory (`factory-login.js`) y generación de releases.
+- **Modo factory** (bloque `factory` de `crew.json`): las tareas y el tiempo del proyecto viven en factory. crew le envía el tiempo humano y de agente capturado en esta máquina, y `/crew:metrics` lee el backlog de factory. Detalle: [factory.md](factory.md).
 - **Dos hosts**: manifiestos `.claude-plugin/` y `.codex-plugin/`, un adaptador de `apply_patch` para Codex que usa los mismos guards, y archivos de release generados por `scripts/build-release.py`. Las escrituras por shell o MCP quedan fuera de los guards de archivo. Detalle: [compatibility.md](compatibility.md).
 
 ## Licencia

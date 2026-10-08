@@ -13,7 +13,8 @@ In Claude Code each command is typed `/crew:<name>`. In Codex you pick the skill
 | `/crew:check [kind]` | Runs the test commands `crew.json` declares, leaves one receipt per run and answers READY or NOT READY. | [configuration.md § Testing capabilities](configuration.md#testing-capabilities) |
 | `/crew:doctor` | Checks the project's install without changing anything. `repair` restores missing scaffold files and the pre-commit gate; `uninstall` removes what crew wrote. Both accept `--dry-run` and never touch a file you edited. | [installation.md](installation.md#after-installing--choose-the-project-mode) |
 | `/crew:adopt [capability]` | Extracts into `docs/as-is/` what an existing system does today. | [Onboard an existing project](#onboard-an-existing-project) |
-| `/crew:metrics [YYYY-MM]` | Estimation report: lead time, execution time and deviation; `--csv` exports it. `/crew:metrics catalog` reports how roles, skills and commands are used. | [metrics.md](metrics.md) |
+| `/crew:metrics [YYYY-MM]` | Estimation report: lead time, execution time and deviation; `--csv` exports it. `/crew:metrics catalog` reports how roles, skills and commands are used. In factory mode it shows factory's backlog. | [metrics.md](metrics.md) |
+| `/crew:factory [login\|status\|logout]` | Connects this machine to factory, says which factory it talks to and as whom, or disconnects it. Only for projects whose `crew.json` declares a `factory` block. | [factory.md](factory.md) |
 
 ## Set up a new project
 

@@ -31,6 +31,7 @@ Dos consecuencias. Primera, el plugin **no tiene defaults ocultos**: los valores
 | `testing` | objeto (`guide`, `e2e`, `commands`, `receipts`) | `null` | Qué puede verificar este proyecto y con qué. Declararlo convierte la tabla de verificación en compuerta de cierre; ver [Capacidades de testing](#capacidades-de-testing). |
 | `audit` | `true` \| `false` | `false` | Registro de las decisiones de los guards en `.crew/audit.log`, solo en modo team; ver [Registro de auditoría](#registro-de-auditoría-audit). |
 | `telemetry` | `false` | sin efecto | Solo puede prohibir el registro de uso del catálogo para todo el equipo. Cada persona lo activa en su máquina; ver [Uso del catálogo](#uso-del-catálogo-telemetry). |
+| `factory` | objeto (`projectId`, `environment`, `url`, `web`, `capture`) | `null` | Las tareas, las estimaciones y el tiempo de trabajo viven en factory; ver [Modo factory](#modo-factory). |
 
 Los campos ausentes se normalizan al valor equivalente-legacy de la tercera columna — un `crew.json` que contiene solo `{"mode": "solo"}` es válido y significa solo, sin métricas, calidad enforce, techos por defecto.
 
@@ -176,6 +177,40 @@ La misma regla que `design`, aplicada al otro lugar donde un agente suena seguro
 
 El uso del catálogo (qué roles, skills y comandos se usan) se registra **solo para la persona que lo activa**, en `.crew/local.json` (`{"telemetry": true}`, nunca versionado) o con `CREW_TELEMETRY=1`. El `crew.json` compartido no puede encenderlo para el resto del equipo; `"telemetry": false` ahí lo prohíbe para todos. Cada evento es una línea en `.crew/usage.jsonl`: la fecha (sin hora), el tipo y un nombre del catálogo; cualquier otra cosa se guarda como `other`, así que ningún texto de un prompt puede terminar ahí. Las líneas de más de 90 días se descartan, `.crew/.gitignore` deja el archivo fuera del repositorio y `/crew:doctor` bloquea si igual se commiteó. `/crew:metrics catalog` lo informa; `--purge` lo borra.
 
+## Modo factory
+
+Un proyecto cuyas actividades y tiempo de trabajo se gestionan en factory lo declara con un bloque:
+
+```json
+{
+  "factory": {
+    "projectId": "3f0c9a52-…",
+    "environment": "prod",
+    "capture": true
+  }
+}
+```
+
+| Clave | Obligatoria | Default | Significado |
+|---|---|---|---|
+| `projectId` | sí | — | El proyecto de factory para el que trabaja este repositorio. Un bloque sin él está incompleto: el arranque de sesión lo nombra, y todo se comporta como si el bloque no existiera. |
+| `environment` | no | `prod` | Qué factory: `prod` (`https://api.factory.balearesgroup.com/api/v1`) o `dev` (`https://api.dev.factory.balearesgroup.com/api/v1`). Un nombre desconocido cae en `prod` y el arranque de sesión lo avisa. |
+| `url` | no | — | Una base de API completa para cualquier otro host (un factory local, por ejemplo). Reemplaza a `environment`. |
+| `web` | no | — | La base web donde las personas aprueban `/crew:factory login`, cuando `url` apunta a un lugar sin dirección web conocida. |
+| `capture` | no | `true` | Si los hooks de actividad registran el tiempo de trabajo de este proyecto. `false` pausa la captura para todas las personas que trabajan en el repositorio. |
+
+Una persona puede apuntar su propia máquina a otro lado sin editar el archivo compartido: `CREW_FACTORY_ENV` (`prod` o `dev`) o `CREW_FACTORY_URL` (una base de API completa), más `CREW_FACTORY_WEB_URL` para la web. Lo de la máquina gana sobre `crew.json`.
+
+**Qué cambia cuando el bloque está presente.** La historia o requerimiento conserva la especificación y los criterios. La tarea (estimación, estado, tiempo) vive en factory y se enlaza desde el work item con una línea de cabecera `**Factory activity:** <uuid>` (también se acepta `**Factory task:**`). La puerta de estimación pide esa cabecera en lugar de la tabla `## Estimation`, el guard de timestamps se retira porque el reloj lo llevan los hooks de captura, y `/crew:metrics` lee el backlog desde factory. Detalle en [enforcement.md](enforcement.md#modo-factory) y [metrics.md](metrics.md#modo-factory).
+
+**El token es personal y queda fuera del repositorio.** Cada persona conecta su máquina con `/crew:factory login` ([factory.md](factory.md#cómo-se-configura)), que guarda el token en `~/.crew/factory-token`, legible solo por ella. La variable de entorno `FACTORY_TOKEN` tiene prioridad cuando está definida. `crew.json` está versionado y compartido, así que no tiene campo para el token.
+
+**Pausar la captura.** Alcanza con cualquiera de tres interruptores: `CREW_CAPTURE=off` en tu entorno (vos, en esta máquina), `"capture": false` (todo el proyecto), o no tener token. Con la captura en pausa no se escribe nada, tampoco estado local.
+
+**La captura y el uso del catálogo son registros separados.** La captura registra tiempo de trabajo (inicio y fin de cada intervalo humano o de agente) en `~/.crew/activity/` de cada máquina y lo envía a factory. El uso del catálogo (`telemetry`) queda en `.crew/usage.jsonl` de este repositorio, fuera del control de versiones, y crew no lo envía a ningún lado. Cada uno tiene su propio interruptor, y cambiar uno deja al otro como estaba.
+
+El circuito tal como lo ven quienes lo usan (qué se captura, cómo crear el token, cómo conectar el servidor MCP, la revisión semanal) está en [factory.md](factory.md).
+
 ## La marca: `configuredWith`
 
 Una línea que registra con qué versión del plugin se configuró este proyecto por última vez. Es un dato de estado: ningún comportamiento la lee. Borrala y lo único que perdés es el aviso.
@@ -218,9 +253,12 @@ El set de preguntas que sigue está fijo y versionado en el plugin (`standards/c
 | Aviso de alcance tras escribir ([nudge-scope](../../hooks/nudge-scope.js)) | `mode`, el `Size:` del item activo | aviso | apagado | aviso |
 | Recordatorio de work-log al cerrar sesión ([check-work-log](../../hooks/check-work-log.js)) | `mode` | activo donde exista `docs/work/` | apagado | activo donde exista `docs/work/` |
 | Puerta de calidad pre-commit ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | siempre, una vez instalada | siempre, una vez instalada | siempre, una vez instalada |
-| Reporte `/crew:metrics` ([metrics.js](../../scripts/metrics.js)) | nada | corre | corre | corre |
+| Reporte `/crew:metrics` ([metrics.js](../../scripts/metrics.js)) | `factory` | corre | corre | corre |
+| Captura de actividad ([capture-activity](../../hooks/capture-activity.js)) | `factory` | solo en modo factory, con token | solo en modo factory, con token | apagada |
 
-La última fila es el patrón a recordar: **el reporte corre en cualquier lado; lo que `metrics: true` habilita es la disciplina**. Detalles en [metrics.md](metrics.md).
+La fila de métricas es el patrón a recordar: **el reporte corre en cualquier lado; lo que `metrics: true` habilita es la disciplina**. Detalles en [metrics.md](metrics.md).
+
+**El modo factory reemplaza tres filas**, en cualquiera de los dos modos: la puerta de estimación pide la cabecera `**Factory activity:**` en lugar de la tabla, el guard de timestamps queda apagado y el reporte de métricas lee el backlog de factory. Verificación, inmutabilidad, calidad y recordatorio de work-log siguen igual.
 
 ## Cómo lo escribe `init-project.sh`
 

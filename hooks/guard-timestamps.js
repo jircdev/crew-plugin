@@ -4,9 +4,11 @@
 // the agent cannot fake. Only newly written cells (empty → value) are
 // validated; historical rows are never re-checked, so editing other parts of
 // a file with a complete table never triggers this guard. Active only when
-// the project's crew.json sets "metrics": true. Anything unexpected fails open.
+// the project's crew.json sets "metrics": true and does not run in factory
+// mode. Anything unexpected fails open.
 const { readFileSync, existsSync } = require("node:fs");
 const { configFor } = require("./lib/config");
+const { factoryMode } = require("./lib/factory");
 
 const TOLERANCE_MS = 15 * 60 * 1000; // decided with Julio: 15 minutes
 const ACTUAL_SLACK = 1.05; // Actual hours may be ≤ wall-clock × 1.05, never more
@@ -109,6 +111,8 @@ try {
 
   const cfg = configFor(path, input.cwd);
   if (!cfg || cfg.metrics !== true) process.exit(0); // no crew.json ⇒ v0.19.1 behavior
+  // Factory mode: the capture hooks own the clock, the markdown table does not.
+  if (factoryMode(cfg)) process.exit(0);
 
   const content = resultingContent(input, path);
   if (!content) process.exit(0);
