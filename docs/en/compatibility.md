@@ -121,6 +121,9 @@ the installed cache.
 | Immutability, estimation, verification, timestamps, quality | Edit/Write guards | apply_patch translated per file and evaluated by the same guards |
 | Work-item shape | Edit/Write guard | apply_patch through the same guard |
 | Plans published outside the repo | Notice on MCP and Artifact calls | Registered; whether Codex runs hooks on MCP calls is unverified |
+| Hook bypass, destructive commands | Bash/PowerShell guard | Registered for shell tool names; the exact Codex tool name for shell hooks is unverified |
+| Policy relaxations | Edit/Write guard | apply_patch through the same guard |
+| Work in progress at session start | SessionStart, also after compaction; PreCompact notice | SessionStart; whether Codex fires PreCompact is unverified |
 | Work log | Stop | Same script: Git and cwd, no transcript parsing |
 | Size at commit | Optional scaffolded Git hook | Same hook; `node /path/crew/scripts/check-staged.js --all` checks tracked files |
 

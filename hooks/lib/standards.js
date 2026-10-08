@@ -18,6 +18,7 @@
 const { readFileSync, existsSync } = require("node:fs");
 const { join, dirname, basename } = require("node:path");
 const { findRoot } = require("./ceilings");
+const { readBlock } = require("./deviation-lines");
 
 const KINDS = { requirement: "requirements", story: "stories" };
 // Tables a work item may carry even when its own template omits them: a story
@@ -89,15 +90,9 @@ function deviations(root) {
   const applied = [];
   const invalid = [];
   try {
-    const file = join(root, "docs", "DEVIATIONS.md");
-    if (!existsSync(file)) return { applied, invalid };
-    const block = readFileSync(file, "utf8").match(/<!--\s*crew:standard\s*\n([\s\S]*?)-->/i);
-    if (!block) return { applied, invalid };
-    for (const raw of block[1].split("\n")) {
-      const line = raw.trim();
-      if (!line) continue;
-      const [rule, ...why] = line.split("#");
-      const reason = why.join("#").trim();
+    for (const entry of readBlock(root, "standard")) {
+      const { raw: line, rule, reason } = entry;
+      if (entry.expired) { invalid.push(`${line} (expired ${entry.expires})`); continue; }
       const m = rule.trim().match(/^(requirement|story)\s+(omit\s+(section|header)|columns)\s+(.+)$/i);
       if (!m || !reason) { invalid.push(line); continue; }
       const kind = m[1].toLowerCase();

@@ -43,6 +43,21 @@ requirement columns Estimation Milestone | Est. hours | Actual hours | Notes   #
 
 (Write those lines inside the block above — only the first `crew:standard` block in this file is read.)
 
+## Policy relaxations (machine-readable)
+
+Lowering `quality`, turning off `metrics` or `testing`, switching to `solo`, raising ceilings, disabling hooks in the host settings or granting bypass permissions relaxes the controls agents work under. Each one is a project decision: register its key here, with the rationale, before the edit — otherwise the policy guard denies it (team + `quality: enforce`) or flags it.
+
+<!-- crew:policy
+-->
+
+Keys: `crew.json quality`, `crew.json metrics`, `crew.json testing`, `crew.json mode`, `crew.json ceilings`, `crew.json removed`, `settings disableAllHooks`, `settings bypassPermissions`, `codex hooks`, `codex approvals`. Example:
+
+```
+crew.json quality   # advise while the legacy module is migrated · owner: ana · expires: 2027-01-31
+```
+
+Every block in this file (`crew:exempt`, `crew:standard`, `crew:policy`) accepts `owner:` and `expires: YYYY-MM-DD` in the comment. An entry past its date stops applying.
+
 ## Convention
 
 - One row per deviation; keep rationale to one line, link a fuller doc if needed.

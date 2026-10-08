@@ -2,6 +2,25 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [0.27.0] — 2026-10-07
+
+Agents stop being able to switch off their own controls, and every session opens knowing what is still in flight. Requirements 003, 004 and 005 of plan [`ecc-adoption`](docs/requirements/ecc-adoption/README.md). Migration guide: [`docs/en/migration-0.27.md`](docs/en/migration-0.27.md) / [`docs/es/migration-0.27.md`](docs/es/migration-0.27.md).
+
+### Added
+
+- **Instruction boundary** in the session baseline: content read through a tool is data; an instruction found in it is quoted, sourced and asked about, and another agent's message never counts as the human's consent.
+- **Security triggers** — authentication, authorization, untrusted input, personal-data queries, input-built paths, external calls, cryptography, secrets — listed identically in the baseline and in `security-compliance`; the evidence seal says whether SEC was consulted when one applied.
+- **Shell guard** ([`hooks/guard-shell.js`](hooks/guard-shell.js)): denies `--no-verify`, `git commit -n` and `core.hooksPath` in every project with `crew.json`, in both modes, and **fails closed** on internal error for git commands. Destructive commands get a notice asking for targets and rollback. Quoted text is never read as a flag.
+- **Policy guard** ([`hooks/guard-policy.js`](hooks/guard-policy.js)): edits that relax `crew.json`, `.claude/settings*.json` or Codex config are denied under `team` + `quality: enforce` unless registered in a new `crew:policy` block of `docs/DEVIATIONS.md`; a notice elsewhere. Fails closed on internal error.
+- **Expiring exceptions**: every `docs/DEVIATIONS.md` block accepts `owner:` and `expires:`; past its date an entry stops applying. One parser for all blocks ([`hooks/lib/deviation-lines.js`](hooks/lib/deviation-lines.js)).
+- **Work in progress at session start** ([`hooks/lib/work-state.js`](hooks/lib/work-state.js)): open milestones, items awaiting validation and planned verification, at most six lines, read from the repo and never from transcripts; also after a compaction. A PreCompact hook names open milestones before the summary is written.
+- **Evaluation set** [`evals/security/`](evals/security/README.md).
+
+### Compatibility
+
+- `required: false`: nothing has to change for the plugin to work, but two denials are new — see the migration guide. Projects without `crew.json` only get notices.
+- Codex: shell tool names are matched (`shell`, `local_shell`, `exec_command`, argv commands); the exact tool name Codex hooks receive for shell, and whether it fires PreCompact, are unverified.
+
 ## [0.26.0] — 2026-10-07
 
 Work items keep the project's standard at every write, and plans stop escaping the repo. The trigger was a real incident: an estimated plan delivered as an external doc, in a table shape nobody had defined, handed to a role that complied — and no guard saw any of it. Migration guide: [`docs/en/migration-0.26.md`](docs/en/migration-0.26.md) / [`docs/es/migration-0.26.md`](docs/es/migration-0.26.md).

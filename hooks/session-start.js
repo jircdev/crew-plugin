@@ -19,6 +19,8 @@
 const { readFileSync } = require("node:fs");
 const { join } = require("node:path");
 const { loadConfig } = require("./lib/config.js");
+const { summary } = require("./lib/work-state.js");
+const { findRoot } = require("./lib/ceilings.js");
 
 const root = process.env.PLUGIN_ROOT || process.env.CLAUDE_PLUGIN_ROOT || join(__dirname, "..");
 let event = {};
@@ -109,4 +111,19 @@ try {
   }
 } catch {
   // Configuration status is a convenience; it must never break the session.
+}
+
+// Work in progress, derived from the repo (never from transcripts): at most six
+// lines, silent when nothing is in flight, and skipped in solo mode where the
+// delivery circuit does not apply. Also runs after a compaction, which is when
+// an open milestone is most easily forgotten.
+try {
+  const cwd = event.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const config = loadConfig(cwd);
+  if (!(config && config.mode === "solo")) {
+    const lines = summary(findRoot(cwd) || cwd);
+    if (lines.length) process.stdout.write(`\n## crew — work in progress\n\n${lines.join("\n")}\n`);
+  }
+} catch {
+  // Never break the session over a status line.
 }

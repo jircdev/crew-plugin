@@ -139,6 +139,42 @@ Hook: [`../../hooks/nudge-offrepo-plan.js`](../../hooks/nudge-offrepo-plan.js) (
 
 **Fix.** Write the work items in the repo first (the `planning` skill carries the method), then publish the view with a reference to their path.
 
+## Hook bypass
+
+Guard: [`../../hooks/guard-shell.js`](../../hooks/guard-shell.js) (PreToolUse on shell tools). Text checks on the command, with quoted strings blanked so a commit message that mentions a flag is not read as the flag.
+
+### "Hook bypass denied: `--no-verify` switches off the git hooks …"
+
+**Cause.** The command carries `--no-verify`, `git commit -n` or `core.hooksPath`. Each one silently switches off the pre-commit quality gate crew installs. Denied in every project with a `crew.json`, in both modes; without `crew.json` it is a notice.
+
+**Fix.** Run the command without the flag. If the gate is wrong for this change, fix the code or pre-register the exception in `docs/DEVIATIONS.md`.
+
+**This guard fails closed.** Every other crew guard lets an operation through when the guard itself errors. This one, in a crew project and for a command that mentions git, denies instead: for an evasion guard, a crash and an evasion end the same way.
+
+### Destructive commands
+
+Recursive forced deletes, hard resets, forced pushes, discarding all changes, DROP and TRUNCATE get a **notice** asking the agent to state the exact targets and how to undo it before running. Never a denial: a destructive command is often the right one.
+
+## Policy relaxations
+
+Guard: [`../../hooks/guard-policy.js`](../../hooks/guard-policy.js) (PreToolUse on Edit/Write of `crew.json`, `.claude/settings*.json` and Codex config).
+
+### "Policy relaxation denied: This edit relaxes a control …"
+
+**Cause.** The edit lowers `quality`, turns off `metrics` or `testing`, switches to `solo`, raises a ceiling, removes `crew.json`, sets `disableAllHooks`, or grants `bypassPermissions`. Denied in a `team` project with `quality: enforce`, a notice elsewhere. Tightening is never flagged. Like the shell guard, it fails closed on internal error.
+
+**Fix.** A relaxation is the project owner's decision. Register the key the message names in the `crew:policy` block of `docs/DEVIATIONS.md`, with its rationale and ideally an owner and an expiry, then repeat the edit:
+
+```markdown
+<!-- crew:policy
+crew.json quality   # advise while the legacy module is migrated · owner: ana · expires: 2027-01-31
+-->
+```
+
+## Expiring exceptions
+
+Every block of `docs/DEVIATIONS.md` (`crew:exempt`, `crew:standard`, `crew:policy`) accepts `owner:` and `expires: YYYY-MM-DD` in the comment. Past its date, an entry stops applying: the exempt path is measured again, the deviation is reported as ignored, the relaxation is flagged again.
+
 ## Code quality
 
 Guard: [`../../hooks/guard-code-quality.js`](../../hooks/guard-code-quality.js) at write time; gate: [`../../scripts/check-staged.js`](../../scripts/check-staged.js) at commit time. Both share the same ceilings, overrides (`crew.json` `"ceilings"`) and exemptions — table of kinds and defaults in [configuration.md](configuration.md#ceilings).

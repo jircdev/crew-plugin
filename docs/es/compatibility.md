@@ -119,6 +119,9 @@ y reinstala Crew. No edites la caché instalada.
 | Inmutabilidad, estimación, verificación, fechas, calidad | Guards Edit/Write | apply_patch traducido por archivo y evaluado por los mismos guards |
 | Forma de los work items | Guard Edit/Write | apply_patch por el mismo guard |
 | Planes publicados fuera del repo | Aviso en llamadas MCP y Artifact | Registrado; sin verificar si Codex corre hooks en llamadas MCP |
+| Evasión de hooks, comandos destructivos | Guard Bash/PowerShell | Registrado para nombres de herramienta de shell; el nombre exacto en los hooks de Codex no está verificado |
+| Relajación de políticas | Guard Edit/Write | apply_patch por el mismo guard |
+| Trabajo en curso al iniciar sesión | SessionStart, también tras compactar; aviso en PreCompact | SessionStart; sin verificar si Codex dispara PreCompact |
 | Registro de trabajo | Stop | Mismo script: Git y cwd, sin interpretar transcripciones |
 | Tamaños en commit | Hook Git opcional del scaffold | Mismo hook; `node /ruta/crew/scripts/check-staged.js --all` comprueba archivos versionados |
 

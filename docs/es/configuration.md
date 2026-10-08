@@ -200,6 +200,8 @@ El set de preguntas que sigue está fijo y versionado en el plugin (`standards/c
 | Timestamps en tiempo real ([guard-timestamps](../../hooks/guard-timestamps.js)) | `metrics` | con `metrics: true` | con `metrics: true` | apagado |
 | Techos de tamaño al escribir ([guard-code-quality](../../hooks/guard-code-quality.js)) | `quality`, `ceilings` | según `quality` | según `quality` | enforce |
 | Forma del work item en cada escritura ([guard-shape](../../hooks/guard-shape.js)) | `quality`, `mode`, `docs/DEVIATIONS.md` | niega con `enforce`, avisa con `advise` | aviso | aviso |
+| Evasión de hooks en comandos de shell ([guard-shell](../../hooks/guard-shell.js)) | presencia de `crew.json` | niega (falla cerrado) | niega (falla cerrado) | aviso |
+| Relajar `crew.json` o los settings del host ([guard-policy](../../hooks/guard-policy.js)) | `quality`, `mode`, bloque `crew:policy` | niega con `enforce`, avisa con `advise` | aviso | aviso |
 | Recordatorio de work-log al cerrar sesión ([check-work-log](../../hooks/check-work-log.js)) | `mode` | activo donde exista `docs/work/` | apagado | activo donde exista `docs/work/` |
 | Puerta de calidad pre-commit ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | siempre, una vez instalada | siempre, una vez instalada | siempre, una vez instalada |
 | Reporte `/crew:metrics` ([metrics.js](../../scripts/metrics.js)) | nada | corre | corre | corre |

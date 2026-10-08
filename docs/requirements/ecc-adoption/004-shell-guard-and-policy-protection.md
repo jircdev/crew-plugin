@@ -1,10 +1,10 @@
 # 004 — Guard de shell y protección de archivos de política
 
-- **Status:** Draft
+- **Status:** Delivered
 - **Plan:** ecc-adoption ([README](README.md))
 - **Date:** 2026-10-07
 - **Author role:** OPS
-- **Branch:** —
+- **Branch:** main (the plugin ships from main; no feature branch)
 - **Depends on:** [001](001-standards-conformance.md)
 
 ## Context
@@ -40,16 +40,16 @@ Un agente también puede apagar sus propios controles editando `crew.json`, `doc
 
 | Milestone | Est. hours | Started | Finished | Actual hours | Notes |
 |-----------|-----------|---------|----------|--------------|-------|
-| Guard de `--no-verify` y `hooksPath` | 4 | | | | |
-| Aviso de comandos destructivos | 3 | | | | |
-| Protección de archivos de política contra DEVIATIONS | 5 | | | | |
-| Falla cerrada en guards de evasión | 2 | | | | |
-| Vencimiento de exenciones | 3 | | | | |
-| Paridad con el shell de Codex | 5 | | | | (BC) |
-| Tests de paridad de guards | 4 | | | | |
-| Docs EN y ES | 3 | | | | |
-| Nota de migración | 1 | | | | |
-| Release | 1 | | | | |
+| Guard de `--no-verify` y `hooksPath` | 4 | 2026-10-07 22:25 -03:00 | 2026-10-07 22:26 -03:00 | 0.02 | Incluye commit -n; push -n se respeta como dry-run |
+| Aviso de comandos destructivos | 3 | 2026-10-07 22:26 -03:00 | 2026-10-07 22:26 -03:00 | 0 | Escrito junto con el hito anterior en hooks/lib/shell.js; tiempo contado allí |
+| Protección de archivos de política contra DEVIATIONS | 5 | 2026-10-07 22:26 -03:00 | 2026-10-07 22:28 -03:00 | 0.03 | crew.json, .claude/settings*.json y config de Codex; bloque crew:policy |
+| Falla cerrada en guards de evasión | 2 | 2026-10-07 22:28 -03:00 | 2026-10-07 22:28 -03:00 | 0 | Implementada dentro de guard-shell y guard-policy; tiempo contado en esos hitos. Aplica en solo también (recomendación SEC; decisión del maintainer pendiente) |
+| Vencimiento de exenciones | 3 | 2026-10-07 22:26 -03:00 | 2026-10-07 22:26 -03:00 | 0.02 | Parser único hooks/lib/deviation-lines.js para crew:exempt, crew:standard y crew:policy |
+| Paridad con el shell de Codex | 5 | 2026-10-07 22:28 -03:00 | 2026-10-07 22:28 -03:00 | 0.01 | (BC) Matcher cubre shell, local_shell, exec_command y argv; el nombre real de la herramienta de shell en los hooks de Codex no está verificado |
+| Tests de paridad de guards | 4 | 2026-10-07 22:28 -03:00 | 2026-10-07 22:28 -03:00 | 0.01 | tests/guards.test.js, 7 tests |
+| Docs EN y ES | 3 | 2026-10-07 22:28 -03:00 | 2026-10-07 22:28 -03:00 | 0.02 | enforcement, configuration, compatibility, contributing y plantilla DEVIATIONS |
+| Nota de migración | 1 | 2026-10-07 22:30 -03:00 | 2026-10-07 22:31 -03:00 | 0.01 | docs/en|es/migration-0.27.md |
+| Release | 1 | 2026-10-07 22:31 -03:00 | 2026-10-07 22:31 -03:00 | 0.01 | Release conjunta 0.27.0 local (003, 004, 005); push pendiente de autorización |
 | Revisión del maintainer | 4 | | | | |
 | **Total** | **35** | — | — | | |
 
@@ -57,12 +57,13 @@ Un agente también puede apagar sus propios controles editando `crew.json`, `doc
 
 | Scenario | Level | Harness | Artifact | Status |
 |----------|-------|---------|----------|--------|
-| `git commit --no-verify` queda denegado | unit | node:test | tests/guard-shell.test.js | planned |
-| Un error interno del guard de evasión niega la operación | unit | node:test | tests/guard-shell.test.js | planned |
-| `rm -rf` sin objetivo declarado produce aviso y no bloquea | unit | node:test | tests/guard-shell.test.js | planned |
-| Editar `crew.json` sin entrada en DEVIATIONS se niega con `enforce` | unit | node:test | tests/guard-policy.test.js | planned |
-| Una exención vencida se reporta | unit | node:test | tests/ceilings.test.js | planned |
-| El mismo comando se bloquea vía Codex | integration | node:test | tests/compatibility.test.js | planned |
+| `git commit --no-verify`, `-n` y `core.hooksPath` quedan denegados en proyectos con crew.json, en ambos modos | unit | node:test | tests/guards.test.js | passing |
+| Un flag mencionado dentro de comillas o un `git push -n` no se marca | unit | node:test | tests/guards.test.js | passing |
+| Un comando destructivo produce aviso y nunca bloquea | unit | node:test | tests/guards.test.js | passing |
+| Relajar `crew.json` o los settings se niega con team + enforce salvo registro vigente en crew:policy | unit | node:test | tests/guards.test.js | passing |
+| Una exención o registro vencido deja de aplicar | unit | node:test | tests/guards.test.js | passing |
+| El mismo comando de shell en forma argv de Codex se bloquea | integration | node:test | tests/guards.test.js | passing |
+| La herramienta de shell real de Codex dispara el hook | integration | none | — | not verified — el nombre de la herramienta en los hooks de Codex no está confirmado; requiere instalación real de Codex |
 
 ## Changes
 

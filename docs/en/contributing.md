@@ -66,7 +66,7 @@ Roles and templates evolve. To propagate changes to consumers:
 3. Add the changelog entry.
 4. Add a `migrations.json` row **if and only if** the version requires the consumer to act. Everything additive or opt-in is `required: false` and must not notify — a startup notice that fires for things nobody has to do is a notice nobody reads.
 5. Regenerate with `node scripts/sync-codex.js`, run
-   `node scripts/check-supply-chain.js`, `node --test tests/compatibility.test.js tests/conformance.test.js tests/catalog.test.js`
+   `node scripts/check-supply-chain.js`, `node --test tests/compatibility.test.js tests/conformance.test.js tests/catalog.test.js tests/baseline.test.js tests/guards.test.js tests/memory.test.js`
    and `python tests/release-test.py`,
    and validate both manifests. For host integration changes, also run the
    [isolated runtime smoke](compatibility.md#tests-and-maintenance).

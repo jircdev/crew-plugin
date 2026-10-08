@@ -42,5 +42,7 @@ including the work-item shape guard; shell writes are not checked by Crew's
 write guards. The off-repo plan notice is registered for MCP tools with the
 same hooks file, but whether Codex runs PreToolUse hooks on MCP calls is
 unverified: treat plans published through a connector as unguarded and follow
-the planning craft's repo-first rule by instruction. See
+the planning craft's repo-first rule by instruction. The work-in-progress
+block arrives through SessionStart; the PreCompact reminder depends on Codex
+firing that event, which is unverified. See
 `docs/en/compatibility.md` for installation, coverage and validation limits.

@@ -141,6 +141,42 @@ Hook: [`../../hooks/nudge-offrepo-plan.js`](../../hooks/nudge-offrepo-plan.js) (
 
 **Cómo resolverlo.** Escribir primero los work items en el repo (la skill `planning` lleva el método) y después publicar la vista con una referencia a su ruta.
 
+## Evasión de hooks
+
+Guard: [`../../hooks/guard-shell.js`](../../hooks/guard-shell.js) (PreToolUse sobre herramientas de shell). Revisa el texto del comando con los strings entre comillas en blanco, así un mensaje de commit que menciona un flag no se lee como el flag.
+
+### "Hook bypass denied: `--no-verify` switches off the git hooks …"
+
+**Causa.** El comando lleva `--no-verify`, `git commit -n` o `core.hooksPath`. Cada uno apaga en silencio la puerta de calidad pre-commit que instala crew. Se niega en todo proyecto con `crew.json`, en ambos modos; sin `crew.json` es un aviso.
+
+**Cómo resolverlo.** Correr el comando sin el flag. Si la puerta está mal para este cambio, se corrige el código o se preregistra la excepción en `docs/DEVIATIONS.md`.
+
+**Este guard falla cerrado.** Todos los demás guards de crew dejan pasar la operación cuando el propio guard falla. Este, en un proyecto con crew y ante un comando que menciona git, niega: en un guard contra evasión, un error y una evasión terminan igual.
+
+### Comandos destructivos
+
+Borrados recursivos forzados, resets duros, pushes forzados, descartar todos los cambios, DROP y TRUNCATE reciben un **aviso** que pide nombrar los objetivos exactos y cómo deshacerlo antes de correrlo. Nunca una negación: un comando destructivo muchas veces es el correcto.
+
+## Relajación de políticas
+
+Guard: [`../../hooks/guard-policy.js`](../../hooks/guard-policy.js) (PreToolUse sobre Edit/Write de `crew.json`, `.claude/settings*.json` y la configuración de Codex).
+
+### "Policy relaxation denied: This edit relaxes a control …"
+
+**Causa.** La edición baja `quality`, apaga `metrics` o `testing`, pasa a `solo`, sube un techo, borra `crew.json`, activa `disableAllHooks` o concede `bypassPermissions`. Se niega en un proyecto `team` con `quality: enforce`; en el resto es un aviso. Endurecer nunca se marca. Igual que el guard de shell, falla cerrado ante un error interno.
+
+**Cómo resolverlo.** Relajar un control es una decisión del dueño del proyecto. Se registra la clave que nombra el mensaje en el bloque `crew:policy` de `docs/DEVIATIONS.md`, con su justificación y de ser posible un dueño y un vencimiento, y se repite la edición:
+
+```markdown
+<!-- crew:policy
+crew.json quality   # advise mientras se migra el módulo legacy · owner: ana · expires: 2027-01-31
+-->
+```
+
+## Excepciones con vencimiento
+
+Cada bloque de `docs/DEVIATIONS.md` (`crew:exempt`, `crew:standard`, `crew:policy`) acepta `owner:` y `expires: AAAA-MM-DD` en el comentario. Pasada su fecha, la entrada deja de aplicar: la ruta exenta se vuelve a medir, la desviación se informa como ignorada y la relajación se vuelve a marcar.
+
 ## Calidad de código
 
 Guard: [`../../hooks/guard-code-quality.js`](../../hooks/guard-code-quality.js) al escribir; puerta: [`../../scripts/check-staged.js`](../../scripts/check-staged.js) al commitear. Ambos comparten los mismos techos, overrides (`"ceilings"` en `crew.json`) y exenciones — la tabla de tipos y defaults está en [configuration.md](configuration.md#ceilings).

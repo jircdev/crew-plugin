@@ -2,8 +2,9 @@
 // crew.json overrides) and pre-registered exemptions (docs/DEVIATIONS.md
 // crew:exempt block). Consumed by the PreToolUse guard (agent writes) and by
 // scripts/check-staged.js (authoritative pre-commit gate, agents and humans alike).
-const { readFileSync, existsSync } = require("node:fs");
+const { existsSync } = require("node:fs");
 const { join, dirname } = require("node:path");
+const { readBlock } = require("./deviation-lines");
 
 const CODE_EXTENSIONS = new Set([
   "ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts",
@@ -64,21 +65,11 @@ function globMatch(pattern, relPath) {
 
 // Pre-registered exemptions: a machine-readable block in docs/DEVIATIONS.md:
 //   <!-- crew:exempt
-//   src/generated/**        # generated code
+//   src/generated/**        # generated code · owner: ana · expires: 2027-03-31
 //   -->
+// An exemption past its `expires:` date no longer applies.
 function exemptGlobs(root) {
-  try {
-    const file = join(root, "docs", "DEVIATIONS.md");
-    if (!existsSync(file)) return [];
-    const block = readFileSync(file, "utf8").match(/<!--\s*crew:exempt\s*\n([\s\S]*?)-->/i);
-    if (!block) return [];
-    return block[1]
-      .split("\n")
-      .map((l) => l.split("#")[0].trim())
-      .filter(Boolean);
-  } catch {
-    return [];
-  }
+  return readBlock(root, "exempt").filter((e) => !e.expired).map((e) => e.rule);
 }
 
 function isExempt(root, absPath) {

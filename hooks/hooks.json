@@ -42,6 +42,10 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-shape.js\""
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-policy.js\""
           }
         ]
       },
@@ -53,6 +57,15 @@
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/nudge-offrepo-plan.js\""
           }
         ]
+      },
+      {
+        "matcher": "^(Bash|PowerShell|shell|local_shell|exec_command|container.exec)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-shell.js\""
+          }
+        ]
       }
     ],
     "Stop": [
@@ -61,6 +74,16 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/check-work-log.js\""
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/precompact-reminder.js\""
           }
         ]
       }

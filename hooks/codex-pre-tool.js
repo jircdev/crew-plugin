@@ -3,7 +3,7 @@ const { readFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { patchInputs } = require('./lib/patch-input');
-const guards = ['guard-immutable', 'guard-estimation', 'guard-timestamps', 'guard-code-quality', 'guard-shape'];
+const guards = ['guard-immutable', 'guard-estimation', 'guard-timestamps', 'guard-code-quality', 'guard-shape', 'guard-policy'];
 function deny(reason) {
   return { hookSpecificOutput: { hookEventName: 'PreToolUse',
     permissionDecision: 'deny', permissionDecisionReason: reason } };

@@ -1,10 +1,10 @@
 # 005 — Memoria derivada del repo
 
-- **Status:** Draft
+- **Status:** Delivered
 - **Plan:** ecc-adoption ([README](README.md))
 - **Date:** 2026-10-07
 - **Author role:** COORD
-- **Branch:** —
+- **Branch:** main (the plugin ships from main; no feature branch)
 - **Depends on:** propuesta de línea base de alcance (0.26, parser único de work items)
 
 ## Context
@@ -35,13 +35,13 @@ En crew el estado ya está en el repo. Basta con leerlo y mostrarlo en pocas lí
 
 | Milestone | Est. hours | Started | Finished | Actual hours | Notes |
 |-----------|-----------|---------|----------|--------------|-------|
-| Lector de estado | 4 | | | | |
-| Bloque de SessionStart | 4 | | | | |
-| Recordatorio en PreCompact | 2 | | | | |
-| Paridad Codex | 2 | | | | (BC) falta confirmar PreCompact en Codex |
-| Tests | 3 | | | | |
-| Docs EN y ES | 2 | | | | |
-| Release | 1 | | | | |
+| Lector de estado | 4 | 2026-10-07 22:28 -03:00 | 2026-10-07 22:29 -03:00 | 0.02 | hooks/lib/work-state.js sobre el parser de 001; no lee transcripts |
+| Bloque de SessionStart | 4 | 2026-10-07 22:29 -03:00 | 2026-10-07 22:29 -03:00 | 0.01 | Máximo 6 líneas; también corre tras compactar; omitido en solo |
+| Recordatorio en PreCompact | 2 | 2026-10-07 22:29 -03:00 | 2026-10-07 22:29 -03:00 | 0.01 | systemMessage al usuario; la lista vuelve al agente por SessionStart |
+| Paridad Codex | 2 | 2026-10-07 22:29 -03:00 | 2026-10-07 22:30 -03:00 | 0.01 | (BC) SessionStart compartido; PreCompact en Codex sin verificar, documentado |
+| Tests | 3 | 2026-10-07 22:30 -03:00 | 2026-10-07 22:30 -03:00 | 0.01 | tests/memory.test.js |
+| Docs EN y ES | 2 | 2026-10-07 22:30 -03:00 | 2026-10-07 22:30 -03:00 | 0.01 | using-crew, compatibility, adaptador Codex |
+| Release | 1 | 2026-10-07 22:30 -03:00 | 2026-10-07 22:31 -03:00 | 0.01 | Release conjunta 0.27.0 local (003, 004, 005); push pendiente de autorización |
 | Revisión del maintainer | 2.5 | | | | |
 | **Total** | **20.5** | — | — | | |
 
@@ -49,11 +49,12 @@ En crew el estado ya está en el repo. Basta con leerlo y mostrarlo en pocas lí
 
 | Scenario | Level | Harness | Artifact | Status |
 |----------|-------|---------|----------|--------|
-| Un hito con Started y sin Finished aparece al iniciar | unit | node:test | tests/session-state.test.js | planned |
-| El bloque nunca supera 6 líneas | unit | node:test | tests/session-state.test.js | planned |
-| En modo solo el bloque omite el circuito | unit | node:test | tests/session-state.test.js | planned |
-| PreCompact emite el recordatorio | integration | node:test | tests/session-state.test.js | planned |
+| Un hito con Started y sin Finished aparece al iniciar | unit | node:test | tests/memory.test.js | passing |
+| El bloque nunca supera 6 líneas y omite items cerrados | unit | node:test | tests/memory.test.js | passing |
+| En modo solo el bloque se omite; sin trabajo en curso calla | integration | node:test | tests/memory.test.js | passing |
+| PreCompact emite el recordatorio solo si hay hitos abiertos | integration | node:test | tests/memory.test.js | passing |
+| El host muestra el systemMessage de PreCompact al usuario | manual | none | — | not verified — requiere una compactación real en Claude Code; en Codex el evento no está confirmado |
 
 ## Changes
 
-- (Solo si el objetivo cambia después de In progress.)
+- 2026-10-07: el lector se apoya en el parser de work items de 001 (`hooks/lib/standards.js`) en lugar del parser de la línea base de alcance, que todavía no existe. La línea de cambios de alcance pendientes queda fuera hasta que esa propuesta se implemente.

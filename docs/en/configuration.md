@@ -200,6 +200,8 @@ The question set it follows is fixed and versioned in the plugin (`standards/con
 | Real-time timestamps ([guard-timestamps](../../hooks/guard-timestamps.js)) | `metrics` | when `metrics: true` | when `metrics: true` | off |
 | File-size ceilings at write ([guard-code-quality](../../hooks/guard-code-quality.js)) | `quality`, `ceilings` | per `quality` mode | per `quality` mode | enforce |
 | Work-item shape at every write ([guard-shape](../../hooks/guard-shape.js)) | `quality`, `mode`, `docs/DEVIATIONS.md` | deny under `enforce`, notice under `advise` | notice | notice |
+| Hook bypass in shell commands ([guard-shell](../../hooks/guard-shell.js)) | presence of `crew.json` | deny (fails closed) | deny (fails closed) | notice |
+| Relaxing `crew.json` or host settings ([guard-policy](../../hooks/guard-policy.js)) | `quality`, `mode`, `crew:policy` block | deny under `enforce`, notice under `advise` | notice | notice |
 | Work-log reminder on Stop ([check-work-log](../../hooks/check-work-log.js)) | `mode` | active where `docs/work/` exists | off | active where `docs/work/` exists |
 | Pre-commit quality gate ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | always, once installed | always, once installed | always, once installed |
 | `/crew:metrics` report ([metrics.js](../../scripts/metrics.js)) | nothing | runs | runs | runs |
