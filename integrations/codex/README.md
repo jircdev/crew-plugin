@@ -7,7 +7,8 @@ Before applying a Crew command, read `standards/session-context.md` from this
 plugin, the project's `AGENTS.md` and `crew.json`, then the linked command and
 role. Resolve plugin paths relative to this file (`../..` is the plugin root),
 never by guessing an installed cache location. Read shared crafts from
-`skills/design/SKILL.md` and `skills/writing/SKILL.md` when relevant.
+`skills/design/SKILL.md`, `skills/writing/SKILL.md` and `skills/planning/SKILL.md`
+when relevant; any plan or estimate loads the planning craft first.
 
 Interpret canonical Claude transport syntax in Codex as follows:
 
@@ -36,6 +37,10 @@ Interpret canonical Claude transport syntax in Codex as follows:
 
 Hooks require host trust and Node.js. Without hooks, load the baseline through
 the skill and apply standards as instructions; report that mechanical guards
-were not verified. `apply_patch` is checked through a conservative adapter;
-shell/MCP writes are not checked by Crew's write guards. See
+were not verified. `apply_patch` is checked through a conservative adapter,
+including the work-item shape guard; shell writes are not checked by Crew's
+write guards. The off-repo plan notice is registered for MCP tools with the
+same hooks file, but whether Codex runs PreToolUse hooks on MCP calls is
+unverified: treat plans published through a connector as unguarded and follow
+the planning craft's repo-first rule by instruction. See
 `docs/en/compatibility.md` for installation, coverage and validation limits.

@@ -28,6 +28,13 @@
       "title": "bin/ renamed to scripts/",
       "summary": "A pre-commit hook installed before 0.24 still points at bin/check-quality.sh and no longer resolves — the quality gate stops running silently. Re-run scripts/init-project.sh, which rewrites the path in place.",
       "doc": "docs/en/migration-0.24.md"
+    },
+    {
+      "version": "0.26.0",
+      "required": false,
+      "title": "Work-item standard at every write",
+      "summary": "Additive: the shape guard denies only under team + quality enforce; everything else is a notice. Deviations from the crew template are declared in the crew:standard block of docs/DEVIATIONS.md.",
+      "doc": "docs/en/migration-0.26.md"
     }
   ]
 }

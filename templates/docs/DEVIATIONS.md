@@ -26,6 +26,23 @@ src/config/routes.ts    # route table, flat by design
 
 (Write those lines inside the block above — only the first `crew:exempt` block in this file is read.)
 
+## Work-item standard deviations (machine-readable)
+
+The shape of a story or requirement comes from this project's own template (`docs/stories/README.md`, `docs/requirements/README.md`); where the project has none, the crew template applies. When the project deliberately departs from that template in a way it cannot express by editing the template itself, it declares the departure in the block below. Every line needs a rationale after `#` — a line without one is ignored and reported.
+
+<!-- crew:standard
+-->
+
+Grammar, one rule per line:
+
+```
+requirement omit section Verification                              # rationale
+story omit header Branch                                           # rationale
+requirement columns Estimation Milestone | Est. hours | Actual hours | Notes   # rationale
+```
+
+(Write those lines inside the block above — only the first `crew:standard` block in this file is read.)
+
 ## Convention
 
 - One row per deviation; keep rationale to one line, link a fuller doc if needed.

@@ -1,7 +1,7 @@
 # Claude Code y Codex
 
 Crew 0.25.0 mantiene una sola base: `agents/` contiene los 17 roles,
-`commands/` sus procedimientos, `skills/design` y `skills/writing` los oficios,
+`commands/` sus procedimientos, `skills/design`, `skills/writing` y `skills/planning` los oficios,
 y `standards/` y `templates/` las convenciones. `hooks/lib/config.js` interpreta
 el mismo `crew.json` en ambos hosts. No se necesita una configuración paralela.
 
@@ -117,6 +117,8 @@ y reinstala Crew. No edites la caché instalada.
 | Baseline y aviso de configuración | SessionStart | SessionStart con cwd del evento y adaptador Codex |
 | Roles y oficios | Comandos/subagentes y skills | Skills que leen los mismos originales; delegación según host |
 | Inmutabilidad, estimación, verificación, fechas, calidad | Guards Edit/Write | apply_patch traducido por archivo y evaluado por los mismos guards |
+| Forma de los work items | Guard Edit/Write | apply_patch por el mismo guard |
+| Planes publicados fuera del repo | Aviso en llamadas MCP y Artifact | Registrado; sin verificar si Codex corre hooks en llamadas MCP |
 | Registro de trabajo | Stop | Mismo script: Git y cwd, sin interpretar transcripciones |
 | Tamaños en commit | Hook Git opcional del scaffold | Mismo hook; `node /ruta/crew/scripts/check-staged.js --all` comprueba archivos versionados |
 
@@ -132,7 +134,7 @@ métricas históricas puede necesitar un procedimiento revisado por separado.
 `quality: advise` informa sin aprobar explícitamente la herramienta; `enforce`
 rechaza y `off` calla. Los guards compartidos conservan su fail-open ante errores
 internos; el adaptador rechaza fallos del parser o de procesos hijos. Escrituras
-por shell/MCP, hooks deshabilitados/sin confianza y rutas especiales no están
+por shell, escrituras MCP más allá del aviso de planes fuera del repo, hooks deshabilitados/sin confianza y rutas especiales no están
 cubiertos. Es una ayuda de proceso, no una barrera de seguridad. El hook Git
 puede omitirse; CI protegido es necesario si el control debe sobrevivir a eso.
 El checker Git solo mide tamaños. Stop es un recordatorio por commits/entradas

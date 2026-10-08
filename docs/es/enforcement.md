@@ -109,6 +109,38 @@ Guard: [`../../hooks/guard-timestamps.js`](../../hooks/guard-timestamps.js). Act
 
 Empezaste un hito, la sesión murió, y retomás al día siguiente. **No** retro-datees `Finished` a cuando el trabajo "habría" terminado — el guard lo va a rechazar, y retro-datear es exactamente la falsificación que existe para impedir. En cambio: escribí `Finished` con la **hora real de reanudación** cuando cierres el hito, y anotá el hueco en `Notes` (p. ej. "sesión interrumpida, hueco de ~16h"). Que el wall-clock incluya pausas es de diseño — la métrica mide el costo de punta a punta del requerimiento, no el tiempo de teclado. En [metrics.md](metrics.md) está cómo leer los números resultantes.
 
+## Forma de los work items
+
+Guard: [`../../hooks/guard-shape.js`](../../hooks/guard-shape.js) (PreToolUse sobre Edit/Write), resolver [`../../hooks/lib/standards.js`](../../hooks/lib/standards.js). Corre en cada escritura sobre una story o un requirement, además del cierre, y exige al item su **estándar efectivo**:
+
+1. la plantilla propia del proyecto (`docs/stories/README.md`, `docs/requirements/README.md`, el bloque cercado bajo el encabezado de plantilla): un proyecto que tradujo o reformó su plantilla declaró así su estándar;
+2. donde el proyecto no tiene una, la plantilla de crew;
+3. las desviaciones declaradas en el bloque `crew:standard` de `docs/DEVIATIONS.md`, aplicadas encima.
+
+El estándar de cualquier ruta se imprime con `node scripts/conformance.js docs/requirements/<plan>/001-x.md`, y los archivos se chequean con `--check`.
+
+### "This requirement departs from its standard, …"
+
+**Causa.** La escritura dejaría faltando un campo de encabezado o una sección de la plantilla, una tabla (`Estimation`, `Verification`) con columnas distintas a las del estándar, o una tabla de estimación con hitos y sin fila **Total**. Solo cuenta la no conformidad *nueva*: una edición sobre un item que ya se desviaba se juzga por lo que agrega, así los items viejos siguen editables.
+
+**Qué pasa.** Con `quality: enforce` en un proyecto `team` la escritura se **niega**. Con `advise`, en modo `solo` o sin `crew.json`, la escritura pasa y el mensaje llega como aviso. Con `quality: off` el guard calla.
+
+**Cómo resolverlo.** Usar las secciones y columnas del estándar tal cual: el mensaje nombra cada hueco. Si el proyecto se aparta de la plantilla a propósito y no puede expresarlo editando su propia plantilla, lo declara con su justificación:
+
+```markdown
+<!-- crew:standard
+requirement omit section Verification   # se verifica en el checklist de release
+-->
+```
+
+Gramática: `<requirement|story> omit section <Nombre>`, `<…> omit header <Campo>`, `<…> columns <Tabla> <col> | <col> …`. Una línea sin `# justificación` se ignora y `conformance.js` la reporta.
+
+## Aviso de planes fuera del repo
+
+Hook: [`../../hooks/nudge-offrepo-plan.js`](../../hooks/nudge-offrepo-plan.js) (PreToolUse sobre herramientas MCP y `Artifact`). Un plan publicado por un conector de documentos, un artifact o una integración de chat nunca pasa por Edit/Write, así que los guards de archivos no lo ven. Este hook agrega un **aviso** (nunca una negación, porque cada conector arma su payload distinto) cuando el contenido publicado trae una tabla de horas o secciones de work item y no nombra una ruta `docs/requirements/` o `docs/stories/`.
+
+**Cómo resolverlo.** Escribir primero los work items en el repo (la skill `planning` lleva el método) y después publicar la vista con una referencia a su ruta.
+
 ## Calidad de código
 
 Guard: [`../../hooks/guard-code-quality.js`](../../hooks/guard-code-quality.js) al escribir; puerta: [`../../scripts/check-staged.js`](../../scripts/check-staged.js) al commitear. Ambos comparten los mismos techos, overrides (`"ceilings"` en `crew.json`) y exenciones — la tabla de tipos y defaults está en [configuration.md](configuration.md#ceilings).

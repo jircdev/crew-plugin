@@ -107,6 +107,38 @@ Guard: [`../../hooks/guard-timestamps.js`](../../hooks/guard-timestamps.js). Act
 
 You started a milestone, the session died, and you resume the next day. Do **not** backdate `Finished` to when the work "would have" ended — the guard will reject it, and backdating is exactly the falsification it exists to prevent. Instead: write `Finished` with the **real resumption time** when you close the milestone, and note the gap in `Notes` (e.g. "session interrupted, ~16h gap"). Wall-clock including pauses is by design — the metric measures the end-to-end cost of the requirement, not keyboard time. See [metrics.md](metrics.md) for how to read the resulting numbers.
 
+## Work-item shape
+
+Guard: [`../../hooks/guard-shape.js`](../../hooks/guard-shape.js) (PreToolUse on Edit/Write), resolver [`../../hooks/lib/standards.js`](../../hooks/lib/standards.js). It runs on every write to a story or requirement, not only at closure, and holds the item to its **effective standard**:
+
+1. the project's own template (`docs/stories/README.md`, `docs/requirements/README.md`, the fenced block under the template heading) — a project that translated or reshaped its template declared its standard by doing so;
+2. where the project has none, the crew template;
+3. the deviations declared in the `crew:standard` block of `docs/DEVIATIONS.md`, applied on top.
+
+Print the standard for any path with `node scripts/conformance.js docs/requirements/<plan>/001-x.md`, and check files with `--check`.
+
+### "This requirement departs from its standard, …"
+
+**Cause.** The write would leave a header field or section of the template missing, a table (`Estimation`, `Verification`) with columns other than the standard's, or an estimation table with milestones and no **Total** row. Only *new* nonconformance counts: an edit to an item that already deviated is judged on what the edit adds, so older items stay editable.
+
+**What happens.** With `quality: enforce` in a `team` project the write is **denied**. With `advise`, in `solo` mode, or without `crew.json`, the write proceeds and the message arrives as a notice. With `quality: off` the guard is silent.
+
+**Fix.** Use the standard's sections and columns verbatim — the message names each gap. If the project deliberately departs from the template and cannot express it by editing the template itself, declare it with a rationale:
+
+```markdown
+<!-- crew:standard
+requirement omit section Verification   # verified in the release checklist
+-->
+```
+
+Grammar: `<requirement|story> omit section <Name>`, `<…> omit header <Field>`, `<…> columns <Table> <col> | <col> …`. A line without `# rationale` is ignored and reported by `conformance.js`.
+
+## Off-repo plan notice
+
+Hook: [`../../hooks/nudge-offrepo-plan.js`](../../hooks/nudge-offrepo-plan.js) (PreToolUse on MCP tools and `Artifact`). A plan published through a docs connector, an artifact or a chat integration never passes through Edit/Write, so the file guards cannot see it. This hook adds a **notice** — never a denial, because every connector shapes its payload differently — when the published content carries an hours table or work-item sections and does not name a `docs/requirements/` or `docs/stories/` path.
+
+**Fix.** Write the work items in the repo first (the `planning` skill carries the method), then publish the view with a reference to their path.
+
 ## Code quality
 
 Guard: [`../../hooks/guard-code-quality.js`](../../hooks/guard-code-quality.js) at write time; gate: [`../../scripts/check-staged.js`](../../scripts/check-staged.js) at commit time. Both share the same ceilings, overrides (`crew.json` `"ceilings"`) and exemptions — table of kinds and defaults in [configuration.md](configuration.md#ceilings).

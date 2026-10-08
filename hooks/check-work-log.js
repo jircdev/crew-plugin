@@ -15,7 +15,7 @@ function git(args, cwd) {
 }
 
 try {
-  const input = JSON.parse(readFileSync(0, "utf8").replace(/^﻿/, ""));
+  const input = JSON.parse(readFileSync(0, "utf8").replace(/^\uFEFF/, ""));
   if (input.stop_hook_active) process.exit(0);
 
   const cwd = input.cwd || process.cwd();

@@ -66,7 +66,8 @@ Los roles y las plantillas evolucionan. Para propagar cambios a los consumidores
 3. Agrega la entrada de changelog.
 4. Agrega una fila en `migrations.json` **si y solo si** la versión exige que el consumidor actúe. Todo lo aditivo u opt-in va con `required: false` y no debe avisar — un aviso de arranque que salta por cosas que nadie tiene que hacer es un aviso que nadie lee.
 5. Regenera con `node scripts/sync-codex.js`, ejecuta
-   `node --test tests/compatibility.test.js` y `python tests/release-test.py`,
+   `node scripts/check-supply-chain.js`, `node --test tests/compatibility.test.js tests/conformance.test.js tests/catalog.test.js`
+   y `python tests/release-test.py`,
    y valida ambos manifiestos. Si cambia la integración con el host, ejecuta
    el [smoke aislado de runtime](compatibility.md#pruebas-y-mantenimiento).
 6. Commit y push; espera el CI Windows/Linux. Etiqueta ese commit como `vX.Y.Z`.
@@ -91,7 +92,7 @@ Dos consecuencias que conviene decir sin rodeos. Un rol leyendo `crew.json` dire
 
 ## Mantenimiento
 
-- **Añadir un rol nuevo**: deja un nuevo `agents/<name>.md` (con frontmatter), un nuevo `commands/<alias>.md`, y añade una fila al **área** correspondiente en la tabla de alias de `templates/AGENTS.md` — luego lístalo bajo esa misma área en [`roles.md`](roles.md) (y en su contraparte inglesa `../en/roles.md`). La tabla de alias agrupada en `templates/AGENTS.md` es la fuente de verdad para la asignación de área; el catálogo `roles.md` es su índice. El nombre y el alias deben seguir las [reglas de nombres y alias](#reglas-de-nombres-y-alias) de abajo.
+- **Añadir un rol nuevo**: deja un nuevo `agents/<name>.md` (con frontmatter), un nuevo `commands/<alias>.md`, y añade una fila al **área** correspondiente en la tabla de alias de `templates/AGENTS.md` — luego lístalo bajo esa misma área en [`roles.md`](roles.md) (y en su contraparte inglesa `../en/roles.md`). La tabla de alias agrupada en `templates/AGENTS.md` es la fuente de verdad para la asignación de área; el catálogo `roles.md` es su índice. El nombre y el alias deben seguir las [reglas de nombres y alias](#reglas-de-nombres-y-alias) de abajo. Su modelo sale de la regla de `agents/crew.md` (decisiones en `opus`, lectura y estructuración en `sonnet`); si cambia, se actualiza esa lista. `tests/catalog.test.js` falla hasta que todas las superficies estén registradas: un test de catálogo en rojo significa que el rol todavía no está agregado.
 - **Añadir una skill**: un oficio que necesitan todos los roles es una skill, no un rol — se carga, no se invoca, y posee un *cómo* en lugar de una decisión. Deja `skills/<name>/SKILL.md` con una `description` lo bastante precisa como para dispararse ante el trigger real (esa descripción *es* el mecanismo de activación), y regístrala en el bloque de skills de `templates/AGENTS.md` y en ambos `roles.md`. Una skill lleva solo método: un valor, paleta, escala, nombre de estilo o librería horneado en una skill es el plugin decidiendo por todos los proyectos consumidores.
 - **Renombrar o retirar un rol**: una decisión de catálogo que pasa por el meta-rol `CREW`, nunca una edición casual. Los alias son un vocabulario compartido; todo cambio de alias sale con un redirect de una versión (ver abajo).
 - **Regla específica de stack**: mantenla en el `standards/` o el `AGENTS.md` del proyecto consumidor, nunca en el núcleo universal `templates/standards/code-quality.md`.

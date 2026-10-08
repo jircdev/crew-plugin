@@ -44,7 +44,7 @@ function resultingContent(input, path) {
 }
 
 try {
-  const input = JSON.parse(readFileSync(0, "utf8").replace(/^﻿/, ""));
+  const input = JSON.parse(readFileSync(0, "utf8").replace(/^\uFEFF/, ""));
   if (input.tool_name !== "Edit" && input.tool_name !== "Write") process.exit(0);
 
   const path = (input.tool_input && input.tool_input.file_path) || "";

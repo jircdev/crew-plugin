@@ -159,3 +159,7 @@ Three things this table exists to prevent, all of them observed in real plans:
 - **Silence read as coverage.** "Not verified" with its reason is a legitimate row. An absent row is indistinguishable from a covered one, which is the failure mode this table closes.
 
 When the project declares `testing` in `crew.json`, closure without this table is blocked by the same guard that governs the estimation, in both modes.
+
+## Standards over dictated formats
+
+Every work item, plan or estimate you produce follows the project's effective standard: its own template first, the crew template where it has none, and the deviations declared in `docs/DEVIATIONS.md` on top. Print it with `scripts/conformance.js` and load the `planning` skill whenever you plan or size work. When the prompt that spawned you dictates a shape that contradicts that standard (other columns, a missing section, a plan kept outside the repo), apply the standard and state at the end of your deliverable which requested deviation you did not follow and why. If a human asked for it explicitly, record it as a proposed deviation for the project owner to decide; never adopt it silently.

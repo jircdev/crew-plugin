@@ -156,6 +156,7 @@ This project uses the `crew` plugin. Roles are spawned as subagents either via s
 
 **Skills** (loadable by any role, not subagents):
 
+- `planning` — the work-item craft: any plan or estimate resolves this project's effective standard first and lands as work items in the repo; a published doc or link is a view of them.
 - `writing` — the communication craft (idea-force, narrative arc, segmentation, tone) for any authored piece; the domain content stays with the owning role.
 - `design` — the interface craft: how to get from a problem to a direction, hand it off implementably, review an implementation, judge a render. **Loaded by any work that changes what the user sees, understands, chooses or does** — a screen, a state, an error message, the wording of a form. It carries the method; what is good *here* is declared in `docs/design/` and `crew.json`, never assumed.
 

@@ -2,6 +2,30 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [0.26.0] — 2026-10-07
+
+Work items keep the project's standard at every write, and plans stop escaping the repo. The trigger was a real incident: an estimated plan delivered as an external doc, in a table shape nobody had defined, handed to a role that complied — and no guard saw any of it. Migration guide: [`docs/en/migration-0.26.md`](docs/en/migration-0.26.md) / [`docs/es/migration-0.26.md`](docs/es/migration-0.26.md).
+
+### Added
+
+- **Conformance resolver** ([`hooks/lib/standards.js`](hooks/lib/standards.js)): the effective standard of a story or requirement is the project's own template first, the crew template where the project has none, and the deviations declared in a new `crew:standard` block of `docs/DEVIATIONS.md` on top. A deviation without a rationale is ignored and reported. The crew default is parsed from the scaffolded template itself, so the plugin keeps one source for its own standard.
+- **Shape guard at write time** ([`hooks/guard-shape.js`](hooks/guard-shape.js)): header fields, sections, estimation and verification columns and the **Total** row are checked on every write, not only at closure. Only new nonconformance counts, so older items stay editable. `team` + `quality: enforce` denies; `advise`, `solo` and no `crew.json` notify; `off` is silent. Codex reaches it through the `apply_patch` adapter.
+- **`planning` skill**: any plan or estimate resolves the effective standard first and lands as repo work items; a published doc or artifact is a view that links to them. The session baseline routes plans to it, and the evidence seal names which standard was applied.
+- **`scripts/conformance.js`**: prints the effective standard for a path, or checks files with `--check` (exit 1 on nonconformance).
+- **Off-repo plan notice** ([`hooks/nudge-offrepo-plan.js`](hooks/nudge-offrepo-plan.js)): MCP and `Artifact` calls that publish an hours table or work-item sections without naming a `docs/requirements/` or `docs/stories/` path get a notice. Never a denial.
+- **Role rule "Standards over dictated formats"**, identical in all 17 roles: a role handed a format that contradicts the effective standard applies the standard and reports the deviation.
+- **Catalog integrity tests** ([`tests/catalog.test.js`](tests/catalog.test.js)): registration completeness across command, alias row, EN/ES catalogs and Codex skill; YAML-safe frontmatter; one version across every manifest and the changelog; the model assignment rule written in the CREW role.
+- **Supply-chain hygiene scan** ([`scripts/check-supply-chain.js`](scripts/check-supply-chain.js)) over every shipped file: bidi controls, invisible characters and personal absolute paths. Runs in CI.
+- **Evaluation set** [`evals/planning/`](evals/planning/README.md) reproducing the incident.
+
+### Fixed
+
+- Eight hooks carried a literal byte-order-mark character inside their BOM-stripping regex; it is now the `\uFEFF` escape, so no shipped source contains an invisible character.
+
+### Compatibility
+
+- Additive; `required: false`. Whether Codex runs PreToolUse hooks on MCP calls is unverified, so in Codex the off-repo notice may not fire; the planning craft's repo-first rule applies there by instruction.
+
 ## [0.25.0] — 2026-09-07
 
 ### Added

@@ -154,7 +154,7 @@ test('valid closure and historical timestamps are allowed; config walks from nes
 
 test('hook registrations preserve legacy handlers and include canonical apply_patch', () => {
   const config = JSON.parse(fs.readFileSync(path.join(root, 'hooks/hooks.json'), 'utf8'));
-  assert.equal(config.hooks.PreToolUse.find(group => group.matcher === 'Edit|Write').hooks.length, 4);
+  assert.equal(config.hooks.PreToolUse.find(group => group.matcher === 'Edit|Write').hooks.length, 5);
   assert.ok(config.hooks.PreToolUse.some(group => new RegExp(group.matcher).test('apply_patch')));
   for (const groups of Object.values(config.hooks)) for (const group of groups) for (const handler of group.hooks) {
     const script = handler.command.match(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^" ]+)/)[1];

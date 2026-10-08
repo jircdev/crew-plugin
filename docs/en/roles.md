@@ -64,6 +64,7 @@ Not part of the core crew — activate only when the project needs it.
 
 A craft that every role needs is a **skill**, not a seat in the catalog: it is loaded, not invoked, and it owns a *how* rather than a decision.
 
+- **`planning`** — the work-item craft, loaded whenever work is planned or sized. Resolves the project's effective standard before writing, keeps plans as repo work items (a published doc is a view that links to them), and governs the two estimation levels. Owns the form, never the domain decisions inside the plan.
 - **`writing`** — the communication craft, loaded when a role authors a piece (brief, deck, one-pager, essay, technical doc, speech, script). Owns idea-force, narrative arc, audience segmentation, impact principles — never the domain content.
 - **`design`** — the interface craft, loaded by any work that changes what the user **sees, understands, chooses or does**: a screen, a state, an empty view, an error message, the wording of a form. Four modes — `shape`, `handoff`, `implementation-review`, `visual-review` — each with a named fallback for what the project has not declared. It carries method only: what is good *in your product* lives in your `docs/design/`, and what your project can *do* (where it runs, its component registry, how renders are captured) is declared in `crew.json`. See [configuration.md](configuration.md#design-capabilities).
 

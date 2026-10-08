@@ -159,7 +159,7 @@ function normalizeTesting(raw) {
 
 function normalize(raw) {
   try {
-    const parsed = JSON.parse(raw.replace(/^﻿/, ""));
+    const parsed = JSON.parse(raw.replace(/^\uFEFF/, ""));
     if (!parsed || typeof parsed !== "object") return null;
     return {
       mode: parsed.mode === "solo" ? "solo" : "team",

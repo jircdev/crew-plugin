@@ -64,6 +64,7 @@ No forma parte de la crew core — actívalo solo cuando el proyecto lo necesita
 
 Un oficio que necesitan todos los roles es una **skill**, no un asiento del catálogo: se carga, no se invoca, y posee un *cómo* en lugar de una decisión.
 
+- **`planning`** — la artesanía del work item, cargada siempre que se planifica o dimensiona trabajo. Resuelve el estándar efectivo del proyecto antes de escribir, mantiene los planes como work items en el repo (un doc publicado es una vista que los enlaza) y gobierna los dos niveles de estimación. Es dueña de la forma, nunca de las decisiones de dominio del plan.
 - **`writing`** — la artesanía de la comunicación, cargada cuando un rol redacta una pieza (brief, deck, one-pager, ensayo, doc técnico, discurso, guion). Posee idea-fuerza, arco narrativo, segmentación por público, principios de impacto — nunca el contenido de dominio.
 - **`design`** — la artesanía de la interfaz, cargada por todo trabajo que cambie lo que el usuario **ve, entiende, elige o hace**: una pantalla, un estado, una vista vacía, un mensaje de error, el texto de un formulario. Cuatro modos — `shape`, `handoff`, `implementation-review`, `visual-review` — cada uno con su fallback nombrado para lo que el proyecto no declaró. Lleva solo método: qué es bueno *en tu producto* vive en tu `docs/design/`, y qué *puede hacer* tu proyecto (dónde corre, su registro de componentes, cómo se capturan renders) se declara en `crew.json`. Ver [configuration.md](configuration.md#capacidades-de-diseño).
 

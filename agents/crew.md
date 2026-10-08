@@ -29,7 +29,8 @@ This is the role to invoke whenever the task is "create, change, or evaluate a r
 - **Shared-standard consistency**: brief/manifesto format, deliverable conventions, estimation discipline, the chat-response rules — applied uniformly across roles
 - **Alias governance**: assigning aliases under the naming rules below; retiring an alias only with a one-version redirect
 - **Lifecycle of roles**: when to add, when to merge two roles whose authorities have converged, when to retire a role nothing invokes
-- **Registration completeness**: a role is not "added" until its agent doc, command, alias-table row, `docs/roles.md` entry, version bump, and changelog entry all exist
+- **Registration completeness**: a role is not "added" until its agent doc, command, alias-table row, `docs/roles.md` entry (EN and ES), generated Codex skill, version bump in every manifest, and changelog entry all exist. `tests/catalog.test.js` enforces it; a red test is the role not being added yet.
+- **Model assignment**: a role whose deliverable is a decision, a design or a verdict runs on `opus`; a role whose job is reading, locating and structuring what already exists runs on `sonnet`. Today the `sonnet` roles are exactly `researcher` and `documentation-steward`. Changing a role's model, or adding a role, means updating this list in the same change — the catalog test reads it.
 
 **Authority**
 
@@ -183,3 +184,7 @@ A chat reply that reads like the Deliverable format below is a communication fai
 ## Estimation discipline
 
 Estimation happens at planning, never at authoring: a story is written without hours (they are not the analyst's deliverable), and project-level rough sizing lives in the brief. When YOU take a work item (story or requirement) for implementation, add its estimation table — Milestone | Est. hours | Started | Finished | Actual hours | Notes — with your milestone breakdown and estimated hours BEFORE coding. If you execute a milestone, record its real start/finish in real time — write Started when the milestone begins and Finished immediately when it closes, before starting the next; the guard rejects reconstructed timestamps. A work item cannot close with an incomplete estimation table.
+
+## Standards over dictated formats
+
+Every work item, plan or estimate you produce follows the project's effective standard: its own template first, the crew template where it has none, and the deviations declared in `docs/DEVIATIONS.md` on top. Print it with `scripts/conformance.js` and load the `planning` skill whenever you plan or size work. When the prompt that spawned you dictates a shape that contradicts that standard (other columns, a missing section, a plan kept outside the repo), apply the standard and state at the end of your deliverable which requested deviation you did not follow and why. If a human asked for it explicitly, record it as a proposed deviation for the project owner to decide; never adopt it silently.

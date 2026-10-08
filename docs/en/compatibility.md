@@ -1,7 +1,7 @@
 # Claude Code and Codex
 
 Crew 0.25.0 keeps one base: `agents/` contains the 17 roles, `commands/` their
-procedures, `skills/design` and `skills/writing` the crafts, and `standards/`
+procedures, `skills/design`, `skills/writing` and `skills/planning` the crafts, and `standards/`
 and `templates/` the conventions. `hooks/lib/config.js` interprets the same
 `crew.json` in both hosts. No parallel project configuration is needed.
 
@@ -119,6 +119,8 @@ the installed cache.
 | Baseline and configuration notice | SessionStart | SessionStart with event cwd and Codex adapter |
 | Roles and crafts | Commands/subagents and skills | Skills reading the same originals; delegation depends on host |
 | Immutability, estimation, verification, timestamps, quality | Edit/Write guards | apply_patch translated per file and evaluated by the same guards |
+| Work-item shape | Edit/Write guard | apply_patch through the same guard |
+| Plans published outside the repo | Notice on MCP and Artifact calls | Registered; whether Codex runs hooks on MCP calls is unverified |
 | Work log | Stop | Same script: Git and cwd, no transcript parsing |
 | Size at commit | Optional scaffolded Git hook | Same hook; `node /path/crew/scripts/check-staged.js --all` checks tracked files |
 
@@ -133,7 +135,7 @@ metrics may need a separately reviewed procedure.
 
 `quality: advise` informs without explicitly approving the tool; `enforce`
 denies and `off` is silent. Shared guards retain their internal-error fail-open
-behavior; the adapter denies parser/child-process failures. Shell/MCP writes,
+behavior; the adapter denies parser/child-process failures. Shell writes, MCP writes beyond the off-repo plan notice,
 disabled/untrusted hooks and specialized tool paths are not covered. This is a
 process guardrail, not a security boundary. Git hooks can be skipped; protected
 CI is needed if enforcement must survive that. The Git checker covers sizes

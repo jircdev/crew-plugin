@@ -38,6 +38,19 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-code-quality.js\""
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-shape.js\""
+          }
+        ]
+      },
+      {
+        "matcher": "^mcp__|^Artifact$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/nudge-offrepo-plan.js\""
           }
         ]
       }

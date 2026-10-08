@@ -1,10 +1,10 @@
 # 001 — Conformidad garantizada con el estándar efectivo de cada proyecto
 
-- **Status:** Draft
+- **Status:** Delivered
 - **Plan:** ecc-adoption ([README](README.md))
 - **Date:** 2026-10-07
 - **Author role:** CREW
-- **Branch:** —
+- **Branch:** main (the plugin ships from main; no feature branch)
 - **Depends on:** None
 
 ## Context
@@ -68,16 +68,16 @@ La restricción de diseño no cambia: las reglas del proyecto ganan. Esas reglas
 
 | Milestone | Est. hours | Started | Finished | Actual hours | Notes |
 |-----------|-----------|---------|----------|--------------|-------|
-| Resolver de conformidad y bloque `crew:standard` | 4 | | | | Incluye precedencia y conflictos |
-| Skill `planning` con disparadores es/en y repo-first | 3 | | | | (BC) que se dispare frente al flujo de Docs del harness |
-| Validación de forma al escribir | 5 | | | | Sin romper el gate de cierre |
-| Regla de rol en `agents/*.md` y línea en el sello | 2 | | | | |
-| Aviso PreToolUse sobre MCP y Artifact | 3 | | | | (BC) payloads distintos por conector |
-| Evals del incidente | 3 | | | | Corrida con y sin skill |
-| Paridad Codex | 2 | | | | (BC) Codex podría no exponer hooks MCP |
-| Tests | 4 | | | | |
-| Docs EN y ES | 3 | | | | |
-| Release | 1 | | | | |
+| Resolver de conformidad y bloque `crew:standard` | 4 | 2026-10-07 22:09 -03:00 | 2026-10-07 22:11 -03:00 | 0.03 | Precedencia: plantilla del proyecto en docs/<dir>/README.md, luego plantilla del plugin, luego bloque crew:standard; una sola fuente por tipo, sin conflictos posibles |
+| Skill `planning` con disparadores es/en y repo-first | 3 | 2026-10-07 22:11 -03:00 | 2026-10-07 22:12 -03:00 | 0.02 | (BC) que se dispare frente al flujo de Docs del harness; reforzado con una línea en el baseline de sesión |
+| Validación de forma al escribir | 5 | 2026-10-07 22:12 -03:00 | 2026-10-07 22:13 -03:00 | 0.02 | Guard hermano `guard-shape.js`; solo cuenta la no conformidad nueva para no bloquear items viejos |
+| Regla de rol en `agents/*.md` y línea en el sello | 2 | 2026-10-07 22:13 -03:00 | 2026-10-07 22:14 -03:00 | 0.02 | Sección idéntica en los 17 roles |
+| Aviso PreToolUse sobre MCP y Artifact | 3 | 2026-10-07 22:14 -03:00 | 2026-10-07 22:14 -03:00 | 0.01 | (BC) payloads distintos por conector |
+| Evals del incidente | 3 | 2026-10-07 22:14 -03:00 | 2026-10-07 22:15 -03:00 | 0.02 | Corrida con y sin skill pendiente de ejecución humana |
+| Paridad Codex | 2 | 2026-10-07 22:15 -03:00 | 2026-10-07 22:15 -03:00 | 0.01 | (BC) apply_patch cubierto; hooks MCP en Codex sin verificar, documentado |
+| Tests | 4 | 2026-10-07 22:15 -03:00 | 2026-10-07 22:16 -03:00 | 0.02 | 7 tests en tests/conformance.test.js; CI corre ambos archivos |
+| Docs EN y ES | 3 | 2026-10-07 22:16 -03:00 | 2026-10-07 22:17 -03:00 | 0.02 | enforcement, configuration, compatibility, roles, README, AGENTS.md, adaptador Codex |
+| Release | 1 | 2026-10-07 22:21 -03:00 | 2026-10-07 22:22 -03:00 | 0.02 | Release conjunta 0.26.0 local: versión, changelog, migración y paquete; push pendiente de autorización; compartida con el 002 |
 | Revisión del maintainer | 3 | | | | |
 | **Total** | **33** | — | — | | |
 
@@ -85,14 +85,16 @@ La restricción de diseño no cambia: las reglas del proyecto ganan. Esas reglas
 
 | Scenario | Level | Harness | Artifact | Status |
 |----------|-------|---------|----------|--------|
-| El resolver prefiere la plantilla del proyecto, cae al baseline y respeta `crew:standard` | unit | node:test | tests/conformance-resolver.test.js | planned |
-| Un requirement con estimación de 2 columnas y sin Verification avisa en `advise` y se bloquea en `enforce` | integration | node:test | tests/guard-shape.test.js | planned |
-| Una desviación declarada (Verification `omit`) no genera aviso | integration | node:test | tests/guard-shape.test.js | planned |
-| Un payload MCP con tabla de horas produce el aviso; uno no reconocido pasa en silencio | integration | node:test | tests/mcp-nudge.test.js | planned |
-| "Plan estimado con link": la skill se carga, crea archivos en el repo y el Doc enlaza a ellos | manual | evals | evals/planning/fixtures.md | planned |
-| El orquestador dicta "Hito \| Est. horas": el rol aplica las 6 columnas y reporta la desviación | manual | evals | evals/planning/fixtures.md | planned |
-| En modo solo la skill no impone ceremonia de entrega | manual | evals | evals/planning/fixtures.md | planned |
-| En Codex, `apply_patch` sobre un work item recibe la misma validación | contract | node:test | tests/compatibility.test.js | planned |
+| El resolver prefiere la plantilla del proyecto, cae al baseline y respeta `crew:standard` | unit | node:test | tests/conformance.test.js | passing |
+| Un requirement con estimación de 2 columnas y sin Verification avisa en `advise` y se bloquea en `enforce` | integration | node:test | tests/conformance.test.js | passing |
+| Una desviación declarada (Verification `omit`) no genera aviso | integration | node:test | tests/conformance.test.js | passing |
+| Editar un item que ya se desviaba solo se juzga por lo que agrega la edición | integration | node:test | tests/conformance.test.js | passing |
+| Un payload MCP con tabla de horas produce el aviso; uno que enlaza sus work items o solo lee pasa en silencio | integration | node:test | tests/conformance.test.js | passing |
+| Los 17 roles llevan la misma regla y el baseline enruta los planes a la skill | unit | node:test | tests/conformance.test.js | passing |
+| "Plan estimado con link": la skill se carga, crea archivos en el repo y el Doc enlaza a ellos | manual | evals | evals/planning/fixtures.md (P1) | not verified — requiere corrida humana con y sin skill |
+| El orquestador dicta "Hito \| Est. horas": el rol aplica las 6 columnas y reporta la desviación | manual | evals | evals/planning/fixtures.md (P2) | not verified — requiere corrida humana |
+| En modo solo la skill no impone ceremonia de entrega | manual | evals | evals/planning/fixtures.md (P5) | not verified — requiere corrida humana |
+| En Codex, `apply_patch` sobre un work item recibe la misma validación | contract | node:test | tests/conformance.test.js | passing |
 
 ## Changes
 

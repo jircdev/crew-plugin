@@ -1,9 +1,9 @@
-// Codex transport only. Policy stays in the four existing Claude-compatible guards.
+// Codex transport only. Policy stays in the Claude-compatible Edit/Write guards.
 const { readFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { patchInputs } = require('./lib/patch-input');
-const guards = ['guard-immutable', 'guard-estimation', 'guard-timestamps', 'guard-code-quality'];
+const guards = ['guard-immutable', 'guard-estimation', 'guard-timestamps', 'guard-code-quality', 'guard-shape'];
 function deny(reason) {
   return { hookSpecificOutput: { hookEventName: 'PreToolUse',
     permissionDecision: 'deny', permissionDecisionReason: reason } };
@@ -23,6 +23,7 @@ function evaluate(input) {
       const decision = output.hookSpecificOutput;
       if (decision?.permissionDecision === 'deny') return output;
       if (decision?.permissionDecisionReason) notices.push(decision.permissionDecisionReason);
+      if (decision?.additionalContext) notices.push(decision.additionalContext);
     }
   }
   // Do not emit an explicit allow: leave other hooks and host approval intact.

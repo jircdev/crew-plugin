@@ -1,10 +1,10 @@
 # 002 — Integridad del catálogo y del repo
 
-- **Status:** Draft
+- **Status:** Delivered
 - **Plan:** ecc-adoption ([README](README.md))
 - **Date:** 2026-10-07
 - **Author role:** CREW
-- **Branch:** —
+- **Branch:** main (the plugin ships from main; no feature branch)
 - **Depends on:** None
 
 ## Context
@@ -39,13 +39,13 @@ ECC resuelve lo mismo con validadores en CI: frontmatter, conteos de catálogo c
 
 | Milestone | Est. hours | Started | Finished | Actual hours | Notes |
 |-----------|-----------|---------|----------|--------------|-------|
-| Test de completitud de registro | 4 | | | | |
-| Validadores de frontmatter y manifiestos | 3 | | | | |
-| Escáner de unicode oculto, rutas personales e IOC | 3 | | | | |
-| Regla de asignación de modelo por rol | 1.5 | | | | |
-| CI Windows y Linux | 1.5 | | | | |
-| Guía de contribución EN y ES | 1.5 | | | | |
-| Release | 1 | | | | |
+| Test de completitud de registro | 4 | 2026-10-07 22:17 -03:00 | 2026-10-07 22:20 -03:00 | 0.05 | Los cuatro hitos siguientes se ejecutaron intercalados con este, sin cortes propios; su tiempo está contado acá |
+| Validadores de frontmatter y manifiestos | 3 | 2026-10-07 22:17 -03:00 | 2026-10-07 22:20 -03:00 | 0 | Contado en el hito de registro |
+| Escáner de unicode oculto, rutas personales e IOC | 3 | 2026-10-07 22:17 -03:00 | 2026-10-07 22:20 -03:00 | 0 | Contado en el hito de registro. Sin escaneo de IOC: el plugin no tiene dependencias npm ni pip. Corrigió 8 BOM literales en hooks |
+| Regla de asignación de modelo por rol | 1.5 | 2026-10-07 22:17 -03:00 | 2026-10-07 22:20 -03:00 | 0 | Contado en el hito de registro; la regla vive en agents/crew.md |
+| CI Windows y Linux | 1.5 | 2026-10-07 22:17 -03:00 | 2026-10-07 22:20 -03:00 | 0 | Contado en el hito de registro |
+| Guía de contribución EN y ES | 1.5 | 2026-10-07 22:20 -03:00 | 2026-10-07 22:21 -03:00 | 0.02 | |
+| Release | 1 | 2026-10-07 22:21 -03:00 | 2026-10-07 22:22 -03:00 | 0.02 | Release conjunta 0.26.0 local: versión, changelog, migración y paquete; push pendiente de autorización; compartida con el 001 |
 | Revisión del maintainer | 2 | | | | |
 | **Total** | **17.5** | — | — | | |
 
@@ -53,11 +53,13 @@ ECC resuelve lo mismo con validadores en CI: frontmatter, conteos de catálogo c
 
 | Scenario | Level | Harness | Artifact | Status |
 |----------|-------|---------|----------|--------|
-| Un rol sin fila en `roles.md` ES hace fallar el test | unit | node:test | tests/catalog-registry.test.js | planned |
-| Un alias retirado pasa sin error | unit | node:test | tests/catalog-registry.test.js | planned |
-| Un agente sin `description` hace fallar el validador | unit | node:test | tests/frontmatter.test.js | planned |
-| Un `.md` con carácter bidi hace fallar el escáner | unit | node:test | tests/supply-chain.test.js | planned |
-| La suite corre verde en Windows y Linux | integration | CI | .github/workflows/ci.yml | planned |
+| Un rol sin fila en `roles.md` ES hace fallar el test | unit | node:test | tests/catalog.test.js | passing |
+| Un alias retirado redirige a un comando o skill que existe | unit | node:test | tests/catalog.test.js | passing |
+| Un agente o comando con frontmatter incompleto o con `: ` sin comillas hace fallar el validador | unit | node:test | tests/catalog.test.js | passing |
+| Los manifiestos y el changelog llevan la misma versión | unit | node:test | tests/catalog.test.js | passing |
+| La asignación de modelo coincide con la regla escrita en el rol CREW | unit | node:test | tests/catalog.test.js | passing |
+| Un `.md` con carácter bidi o una ruta personal hace fallar el escáner; un placeholder documentado pasa | unit | node:test | tests/catalog.test.js | passing |
+| La suite corre verde en Windows y Linux | integration | CI | .github/workflows/compatibility.yml | not verified — corre en el próximo push; localmente pasa en Windows |
 
 ## Changes
 

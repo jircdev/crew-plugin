@@ -66,7 +66,8 @@ Roles and templates evolve. To propagate changes to consumers:
 3. Add the changelog entry.
 4. Add a `migrations.json` row **if and only if** the version requires the consumer to act. Everything additive or opt-in is `required: false` and must not notify — a startup notice that fires for things nobody has to do is a notice nobody reads.
 5. Regenerate with `node scripts/sync-codex.js`, run
-   `node --test tests/compatibility.test.js` and `python tests/release-test.py`,
+   `node scripts/check-supply-chain.js`, `node --test tests/compatibility.test.js tests/conformance.test.js tests/catalog.test.js`
+   and `python tests/release-test.py`,
    and validate both manifests. For host integration changes, also run the
    [isolated runtime smoke](compatibility.md#tests-and-maintenance).
 6. Commit and push; wait for Windows/Linux CI. Tag that commit as `vX.Y.Z`.
@@ -90,7 +91,7 @@ Two consequences worth stating plainly. A role reading `crew.json` directly woul
 
 ## Maintenance
 
-- **Adding a new role**: drop a new `agents/<name>.md` (with frontmatter), a new `commands/<alias>.md`, and add a row to the matching **area** in the `templates/AGENTS.md` alias table — then list it under that same area in [`roles.md`](roles.md) (and its Spanish counterpart in `../es/roles.md`). The grouped alias table in `templates/AGENTS.md` is the source of truth for area assignment; the `roles.md` catalog is its index. Name and alias must follow the [naming and alias rules](#naming-and-alias-rules) below.
+- **Adding a new role**: drop a new `agents/<name>.md` (with frontmatter), a new `commands/<alias>.md`, and add a row to the matching **area** in the `templates/AGENTS.md` alias table — then list it under that same area in [`roles.md`](roles.md) (and its Spanish counterpart in `../es/roles.md`). The grouped alias table in `templates/AGENTS.md` is the source of truth for area assignment; the `roles.md` catalog is its index. Name and alias must follow the [naming and alias rules](#naming-and-alias-rules) below. Pick its model by the rule in `agents/crew.md` (decisions on `opus`, reading and structuring on `sonnet`) and update that list if it changes. `tests/catalog.test.js` fails until every surface is registered: a red catalog test means the role is not added yet.
 - **Adding a skill**: a craft every role needs is a skill, not a role — it is loaded, not invoked, and owns a *how* rather than a decision. Drop `skills/<name>/SKILL.md` with a `description` precise enough to fire on the real trigger (that description *is* the activation mechanism), then register it in the skills block of `templates/AGENTS.md` and in both `roles.md`. A skill must carry method only: a value, palette, scale, style name or library baked into a skill is the plugin deciding for every consumer project.
 - **Renaming or retiring a role**: a catalog decision that goes through the `CREW` meta-role, never a casual edit. Aliases are a shared vocabulary; any alias change ships with a one-version redirect (see below).
 - **Stack-specific rule**: keep it in the consumer project's own `standards/` or `AGENTS.md`, never in the universal `templates/standards/code-quality.md` core.
