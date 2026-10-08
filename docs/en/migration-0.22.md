@@ -23,7 +23,7 @@ The short version: **nothing you have breaks, and nothing is required of you.** 
 
 **An honest evidence rule.** A verdict on visual quality now requires a render, and where there is no way to obtain one the role delivers code conformity **labeled as such** instead of merging the two claims. Every reply ends with a one-line evidence seal: what was loaded, which capabilities were used, what stayed unverified.
 
-**Independent design review.** `qa-test-architect` receives the specification and the evidence — never the designer's rationale for why the design is right. The author's own critique loop still happens, bounded to one mandatory correction pass, and is reported as self-critique, not as a verdict.
+**Independent design review.** `qa-test-architect` receives the specification and the evidence — never the designer's rationale for why the design is right. The author's own critique loop still happens, bounded to one mandatory correction pass, and is reported as self-critique.
 
 **A configuration marker** (`configuredWith`). One line recording which plugin version last configured the project. Nothing reads it to decide behavior; it exists so a future version that genuinely requires action can tell you, once, at session start. Optional capabilities you don't use will never produce a notice.
 
@@ -32,7 +32,7 @@ The short version: **nothing you have breaks, and nothing is required of you.** 
 Three steps, in this order, none of them urgent:
 
 1. **`/crew:setup`.** It reads your repo first, asks at most two questions per turn, shows what it will write, writes only what you confirm, and updates the marker. "Nothing, thanks" is a complete answer.
-2. **Three entries in `docs/design/`.** One reference, one approved pattern, one rejected pattern. That is already enough to change what the roles produce. Do not write thirty in one sitting — a memory invented in an afternoon describes an aspiration, not your product.
+2. **Three entries in `docs/design/`.** One reference, one approved pattern, one rejected pattern. That is already enough to change what the roles produce. Write a few real ones: a memory invented in an afternoon describes an aspiration and stops describing your product.
 3. **Declare a render channel** if you have one. It is the single change that moves interface work from "sounds right" to "was looked at".
 
 ## What did not change

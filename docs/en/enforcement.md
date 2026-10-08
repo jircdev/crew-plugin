@@ -1,8 +1,8 @@
 # Enforcement — when a guard blocks you
 
-The crew standards are not conventions on the honor system: a small set of hooks enforces them at the moment of the write, the commit, or the session close. When one blocks you it always says why — this page maps each deny message to its cause and its fix. Which guards are active in your project is decided by `crew.json`; see [configuration.md](configuration.md) for the full matrix.
+A small set of hooks enforces the crew standards at the moment of the write, the commit, or the session close. When one blocks you it always says why. This page maps each deny message to its cause and its fix. Which guards are active in your project is decided by `crew.json`; see [configuration.md](configuration.md) for the full matrix.
 
-One principle first: **every guard fails open**. Any internal error in a hook allows the operation — a guard bug must never block legitimate work. So if you were blocked, it was deliberate: a rule fired, and the message names it.
+One principle first: **almost every guard fails open**. An internal error in a hook lets the operation through, so a guard bug does not block legitimate work. If you were blocked, a rule fired and the message names it. The two exceptions are the [shell guard](#hook-bypass) and the [policy guard](#policy-relaxations): they fail closed, because in a guard against bypass an error and a bypass end the same way.
 
 ## Immutability
 
@@ -44,9 +44,9 @@ Guard: [`../../hooks/guard-estimation.js`](../../hooks/guard-estimation.js). It 
 
 ### "Cannot close this work item: the estimation table has no **Total** row"
 
-**Cause.** The table's milestones are complete but nothing sums them. A document whose reader has to add the column is storing numbers, not reporting them.
+**Cause.** The table's milestones are complete but nothing sums them. The Total row saves the reader from adding up the column.
 
-**Fix.** Close the table with a row whose first cell is `Total` (markdown emphasis optional, case-insensitive), carrying estimated and actual hours. The timestamp columns stay empty or a dash — the total sums milestones, it is not one:
+**Fix.** Close the table with a row whose first cell is `Total` (markdown emphasis optional, case-insensitive), carrying estimated and actual hours. The timestamp columns stay empty or a dash, because the total sums the milestones and has no dates of its own:
 
 ```
 | **Total** | 12 | — | — | 15 | |
@@ -75,7 +75,7 @@ The heading may be `## Verification` or `## Verificación`. Every column except 
 
 **Cause.** A row has an empty cell. Most often the artifact, when the test was planned and never written.
 
-**Fix.** Write what is true. If no test exists, the artifact is `—` and the status says why it does not exist. The gate wants the honest record, not a full one.
+**Fix.** Write what is true. If no test exists, the artifact is `—` and the status says why it does not exist. The gate asks for an honest record, even an incomplete one.
 
 ### "verification row … is passing but cites no receipt" (and its variants)
 
@@ -111,11 +111,11 @@ Guard: [`../../hooks/guard-timestamps.js`](../../hooks/guard-timestamps.js). Act
 
 ### Interrupted sessions
 
-You started a milestone, the session died, and you resume the next day. Do **not** backdate `Finished` to when the work "would have" ended — the guard will reject it, and backdating is exactly the falsification it exists to prevent. Instead: write `Finished` with the **real resumption time** when you close the milestone, and note the gap in `Notes` (e.g. "session interrupted, ~16h gap"). Wall-clock including pauses is by design — the metric measures the end-to-end cost of the requirement, not keyboard time. See [metrics.md](metrics.md) for how to read the resulting numbers.
+You started a milestone, the session died, and you resume the next day. Do **not** backdate `Finished` to when the work "would have" ended — the guard will reject it, and backdating is exactly the falsification it exists to prevent. Instead: write `Finished` with the **real resumption time** when you close the milestone, and note the gap in `Notes` (e.g. "session interrupted, ~16h gap"). Wall-clock including pauses is by design: the metric measures the end-to-end cost of the requirement, and keyboard time goes in `Actual hours`. See [metrics.md](metrics.md) for how to read the resulting numbers.
 
 ## Work-item shape
 
-Guard: [`../../hooks/guard-shape.js`](../../hooks/guard-shape.js) (PreToolUse on Edit/Write), resolver [`../../hooks/lib/standards.js`](../../hooks/lib/standards.js). It runs on every write to a story or requirement, not only at closure, and holds the item to its **effective standard**:
+Guard: [`../../hooks/guard-shape.js`](../../hooks/guard-shape.js) (PreToolUse on Edit/Write), resolver [`../../hooks/lib/standards.js`](../../hooks/lib/standards.js). It runs on every write to a story or requirement, as well as at closure, and holds the item to its **effective standard**:
 
 1. the project's own template (`docs/stories/README.md`, `docs/requirements/README.md`, the fenced block under the template heading) — a project that translated or reshaped its template declared its standard by doing so;
 2. where the project has none, the crew template;
@@ -177,9 +177,26 @@ crew.json quality   # advise while the legacy module is migrated · owner: ana �
 -->
 ```
 
-## Expiring exceptions
+## `docs/DEVIATIONS.md` blocks
 
-Every block of `docs/DEVIATIONS.md` (`crew:exempt`, `crew:standard`, `crew:policy`) accepts `owner:` and `expires: YYYY-MM-DD` in the comment. Past its date, an entry stops applying: the exempt path is measured again, the deviation is reported as ignored, the relaxation is flagged again.
+`docs/DEVIATIONS.md` records the project's decisions that depart from the crew standard. Besides the prose rows, it has four blocks that hooks and scripts read:
+
+| Block | What it records | Read by | More detail |
+|---|---|---|---|
+| `crew:exempt` | Paths exempt from the size ceilings, one glob per line | quality guard and pre-commit gate | [Exemptions](#exemptions) |
+| `crew:standard` | Departures from the story or requirement template | shape guard and `conformance.js` | [Work-item shape](#work-item-shape) |
+| `crew:policy` | Approved relaxations of `crew.json` or host settings | policy guard | [Policy relaxations](#policy-relaxations) |
+| `crew:security` | Accepted risks from the security scan, as `<rule-id> [path]` | `scripts/sec-scan.js` and `/crew:doctor` | [using-crew.md](using-crew.md#security-triggers-and-the-instruction-boundary) |
+
+Each line carries its rationale after `#`. In every block the comment also accepts `owner:` and `expires: YYYY-MM-DD`:
+
+```markdown
+<!-- crew:security
+SEC-HOOK-NET .claude/settings.json   # webhook to our own status page · owner: ana · expires: 2027-01-31
+-->
+```
+
+Past its date, an entry stops applying: the exempt path is measured again, the deviation is reported as ignored, the relaxation is flagged again and the risk counts as unaccepted again. `/crew:doctor` lists expired entries.
 
 ## Scope notice
 
@@ -194,13 +211,13 @@ Guard: [`../../hooks/guard-code-quality.js`](../../hooks/guard-code-quality.js) 
 **Cause.** The write would leave the file above the line ceiling for its kind. What happens next depends on `crew.json` `"quality"`:
 
 - **`enforce`** (also the no-`crew.json` behavior): the write is **denied**.
-- **`advise`** (scaffold default for new projects): the write **proceeds** and you see the same text as a notice, ending with "The pre-commit gate will reject the commit if it still exceeds the ceiling." The notice is not noise — the hard stop moved to the commit, it did not disappear.
+- **`advise`** (scaffold default for new projects): the write **proceeds** and you see the same text as a notice, ending with "The pre-commit gate will reject the commit if it still exceeds the ceiling." The hard stop still exists: it moved to the commit.
 
 **Fix.** Split the file: extract a symbol (a component, a function group, a type module) into its own file. That is the intended reaction — the ceiling is a cheap proxy for "this file got hard to reason about". If the path is *legitimately* large (generated code, flat data tables), exempt it — properly, below.
 
 ### Exemptions
 
-Exemptions are **pre-registered**: recorded with a rationale *before* hitting the wall, not as a reaction to a red message. They live in a machine-readable block in `docs/DEVIATIONS.md`:
+Exemptions are **pre-registered**: recorded with a rationale *before* the guard blocks the write. They live in a machine-readable block in `docs/DEVIATIONS.md`:
 
 ```markdown
 <!-- crew:exempt
@@ -238,7 +255,7 @@ Hook: [`../../hooks/check-work-log.js`](../../hooks/check-work-log.js) (Stop hoo
 
 ### "There are commits dated today … but no docs/work/… entry"
 
-**Cause.** The session is ending, there are commits dated today, and no `docs/work/YYYY-MM/YYYY-MM-DD-*.md` entry exists for today. Conventions without enforcement drift; this is the enforcement of the closure trace.
+**Cause.** The session is ending, there are commits dated today, and no `docs/work/YYYY-MM/YYYY-MM-DD-*.md` entry exists for today. This hook checks that the day's work leaves a trace.
 
 **Fix.** Write the work entry now (format in your project's `docs/work/README.md`: What changed / Why / How / Promoted knowledge / Follow-ups) — or skip explicitly if the day's changes are below the significance bar (self-evident fixes, minor renames, doc-only changes). The hook blocks **once**: it never loops a session that already answered it.
 
@@ -250,7 +267,7 @@ Hook: [`../../hooks/check-work-log.js`](../../hooks/check-work-log.js) (Stop hoo
 
 **An exemption glob doesn't match.** Globs are matched against the path **relative to the project root**, with `/` separators. `*` does not cross directories — `src/*.ts` does not match `src/api/client.ts`; use `src/**` or `src/**/*.ts`. Verify the root the guard detected: nearest ancestor holding `crew.json`, `docs/DEVIATIONS.md`, or `.git`.
 
-**A guard didn't fire when you expected it to.** Check the activation conditions first ([matrix](configuration.md#behavior-matrix--guard--config)): timestamps needs `"metrics": true`; Closed-item immutability and the Stop hook need team mode. Beyond that, remember guards fail open — an internal error (unreadable file, malformed hook input) silently allows the operation.
+**A guard didn't fire when you expected it to.** Check the activation conditions first ([matrix](configuration.md#behavior-matrix--guard--config)): timestamps needs `"metrics": true`; Closed-item immutability and the Stop hook need team mode. Beyond that, remember almost every guard fails open: an internal error (unreadable file, malformed hook input) silently allows the operation.
 
 **The estimation guards ignore my table.** The section heading must be literally `## Estimation`, and the status line (`**Status:** Closed` / `**Estado:** Cerrada`) must appear within the first ~600 characters of the file — keep it in the header block where the templates put it.
 

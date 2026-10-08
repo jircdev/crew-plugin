@@ -3,7 +3,7 @@
 This page covers Claude Code. For Codex local installation and dual-host
 packages, see [Claude Code and Codex](compatibility.md).
 
-You are installing the **crew** plugin from the **factory-crew** marketplace, hosted at the GitHub repo `jircdev/crew-plugin`. Pick whichever method fits — they all end up at the same place.
+You are installing the **crew** plugin from the **factory-crew** marketplace, hosted at the GitHub repo `jircdev/crew-plugin`. Pick whichever method you prefer; they all give the same result.
 
 ## Easiest — ask Claude
 
@@ -103,17 +103,19 @@ On the first session after enabling, Claude Code asks you to approve the plugin'
 
 ## After installing — choose the project mode
 
-Installing makes the roles available everywhere; each repo then decides how much process it wants. In the project you'll work in, run the plugin's init script:
+Installing makes the roles available everywhere; each repo then decides how much process it wants. The simplest way is to ask the crew in the project ("set up the crew structure in this project", see [using-crew.md](using-crew.md#set-up-a-new-project)). To run the script by hand, run it from the project root, with `<plugin>` as the path where the plugin is installed:
 
 ```bash
-scripts/init-project.sh             # team — full delivery circuit + all guards
-scripts/init-project.sh --solo      # solo — the catalog without the ceremony
-scripts/init-project.sh --dry-run   # list what would be written, write nothing
+bash <plugin>/scripts/init-project.sh             # team: full delivery circuit and all guards
+bash <plugin>/scripts/init-project.sh --solo      # solo: the catalog without the ceremony
+bash <plugin>/scripts/init-project.sh --dry-run   # list what would be written, write nothing
 ```
+
+Without Bash, `node <plugin>/scripts/init-project.js` takes the same options. How to choose between team and solo: [using-crew.md § Choose the project mode](using-crew.md#choose-the-project-mode).
 
 The script never overwrites a file, and it records every file it does write, with its hash, in `.crew/install-state.json`. That record is what lets `/crew:doctor` check the install against its own declarations, and lets `/crew:doctor repair` restore a missing scaffold or `/crew:doctor uninstall` remove exactly what crew wrote — a scaffolded file you edited is yours and is never touched.
 
-Both write a `crew.json` at the project root with explicit values (`mode`, `metrics`, `quality`, `ceilings`), so the repo's behavior is visible and editable — no hidden defaults. A repo **without** `crew.json` keeps the legacy behavior: guards infer by structure and quality enforces at write time. Every field and its effects are documented in [configuration.md](configuration.md).
+Both modes write a `crew.json` at the project root with explicit values (`mode`, `metrics`, `quality`, `ceilings`, `configuredWith` and the `design.memory` and `testing.guide` capabilities), so the repo's behavior is visible and editable. A repo **without** `crew.json` keeps the legacy behavior: guards infer by structure and quality enforces at write time. Every field and its effects are documented in [configuration.md](configuration.md).
 
 ## Update the plugin
 
@@ -127,7 +129,9 @@ Removal is the install in reverse — edit the same `settings.json`:
 2. Delete the `factory-crew` block from `extraKnownMarketplaces`.
 3. Restart Claude Code.
 
-The GUI **Remove** button alone is not enough: it clears the plugin cache but not `settings.json`, so on the next startup the marketplace is re-registered from the file and the chip reappears. `settings.json` is the source of truth — remove the entries there. To purge the leftover registry without waiting for a restart, you can also empty `~/.claude/plugins/known_marketplaces.json` (Windows: `C:\Users\<user>\.claude\plugins\known_marketplaces.json`) to `{}`.
+The GUI **Remove** button alone is not enough: it clears the plugin cache but not `settings.json`, so on the next startup the marketplace is re-registered from the file and the chip reappears. `settings.json` is the source of truth: remove the entries there. To purge the leftover registry without waiting for a restart, you can also empty `~/.claude/plugins/known_marketplaces.json` (Windows: `C:\Users\<user>\.claude\plugins\known_marketplaces.json`) to `{}`.
+
+Removing the plugin leaves in each project the files the scaffold installed. To remove them, run `/crew:doctor uninstall` in the project **before** removing the plugin (first with `--dry-run`): it removes only the recorded files you never edited, the pre-commit gate line and the record.
 
 ## Troubleshooting
 
@@ -135,4 +139,4 @@ The GUI **Remove** button alone is not enough: it clears the plugin cache but no
 - **Works for you but not for teammates.** The marketplace `source` is `directory` with a local `path`. A local path exists only on your machine; everyone else must use the `github` source above.
 - **Edited settings but nothing changed.** You did not restart. Claude Code only reads `settings.json` at startup.
 - **Removed it but the chip keeps coming back.** The GUI Remove does not edit `settings.json`. See [Remove the plugin](#remove-the-plugin) above.
-- **Installed but no `/crew:` commands appear.** The marketplace registered but the plugin did not finish loading. Fully quit Claude Code (not just reload) and reopen. If it still does not appear, remove `crew@factory-crew` from the `/plugin` menu and add it again. Maintainers with a local clone can switch the marketplace `source` to `directory` (see the author flow above), which loads the plugin in place and skips the download step.
+- **Installed but no `/crew:` commands appear.** The marketplace registered but the plugin did not finish loading. Fully quit Claude Code and reopen it; a reload is not enough. If it still does not appear, remove `crew@factory-crew` from the `/plugin` menu and add it again. Maintainers with a local clone can switch the marketplace `source` to `directory` (see the author flow above), which loads the plugin in place and skips the download step.

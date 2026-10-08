@@ -2,6 +2,19 @@
 
 Cómo invocar los roles, hacer scaffolding de un proyecto nuevo, onboarding de uno existente y personalizar los docs instalados. Para el proceso de punta a punta que siguen los roles, ver el [circuito de entrega](../../templates/docs/guides/delivery-circuit.es.md).
 
+## Comandos de crew
+
+En Claude Code cada comando se escribe `/crew:<nombre>`. En Codex se elige la skill del mismo nombre en el selector de skills ([compatibilidad](compatibility.md)).
+
+| Comando | Qué hace | Más detalle |
+|---|---|---|
+| `/crew:<alias>` | Pone a trabajar un rol: `/crew:sys`, `/crew:ux`, etc. Son 17 roles; los 12 alias retirados responden con su sucesor. | [Invocar un rol](#invocar-un-rol), [roles.md](roles.md) |
+| `/crew:setup` | Entrevista de configuración: pregunta qué puede hacer el proyecto y escribe en `crew.json` solo lo que confirmaste. | [Decirle a la crew qué puede hacer este proyecto](#decirle-a-la-crew-qué-puede-hacer-este-proyecto) |
+| `/crew:check [tipo]` | Corre los comandos de test que declara `crew.json`, deja un recibo por corrida y responde READY o NOT READY. | [configuration.md § Capacidades de testing](configuration.md#capacidades-de-testing) |
+| `/crew:doctor` | Revisa la instalación del proyecto sin cambiar nada. `repair` restaura archivos faltantes del scaffold y la puerta pre-commit; `uninstall` quita lo que escribió crew. Ambos aceptan `--dry-run` y nunca tocan un archivo que editaste. | [installation.md](installation.md#después-de-instalar--elige-el-modo-del-proyecto) |
+| `/crew:adopt [capacidad]` | Extrae en `docs/as-is/` lo que hace hoy un sistema existente. | [Onboarding de un proyecto existente](#onboarding-de-un-proyecto-existente) |
+| `/crew:metrics [AAAA-MM]` | Reporte de estimación: lead time, tiempo de ejecución y desvío; `--csv` lo exporta. `/crew:metrics catalog` informa el uso de roles, skills y comandos. | [metrics.md](metrics.md) |
+
 ## Configurar un proyecto nuevo
 
 Con el plugin instalado, solo pídele a la crew que lo configure — sin script, sin terminal:
@@ -27,7 +40,7 @@ Luego:
 
 El scaffold le da a la crew una *estructura*; esto le da *capacidades*. Pregunta dónde corre la app en desarrollo, dónde se mira para saber si un componente ya existe, si se pueden capturar renders y en qué formatos, y qué comandos miden accesibilidad o rendimiento — y escribe en `crew.json` solo lo que confirmaste.
 
-Tres razones para correrlo en vez de saltearlo:
+Tres razones para correrlo:
 
 - **Declararlo ES el permiso.** Con una URL de runtime declarada, un agente deja de preguntar "¿puedo abrir el navegador?" cada sesión — lo concediste una vez, en un archivo que podés leer y revertir. La URL y el perfil de arranque son permisos separados, porque conectarse a una app que ya corre y ejecutar un comando en tu máquina son riesgos distintos.
 - **Lo que no declarás no se asume.** Sin registro de componentes, cada propuesta dice *"reuso no verificado"* en lugar de fingir que se buscó en el catálogo. Sin forma de capturar un render, obtenés conformidad de código **etiquetada como tal** en lugar de un veredicto que suena seguro sobre cómo se ve.
@@ -37,10 +50,10 @@ Completá también `docs/design/` — una referencia, un patrón aprobado y un p
 
 ## Elegir el modo del proyecto
 
-No todo repo quiere el proceso completo. El modo se declara por repo en un archivo `crew.json` en la raíz del proyecto, escrito por el scaffold con valores explícitos (`mode`, `metrics`, `quality`, `ceilings`):
+No todo repo quiere el proceso completo. El modo se declara por repo en un archivo `crew.json` en la raíz del proyecto, que el scaffold escribe con valores explícitos ([configuration.md](configuration.md#cómo-lo-escribe-init-projectsh)):
 
 - **`team`** — el circuito de entrega completo y todos los guards. `scripts/init-project.sh` instala la taxonomía completa de `docs/` y escribe `crew.json`.
-- **`solo`** — el catálogo sin la ceremonia: inmutabilidad de items Closed apagada, chequeo de cierre al terminar la sesión apagado, y la puerta de estimación solo si las métricas están activas. `scripts/init-project.sh --solo` instala un árbol mínimo (`AGENTS.md`, `CLAUDE.md`, `standards/`, `docs/decisions/`, `docs/work/`, `crew.json`) — sin briefs, stories, requirements ni proposals.
+- **`solo`** — el catálogo sin la ceremonia: inmutabilidad de items Closed apagada, chequeo de cierre al terminar la sesión apagado, y la puerta de estimación solo si las métricas están activas. `scripts/init-project.sh --solo` instala un árbol mínimo: `AGENTS.md`, `CLAUDE.md`, `standards/`, `docs/decisions/`, `docs/work/`, `docs/design/`, `docs/guides/testing.md` y `crew.json`. Deja afuera briefs, stories, requirements y proposals.
 
 `metrics` es ortogonal al modo: `solo` con `"metrics": true` te da solo la disciplina de estimación y timestamps — para cuando trabajas solo pero igual quieres medir lo que cuesta cada requerimiento.
 
@@ -48,15 +61,15 @@ Un repo **sin** `crew.json` se comporta exactamente como antes: los guards infie
 
 ## Onboarding de un proyecto existente
 
-**No** hagas scaffolding sobre un proyecto que ya tiene docs y convenciones. El punto de entrada es la auditoría:
+En un proyecto que ya tiene docs y convenciones, empieza por la auditoría y deja el scaffold para después:
 
 ```
 /crew:doc audita los docs de este proyecto contra el estándar crew
 ```
 
-El documentation-steward inventaría el proyecto contra la taxonomía del plugin, reporta hallazgos alineado/desviado/faltante, y tú decides por hallazgo: converger (se vuelve una story/requirement) o conservar la desviación. Las desviaciones conservadas se registran en `docs/DEVIATIONS.md` y la resolución de precedencia se escribe en el `AGENTS.md` raíz del proyecto — vinculante para todos los agentes, nunca re-litigada por sesión. El baseline del plugin es sugerido; las reglas propias del proyecto siempre ganan.
+El documentation-steward inventaría el proyecto contra la taxonomía del plugin, reporta hallazgos alineado/desviado/faltante, y tú decides por hallazgo: converger (se vuelve una story/requirement) o conservar la desviación. Las desviaciones conservadas se registran en `docs/DEVIATIONS.md` y la resolución de precedencia se escribe en el `AGENTS.md` raíz del proyecto. Desde ahí obliga a todos los agentes en todas las sesiones. El baseline del plugin es sugerido; las reglas propias del proyecto siempre ganan.
 
-El código necesita el mismo tratamiento que los docs. `/crew:adopt` extrae lo que el sistema hace hoy, una capacidad a la vez, en `docs/as-is/`: `researcher` lee como máximo 15 archivos por capacidad y lista el resto como diferidos, `functional-analyst` escribe las reglas como When / Then con su línea de origen, y lo que no se vio queda marcado `uncertain`. Es evidencia, nunca un backlog: qué conservar, corregir o cambiar se vuelve stories después. Cada archivo registra su commit, y `/crew:doctor` lo informa como desactualizado cuando cambia el código del que se leyó.
+El código necesita el mismo tratamiento que los docs. `/crew:adopt` extrae lo que el sistema hace hoy, una capacidad a la vez, en `docs/as-is/`: `researcher` lee como máximo 15 archivos por capacidad y lista el resto como diferidos, `functional-analyst` escribe las reglas como When / Then con su línea de origen, y lo que no se vio queda marcado `uncertain`. El resultado es evidencia del comportamiento actual. Qué conservar, corregir o cambiar se decide después, como stories. Cada archivo registra su commit, y `/crew:doctor` lo informa como desactualizado cuando cambia el código del que se leyó.
 
 ## Personalizar los docs instalados
 
@@ -142,11 +155,11 @@ Escribe el protocolo de activación + la tabla de alias en `~/.claude/CLAUDE.md`
 
 ### ¿Un mensaje, o toda la conversación?
 
-Por defecto el prefijo activa el rol para **ese mensaje**; el siguiente vuelve al generalista. Si quieres que el rol **se quede** toda la conversación (dices `SYS:` una vez y sigues como system-architect hasta que cambies), el protocolo de activación tiene una opción formal de **prefijo pegajoso** — pídele a `/crew:crew` la variante pegajosa al activar. Su texto canónico está versionado en el doc del meta-rol crew, no se improvisa por instalación:
+Por defecto el prefijo activa el rol para **ese mensaje**; el siguiente vuelve al generalista. Si quieres que el rol **se quede** toda la conversación (dices `SYS:` una vez y sigues como system-architect hasta que cambies), el protocolo de activación tiene una opción formal de **prefijo pegajoso** — pídele a `/crew:crew` la variante pegajosa al activar. Su texto canónico está versionado en el doc del meta-rol crew y es el mismo en cada instalación:
 
 > Sticky prefix: a `ROLE:` prefix stays active for the whole conversation until a different `ROLE:` prefix is declared. `GEN:` resets to the generalist.
 
-`GEN:` es la vuelta incorporada al generalista — nunca quedas atrapado en un rol.
+`GEN:` vuelve al generalista en cualquier momento.
 
 ## Revisiones que se pueden comprobar
 
@@ -157,6 +170,18 @@ Toda revisión (el veredicto de QA, una revisión de diseño, un dictamen de SEC
 Cada sesión en un proyecto `team` (o sin `crew.json`) abre con un bloque corto de **trabajo en curso**, de seis líneas como máximo, leído directo del repo: hitos con `Started` y sin `Finished`, items `Delivered` que esperan validación, e items entregados con filas de verificación todavía en `planned`. El mismo bloque aparece después de compactar, y la propia compactación lista los hitos abiertos para que el resumen los conserve.
 
 Nada sale de transcripts y nada se guarda: si el bloque dice que un hito está abierto, el archivo también lo dice. Se cierra con la hora real en que termina, nunca retroactiva. En modo `solo` el bloque se omite, igual que el resto del circuito de entrega.
+
+## Planificar y estimar trabajo
+
+Todo plan o estimación se escribe como work items en el repo: un requirement en `docs/requirements/<plan>/` o stories en `docs/stories/<feature>/`. Un documento publicado, un artifact o un resumen en el chat son vistas que enlazan a esos archivos. La skill `planning` lleva ese método, y los roles la cargan cada vez que planifican o dimensionan trabajo.
+
+Antes de escribir, la skill resuelve el **estándar efectivo** del work item, es decir, la forma que tiene que cumplir:
+
+1. la plantilla propia del proyecto (`docs/stories/README.md`, `docs/requirements/README.md`);
+2. la plantilla de crew, donde el proyecto no tiene una;
+3. encima, las desviaciones declaradas en el bloque `crew:standard` de `docs/DEVIATIONS.md`.
+
+`node <plugin>/scripts/conformance.js <ruta-del-work-item>` imprime ese estándar, y `--check` revisa archivos. El guard de forma lo exige en cada escritura ([enforcement.md § Forma de los work items](enforcement.md#forma-de-los-work-items)). La tabla de estimación la agrega quien ejecuta, en planning, y se mide como explica la sección siguiente.
 
 ## Medir tu trabajo (métricas)
 
@@ -177,6 +202,8 @@ Dos reglas que todos los roles heredan del baseline de sesión.
 **Cierto trabajo siempre pasa por seguridad.** Autenticación o sesiones, autorización y roles, entrada no confiable que cruza un límite, consultas o esquema con datos personales, rutas de archivo armadas con entrada, APIs externas o webhooks, criptografía y secretos: el trabajo que toca cualquiera de estos consulta a `security-compliance` antes de quedar final. Cuando tocó uno, el sello de evidencia de la respuesta dice si se consultó a SEC y, si no, por qué. La lista canónica vive en el rol SEC; [`evals/security/`](../../evals/security/README.md) verifica las dos reglas.
 
 **También se escanea la configuración del agente.** Instrucciones, settings del host, servidores MCP, hooks y agentes del proyecto corren con tus permisos, así que `security-compliance` los escanea con `scripts/sec-scan.js`: secretos en texto plano, permisos en bypass, allows de shell con comodín, hooks desactivados, servidores `npx -y` sin versión fija, caracteres ocultos, instrucciones plantadas, agentes de solo lectura con herramientas de escritura. Es de solo lectura, sin red, y enmascara todo secreto. `--report` deja un informe fechado en `docs/security/`, y el inicio de sesión avisa cuando la configuración cambió desde el último. En proyectos `team`, el CI puede correrlo con `--ci` para fallar ante un hallazgo crítico o alto no aceptado; los riesgos aceptados van en el bloque `crew:security` de `docs/DEVIATIONS.md`.
+
+Para correrlo, pídeselo a `/crew:sec` o ejecuta `node <plugin>/scripts/sec-scan.js` desde la raíz del proyecto; `--user` suma la configuración de usuario de Claude. `/crew:doctor` también lo incluye.
 
 ## Reglas de composición
 

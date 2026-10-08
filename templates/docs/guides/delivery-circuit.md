@@ -34,13 +34,13 @@ A dev takes a Ready story or requirement:
 - **Branch:** `story/<feature>-NNN-slug` or `req/<plan>-NNN-slug`.
 - Note the branch in the work item's header; state → In progress (commit in the same branch).
 - **Estimation gate (planning):** a story is authored without estimation — hours are not the analyst's deliverable; project-level rough sizing lives in the brief. When the work item is taken for implementation, **whoever executes adds** the `## Estimation` table (milestones, estimated hours, closed by a **Total** row) before coding.
-- **Verification gate (planning, same moment):** alongside the estimation, the same person adds the `## Verification` table — one row per behavior: level, harness, artifact, status. It carries the *method*; the story keeps owning the scenario. Writing the tests is work, so it is a milestone in the table above, not an afterthought discovered at review. The harness comes from `crew.json` `testing`, never from this guide; where the project declares none, the row says so and the reason is written. Full rules: [`../AGENTS.md`](../AGENTS.md#verification-discipline) · what this project verifies: [`testing.md`](testing.md). During execution, real start/finish per milestone is recorded **in real time**: write `Started` when the milestone begins and `Finished` immediately when it closes — before starting the next one; timestamps carry a timezone offset and reconstructed values are rejected by the guard. If a session is interrupted mid-milestone, `Finished` is the real resumption-close time and the gap is noted in Notes. No work item proceeds with an empty estimation table.
-- The implementing agent reads the work item as its spec: the kickoff prompt is "implement `docs/stories/<feature>/NNN-slug.md`" — nothing more. If the agent needs more context, the gap is in the file: fix it there, not in the chat.
+- **Verification gate (planning, same moment):** alongside the estimation, the same person adds the `## Verification` table — one row per behavior: level, harness, artifact, status. It carries the *method*; the story keeps owning the scenario. Writing the tests is work, so it is a milestone in the table above, planned before review. The harness comes from `crew.json` `testing`, never from this guide; where the project declares none, the row says so and the reason is written. Full rules: [`../AGENTS.md`](../AGENTS.md#verification-discipline) · what this project verifies: [`testing.md`](testing.md). During execution, real start/finish per milestone is recorded **in real time**: write `Started` when the milestone begins and `Finished` immediately when it closes — before starting the next one; timestamps carry a timezone offset and reconstructed values are rejected by the guard. If a session is interrupted mid-milestone, `Finished` is the real resumption-close time and the gap is noted in Notes. No work item proceeds with an empty estimation table.
+- The implementing agent reads the work item as its spec: the kickoff prompt is "implement `docs/stories/<feature>/NNN-slug.md`" — nothing more. If the agent needs more context, the gap is in the file: fix it in the file.
 - The implementation PR links the work item file. On merge, state → Delivered.
 
 ### 4. Validation
 
-Stories: the analyst (assisted by `FA` in validation mode) walks the acceptance criteria against actual behavior, records a per-criterion verdict in the story's Validation section. Full pass → Validated. Any fail → back to the dev (expected vs. observed), state returns to In progress. Validation is against the **written** criteria — if criteria pass but the result feels wrong, that is a new product signal for `PROD`, not a failed validation.
+Stories: the analyst (assisted by `FA` in validation mode) walks the acceptance criteria against actual behavior, records a per-criterion verdict in the story's Validation section. Full pass → Validated. Any fail → back to the dev (expected vs. observed), state returns to In progress. Validation is against the **written** criteria — if criteria pass but the result feels wrong, validation still passes and the finding goes to `PROD` as a new product signal.
 
 Requirements: verified against the Expected deliverable by the authoring role or `QA` in verdict mode.
 
@@ -73,14 +73,14 @@ Not every request needs every step. Before the circuit starts, the coordinating 
 
 ## Chaining policy — when to run the next role, when to stop
 
-After a role closes its deliverable, the next stage may be chained in the same session or handed off through the artifact. The decision is mechanical, not conversational:
+After a role closes its deliverable, the next stage may be chained in the same session or handed off through the artifact. The decision follows a fixed rule:
 
 1. **Look up the owner** of the next stage's role in the project's `AGENTS.md` § Role ownership map.
 2. **Same human as the session user** → chain: run the next role now, produce its output as a draft, let the user approve everything together.
 3. **Different human** → stop at the artifact: register the work item / spec in the repo and end. The repo is the asynchronous interface between humans; their approval gate (PR review, pass to Ready) must not be simulated by an agent.
-4. **Chain only what unblocks the session user's next decision** — not the whole queue. Each chained role adds tokens and output volume; run the stage whose result conditions everything else (e.g. data model, security posture) and leave the rest for after approval.
+4. **Chain only what unblocks the session user's next decision**, and leave the rest of the queue. Each chained role adds tokens and output volume; run the stage whose result conditions everything else (e.g. data model, security posture) and leave the rest for after approval.
 
-"Owner" means who approves the stage transition (the PR, the pass to Ready) — not who executes the work. Agents always execute; ownership only decides whether the result chains forward or waits.
+"Owner" means who approves the stage transition (the PR, the pass to Ready). Agents always execute; ownership only decides whether the result chains forward or waits.
 
 **Fallback:** if the ownership map is missing or the role is unmapped, ask the user once and write the answer into the map — the question must never repeat.
 

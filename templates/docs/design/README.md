@@ -1,6 +1,6 @@
 # Design memory
 
-What **this product** considers good, written down. The crew plugin carries the design *method*; taste is not portable, so it lives here — in your repository, decided by you.
+What **this product** considers good, written down. The crew plugin carries the design *method*; taste belongs to each product, so it lives here, in your repository, decided by you.
 
 Without this folder, any role doing interface work can still apply the method, but it will say so out loud: *"no design memory declared: the direction was not contrasted against the product's references."* That admission is the point — an agent that invents a standard is worse than one that declares it has none.
 
@@ -16,7 +16,7 @@ Without this folder, any role doing interface work can still apply the method, b
 
 ## How to fill it in
 
-Start with three entries, not thirty. One reference, one approved pattern, one rejected pattern is already enough to change what the agents produce. Add entries as decisions actually happen; a memory invented in one sitting describes an aspiration, not the product.
+Start with three entries. One reference, one approved pattern, one rejected pattern is already enough to change what the agents produce. Add entries as decisions actually happen; a memory invented in one sitting describes an aspiration and stops describing the product.
 
 Two rules that keep it useful:
 
@@ -35,4 +35,4 @@ The same `design` section declares what the project can *do* — where it runs, 
 
 ## Evidence captures
 
-If you declare a capture capability, renders land in the folder you point it at (`docs/design/.evidence` by convention). They are working evidence, not documentation — commit them or ignore them as your team prefers, but do not let them become the memory. The memory is the three files above.
+If you declare a capture capability, renders land in the folder you point it at (`docs/design/.evidence` by convention). They are working evidence: commit them or ignore them as your team prefers, and keep them out of the memory. The memory is the three files above.

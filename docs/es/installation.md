@@ -3,7 +3,7 @@
 Esta página describe Claude Code. Para Codex y el paquete compartido, consulta
 [compatibilidad](compatibility.md).
 
-Vas a instalar el plugin **crew** del marketplace **factory-crew**, alojado en el repo de GitHub `jircdev/crew-plugin`. Elige el método que te encaje — todos terminan en el mismo lugar.
+Vas a instalar el plugin **crew** del marketplace **factory-crew**, alojado en el repo de GitHub `jircdev/crew-plugin`. Elige el método que prefieras; todos dejan el mismo resultado.
 
 ## Lo más fácil — pídeselo a Claude
 
@@ -103,17 +103,19 @@ En la primera sesión tras habilitarlo, Claude Code te pide aprobar los hooks de
 
 ## Después de instalar — elige el modo del proyecto
 
-Instalar deja los roles disponibles en todos lados; luego cada repo decide cuánto proceso quiere. En el proyecto donde vayas a trabajar, corre el script de init del plugin:
+Instalar deja los roles disponibles en todos lados; luego cada repo decide cuánto proceso quiere. La forma más simple es pedírselo a la crew en el proyecto ("configura la estructura de la crew en este proyecto", ver [using-crew.md](using-crew.md#configurar-un-proyecto-nuevo)). Para correr el script a mano, hazlo desde la raíz del proyecto, con `<plugin>` como la ruta donde está instalado el plugin:
 
 ```bash
-scripts/init-project.sh             # team — circuito de entrega completo + todos los guards
-scripts/init-project.sh --solo      # solo — el catálogo sin la ceremonia
-scripts/init-project.sh --dry-run   # lista lo que escribiría, sin escribir nada
+bash <plugin>/scripts/init-project.sh             # team: circuito de entrega completo y todos los guards
+bash <plugin>/scripts/init-project.sh --solo      # solo: el catálogo sin la ceremonia
+bash <plugin>/scripts/init-project.sh --dry-run   # lista lo que escribiría, sin escribir nada
 ```
+
+Sin Bash, `node <plugin>/scripts/init-project.js` acepta las mismas opciones. Cómo elegir entre team y solo: [using-crew.md § Elegir el modo del proyecto](using-crew.md#elegir-el-modo-del-proyecto).
 
 El script nunca sobrescribe un archivo, y registra cada archivo que sí escribe, con su hash, en `.crew/install-state.json`. Ese registro es lo que permite que `/crew:doctor` revise la instalación contra sus propias declaraciones, que `/crew:doctor repair` restaure un archivo faltante del scaffold y que `/crew:doctor uninstall` quite exactamente lo que escribió crew: un archivo del scaffold que editaste es tuyo y nunca se toca.
 
-Ambos escriben un `crew.json` en la raíz del proyecto con valores explícitos (`mode`, `metrics`, `quality`, `ceilings`), así el comportamiento del repo queda visible y editable — sin defaults ocultos. Un repo **sin** `crew.json` conserva el comportamiento anterior: los guards infieren por estructura y la calidad se exige al escribir. Cada campo y sus efectos están documentados en [configuration.md](configuration.md).
+Ambos modos escriben un `crew.json` en la raíz del proyecto con valores explícitos (`mode`, `metrics`, `quality`, `ceilings`, `configuredWith` y las capacidades `design.memory` y `testing.guide`), así el comportamiento del repo queda visible y editable. Un repo **sin** `crew.json` conserva el comportamiento anterior: los guards infieren por estructura y la calidad se exige al escribir. Cada campo y sus efectos están documentados en [configuration.md](configuration.md).
 
 ## Actualizar el plugin
 
@@ -127,7 +129,9 @@ Desinstalar es la instalación al revés — edita el mismo `settings.json`:
 2. Borra el bloque `factory-crew` de `extraKnownMarketplaces`.
 3. Reinicia Claude Code.
 
-El botón **Remove** de la interfaz por sí solo no basta: limpia la caché del plugin pero no `settings.json`, así que al arrancar de nuevo el marketplace se re-registra desde el archivo y el chip reaparece. `settings.json` es la fuente de verdad — quita las entradas ahí. Para purgar el registro sobrante sin esperar al reinicio, también puedes vaciar `~/.claude/plugins/known_marketplaces.json` (Windows: `C:\Users\<usuario>\.claude\plugins\known_marketplaces.json`) a `{}`.
+El botón **Remove** de la interfaz por sí solo no basta: limpia la caché del plugin pero no `settings.json`, así que al arrancar de nuevo el marketplace se re-registra desde el archivo y el chip reaparece. `settings.json` es la fuente de verdad: quita las entradas ahí. Para purgar el registro sobrante sin esperar al reinicio, también puedes vaciar `~/.claude/plugins/known_marketplaces.json` (Windows: `C:\Users\<usuario>\.claude\plugins\known_marketplaces.json`) a `{}`.
+
+Desinstalar el plugin deja en cada proyecto los archivos que instaló el scaffold. Para quitarlos, corre `/crew:doctor uninstall` en el proyecto **antes** de desinstalar el plugin (primero con `--dry-run`): quita solo los archivos registrados que nunca editaste, la línea de la puerta pre-commit y el registro.
 
 ## Solución de problemas
 
@@ -135,4 +139,4 @@ El botón **Remove** de la interfaz por sí solo no basta: limpia la caché del 
 - **Funciona para ti pero no para tu equipo.** El `source` del marketplace es `directory` con una `path` local. Una ruta local solo existe en tu máquina; los demás deben usar el `source` `github` de arriba.
 - **Editaste settings pero nada cambió.** No reiniciaste. Claude Code solo lee `settings.json` al arrancar.
 - **Lo desinstalaste pero el chip sigue volviendo.** El Remove de la interfaz no edita `settings.json`. Ver [Desinstalar el plugin](#desinstalar-el-plugin) arriba.
-- **Instalado pero no aparecen los comandos `/crew:`.** El marketplace se registró pero el plugin no terminó de cargar. Cierra Claude Code por completo (no solo recargar) y vuelve a abrirlo. Si sigue sin aparecer, quita `crew@factory-crew` desde el menú `/plugin` y vuelve a añadirlo. Los mantenedores con un clon local pueden cambiar el `source` del marketplace a `directory` (ver el flujo de autor arriba), que carga el plugin en sitio y evita el paso de descarga.
+- **Instalado pero no aparecen los comandos `/crew:`.** El marketplace se registró pero el plugin no terminó de cargar. Cierra Claude Code por completo y vuelve a abrirlo; recargar no alcanza. Si sigue sin aparecer, quita `crew@factory-crew` desde el menú `/plugin` y vuelve a añadirlo. Los mantenedores con un clon local pueden cambiar el `source` del marketplace a `directory` (ver el flujo de autor arriba), que carga el plugin en sitio y evita el paso de descarga.

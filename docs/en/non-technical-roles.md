@@ -21,7 +21,7 @@ Either way, you write in plain language. The role answers in plain language too;
 | commercial-strategist | `/crew:com` or `COM:` | Client discovery, judging whether something is worth doing in business terms, the project manifesto, the public web's message |
 | analytics-architect | `/crew:ana` or `ANA:` | Product-metrics questions: what to measure, which KPIs, whether the funnel says what you think it says |
 
-**Your artifacts.** The manifestos in `docs/briefs/` — narrative documents written for reading, not for machines. You can read them, comment on them, and approve them. A manifesto you approve is what the technical team aligns on.
+**Your artifacts.** The manifestos in `docs/briefs/` — narrative documents written for people to read. You can read them, comment on them, and approve them. A manifesto you approve is what the technical team aligns on.
 
 **Reviewing without git on your machine.** You don't need any developer tooling. Your repository host (GitHub or GitLab) shows every file in a web browser: open the repository page, navigate into `docs/briefs/` or `docs/stories/`, and click a file. Briefs and stories are plain markdown — they render as formatted text, readable as any web page.
 

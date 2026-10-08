@@ -1,8 +1,8 @@
 # Enforcement — cuando un guard te bloquea
 
-Los estándares del crew no son convenciones a voluntad: un conjunto pequeño de hooks los hace cumplir en el momento de la escritura, del commit o del cierre de sesión. Cuando uno te bloquea siempre dice por qué — esta página mapea cada mensaje de denegación a su causa y su solución. Qué guards están activos en tu proyecto lo decide `crew.json`; la matriz completa está en [configuration.md](configuration.md).
+Un conjunto pequeño de hooks hace cumplir los estándares del crew en el momento de la escritura, del commit o del cierre de sesión. Cuando uno te bloquea siempre dice por qué. Esta página lleva cada mensaje de denegación a su causa y su solución. Qué guards están activos en tu proyecto lo decide `crew.json`; la matriz completa está en [configuration.md](configuration.md).
 
-Un principio antes que nada: **todo guard falla abierto**. Cualquier error interno de un hook permite la operación — un bug de un guard nunca debe bloquear trabajo legítimo. Así que si te bloqueó, fue deliberado: una regla disparó, y el mensaje la nombra.
+Un principio antes que nada: **casi todo guard falla abierto**. Un error interno del hook deja pasar la operación, para que un bug de un guard no bloquee trabajo legítimo. Si te bloqueó, una regla disparó y el mensaje la nombra. Las dos excepciones son el [guard de shell](#evasión-de-hooks) y el de [políticas](#relajación-de-políticas): fallan cerrados, porque en un guard contra evasión un error y una evasión terminan igual.
 
 Los mensajes de los guards se emiten en inglés; acá se citan tal cual los vas a ver.
 
@@ -46,9 +46,9 @@ Guard: [`../../hooks/guard-estimation.js`](../../hooks/guard-estimation.js). Dis
 
 ### "Cannot close this work item: the estimation table has no **Total** row"
 
-**Causa.** Los hitos están completos pero nada los suma. Un documento cuyo lector tiene que sumar la columna guarda números, no los reporta.
+**Causa.** Los hitos están completos pero nada los suma. La fila Total le ahorra al lector sumar la columna.
 
-**Solución.** Cerrá la tabla con una fila cuya primera celda sea `Total` (el énfasis markdown es opcional, no distingue mayúsculas), con horas estimadas y reales. Las columnas de timestamp quedan vacías o con un guion — el total suma hitos, no es uno:
+**Solución.** Cerrá la tabla con una fila cuya primera celda sea `Total` (el énfasis markdown es opcional, no distingue mayúsculas), con horas estimadas y reales. Las columnas de timestamp quedan vacías o con un guion, porque el total suma los hitos y no tiene fechas propias:
 
 ```
 | **Total** | 12 | — | — | 15 | |
@@ -77,7 +77,7 @@ El heading puede ser `## Verification` o `## Verificación`. Ninguna columna pue
 
 **Causa.** Una fila tiene una celda vacía. Lo más común es el artefacto, cuando el test se planificó y nunca se escribió.
 
-**Solución.** Escribí lo que es cierto. Si no existe el test, el artefacto es `—` y el estado dice por qué no existe. La puerta quiere el registro honesto, no el completo.
+**Solución.** Escribí lo que es cierto. Si no existe el test, el artefacto es `—` y el estado dice por qué no existe. La puerta pide un registro honesto, aunque quede incompleto.
 
 ### "verification row … is passing but cites no receipt" (y sus variantes)
 
@@ -113,7 +113,7 @@ Guard: [`../../hooks/guard-timestamps.js`](../../hooks/guard-timestamps.js). Act
 
 ### Sesiones interrumpidas
 
-Empezaste un hito, la sesión murió, y retomás al día siguiente. **No** retro-datees `Finished` a cuando el trabajo "habría" terminado — el guard lo va a rechazar, y retro-datear es exactamente la falsificación que existe para impedir. En cambio: escribí `Finished` con la **hora real de reanudación** cuando cierres el hito, y anotá el hueco en `Notes` (p. ej. "sesión interrumpida, hueco de ~16h"). Que el wall-clock incluya pausas es de diseño — la métrica mide el costo de punta a punta del requerimiento, no el tiempo de teclado. En [metrics.md](metrics.md) está cómo leer los números resultantes.
+Empezaste un hito, la sesión murió, y retomás al día siguiente. **No** retro-datees `Finished` a cuando el trabajo "habría" terminado — el guard lo va a rechazar, y retro-datear es exactamente la falsificación que existe para impedir. En cambio: escribí `Finished` con la **hora real de reanudación** cuando cierres el hito, y anotá el hueco en `Notes` (p. ej. "sesión interrumpida, hueco de ~16h"). Que el wall-clock incluya pausas es de diseño: la métrica mide el costo de punta a punta del requerimiento, y el tiempo de teclado va en `Actual hours`. En [metrics.md](metrics.md) está cómo leer los números resultantes.
 
 ## Forma de los work items
 
@@ -179,9 +179,26 @@ crew.json quality   # advise mientras se migra el módulo legacy · owner: ana �
 -->
 ```
 
-## Excepciones con vencimiento
+## Bloques de `docs/DEVIATIONS.md`
 
-Cada bloque de `docs/DEVIATIONS.md` (`crew:exempt`, `crew:standard`, `crew:policy`) acepta `owner:` y `expires: AAAA-MM-DD` en el comentario. Pasada su fecha, la entrada deja de aplicar: la ruta exenta se vuelve a medir, la desviación se informa como ignorada y la relajación se vuelve a marcar.
+`docs/DEVIATIONS.md` registra las decisiones del proyecto que se apartan del estándar de crew. Además de las filas en prosa, tiene cuatro bloques que leen los hooks y los scripts:
+
+| Bloque | Qué registra | Quién lo lee | Más detalle |
+|---|---|---|---|
+| `crew:exempt` | Rutas exentas de los techos de tamaño, un glob por línea | guard de calidad y puerta pre-commit | [Exenciones](#exenciones) |
+| `crew:standard` | Desvíos de la plantilla de stories o requirements | guard de forma y `conformance.js` | [Forma de los work items](#forma-de-los-work-items) |
+| `crew:policy` | Relajaciones aprobadas de `crew.json` o de los settings del host | guard de políticas | [Relajación de políticas](#relajación-de-políticas) |
+| `crew:security` | Riesgos aceptados del escaneo de seguridad, como `<id-de-regla> [ruta]` | `scripts/sec-scan.js` y `/crew:doctor` | [using-crew.md](using-crew.md#disparadores-de-seguridad-y-frontera-de-instrucciones) |
+
+Cada línea lleva su justificación después de `#`. En cualquier bloque, el comentario acepta además `owner:` y `expires: AAAA-MM-DD`:
+
+```markdown
+<!-- crew:security
+SEC-HOOK-NET .claude/settings.json   # webhook a nuestra propia página de estado · owner: ana · expires: 2027-01-31
+-->
+```
+
+Pasada su fecha, la entrada deja de aplicar: la ruta exenta se vuelve a medir, la desviación se informa como ignorada, la relajación se vuelve a marcar y el riesgo vuelve a contar como no aceptado. `/crew:doctor` lista las entradas vencidas.
 
 ## Aviso de alcance
 
@@ -196,13 +213,13 @@ Guard: [`../../hooks/guard-code-quality.js`](../../hooks/guard-code-quality.js) 
 **Causa.** La escritura dejaría el archivo por encima del techo de líneas de su tipo. Lo que pasa después depende de `"quality"` en `crew.json`:
 
 - **`enforce`** (también el comportamiento sin `crew.json`): la escritura se **deniega**.
-- **`advise`** (default del scaffold para proyectos nuevos): la escritura **procede** y ves el mismo texto como aviso, terminando en "The pre-commit gate will reject the commit if it still exceeds the ceiling." El aviso no es ruido — el freno duro se movió al commit, no desapareció.
+- **`advise`** (default del scaffold para proyectos nuevos): la escritura **procede** y ves el mismo texto como aviso, terminando en "The pre-commit gate will reject the commit if it still exceeds the ceiling." El freno duro sigue existiendo: se movió al commit.
 
 **Solución.** Partí el archivo: extraé un símbolo (un componente, un grupo de funciones, un módulo de tipos) a su propio archivo. Esa es la reacción prevista — el techo es un proxy barato de "este archivo se volvió difícil de razonar". Si la ruta es *legítimamente* grande (código generado, tablas de datos planos), eximila — como corresponde, abajo.
 
 ### Exenciones
 
-Las exenciones se **pre-registran**: se anotan con su justificación *antes* de chocar contra la pared, no como reacción a un mensaje rojo. Viven en un bloque legible por máquina en `docs/DEVIATIONS.md`:
+Las exenciones se **pre-registran**: se anotan con su justificación *antes* de que el guard bloquee la escritura. Viven en un bloque legible por máquina en `docs/DEVIATIONS.md`:
 
 ```markdown
 <!-- crew:exempt
@@ -240,7 +257,7 @@ Hook: [`../../hooks/check-work-log.js`](../../hooks/check-work-log.js) (Stop hoo
 
 ### "There are commits dated today … but no docs/work/… entry"
 
-**Causa.** La sesión está terminando, hay commits con fecha de hoy, y no existe ninguna entrada `docs/work/YYYY-MM/YYYY-MM-DD-*.md` de hoy. Las convenciones sin enforcement se degradan; esto es el enforcement de la traza de cierre.
+**Causa.** La sesión está terminando, hay commits con fecha de hoy, y no existe ninguna entrada `docs/work/YYYY-MM/YYYY-MM-DD-*.md` de hoy. Este hook verifica que el trabajo del día deje traza.
 
 **Solución.** Escribí la entrada de trabajo ahora (formato en el `docs/work/README.md` de tu proyecto: qué cambió / por qué / cómo / conocimiento promovido / pendientes) — o saltala explícitamente si los cambios del día están por debajo del umbral de significancia (fixes auto-evidentes, renombres menores, cambios solo de docs). El hook bloquea **una sola vez**: nunca entra en bucle con una sesión que ya le respondió.
 
@@ -252,7 +269,7 @@ Hook: [`../../hooks/check-work-log.js`](../../hooks/check-work-log.js) (Stop hoo
 
 **Un glob de exención no matchea.** Los globs se comparan contra la ruta **relativa a la raíz del proyecto**, con separadores `/`. `*` no cruza directorios — `src/*.ts` no matchea `src/api/client.ts`; usá `src/**` o `src/**/*.ts`. Verificá qué raíz detectó el guard: el ancestro más cercano con `crew.json`, `docs/DEVIATIONS.md` o `.git`.
 
-**Un guard no disparó cuando lo esperabas.** Revisá primero las condiciones de activación ([matriz](configuration.md#matriz-de-comportamiento--guard--config)): timestamps necesita `"metrics": true`; la inmutabilidad de Closed y el Stop hook necesitan modo team. Más allá de eso, recordá que los guards fallan abiertos — un error interno (archivo ilegible, input malformado del hook) permite la operación en silencio.
+**Un guard no disparó cuando lo esperabas.** Revisá primero las condiciones de activación ([matriz](configuration.md#matriz-de-comportamiento--guard--config)): timestamps necesita `"metrics": true`; la inmutabilidad de Closed y el Stop hook necesitan modo team. Más allá de eso, recordá que casi todos los guards fallan abiertos: un error interno (archivo ilegible, input malformado del hook) permite la operación en silencio.
 
 **Los guards de estimación ignoran mi tabla.** El heading de la sección debe ser literalmente `## Estimation`, y la línea de estado (`**Status:** Closed` / `**Estado:** Cerrada`) debe aparecer dentro de los primeros ~600 caracteres del archivo — mantenela en el bloque de cabecera donde la ponen las plantillas.
 

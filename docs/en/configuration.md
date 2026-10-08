@@ -8,7 +8,7 @@ Every guard resolves the config by walking **up** from the directory of the file
 
 ## The legacy rule — no `crew.json`
 
-**No `crew.json` (or one with invalid JSON) means exact v0.19.1 behavior.** The reader returns nothing and every guard falls back to its pre-config behavior:
+**With no `crew.json` (or one with invalid JSON), the guards that existed in v0.19.1 behave exactly as they did then.** The reader returns nothing and every guard falls back to its pre-config behavior. Guards added later (shape, shell, policy) only notify; the [matrix](#behavior-matrix--guard--config) has the detail:
 
 - `docs/work/` entries and Closed work items: immutable.
 - Estimation gate at closure: active.
@@ -16,7 +16,7 @@ Every guard resolves the config by walking **up** from the directory of the file
 - Code quality: **enforce** — writes over the ceiling are denied.
 - Work-log Stop hook: active wherever `docs/work/` exists.
 
-Two consequences worth internalizing. First, the plugin has **no hidden defaults**: the friendlier values new projects get (`advise`, metrics on) are not built in — they exist only because [`../../scripts/init-project.sh`](../../scripts/init-project.sh) writes them explicitly into the scaffolded `crew.json`. Second, a `crew.json` with a JSON syntax error behaves like no file at all — which silently turns `"quality": "advise"` back into enforce. If a guard suddenly got stricter, check the JSON parses.
+Two consequences. First, the plugin has **no hidden defaults**: the friendlier values new projects get (`advise`, metrics on) exist only because the scaffold ([`../../scripts/init-project.js`](../../scripts/init-project.js)) writes them explicitly into the project's `crew.json`. Second, a `crew.json` with a JSON syntax error behaves like no file at all — which silently turns `"quality": "advise"` back into enforce. If a guard suddenly got stricter, check the JSON parses.
 
 ## Field reference
 
@@ -26,8 +26,11 @@ Two consequences worth internalizing. First, the plugin has **no hidden defaults
 | `metrics` | `true` \| `false` | `false` | The estimation-timestamps discipline. Only the literal `true` activates it. |
 | `quality` | `"advise"` \| `"enforce"` \| `"off"` | `"enforce"` | What the write-time code-quality guard does on a ceiling violation. Unknown values fall back to `"enforce"`. |
 | `ceilings` | object `{ kind: lines }` | `{}` | Per-kind overrides of the file-size line ceilings. Non-object values fall back to `{}`. |
-| `configuredWith` | version string | `null` | **State, not policy**: which plugin version last configured this project. Nobody interprets it to decide behavior — see [The marker](#the-marker-configuredwith). |
-| `design` | object | `null` | What this project *can do* for interface work. Nothing is granted by default — see [Design capabilities](#design-capabilities). |
+| `configuredWith` | version string | `null` | State data: which plugin version last configured this project. No behavior uses it to decide; see [The marker](#the-marker-configuredwith). |
+| `design` | object | `null` | What this project *can do* for interface work. Nothing is granted by default; see [Design capabilities](#design-capabilities). |
+| `testing` | object (`guide`, `e2e`, `commands`, `receipts`) | `null` | What this project can verify, and with what. Declaring it turns the verification table into a closure gate; see [Testing capabilities](#testing-capabilities). |
+| `audit` | `true` \| `false` | `false` | Log of guard decisions in `.crew/audit.log`, team mode only; see [Audit trail](#audit-trail-audit). |
+| `telemetry` | `false` | no effect | Can only forbid catalog usage recording for the whole team. Each person turns it on locally; see [Catalog usage](#catalog-usage-telemetry). |
 
 Absent fields normalize to the legacy-equivalent value in the third column — a `crew.json` containing only `{"mode": "solo"}` is valid and means solo, no metrics, quality enforce, default ceilings.
 
@@ -59,7 +62,7 @@ Controls the **write-time** guard only ([`../../hooks/guard-code-quality.js`](..
 | `enforce` | Write is denied | Blocks the commit |
 | `off` | Silent | Still blocks — the gate is managed separately |
 
-`advise` is what the scaffold writes for new projects: the agent keeps momentum and the hard stop is the commit. Note that the pre-commit gate ([`../../scripts/check-quality.sh`](../../scripts/check-quality.sh)) does **not** read `quality` at all — turning quality `off` silences the hook, not the gate. To remove the gate, delete its line from `.git/hooks/pre-commit`.
+`advise` is what the scaffold writes for new projects: the agent keeps momentum and the hard stop is the commit. Note that the pre-commit gate ([`../../scripts/check-quality.sh`](../../scripts/check-quality.sh)) does **not** read `quality` at all — turning quality `off` silences the hook and leaves the gate active. To remove the gate, delete its line from `.git/hooks/pre-commit`.
 
 ### `ceilings`
 
@@ -75,7 +78,7 @@ The line ceilings by file kind, and how a file's kind is detected (first match w
 | `component` | 150 | `.tsx`/`.jsx` whose name starts with a capital letter |
 | `module` | 200 | everything else (the default kind) |
 
-Only code files are checked (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.rs`, `.py`, `.go`, `.java`, `.rb`, `.php`, `.cs`, `.kt`, `.swift`, `.vue`, `.svelte`, …). `"ceilings"` overrides the number per kind — it does not change kind detection. Both the write-time guard and the pre-commit gate honor the same overrides, and both honor [pre-registered exemptions](enforcement.md#exemptions) in `docs/DEVIATIONS.md`. Logic: [`../../hooks/lib/ceilings.js`](../../hooks/lib/ceilings.js).
+Only code files are checked (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.rs`, `.py`, `.go`, `.java`, `.rb`, `.php`, `.cs`, `.kt`, `.swift`, `.vue`, `.svelte`, …). `"ceilings"` overrides the number per kind; kind detection stays the same. Both the write-time guard and the pre-commit gate honor the same overrides, and both honor [pre-registered exemptions](enforcement.md#exemptions) in `docs/DEVIATIONS.md`. Logic: [`../../hooks/lib/ceilings.js`](../../hooks/lib/ceilings.js).
 
 ## Design capabilities
 
@@ -112,15 +115,15 @@ Read the third column first. It is the one that tells you what a missing declara
 
 Every key is optional and independent. `{"design": {"memory": "docs/design"}}` is a complete, valid declaration.
 
-**Two permissions, not one.** `runtime.url` and `runtime.launch` are separate on purpose: connecting to something already running is inspection; running a launch profile executes a command on your machine. Declaring `runtime` grants neither on its own — each key grants only itself. Precedence is url first (the server is usually already running outside the session, and duplicating it is waste); a launch profile runs only when the URL does not answer. Whatever an agent starts, it stops.
+**Two separate permissions.** `runtime.url` and `runtime.launch` are separate on purpose: connecting to something already running is inspection; running a launch profile executes a command on your machine. Declaring `runtime` grants neither on its own — each key grants only itself. Precedence is url first (the server is usually already running outside the session, and duplicating it is waste); a launch profile runs only when the URL does not answer. Whatever an agent starts, it stops.
 
 **Declaring is the permission.** This is the point of the section: you grant it once, in a file you can read and revert, instead of approving the same action every session.
 
 **Memory outranks baseline.** They are not two opinions. `memory` is what is good in *this* product; `baseline` is only consulted where the memory says nothing, and it loses every conflict without discussion. A baseline is worth declaring when your design memory is young: it stops the honest-but-generic output you get from a role that has nothing to contrast against. Point it at whatever you trust — an installed skill, your own design-system document, a public design system's docs.
 
-**Closed vs free values.** `registry.kind` (`storybook` | `doc` | `none`), `capture.kind` (`browser` | `playwright`) and `baseline.kind` (`skill` | `doc`) are closed, because a role has to know *how* to consume them — loading a skill and reading a document are different actions. A `baseline` without a `ref` is treated as undeclared and named at session start. Everything else is a free label — `viewports`, `checks.kind`, `sources.kind` — because form factors and tooling belong to your product, not to this plugin. There is no default viewport set: a kiosk or a desktop-only tool is not an oversight.
+**Closed vs free values.** `registry.kind` (`storybook` | `doc` | `none`), `capture.kind` (`browser` | `playwright`) and `baseline.kind` (`skill` | `doc`) are closed, because a role has to know *how* to consume them — loading a skill and reading a document are different actions. A `baseline` without a `ref` is treated as undeclared and named at session start. Everything else is a free label — `viewports`, `checks.kind`, `sources.kind` — because your product chooses its form factors and tooling. There is no default viewport set: a kiosk or a desktop-only tool is not an oversight.
 
-**Unrecognized values are named, not swallowed.** A `kind` this plugin version does not know is treated as if the capability were absent, and the session start says so. It never blocks anything.
+**Unrecognized values are named.** A `kind` this plugin version does not know is treated as if the capability were absent, and the session start says so. It never blocks anything.
 
 ### Evidence receipts
 
@@ -133,9 +136,9 @@ When renders are captured, they can be accompanied by a receipt so a reviewer �
   "shots": [ { "viewport": "desktop", "state": "empty", "path": "docs/design/.evidence/list-desktop-empty.png" } ] }
 ```
 
-Anchored to the work item and the tree state, not to a commit — captures happen before committing. What matters is **which states** were captured, not how many images exist.
+It is anchored to the work item and the tree state, because captures happen before committing. What matters is **which states** were captured; the number of images says nothing.
 
-Deliberately **not** a gate. A receipt an agent writes about its own work proves images exist, not that anyone looked at them — the same reason reconstructed timestamps are guarded elsewhere. Its value is making the evidence reviewable, and it is not sold as proof.
+It is informative: no gate requires it. A receipt an agent writes about its own work proves images exist; whether anyone looked at them stays unproven. For the same reason, reconstructed timestamps are checked by another guard. Its value is making the evidence reviewable.
 
 ## Testing capabilities
 
@@ -175,7 +178,7 @@ Catalog usage — which roles, skills and commands get used — is recorded **on
 
 ## The marker: `configuredWith`
 
-One line recording which plugin version last configured this project. It is **state, not policy**: no behavior reads it. Delete it and the only thing you lose is the notice.
+One line recording which plugin version last configured this project. It is state data: no behavior reads it. Delete it and the only thing you lose is the notice.
 
 At session start:
 
@@ -189,11 +192,11 @@ At session start:
 
 The notice closes when the marker is updated — including when your answer is "I've seen it and I want none of it", which still updates the marker. There is no separate mute switch, because there is nothing to mute once the state is acknowledged.
 
-Which versions count as required is declared explicitly in the plugin's `migrations.json` when a version is published — never inferred from the changelog. If the evolution invariants above are respected, this notice will almost never fire. That is the mechanism working, not a defect.
+Which versions count as required is declared explicitly in the plugin's `migrations.json` when a version is published — never inferred from the changelog. If the evolution invariants above are respected, this notice will almost never fire, and that silence is the expected behavior.
 
 ## Configuring: `/crew:setup`
 
-`/crew:setup` runs the configuration interview. It reads your repo first, asks at most two questions per turn, shows exactly what it will write, writes only what you confirmed, and updates the marker. It never guesses a capability you could confirm in one line, and it never writes content into your design memory — your references and rejected patterns are your taste, not an agent's.
+`/crew:setup` runs the configuration interview. It reads your repo first, asks at most two questions per turn, shows exactly what it will write, writes only what you confirmed, and updates the marker. It never guesses a capability you could confirm in one line, and it never writes content into your design memory: your references and rejected patterns express your taste, and only you write them.
 
 Saying "nothing, thanks" is a complete and valid outcome.
 
@@ -221,7 +224,7 @@ The last row is the pattern to remember: **the report runs anywhere; only the di
 
 ## How `init-project.sh` writes it
 
-`bash <plugin>/scripts/init-project.sh` (from your project root) scaffolds the crew structure and writes `crew.json` with **every value explicit**:
+`bash <plugin>/scripts/init-project.sh` (from your project root) scaffolds the crew structure and writes `crew.json` with **every value explicit**. The `.sh` wraps `scripts/init-project.js`, which can also be run with `node`; `--dry-run` shows what it would write without writing, and every file written is recorded in `.crew/install-state.json` for `/crew:doctor`:
 
 ```json
 {
@@ -272,4 +275,4 @@ With `--solo` it writes `"mode": "solo"` (same other values) and scaffolds only 
   "ceilings": { "component": 250, "test": 400 } }
 ```
 
-For one-off large files (generated code, flat data), don't raise the ceiling for the whole kind — [pre-register an exemption](enforcement.md#exemptions) instead.
+For one-off large files (generated code, flat data), [pre-register an exemption](enforcement.md#exemptions) for that path and leave the kind's ceiling as it is.

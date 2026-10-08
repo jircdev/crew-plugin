@@ -1,7 +1,7 @@
 # Contributing & maintenance
 
 For shared Claude/Codex entry points, generation checks and packaging, see
-[compatibility maintenance](compatibility.md#maintain-and-verify). Edit canonical
+[compatibility maintenance](compatibility.md#tests-and-maintenance). Edit canonical
 roles and commands, then run `node scripts/sync-codex.js`; CI checks for drift.
 
 ## Folder structure
@@ -11,6 +11,7 @@ crew-plugin/
 ├── .claude-plugin/
 │   ├── plugin.json
 │   └── marketplace.json
+├── .codex-plugin/plugin.json # Codex manifest, derived from Claude's
 ├── agents/
 │   ├── product-strategist.md
 │   ├── functional-analyst.md
@@ -21,23 +22,33 @@ crew-plugin/
 │   ├── fa.md
 │   ├── sys.md
 │   ├── ...                   # one file per alias
-├── skills/                   # horizontal crafts any role loads (not subagents)
+├── skills/                   # 34 generated alias entries + 3 crafts any role loads
+│   ├── planning/SKILL.md     # plans and estimates as work items, in the effective standard
 │   ├── writing/SKILL.md      # how a piece communicates
 │   └── design/SKILL.md       # how to shape, hand off, review and judge an interface
 ├── hooks/
 │   ├── hooks.json            # registers the plugin hooks
-│   ├── session-start.js      # SessionStart: baseline + project-configuration status
+│   ├── session-start.js      # SessionStart: baseline, configuration status and work in progress
 │   ├── guard-immutable.js    # PreToolUse: deny edits to immutable artifacts
-│   ├── guard-estimation.js   # PreToolUse: estimation table complete before close
+│   ├── guard-estimation.js   # PreToolUse: estimation and verification tables complete before close
 │   ├── guard-timestamps.js   # PreToolUse: real-time Started/Finished cells (metrics)
 │   ├── guard-code-quality.js # PreToolUse: code-quality ceilings (advise/enforce)
+│   ├── guard-shape.js        # PreToolUse: work-item shape against its effective standard
+│   ├── guard-shell.js        # PreToolUse: hook bypass and destructive commands
+│   ├── guard-policy.js       # PreToolUse: relaxations of crew.json and host settings
+│   ├── nudge-offrepo-plan.js # PreToolUse: notice for plans published outside the repo
+│   ├── nudge-scope.js        # PostToolUse: notice when a change outgrows its size
+│   ├── record-usage.js       # catalog usage, opt-in per person
+│   ├── precompact-reminder.js # PreCompact: open milestones before compaction
+│   ├── codex-pre-tool.js     # apply_patch adapter for Codex
 │   ├── check-work-log.js     # Stop: session closure check
 │   └── lib/config.js         # THE authorized crew.json interpreter (evolution invariants)
+├── integrations/codex/README.md  # transport adapter for Codex
 ├── migrations.json           # which versions require action (drives the startup notice)
 ├── standards/
 │   ├── session-context.md    # always-on session baseline (suggestive defaults)
 │   └── configuration-interview.md  # the fixed question set /crew:setup follows
-├── evals/                    # human-run sets: design, planning, security, review
+├── evals/                    # human-run sets: design, planning, security, review, brownfield, routing
 │   └── design/               # fixtures + rubric: scores agent behavior, never taste
 ├── templates/
 │   ├── AGENTS.md             # canonical agent context (precedence, ownership map, interop)
@@ -51,7 +62,10 @@ crew-plugin/
 │   ├── conformance.js        # effective work-item standard and --check
 │   ├── verify.js             # /crew:check — declared test commands, receipts
 │   ├── check-supply-chain.js # hidden characters and personal paths in shipped files
-│   ├── metrics.js            # /crew:metrics report
+│   ├── metrics.js            # /crew:metrics report (catalog-usage.js for `catalog`)
+│   ├── sec-scan.js           # security scan of the agent configuration
+│   ├── sync-codex.js         # generates the alias skills for Codex
+│   ├── build-release.py      # release archives and Codex catalog
 │   ├── check-quality.sh      # pre-commit quality gate (installed by init)
 │   └── check-staged.js
 ├── docs/                     # this plugin's own documentation
@@ -70,7 +84,7 @@ Roles and templates evolve. To propagate changes to consumers:
 3. Add the changelog entry.
 4. Add a `migrations.json` row **if and only if** the version requires the consumer to act. Everything additive or opt-in is `required: false` and must not notify — a startup notice that fires for things nobody has to do is a notice nobody reads.
 5. Regenerate with `node scripts/sync-codex.js`, run
-   `node scripts/check-supply-chain.js`, `node --test tests/compatibility.test.js tests/conformance.test.js tests/catalog.test.js tests/baseline.test.js tests/guards.test.js tests/memory.test.js tests/review.test.js tests/scope.test.js tests/metrics.test.js tests/install.test.js tests/adopt.test.js tests/sec-scan.test.js tests/usage.test.js`
+   `node scripts/check-supply-chain.js`, `node --test tests/*.test.js`
    and `python tests/release-test.py`,
    and validate both manifests. For host integration changes, also run the
    [isolated runtime smoke](compatibility.md#tests-and-maintenance).
@@ -91,12 +105,12 @@ For template changes, existing projects must re-run `scripts/init-project.sh` (w
 
 `hooks/lib/config.js` is the **single authorized interpreter** — for guards and for roles alike. Its header carries the evolution invariants and they are binding: an existing key never changes meaning · new fields are optional and no default may grant a capability · during a migration both shapes are accepted for one minor version, and retiring the old shape is a mandatory changelog entry · there is no per-section version · **no field may be honored by a role if `normalize()` does not transport it**.
 
-Two consequences worth stating plainly. A role reading `crew.json` directly would create a second interpretation of the same contract — that is the drift the invariant exists to prevent. And the reader, the [configuration reference](configuration.md) and `migrations.json` move in the **same change**, never in a follow-up: the cheapest mechanical check that would close this permanently is verifying that every capability the reader knows appears in the docs.
+Two consequences. A role reading `crew.json` directly would create a second interpretation of the same contract — that is the drift the invariant exists to prevent. And the reader, the [configuration reference](configuration.md) and `migrations.json` move in the **same change**, never in a follow-up: the cheapest mechanical check that would close this permanently is verifying that every capability the reader knows appears in the docs.
 
 ## Maintenance
 
 - **Adding a new role**: drop a new `agents/<name>.md` (with frontmatter), a new `commands/<alias>.md`, and add a row to the matching **area** in the `templates/AGENTS.md` alias table — then list it under that same area in [`roles.md`](roles.md) (and its Spanish counterpart in `../es/roles.md`). The grouped alias table in `templates/AGENTS.md` is the source of truth for area assignment; the `roles.md` catalog is its index. Name and alias must follow the [naming and alias rules](#naming-and-alias-rules) below. Pick its model by the rule in `agents/crew.md` (decisions on `opus`, reading and structuring on `sonnet`) and update that list if it changes. `tests/catalog.test.js` fails until every surface is registered: a red catalog test means the role is not added yet.
-- **Adding a skill**: a craft every role needs is a skill, not a role — it is loaded, not invoked, and owns a *how* rather than a decision. Drop `skills/<name>/SKILL.md` with a `description` precise enough to fire on the real trigger (that description *is* the activation mechanism), then register it in the skills block of `templates/AGENTS.md` and in both `roles.md`. A skill must carry method only: a value, palette, scale, style name or library baked into a skill is the plugin deciding for every consumer project.
+- **Adding a skill**: a craft every role needs is a skill: it is loaded inside a role's work and owns a *how*; decisions stay with the roles. Drop `skills/<name>/SKILL.md` with a `description` precise enough to fire on the real trigger (that description *is* the activation mechanism), then register it in the skills block of `templates/AGENTS.md` and in both `roles.md`. A skill must carry method only: a value, palette, scale, style name or library baked into a skill is the plugin deciding for every consumer project.
 - **Renaming or retiring a role**: a catalog decision that goes through the `CREW` meta-role, never a casual edit. Aliases are a shared vocabulary; any alias change ships with a one-version redirect (see below).
 - **Stack-specific rule**: keep it in the consumer project's own `standards/` or `AGENTS.md`, never in the universal `templates/standards/code-quality.md` core.
 - **Editing the docs**: every human doc is bilingual, with Spanish as the source of truth and English as the mirror (see [canonical language](#canonical-language) below); `templates/docs/guides/delivery-circuit.md` has a Spanish twin `delivery-circuit.es.md` that must move with it. The agent role files, the rest of `templates/`, and the session baseline stay English (the canonical machine layer).
@@ -111,4 +125,4 @@ The role catalog — names, aliases, merges, retirements — is custodied by the
 
 ## Canonical language
 
-An editorial decision, driven by the real audience of `docs/`: **Spanish is the source of truth**, English is the mirror — updated in the same PR, never later. Structural parity between the `docs/en/` and `docs/es/` trees (same files, same section skeleton) is verified through the `CREW` meta-role, or by a CI check once one exists.
+An editorial decision, driven by the real audience of `docs/`: **Spanish is the source of truth**, English is the mirror — updated in the same PR, never later. Structural parity between the `docs/en/` and `docs/es/` trees (same files, same section skeleton) is verified by the `CREW` meta-role. `tests/release-test.py` mechanically checks that both trees have the same files and that `compatibility.md` and `contributing.md` have the same headings.

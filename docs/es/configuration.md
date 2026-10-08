@@ -8,7 +8,7 @@ Cada guard resuelve la configuración subiendo desde el directorio del archivo q
 
 ## La regla legacy — sin `crew.json`
 
-**Sin `crew.json` (o con JSON inválido), el comportamiento es exactamente el de v0.19.1.** El lector no devuelve nada y cada guard cae a su comportamiento pre-configuración:
+**Sin `crew.json` (o con JSON inválido), los guards que ya existían en v0.19.1 se comportan exactamente como entonces.** El lector no devuelve nada y cada guard cae a su comportamiento pre-configuración. Los guards agregados después (forma, shell, políticas) solo avisan; la [matriz](#matriz-de-comportamiento--guard--config) lo detalla:
 
 - Entradas de `docs/work/` e ítems de trabajo Closed: inmutables.
 - Puerta de estimación al cierre: activa.
@@ -16,7 +16,7 @@ Cada guard resuelve la configuración subiendo desde el directorio del archivo q
 - Calidad de código: **enforce** — las escrituras que superan el techo se deniegan.
 - Stop hook del work-log: activo donde exista `docs/work/`.
 
-Dos consecuencias que conviene internalizar. Primera, el plugin **no tiene defaults ocultos**: los valores más amables que reciben los proyectos nuevos (`advise`, métricas activadas) no vienen de fábrica — existen solo porque [`../../scripts/init-project.sh`](../../scripts/init-project.sh) los escribe explícitamente en el `crew.json` scaffoldeado. Segunda, un `crew.json` con un error de sintaxis JSON se comporta como si no existiera — lo que convierte silenciosamente `"quality": "advise"` en enforce. Si un guard se puso más estricto de golpe, verificá que el JSON parsea.
+Dos consecuencias. Primera, el plugin **no tiene defaults ocultos**: los valores más amables que reciben los proyectos nuevos (`advise`, métricas activadas) existen solo porque el scaffold ([`../../scripts/init-project.js`](../../scripts/init-project.js)) los escribe explícitamente en el `crew.json` del proyecto. Segunda, un `crew.json` con un error de sintaxis JSON se comporta como si no existiera — lo que convierte silenciosamente `"quality": "advise"` en enforce. Si un guard se puso más estricto de golpe, verificá que el JSON parsea.
 
 ## Referencia de campos
 
@@ -26,8 +26,11 @@ Dos consecuencias que conviene internalizar. Primera, el plugin **no tiene defau
 | `metrics` | `true` \| `false` | `false` | La disciplina de timestamps de estimación. Solo el literal `true` la activa. |
 | `quality` | `"advise"` \| `"enforce"` \| `"off"` | `"enforce"` | Qué hace el guard de calidad en tiempo de escritura ante una violación de techo. Valores desconocidos caen a `"enforce"`. |
 | `ceilings` | objeto `{ kind: líneas }` | `{}` | Overrides por tipo de los techos de líneas por archivo. Valores no-objeto caen a `{}`. |
-| `configuredWith` | string de versión | `null` | **Estado, no política**: con qué versión del plugin se configuró este proyecto por última vez. Nadie lo interpreta para decidir comportamiento — ver [La marca](#la-marca-configuredwith). |
-| `design` | objeto | `null` | Qué *puede hacer* este proyecto para el trabajo de interfaz. Nada se concede por defecto — ver [Capacidades de diseño](#capacidades-de-diseño). |
+| `configuredWith` | string de versión | `null` | Dato de estado: con qué versión del plugin se configuró este proyecto por última vez. Ningún comportamiento lo usa para decidir; ver [La marca](#la-marca-configuredwith). |
+| `design` | objeto | `null` | Qué *puede hacer* este proyecto para el trabajo de interfaz. Nada se concede por defecto; ver [Capacidades de diseño](#capacidades-de-diseño). |
+| `testing` | objeto (`guide`, `e2e`, `commands`, `receipts`) | `null` | Qué puede verificar este proyecto y con qué. Declararlo convierte la tabla de verificación en compuerta de cierre; ver [Capacidades de testing](#capacidades-de-testing). |
+| `audit` | `true` \| `false` | `false` | Registro de las decisiones de los guards en `.crew/audit.log`, solo en modo team; ver [Registro de auditoría](#registro-de-auditoría-audit). |
+| `telemetry` | `false` | sin efecto | Solo puede prohibir el registro de uso del catálogo para todo el equipo. Cada persona lo activa en su máquina; ver [Uso del catálogo](#uso-del-catálogo-telemetry). |
 
 Los campos ausentes se normalizan al valor equivalente-legacy de la tercera columna — un `crew.json` que contiene solo `{"mode": "solo"}` es válido y significa solo, sin métricas, calidad enforce, techos por defecto.
 
@@ -59,7 +62,7 @@ Controla **solo** el guard en tiempo de escritura ([`../../hooks/guard-code-qual
 | `enforce` | La escritura se deniega | Bloquea el commit |
 | `off` | Silencio | Sigue bloqueando — la puerta se gestiona aparte |
 
-`advise` es lo que el scaffold escribe para proyectos nuevos: el agente no pierde impulso y el freno duro está en el commit. Ojo: la puerta pre-commit ([`../../scripts/check-quality.sh`](../../scripts/check-quality.sh)) **no** lee `quality` — poner calidad en `off` silencia el hook, no la puerta. Para quitar la puerta, borrá su línea de `.git/hooks/pre-commit`.
+`advise` es lo que el scaffold escribe para proyectos nuevos: el agente no pierde impulso y el freno duro está en el commit. Ojo: la puerta pre-commit ([`../../scripts/check-quality.sh`](../../scripts/check-quality.sh)) **no** lee `quality` — poner calidad en `off` silencia el hook y deja la puerta activa. Para quitar la puerta, borrá su línea de `.git/hooks/pre-commit`.
 
 ### `ceilings`
 
@@ -75,7 +78,7 @@ Los techos de líneas por tipo de archivo, y cómo se detecta el tipo (gana la p
 | `component` | 150 | `.tsx`/`.jsx` cuyo nombre empieza con mayúscula |
 | `module` | 200 | todo lo demás (el tipo por defecto) |
 
-Solo se revisan archivos de código (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.rs`, `.py`, `.go`, `.java`, `.rb`, `.php`, `.cs`, `.kt`, `.swift`, `.vue`, `.svelte`, …). `"ceilings"` sobreescribe el número por tipo — no cambia la detección del tipo. Tanto el guard de escritura como la puerta pre-commit respetan los mismos overrides, y ambos respetan las [exenciones pre-registradas](enforcement.md#exenciones) en `docs/DEVIATIONS.md`. Lógica: [`../../hooks/lib/ceilings.js`](../../hooks/lib/ceilings.js).
+Solo se revisan archivos de código (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.rs`, `.py`, `.go`, `.java`, `.rb`, `.php`, `.cs`, `.kt`, `.swift`, `.vue`, `.svelte`, …). `"ceilings"` sobreescribe el número por tipo; la detección del tipo sigue igual. Tanto el guard de escritura como la puerta pre-commit respetan los mismos overrides, y ambos respetan las [exenciones pre-registradas](enforcement.md#exenciones) en `docs/DEVIATIONS.md`. Lógica: [`../../hooks/lib/ceilings.js`](../../hooks/lib/ceilings.js).
 
 ## Capacidades de diseño
 
@@ -112,15 +115,15 @@ Leé primero la tercera columna. Es la que te dice qué te cuesta cada declaraci
 
 Cada clave es opcional e independiente. `{"design": {"memory": "docs/design"}}` es una declaración completa y válida.
 
-**Dos permisos, no uno.** `runtime.url` y `runtime.launch` están separados a propósito: conectarse a algo que ya corre es inspección; ejecutar un perfil de arranque corre un comando en tu máquina. Declarar `runtime` no concede ninguno de los dos por sí solo — cada clave concede únicamente lo suyo. La precedencia es url primero (el servidor suele estar ya corriendo fuera de la sesión, y duplicarlo es desperdicio); el perfil de arranque corre solo cuando la URL no responde. Lo que un agente levanta, lo baja.
+**Dos permisos separados.** `runtime.url` y `runtime.launch` están separados a propósito: conectarse a algo que ya corre es inspección; ejecutar un perfil de arranque corre un comando en tu máquina. Declarar `runtime` no concede ninguno de los dos por sí solo — cada clave concede únicamente lo suyo. La precedencia es url primero (el servidor suele estar ya corriendo fuera de la sesión, y duplicarlo es desperdicio); el perfil de arranque corre solo cuando la URL no responde. Lo que un agente levanta, lo baja.
 
 **Declararlo ES el permiso.** Ese es el punto de la sección: lo concedés una vez, en un archivo que podés leer y revertir, en lugar de aprobar la misma acción cada sesión.
 
 **La memoria manda sobre el baseline.** No son dos opiniones. `memory` es lo que es bueno en *este* producto; `baseline` se consulta únicamente donde la memoria calla, y pierde todo conflicto sin discusión. Declarar un baseline vale la pena cuando tu memoria de diseño es joven: evita la salida honesta-pero-genérica de un rol que no tiene contra qué contrastar. Apuntalo a lo que confíes — un skill instalado, tu propio documento de design system, la documentación de un design system público.
 
-**Valores cerrados y libres.** `registry.kind` (`storybook` | `doc` | `none`), `capture.kind` (`browser` | `playwright`) y `baseline.kind` (`skill` | `doc`) son cerrados, porque un rol necesita saber *cómo* consumirlos — cargar un skill y leer un documento son acciones distintas. Un `baseline` sin `ref` se trata como no declarado y se nombra al arrancar la sesión. Todo lo demás es etiqueta libre — `viewports`, `checks.kind`, `sources.kind` — porque los formatos y las herramientas son de tu producto, no de este plugin. No hay set de viewports por defecto: un kiosco o una herramienta solo-escritorio no son un olvido.
+**Valores cerrados y libres.** `registry.kind` (`storybook` | `doc` | `none`), `capture.kind` (`browser` | `playwright`) y `baseline.kind` (`skill` | `doc`) son cerrados, porque un rol necesita saber *cómo* consumirlos — cargar un skill y leer un documento son acciones distintas. Un `baseline` sin `ref` se trata como no declarado y se nombra al arrancar la sesión. Todo lo demás es etiqueta libre — `viewports`, `checks.kind`, `sources.kind` — porque los formatos y las herramientas los elige tu producto. No hay set de viewports por defecto: un kiosco o una herramienta solo-escritorio no son un olvido.
 
-**Los valores desconocidos se nombran, no se tragan.** Un `kind` que esta versión del plugin no conoce se trata como si la capacidad estuviera ausente, y el arranque de sesión lo dice. Nunca bloquea nada.
+**Los valores desconocidos se nombran.** Un `kind` que esta versión del plugin no conoce se trata como si la capacidad estuviera ausente, y el arranque de sesión lo dice. Nunca bloquea nada.
 
 ### Recibos de evidencia
 
@@ -133,9 +136,9 @@ Cuando se capturan renders, pueden acompañarse de un recibo para que quien revi
   "shots": [ { "viewport": "desktop", "state": "empty", "path": "docs/design/.evidence/listado-desktop-empty.png" } ] }
 ```
 
-Anclado al work item y al estado del árbol, no a un commit — las capturas ocurren antes de commitear. Lo que importa es **qué estados** se capturaron, no cuántas imágenes existen.
+Se ancla al work item y al estado del árbol, porque las capturas ocurren antes de commitear. Lo que importa es **qué estados** se capturaron; la cantidad de imágenes no dice nada.
 
-Deliberadamente **no** es una puerta. Un recibo que un agente escribe sobre su propio trabajo prueba que hay imágenes, no que alguien las miró — la misma razón por la que los timestamps reconstruidos están guardados en otra parte. Su valor es hacer la evidencia revisable, y no se vende como prueba.
+Es informativo: ninguna puerta lo exige. Un recibo que un agente escribe sobre su propio trabajo prueba que hay imágenes; que alguien las miró queda sin probar. Por la misma razón, los timestamps reconstruidos se controlan con otro guard. Su valor es hacer la evidencia revisable.
 
 ## Capacidades de testing
 
@@ -175,7 +178,7 @@ El uso del catálogo (qué roles, skills y comandos se usan) se registra **solo 
 
 ## La marca: `configuredWith`
 
-Una línea que registra con qué versión del plugin se configuró este proyecto por última vez. Es **estado, no política**: ningún comportamiento la lee. Borrala y lo único que perdés es el aviso.
+Una línea que registra con qué versión del plugin se configuró este proyecto por última vez. Es un dato de estado: ningún comportamiento la lee. Borrala y lo único que perdés es el aviso.
 
 Al arrancar la sesión:
 
@@ -189,11 +192,11 @@ Al arrancar la sesión:
 
 El aviso se cierra cuando la marca se actualiza — incluido cuando tu respuesta es "lo vi y no quiero nada", que igual actualiza la marca. No hay interruptor de silencio aparte, porque no queda nada que silenciar una vez reconocido el estado.
 
-Qué versiones cuentan como requeridas se declara explícitamente en el `migrations.json` del plugin cuando se publica una versión — nunca se infiere del changelog. Si se respetan las invariantes de arriba, este aviso no va a saltar casi nunca. Eso es el mecanismo funcionando, no un defecto.
+Qué versiones cuentan como requeridas se declara explícitamente en el `migrations.json` del plugin cuando se publica una versión — nunca se infiere del changelog. Si se respetan las invariantes de arriba, este aviso no va a saltar casi nunca, y ese silencio es el comportamiento esperado.
 
 ## Configurar: `/crew:setup`
 
-`/crew:setup` corre la entrevista de configuración. Lee tu repo primero, pregunta como máximo dos cosas por turno, muestra exactamente qué va a escribir, escribe solo lo que confirmaste y actualiza la marca. Nunca adivina una capacidad que podés confirmar en una línea, y nunca escribe contenido en tu memoria de diseño — tus referencias y tus rechazos son tu gusto, no el de un agente.
+`/crew:setup` corre la entrevista de configuración. Lee tu repo primero, pregunta como máximo dos cosas por turno, muestra exactamente qué va a escribir, escribe solo lo que confirmaste y actualiza la marca. Nunca adivina una capacidad que podés confirmar en una línea, y nunca escribe contenido en tu memoria de diseño: tus referencias y tus rechazos expresan tu gusto, y solo vos los escribís.
 
 Decir "nada, gracias" es un resultado completo y válido.
 
@@ -221,7 +224,7 @@ La última fila es el patrón a recordar: **el reporte corre en cualquier lado; 
 
 ## Cómo lo escribe `init-project.sh`
 
-`bash <plugin>/scripts/init-project.sh` (desde la raíz de tu proyecto) scaffoldea la estructura del crew y escribe `crew.json` con **todos los valores explícitos**:
+`bash <plugin>/scripts/init-project.sh` (desde la raíz de tu proyecto) scaffoldea la estructura del crew y escribe `crew.json` con **todos los valores explícitos**. El `.sh` envuelve a `scripts/init-project.js`, que también se puede correr con `node`; `--dry-run` muestra qué escribiría sin escribir nada, y cada archivo escrito queda registrado en `.crew/install-state.json` para `/crew:doctor`:
 
 ```json
 {
@@ -272,4 +275,4 @@ Con `--solo` escribe `"mode": "solo"` (mismos otros valores) y scaffoldea solo l
   "ceilings": { "component": 250, "test": 400 } }
 ```
 
-Para archivos grandes puntuales (código generado, datos planos), no subas el techo de todo el tipo — [pre-registrá una exención](enforcement.md#exenciones).
+Para archivos grandes puntuales (código generado, datos planos), [pre-registrá una exención](enforcement.md#exenciones) para esa ruta y dejá el techo del tipo como está.

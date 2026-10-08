@@ -19,7 +19,7 @@ Every implemented item closes with an `## Estimation` table — added at plannin
 
 The numbers are only worth aggregating if they were never reconstructed. The rule:
 
-- Write `Started` **when the milestone begins** — not when you remember to.
+- Write `Started` **at the moment the milestone begins**.
 - Write `Finished` **immediately when it closes** — before starting the next milestone.
 - `Actual hours` is the time actually worked within that span; it can be below the wall-clock span (pauses), never above it.
 
@@ -27,7 +27,7 @@ With `"metrics": true` in `crew.json`, the [timestamps guard](enforcement.md#tim
 
 ### Interrupted sessions
 
-Session dies mid-milestone, you resume tomorrow: write `Finished` with the **real resumption time** when the milestone actually closes, and note the gap in `Notes`. Do not backdate. The wall-clock span will include the pause — that is by design, not a distortion (see the limitation below). `Actual hours` is where the honest keyboard figure lives.
+Session dies mid-milestone, you resume tomorrow: write `Finished` with the **real resumption time** when the milestone actually closes, and note the gap in `Notes`. Do not backdate. The wall-clock span will include the pause, and that is by design (see the limitation below). `Actual hours` is where the honest keyboard figure lives.
 
 ## What `/crew:metrics` reports
 
@@ -61,7 +61,7 @@ Items that carry the optional `Size:` header (trivial, small, standard, large �
 
 ## Reading the numbers
 
-**Lead time vs execution time.** The gap between them is queue time: how long the item sat written-but-not-started. A story with 20 days of lead and 6 hours of exec is not a slow story — it is a prioritization signal. Execution time is the one to compare against estimates; lead time is the one the requester feels.
+**Lead time vs execution time.** The gap between them is queue time: how long the item sat written-but-not-started. A story with 20 days of lead and 6 hours of exec is a prioritization signal: the work was fast, the wait was long. Execution time is the one to compare against estimates; lead time is the one the requester feels.
 
 **Estimated vs actual, and deviation.** One item's deviation is noise; the *average* deviation is calibration. A team consistently at +40% doesn't have an execution problem, it has an estimation habit — scale future estimates accordingly. Watch the per-folder breakdown too: deviation often concentrates in one kind of work (say, everything under `stories/integrations/`), which tells you where the unknowns live.
 
@@ -69,11 +69,11 @@ Items that carry the optional `Size:` header (trivial, small, standard, large �
 
 ## The assumed limitation
 
-The metric is **wall-clock, end-to-end**. Execution time includes pauses, waits, review round-trips, and interrupted sessions — deliberately. It measures *what a requirement costs from start to done*, not keyboard time. Do not read execution hours as effort hours: `Actual hours` is the effort figure, execution time is the calendar figure, and both are useful for different questions. Comparing individuals on wall-clock numbers is a misuse; the dataset is about calibrating the system, not grading people.
+The metric is **wall-clock, end-to-end**. Execution time includes pauses, waits, review round-trips, and interrupted sessions — deliberately. It measures *what a requirement costs from start to done*. Do not read execution hours as effort hours: `Actual hours` is the effort figure, execution time is the calendar figure, and both are useful for different questions. Comparing individuals on wall-clock numbers is a misuse; the dataset is for calibrating the system.
 
 ## What the data feeds
 
 - **Estimation calibration** — the average and per-folder deviation feed directly back into the next `Est. hours` written at planning by whoever executes.
 - **Milestone sizing** — median/p90 execution time defines what "one milestone" should mean in this project.
-- **Spotting systematic bias** — persistent under-estimation in one folder or one month is a signal about the work (hidden complexity, flaky dependencies), not about the estimator.
-- **Prioritization honesty** — lead-vs-exec gaps show where things wait, which is an input for [the delivery circuit](../../templates/docs/guides/delivery-circuit.md), not something to optimize away by starting everything at once.
+- **Spotting systematic bias** — persistent under-estimation in one folder or one month is a signal about the work: hidden complexity, flaky dependencies.
+- **Prioritization honesty** — lead-vs-exec gaps show where things wait, which is an input for [the delivery circuit](../../templates/docs/guides/delivery-circuit.md). Starting everything at once shrinks the gap without fixing the wait.

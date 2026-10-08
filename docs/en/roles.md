@@ -4,7 +4,7 @@
 
 ## By area
 
-Each role belongs to exactly one of six areas, from discovery to governance — the plugin is not just architects, it covers the whole arc.
+Each role belongs to exactly one of six areas, which follow the process end to end: discovery, product, design, engineering, quality and governance.
 
 **1. Business & Discovery** — understand what the client needs, judge business viability, author the manifesto that starts the project.
 
@@ -18,14 +18,14 @@ Each role belongs to exactly one of six areas, from discovery to governance — 
 | Alias | Role | What it does |
 |-------|------|--------------|
 | `FA` | functional-analyst | Decomposes intent into stories with acceptance criteria; validates delivered work against them. |
-| `COORD` | delivery-coordinator | Sequences roles, surfaces blockers, keeps intent fidelity — coordination, not technical or product decisions. |
+| `COORD` | delivery-coordinator | Sequences roles, surfaces blockers, keeps intent fidelity. It coordinates; technical and product decisions belong to other roles. |
 
 **3. Design & Experience** — what information each screen needs, how it looks and behaves, and the cross-cutting visual system.
 
 | Alias | Role | What it does |
 |-------|------|--------------|
 | `DEA` | data-experience-architect | Defines the informational spec per screen — what data each view needs. |
-| `UX` | ux-architect | Layout, interaction, flow, accessibility, and the cross-cutting visual system (design tokens, typography, color, motion, iconography). Owner of taste: composition, density, hierarchy, elegance. Consulted **before** UI is coded, not as a post-hoc auditor — and never issues a design-quality verdict without seeing the render. |
+| `UX` | ux-architect | Layout, interaction, flow, accessibility, and the cross-cutting visual system (design tokens, typography, color, motion, iconography). Owner of taste: composition, density, hierarchy, elegance. Consulted **before** UI is coded, and never issues a design-quality verdict without seeing the render. |
 
 **4. Engineering & Architecture** — how the system is built: architecture, data, frontend, extension contracts.
 
@@ -60,9 +60,9 @@ Not part of the core crew — activate only when the project needs it.
 |-------|------|--------------|
 | `API` | dx-architect | Public API/SDK developer experience: versioning, deprecation, ergonomics. Activate only when the product exposes a public API or SDK. |
 
-## Skills — crafts, not roles
+## Skills — crafts
 
-A craft that every role needs is a **skill**, not a seat in the catalog: it is loaded, not invoked, and it owns a *how* rather than a decision.
+A craft that every role needs is a **skill**. A skill is loaded inside a role's work, without being invoked separately, and owns a *how*; decisions stay with the roles.
 
 - **`planning`** — the work-item craft, loaded whenever work is planned or sized. Resolves the project's effective standard before writing, keeps plans as repo work items (a published doc is a view that links to them), and governs the two estimation levels. Owns the form, never the domain decisions inside the plan.
 - **`writing`** — the communication craft, loaded when a role authors a piece (brief, deck, one-pager, essay, technical doc, speech, script). Owns idea-force, narrative arc, audience segmentation, impact principles — never the domain content.
@@ -84,7 +84,7 @@ Technical design (stage 3) is **not** a mandatory gate before every story — de
 
 ## Retired aliases
 
-The catalog was consolidated; each retired alias has a successor, and for one version the old slash commands answer with the successor instead of failing. Migrating an existing project: [migration-0.21.md](migration-0.21.md).
+The catalog was consolidated in 0.21 and each retired alias has a successor. The old slash commands still exist: they name the successor and carry on with the task in that role. Migrating an existing project: [migration-0.21.md](migration-0.21.md).
 
 | Old alias | Successor | Why |
 |-----------|-----------|-----|

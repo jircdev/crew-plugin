@@ -2,52 +2,58 @@
 
 [![version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fjircdev%2Fcrew-plugin%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version&prefix=v&color=blue)](.claude-plugin/plugin.json)
 
-> 🌐 Read this in **English** (below) · ¿Prefieres español? → **[Léelo en español](docs/es/README.md)**
+> Read this in **English** (below) · ¿Prefieres español? → **[Léelo en español](docs/es/README.md)**
 
-Coding agents are generalists. Point one at your repo and it jumps straight to code — no one owns the decision, the rationale behind the architecture evaporates between sessions, and every new chat relitigates what you already settled. The hard part stopped being *writing the code*; it became *keeping a process sane enough to survive from one session to the next*.
+Coding agents are generalists. Point one at your repo and it starts writing code right away: nobody owns each decision, the reasoning behind the architecture gets lost between sessions, and every new chat reopens what was already settled.
 
-crew is that process, packaged as a plugin. It turns a single generalist agent into a structured crew: a catalog of specialized roles where exactly one owns each decision, a spec-driven flow from idea to shipped, and conventions that live in the repo — read natively by Claude Code, Cursor, Copilot and Codex — so each decision is written once and consumed many times instead of re-explained. It is stack-agnostic, and grows beyond roles: future versions may add MCP-backed lookups, project-memory helpers, and other on-demand specialists.
+crew gives that agent a process. It is a plugin for Claude Code and Codex that adds:
+
+- a catalog of specialized roles, with one owner per decision;
+- a spec-driven flow from idea to production;
+- conventions that live in the repo and that Claude Code, Cursor, Copilot and Codex read natively, so each decision is written once and read many times.
+
+It works with any stack.
 
 ## How the work flows
 
-The crew follows a spec-driven, Scrum-aligned circuit — one artifact per stage, read from the repo, never re-pasted into a prompt. Full standard: [delivery circuit](templates/docs/guides/delivery-circuit.md).
+The crew follows a spec-driven, Scrum-aligned circuit. Each stage leaves an artifact in the repo, and agents read it from there. Full standard: [delivery circuit](templates/docs/guides/delivery-circuit.md).
 
-Each stage is staffed by specific roles — the stage-by-stage table and the full catalog, organized by area with what each role owns, are in [roles.md](docs/en/roles.md).
+Which roles work at each stage, and the full catalog by area: [roles.md](docs/en/roles.md).
 
 ## Documentation
 
-Crew supports Claude Code and Codex through one shared catalog. See
-[compatibility and Codex installation](docs/en/compatibility.md) for activation,
-configuration, verification, updates, hook coverage and runtime test evidence.
-
 | If you want to… | Read |
 |-----------------|------|
-| Meet the roles and what each owns | [roles.md](docs/en/roles.md) |
-| Install, update, or remove the plugin | [installation.md](docs/en/installation.md) |
-| Invoke roles, bootstrap a project, onboard an existing one, customize the scaffolded docs | [using-crew.md](docs/en/using-crew.md) |
-| Configure crew per repo — `crew.json` reference (modes, metrics, quality, ceilings, design capabilities) | [configuration.md](docs/en/configuration.md) |
-| Understand what each guard enforces and troubleshoot a deny | [enforcement.md](docs/en/enforcement.md) |
-| Measure delivery — the estimation → metrics flow | [metrics.md](docs/en/metrics.md) |
-| Adopt design capabilities and design memory | [migration-0.22.md](docs/en/migration-0.22.md) |
-| Migrate an existing project from the retired aliases | [migration-0.21.md](docs/en/migration-0.21.md) |
+| Install in Claude Code, update or remove | [installation.md](docs/en/installation.md) |
+| Install in Codex | [compatibility.md § Install in Codex](docs/en/compatibility.md#install-in-codex) |
+| Set up a new project or adopt an existing one | [using-crew.md](docs/en/using-crew.md) |
+| Choose the project mode (team or solo) | [using-crew.md § Choose the mode](docs/en/using-crew.md#choose-the-project-mode) |
+| See every command: roles, `/crew:setup`, `/crew:check`, `/crew:doctor`, `/crew:adopt`, `/crew:metrics` | [using-crew.md § Commands](docs/en/using-crew.md#crew-commands) |
+| Meet the roles and what each one decides | [roles.md](docs/en/roles.md) |
+| Configure `crew.json`: mode, metrics, quality, ceilings, design, testing and receipts, audit, telemetry | [configuration.md](docs/en/configuration.md) |
+| Understand what each guard does and fix a block | [enforcement.md](docs/en/enforcement.md) |
+| Register an exception in `docs/DEVIATIONS.md` (`crew:exempt`, `crew:standard`, `crew:policy`, `crew:security`, with `owner:` and `expires:`) | [enforcement.md § Blocks](docs/en/enforcement.md#docsdeviationsmd-blocks) |
+| Plan and estimate work (`planning` skill, effective standard) | [using-crew.md § Plan](docs/en/using-crew.md#plan-and-estimate-work) |
+| Scan the agent configuration for security risks | [using-crew.md § Security](docs/en/using-crew.md#security-triggers-and-the-instruction-boundary) |
+| Measure delivery and catalog usage | [metrics.md](docs/en/metrics.md) |
 | Work solo with the minimum ceremony | [solo-quickstart.md](docs/en/solo-quickstart.md) |
-| Use crew from a non-technical seat (CEO, analyst) | [non-technical-roles.md](docs/en/non-technical-roles.md) |
+| Use crew without being a developer (CEO, analyst) | [non-technical-roles.md](docs/en/non-technical-roles.md) |
 | Understand the end-to-end delivery process | [delivery circuit](templates/docs/guides/delivery-circuit.md) |
+| Move a project to a new version | Migration guides: [0.21](docs/en/migration-0.21.md) · [0.22](docs/en/migration-0.22.md) · [0.23](docs/en/migration-0.23.md) · [0.24](docs/en/migration-0.24.md) · [0.26](docs/en/migration-0.26.md) · [0.27](docs/en/migration-0.27.md) · [0.28](docs/en/migration-0.28.md) · [0.29](docs/en/migration-0.29.md) · [0.30](docs/en/migration-0.30.md) |
+| See what each host (Claude Code and Codex) covers, and its limits | [compatibility.md](docs/en/compatibility.md) |
 | Add a role or change the plugin | [contributing.md](docs/en/contributing.md) |
 
 ## What's inside
 
-- **Subagents + slash commands** (`agents/`, `commands/`) — one per role; `/crew:<alias>` spawns the matching subagent, and retired aliases answer with their successor for one version.
-- **Templates** (`templates/`) — `AGENTS.md` (canonical agent context), a `CLAUDE.md` pointer, `standards/` (the code-quality core), and the full `docs/` taxonomy (stories, requirements, decisions, proposals, the delivery circuit, work history, DEVIATIONS).
-- **Skills** (`skills/`) — 31 generated alias entry points share the original role/command criteria across Claude and Codex. The horizontal crafts are `writing` (how a piece communicates), `design` (composition, handoff, implementation review and render judgment) and `planning` (plans and estimates as repo work items in the project's own standard). Method only — what is beautiful in a given product is that project's to declare.
-- **Hooks** (`hooks/`) — `SessionStart` injects the session baseline and, only when it has something actionable to say, the project-configuration status; `PreToolUse` guards immutable artifacts, the estimation gate, real-time estimation timestamps, and code-quality ceilings; `Stop` checks closure traceability; a pre-commit quality gate (installed by `init-project.sh`) enforces the same ceilings at commit time, with pre-registered exemptions via a `crew:exempt` block in `docs/DEVIATIONS.md`.
-- **Per-repo config** (`crew.json`) — `mode: solo|team`, `metrics`, `quality: advise|enforce|off`, `ceilings`, plus `design` capabilities (where the app runs, component registry, render capture, checks, fallback taste), `testing` capabilities (strategy guide, e2e harness and where its specs live, suite commands), and the `configuredWith` marker. Nothing is granted by default: an undeclared capability is one the roles report they could not use. A repo without `crew.json` behaves exactly as before. Reference: [configuration.md](docs/en/configuration.md).
-- **Design memory** (`docs/design/` in your project) — references, approved patterns, rejected patterns. Scaffolded empty: the taste is the project's, never the plugin's. Declared via `design.memory`; configured by `/crew:setup`, which asks and never guesses.
-- **Testing strategy** (`docs/guides/testing.md` in your project) — levels, harness, adoption bar, manual protocol, and what is deliberately not verified. Scaffolded empty in both modes: the tooling is the project's. Every work item carries a `## Verification` table written at planning next to its estimation — level, harness, artifact, status per behavior. Declaring `testing` in `crew.json` makes that table a closure gate.
-- **Metrics** — `/crew:metrics` + `scripts/metrics.js` report: lead time, execution time, estimate deviation, `--csv` export.
-- **Session baseline** (`standards/session-context.md`) — always-on **behavior** only (conversation style, office rule, two modes, document craft); process knowledge is not inlined, it points to the project's scaffolded `standards/` and `docs/guides/`. Suggestive defaults, the project's own rules always win.
-- **Bootstrap script** (`scripts/init-project.sh`) — scaffolds the templates into a new project; `--solo` for the single-dev path.
-- **Dual-host release** — `.claude-plugin/` and `.codex-plugin/` manifests, a Codex `apply_patch` adapter using the existing guards, and versioned `.plugin`/ZIP plus Codex marketplace archives from `scripts/build-release.py`. Shell/MCP writes remain outside file guards. The [compatibility guide](docs/en/compatibility.md) includes installation through verification and updates, plus controlled-runtime test evidence and limits.
+- **Roles** (`agents/`, `commands/`): 17 roles, each with its `/crew:<alias>` command. Retired aliases still answer and hand off to their successor.
+- **Skills** (`skills/`): 34 alias entries generated from the commands, shared by Claude and Codex, and three crafts any role loads: `planning` (plans and estimates as work items in the project's standard), `writing` (how a piece communicates) and `design` (composition, handoff, implementation review and render judgment). The crafts carry method only; each product's taste is declared by its project.
+- **Hooks** (`hooks/`): `SessionStart` loads the session baseline, the configuration status and the work in progress. The `PreToolUse` guards protect immutable artifacts, the estimation and verification tables, timestamps, size ceilings, work-item shape, hook bypass and policy relaxations. `Stop` checks the work log. Detail: [enforcement.md](docs/en/enforcement.md).
+- **Pre-commit gate**: installed by the scaffold, it enforces the same size ceilings at commit time. Exemptions are pre-registered in the `crew:exempt` block of `docs/DEVIATIONS.md`.
+- **Templates** (`templates/`): `AGENTS.md` (canonical agent context), a `CLAUDE.md` pointer, `standards/` and the `docs/` taxonomy (stories, requirements, decisions, briefs, proposals, as-is, guides, work, DEVIATIONS). The design memory (`docs/design/`) and the testing strategy (`docs/guides/testing.md`) are scaffolded empty for the project to fill in.
+- **Per-repo config** (`crew.json`): mode, metrics, quality, ceilings and capabilities. Nothing is granted by default, and a repo without `crew.json` keeps the previous behavior. Reference: [configuration.md](docs/en/configuration.md).
+- **Session baseline** (`standards/session-context.md`): always-on behavior rules. Process knowledge stays in the project's `standards/` and `docs/guides/`, and the project's own rules always win.
+- **Scripts** (`scripts/`): scaffold (`init-project.js`, with the `init-project.sh` wrapper), doctor, verification with receipts, metrics, security scan and release builds.
+- **Two hosts**: `.claude-plugin/` and `.codex-plugin/` manifests, an `apply_patch` adapter for Codex that uses the same guards, and release archives built by `scripts/build-release.py`. Shell and MCP writes stay outside the file guards. Detail: [compatibility.md](docs/en/compatibility.md).
 
 ## License
 

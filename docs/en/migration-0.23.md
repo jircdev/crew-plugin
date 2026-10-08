@@ -20,9 +20,9 @@ Estimation tables now close with a **Total** row, and every work item states **h
 | **Total** | 12 | — | — | 15 | |
 ```
 
-First cell `Total` (emphasis optional, case-insensitive), estimated hours and actual hours filled. The timestamp columns stay empty or a dash — the total sums milestones, it is not one. Already-Closed files are untouched: the gate fires on the transition, and immutability owns everything after it.
+First cell `Total` (emphasis optional, case-insensitive), estimated hours and actual hours filled. The timestamp columns stay empty or a dash, because the total sums the milestones and has no dates of its own. Already-Closed files are untouched: the gate fires on the transition, and immutability owns everything after it.
 
-Why it is required rather than suggested: a number nobody sums is a number nobody reads. The total is what makes a plan comparable to its outcome without arithmetic, and it costs one line.
+Why it is required: a number nobody sums is a number nobody reads. The total is what makes a plan comparable to its outcome without arithmetic, and it costs one line.
 
 ## 2. The Verification table — only if you declare `testing`
 
@@ -51,7 +51,7 @@ From then on a work item cannot reach `Closed` without:
 
 This holds in **both** modes and does not depend on `metrics`: the estimation gate is the metrics discipline, this one is your own declaration.
 
-**`not verified` is a valid row.** The gate wants an honest record, not a full one. What it refuses is silence, because an absent row and a covered one look identical from outside.
+**`not verified` is a valid row.** The gate asks for an honest record, even an incomplete one. What it refuses is silence, because an absent row and a covered one look identical from outside.
 
 ## Why this exists
 

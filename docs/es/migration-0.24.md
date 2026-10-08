@@ -4,7 +4,7 @@ Un solo cambio, mecánico, con **una acción obligatoria** en cualquier repo que
 
 ## Qué cambió, en un párrafo
 
-El directorio de ejecutables del plugin dejó de llamarse `bin/` y pasa a llamarse `scripts/`. Los cuatro ejecutables (`init-project.sh`, `metrics.js`, `check-quality.sh`, `check-staged.js`) son idénticos: solo se movieron. El motivo no es estético: un `bin/` de primer nivel hace que el validador de las instalaciones alojadas en claude.ai rechace el plugin entero — en la CLI su contenido se añade al `PATH`, pero no aparece en la superficie de aprobación del administrador, así que tanto el sync del marketplace desde la app de escritorio como un `.plugin` empaquetado fallan con `Plugin contains a top-level bin/ directory`. Con `bin/` el plugin solo era instalable por CLI.
+El directorio de ejecutables del plugin dejó de llamarse `bin/` y pasa a llamarse `scripts/`. Los cuatro ejecutables (`init-project.sh`, `metrics.js`, `check-quality.sh`, `check-staged.js`) son idénticos: solo se movieron. El motivo: un `bin/` de primer nivel hace que el validador de las instalaciones alojadas en claude.ai rechace el plugin entero — en la CLI su contenido se añade al `PATH`, pero no aparece en la superficie de aprobación del administrador, así que tanto el sync del marketplace desde la app de escritorio como un `.plugin` empaquetado fallan con `Plugin contains a top-level bin/ directory`. Con `bin/` el plugin solo era instalable por CLI.
 
 ## La acción obligatoria: el hook de pre-commit
 
@@ -36,7 +36,7 @@ bin/check-quality.sh   →   scripts/check-quality.sh
 
 - **Las instalaciones por CLI no requieren nada**: `/plugin update crew@factory-crew` y listo. El renombrado es interno al plugin.
 - **Las instalaciones de autor / dev local** que consumen el working tree solo necesitan `git pull`.
-- **No cambia ninguna regla, gate ni contrato de `crew.json`.** Es un cambio de ruta, no de comportamiento.
+- **No cambia ninguna regla, gate ni contrato de `crew.json`.** Cambia solo la ruta; el comportamiento sigue igual.
 
 ## Checklist
 

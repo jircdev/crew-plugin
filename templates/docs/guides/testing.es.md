@@ -28,11 +28,11 @@ Niveles que este proyecto **no** usa, y por qué: (escríbelo — un nivel ausen
 
 ## Qué exige un contrato en píxeles
 
-Una regla que conviene dejar escrita antes del primer test visual: **un contrato expresado en geometría se verifica midiendo, no leyendo nombres de clases ni mirando una captura.** Un test que aserta sobre el string de clases pasa mientras el layout está roto, porque otra regla lo pisó en CSS. Lo que corre sin motor de layout real no puede responder una pregunta geométrica, así que esas aserciones van al nivel que corre en navegador o no van.
+Una regla que conviene dejar escrita antes del primer test visual: **un contrato expresado en geometría se verifica midiendo.** Leer nombres de clases o mirar una captura no alcanza. Un test que aserta sobre el string de clases pasa mientras el layout está roto, porque otra regla lo pisó en CSS. Lo que corre sin motor de layout real no puede responder una pregunta geométrica, así que esas aserciones van al nivel que corre en navegador o no van.
 
 ## Barra de adopción
 
-Qué tiene que ser cierto antes de que un cambio se integre. Escribe las compuertas como condiciones, no como aspiraciones:
+Qué tiene que ser cierto antes de que un cambio se integre. Escribe las compuertas como condiciones verificables:
 
 1. (p. ej. todo comportamiento nuevo tiene al menos un test en el nivel que esta tabla le asigna.)
 2. (p. ej. todo bug corregido deja un test de regresión que falla contra el código viejo.)
@@ -45,11 +45,11 @@ Una compuerta solo obliga si algo la ejecuta. Nombra dónde ocurre eso — workf
 La parte que ningún arnés cubre. Si hay personas probando este producto, el protocolo es de ellas y se sigue sin leer código:
 
 - **Quién** — los perfiles que existen y qué puede hacer cada uno.
-- **Cómo entran** — el punto de entrada y la política de credenciales (que los testers tengan credenciales reales es un hallazgo, no un setup).
+- **Cómo entran** — el punto de entrada y la política de credenciales (que los testers tengan credenciales reales es un hallazgo de seguridad).
 - **Rondas** — qué se recorre, en qué orden, con qué presupuesto de tiempo.
 - **Qué reportan** — los campos de un reporte, y una escala de severidad escrita en palabras y no en números.
 - **Condiciones obligatorias** — los estados que esconden defectos hasta que alguien mira: datos vacíos, una vista con volumen alto, un flujo interrumpido, la pantalla más chica soportada.
 
 ## Qué no se verifica
 
-La lista honesta. Cada entrada: qué queda descubierto, por qué, y qué tendría que existir para cubrirlo. Esta sección es la que mantiene una estimación veraz — el trabajo que no está escrito acá se descubre después de estimar, no antes.
+La lista honesta. Cada entrada: qué queda descubierto, por qué, y qué tendría que existir para cubrirlo. Esta sección es la que mantiene una estimación veraz — el trabajo que no está escrito acá aparece recién después de estimar.

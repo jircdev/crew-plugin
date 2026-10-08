@@ -28,11 +28,11 @@ Levels this project does **not** use, and why: (write it — an absent level tha
 
 ## What a contract in pixels requires
 
-A rule worth writing down before the first visual test: **a contract expressed in geometry is verified by measuring, not by reading class names or eyeballing a screenshot.** A test asserting on the class string passes while the layout is broken, because another rule overrode it in CSS. Whatever runs without a real layout engine cannot answer a geometric question, so those assertions belong in the browser-driven level or nowhere.
+A rule worth writing down before the first visual test: **a contract expressed in geometry is verified by measuring.** Reading class names or eyeballing a screenshot is not enough. A test asserting on the class string passes while the layout is broken, because another rule overrode it in CSS. Whatever runs without a real layout engine cannot answer a geometric question, so those assertions belong in the browser-driven level or nowhere.
 
 ## Adoption bar
 
-What has to be true before a change merges. Write the gates as conditions, not aspirations:
+What has to be true before a change merges. Write the gates as verifiable conditions:
 
 1. (e.g. every new behavior has at least one test at the level this table assigns it.)
 2. (e.g. every fixed bug leaves a regression test that fails against the old code.)
@@ -45,11 +45,11 @@ Gates only bind when something runs them. Name where that happens — CI workflo
 The part no harness covers. If humans test this product, the protocol is theirs to follow without reading code:
 
 - **Who** — the profiles that exist and what each one may do.
-- **How they get in** — the entry point and credentials policy (testers holding real credentials is a finding, not a setup).
+- **How they get in** — the entry point and credentials policy (testers holding real credentials is a security finding).
 - **Rounds** — what gets walked, in what order, with what time budget.
 - **What they report** — the fields of a report, and a severity scale written in words rather than numbers.
 - **Mandatory conditions** — the states that hide defects until someone looks: empty data, a large-volume view, an interrupted flow, the smallest supported screen.
 
 ## What is not verified
 
-The honest list. Every entry: what is uncovered, why, and what would have to exist to cover it. This section is the one that keeps an estimate truthful — work that is not written here gets discovered after the estimate, not before.
+The honest list. Every entry: what is uncovered, why, and what would have to exist to cover it. This section is the one that keeps an estimate truthful — work that is not written here only shows up after the estimate.

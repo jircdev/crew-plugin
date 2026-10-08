@@ -2,15 +2,15 @@
 
 A **manifesto** is the document that opens a project. It is addressed to the people who decide and align before any backlog work starts — the client, the CEO (chief executive officer), the CIO (chief information officer), and the CTO (chief technology officer) / team coordinator who will hand it to the technical crew. One initiative, one manifesto.
 
-It is written by `COM` (commercial-strategist) when it starts from a client engagement, or by `PROD` (product-strategist) when it starts from an internal product decision. It captures the *what* and the *why* — never the *how*. The technical detail lives in the requirement, not here.
+It is written by `COM` (commercial-strategist) when it starts from a client engagement, or by `PROD` (product-strategist) when it starts from an internal product decision. It captures the *what* and the *why*. The *how* and the technical detail live in the requirement.
 
 This is the gate between *idea* and *backlog*: new projects, new product directions, initiatives with meaningful cost. A small change inside an already-approved scope does not need one.
 
 ## How it reads
 
-**Like a good book, not a form.** Continuous prose under a few headings, Why-first. A reader who is not technical should understand it end to end and recognize that it does what they set out to do. The earlier strict, bulleted, fixed-length gate is gone — a manifesto persuades and aligns, it does not fill in blanks.
+**Written as prose.** Continuous prose under a few headings, Why-first. A reader who is not technical should understand it end to end and recognize that it does what they set out to do. The earlier strict, bulleted, fixed-length gate is gone: a manifesto persuades and aligns the team.
 
-The shape that works (adapt the headings to the initiative; this is not a template to fill):
+The shape that works (adapt the headings to the initiative; they are a guide, with no blanks to fill):
 
 - **The problem (the Why)** — what is needed, the pain behind it, the cost of the status quo, in the reader's own terms. Start here.
 - **What we will do** — the agreed solution direction and its intent. The *what and why*.
@@ -48,7 +48,7 @@ A one-line header under the title may restate it for human readers: `> **Tipo:**
 draft → in-validation → approved | rejected
 ```
 
-State lives in the frontmatter. A manifesto is a **living draft** while in discovery — it mutates as the team learns what it needs. Once **approved** it becomes the project's starting intent: still readable as the record, but a change of intent is made by **supersession** (a new manifesto that references the old), not by a silent rewrite of an approved decision.
+State lives in the frontmatter. A manifesto is a **living draft** while in discovery — it mutates as the team learns what it needs. Once **approved** it becomes the project's starting intent: still readable as the record, and a change of intent is made by **supersession**: a new manifesto that references the old one. An approved decision is never rewritten in place.
 
 ## Chaining
 

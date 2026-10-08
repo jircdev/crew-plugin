@@ -2,52 +2,58 @@
 
 [![version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fjircdev%2Fcrew-plugin%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version&prefix=v&color=blue)](../../.claude-plugin/plugin.json)
 
-> 🌐 Léelo en **español** (abajo) · Prefer English? → **[Read it in English](../../README.md)**
+> Léelo en **español** (abajo) · Prefer English? → **[Read it in English](../../README.md)**
 
-Los agentes de código son generalistas. Apunta uno a tu repo y salta directo a escribir código: nadie es dueño de la decisión, el porqué de la arquitectura se evapora entre sesiones, y cada chat nuevo vuelve a litigar lo que ya habías cerrado. La parte difícil dejó de ser *escribir el código*; pasó a ser *mantener un proceso lo bastante sano como para sobrevivir de una sesión a la siguiente*.
+Los agentes de código son generalistas. Si apuntas uno a tu repo, empieza a escribir código enseguida: nadie es dueño de cada decisión, el porqué de la arquitectura se pierde entre sesiones y cada chat nuevo vuelve a discutir lo que ya estaba resuelto.
 
-crew es ese proceso, empaquetado como plugin. Convierte a un único agente generalista en una crew estructurada: un catálogo de roles especializados donde exactamente uno es dueño de cada decisión, un flujo spec-driven (guiado por especificaciones) de la idea a producción, y convenciones que viven en el repo —leídas de forma nativa por Claude Code, Cursor, Copilot y Codex— de modo que cada decisión se escribe una vez y se consume muchas, en lugar de re-explicarse. Es agnóstico del stack y crece más allá de los roles: futuras versiones pueden sumar consultas vía MCP, ayudantes de memoria de proyecto y otros especialistas a demanda.
+crew le da un proceso a ese agente. Es un plugin para Claude Code y Codex que aporta:
+
+- un catálogo de roles especializados, con un solo dueño por decisión;
+- un flujo guiado por especificaciones (spec-driven), de la idea a producción;
+- convenciones que viven en el repo y que Claude Code, Cursor, Copilot y Codex leen de forma nativa, así cada decisión se escribe una vez y se lee muchas.
+
+Funciona con cualquier stack.
 
 ## Cómo fluye el trabajo
 
-La crew sigue un circuito spec-driven alineado con Scrum: un artefacto por etapa, leído del repo, nunca re-pegado en un prompt. Estándar completo: [circuito de entrega](../../templates/docs/guides/delivery-circuit.es.md).
+La crew sigue un circuito guiado por especificaciones y alineado con Scrum. Cada etapa deja un artefacto en el repo, y los agentes lo leen desde ahí. Estándar completo: [circuito de entrega](../../templates/docs/guides/delivery-circuit.es.md).
 
-Cada etapa la dotan roles específicos — la tabla etapa por etapa y el catálogo completo, organizado por área con lo que posee cada rol, están en [roles.md](roles.md).
+Qué roles trabajan en cada etapa, y el catálogo completo por área: [roles.md](roles.md).
 
 ## Documentación
 
-Crew admite Claude Code y Codex con un catálogo compartido. Consulta
-[compatibilidad e instalación en Codex](compatibility.md) para la activación,
-configuración, verificación, actualización y cobertura de hooks.
-
 | Si quieres… | Lee |
 |-------------|-----|
-| Conocer los roles y qué posee cada uno | [roles.md](roles.md) |
-| Instalar, actualizar o desinstalar el plugin | [installation.md](installation.md) |
-| Invocar roles, hacer bootstrap de un proyecto, onboarding de uno existente, personalizar los docs instalados | [using-crew.md](using-crew.md) |
-| Configurar crew por repo — referencia de `crew.json` (modos, métricas, calidad, techos, capacidades de diseño) | [configuration.md](configuration.md) |
-| Entender qué exige cada guard y resolver un deny | [enforcement.md](enforcement.md) |
-| Medir la entrega — el flujo estimación → métricas | [metrics.md](metrics.md) |
-| Adoptar capacidades de diseño y memoria de diseño | [migration-0.22.md](migration-0.22.md) |
-| Migrar un proyecto existente desde los aliases retirados | [migration-0.21.md](migration-0.21.md) |
-| Trabajar en solitario con la ceremonia mínima | [solo-quickstart.md](solo-quickstart.md) |
-| Usar crew desde un asiento no técnico (CEO, analista) | [non-technical-roles.md](non-technical-roles.md) |
+| Instalar en Claude Code, actualizar o desinstalar | [installation.md](installation.md) |
+| Instalar en Codex | [compatibility.md § Instalar en Codex](compatibility.md#instalar-en-codex) |
+| Configurar un proyecto nuevo o adoptar uno existente | [using-crew.md](using-crew.md) |
+| Elegir el modo del proyecto (team o solo) | [using-crew.md § Elegir el modo](using-crew.md#elegir-el-modo-del-proyecto) |
+| Ver todos los comandos: roles, `/crew:setup`, `/crew:check`, `/crew:doctor`, `/crew:adopt`, `/crew:metrics` | [using-crew.md § Comandos](using-crew.md#comandos-de-crew) |
+| Conocer los roles y qué decide cada uno | [roles.md](roles.md) |
+| Configurar `crew.json`: modo, métricas, calidad, techos, diseño, testing y recibos, auditoría, telemetría | [configuration.md](configuration.md) |
+| Entender qué hace cada guard y resolver un bloqueo | [enforcement.md](enforcement.md) |
+| Registrar una excepción en `docs/DEVIATIONS.md` (`crew:exempt`, `crew:standard`, `crew:policy`, `crew:security`, con `owner:` y `expires:`) | [enforcement.md § Bloques](enforcement.md#bloques-de-docsdeviationsmd) |
+| Planificar y estimar trabajo (skill `planning`, estándar efectivo) | [using-crew.md § Planificar](using-crew.md#planificar-y-estimar-trabajo) |
+| Escanear la configuración del agente en busca de riesgos de seguridad | [using-crew.md § Seguridad](using-crew.md#disparadores-de-seguridad-y-frontera-de-instrucciones) |
+| Medir la entrega y el uso del catálogo | [metrics.md](metrics.md) |
+| Trabajar solo, con la ceremonia mínima | [solo-quickstart.md](solo-quickstart.md) |
+| Usar crew sin ser desarrollador (CEO, analista) | [non-technical-roles.md](non-technical-roles.md) |
 | Entender el proceso de entrega de punta a punta | [circuito de entrega](../../templates/docs/guides/delivery-circuit.es.md) |
+| Pasar un proyecto a una versión nueva | Guías de migración: [0.21](migration-0.21.md) · [0.22](migration-0.22.md) · [0.23](migration-0.23.md) · [0.24](migration-0.24.md) · [0.26](migration-0.26.md) · [0.27](migration-0.27.md) · [0.28](migration-0.28.md) · [0.29](migration-0.29.md) · [0.30](migration-0.30.md) |
+| Ver qué cubre cada host (Claude Code y Codex) y sus límites | [compatibility.md](compatibility.md) |
 | Añadir un rol o modificar el plugin | [contributing.md](contributing.md) |
 
 ## Qué incluye
 
-- **Subagentes + slash commands** (`agents/`, `commands/`) — uno por rol; `/crew:<alias>` lanza el subagente correspondiente, y los aliases retirados responden con su sucesor durante una versión.
-- **Plantillas** (`templates/`) — `AGENTS.md` (contexto canónico de agentes), un puntero `CLAUDE.md`, `standards/` (el núcleo de calidad de código), y la taxonomía completa de `docs/` (stories, requirements, decisions, proposals, el circuito de entrega, historial de work, DEVIATIONS).
-- **Skills** (`skills/`) — 31 entradas generadas para los alias comparten los criterios de roles/comandos entre Claude y Codex. Los oficios horizontales siguen siendo `writing` (cómo comunica una pieza) y `design` (composición, entrega, revisión de implementación y juicio de renders). Solo método — qué es bello en un producto lo declara ese proyecto.
-- **Hooks** (`hooks/`) — `SessionStart` inyecta el baseline de sesión y, solo cuando tiene algo accionable que decir, el estado de configuración del proyecto; `PreToolUse` protege los artefactos inmutables, la puerta de estimación, los timestamps de estimación en tiempo real y los techos de calidad de código; `Stop` verifica la trazabilidad del cierre; una puerta de calidad pre-commit (instalada por `init-project.sh`) exige los mismos techos al commitear, con exenciones pre-registradas vía un bloque `crew:exempt` en `docs/DEVIATIONS.md`.
-- **Configuración por repo** (`crew.json`) — `mode: solo|team`, `metrics`, `quality: advise|enforce|off`, `ceilings`, más las capacidades `design` (dónde corre la app, registro de componentes, captura de renders, checks, gusto de respaldo), las capacidades `testing` (guía de estrategia, arnés e2e y dónde viven sus specs, comandos de suite) y la marca `configuredWith`. Nada se concede por defecto: una capacidad sin declarar es una que los roles reportan que no pudieron usar. Un repo sin `crew.json` se comporta exactamente igual que antes. Referencia: [configuration.md](configuration.md).
-- **Memoria de diseño** (`docs/design/` en tu proyecto) — referencias, patrones aprobados, patrones rechazados. Se instala vacía: el gusto es del proyecto, nunca del plugin. Se declara vía `design.memory`; la configura `/crew:setup`, que pregunta y nunca adivina.
-- **Estrategia de testing** (`docs/guides/testing.md` en tu proyecto) — niveles, arnés, barra de adopción, protocolo manual, y qué no se verifica a propósito. Se instala vacía en ambos modos: la herramienta es del proyecto. Todo work item lleva una tabla `## Verification` escrita en planning junto a su estimación — nivel, arnés, artefacto y estado por comportamiento. Declarar `testing` en `crew.json` convierte esa tabla en compuerta de cierre.
-- **Métricas** — `/crew:metrics` + el reporte `scripts/metrics.js`: lead time, tiempo de ejecución, desviación de estimación, exportación `--csv`.
-- **Baseline de sesión** (`standards/session-context.md`) — solo **comportamiento** siempre activo (estilo de conversación, regla de oficina, dos modos, oficio de documentos); el conocimiento de proceso no va inline: apunta a los `standards/` y `docs/guides/` instalados en el proyecto. Defaults sugeridos, las reglas propias del proyecto siempre ganan.
-- **Script de bootstrap** (`scripts/init-project.sh`) — instala las plantillas en un proyecto nuevo; `--solo` para el camino de desarrollador único.
-- **Release para ambos hosts** — manifiestos `.claude-plugin/` y `.codex-plugin/`, adaptador de `apply_patch` que usa los guards existentes y archivos `.plugin`/ZIP más catálogo Codex generados por `scripts/build-release.py`. Las escrituras shell/MCP siguen fuera de los guards de archivo. La [guía de compatibilidad](compatibility.md) cubre instalación, configuración, activación, verificación, actualización y evidencia de pruebas de runtime controladas con sus límites.
+- **Roles** (`agents/`, `commands/`): 17 roles, cada uno con su comando `/crew:<alias>`. Los alias retirados todavía responden y derivan a su sucesor.
+- **Skills** (`skills/`): 34 entradas de alias generadas a partir de los comandos, que comparten Claude y Codex, y tres oficios que cualquier rol carga: `planning` (planes y estimaciones como work items en el estándar del proyecto), `writing` (cómo comunica una pieza) y `design` (composición, entrega, revisión de implementación y juicio de renders). Los oficios llevan solo método; el gusto de cada producto lo declara su proyecto.
+- **Hooks** (`hooks/`): `SessionStart` carga el baseline de sesión, el estado de configuración y el trabajo en curso. Los guards de `PreToolUse` protegen los artefactos inmutables, las tablas de estimación y verificación, los timestamps, los techos de tamaño, la forma de los work items, la evasión de hooks y la relajación de políticas. `Stop` revisa el registro de trabajo. Detalle: [enforcement.md](enforcement.md).
+- **Puerta pre-commit**: la instala el scaffold y exige los mismos techos de tamaño al commitear. Las exenciones se pre-registran en el bloque `crew:exempt` de `docs/DEVIATIONS.md`.
+- **Plantillas** (`templates/`): `AGENTS.md` (contexto canónico de agentes), un puntero `CLAUDE.md`, `standards/` y la taxonomía de `docs/` (stories, requirements, decisions, briefs, proposals, as-is, guides, work, DEVIATIONS). La memoria de diseño (`docs/design/`) y la estrategia de testing (`docs/guides/testing.md`) se instalan vacías: las completa el proyecto.
+- **Configuración por repo** (`crew.json`): modo, métricas, calidad, techos y capacidades. Nada se concede por defecto, y un repo sin `crew.json` conserva el comportamiento anterior. Referencia: [configuration.md](configuration.md).
+- **Baseline de sesión** (`standards/session-context.md`): reglas de conducta siempre activas. El conocimiento de proceso queda en los `standards/` y `docs/guides/` del proyecto, y las reglas propias del proyecto siempre ganan.
+- **Scripts** (`scripts/`): scaffold (`init-project.js`, con el envoltorio `init-project.sh`), doctor, verificación con recibos, métricas, escaneo de seguridad y generación de releases.
+- **Dos hosts**: manifiestos `.claude-plugin/` y `.codex-plugin/`, un adaptador de `apply_patch` para Codex que usa los mismos guards, y archivos de release generados por `scripts/build-release.py`. Las escrituras por shell o MCP quedan fuera de los guards de archivo. Detalle: [compatibility.md](compatibility.md).
 
 ## Licencia
 

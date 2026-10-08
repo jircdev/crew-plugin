@@ -4,7 +4,7 @@
 
 ## Por área
 
-Cada rol pertenece a exactamente una de seis áreas, de descubrimiento a gobernanza — el plugin no es solo arquitectos, cubre todo el arco.
+Cada rol pertenece a exactamente una de seis áreas, que siguen el proceso de punta a punta: descubrimiento, producto, diseño, ingeniería, calidad y gobernanza.
 
 **1. Negocio y Descubrimiento** — entender qué necesita el cliente, juzgar la viabilidad de negocio, redactar el manifiesto que inicia el proyecto.
 
@@ -18,14 +18,14 @@ Cada rol pertenece a exactamente una de seis áreas, de descubrimiento a goberna
 | Alias | Rol | Qué hace |
 |-------|-----|----------|
 | `FA` | functional-analyst | Descompone la intención en stories con criterios de aceptación; valida el trabajo entregado contra ellos. |
-| `COORD` | delivery-coordinator | Secuencia roles, expone bloqueos, mantiene la fidelidad de la intención — coordinación, no decisiones técnicas ni de producto. |
+| `COORD` | delivery-coordinator | Secuencia roles, expone bloqueos, mantiene la fidelidad de la intención. Coordina; las decisiones técnicas y de producto son de otros roles. |
 
 **3. Diseño y Experiencia** — qué información necesita cada pantalla, cómo se ve y se comporta, y el sistema visual transversal.
 
 | Alias | Rol | Qué hace |
 |-------|-----|----------|
 | `DEA` | data-experience-architect | Define la especificación informacional por pantalla — qué datos necesita cada vista. |
-| `UX` | ux-architect | Layout, interacción, flujo, accesibilidad y el sistema visual transversal (design tokens, tipografía, color, motion, iconografía). Dueño del gusto: composición, densidad, jerarquía, elegancia. Se le consulta **antes** de codificar la UI, no como auditor a posteriori — y nunca emite un veredicto de calidad de diseño sin ver el render. |
+| `UX` | ux-architect | Layout, interacción, flujo, accesibilidad y el sistema visual transversal (design tokens, tipografía, color, motion, iconografía). Dueño del gusto: composición, densidad, jerarquía, elegancia. Se le consulta **antes** de codificar la UI, y nunca emite un veredicto de calidad de diseño sin ver el render. |
 
 **4. Ingeniería y Arquitectura** — cómo se construye el sistema: arquitectura, datos, frontend, contratos de extensión.
 
@@ -60,9 +60,9 @@ No forma parte de la crew core — actívalo solo cuando el proyecto lo necesita
 |-------|-----|----------|
 | `API` | dx-architect | Experiencia de desarrollador de la API/SDK pública: versionado, deprecación, ergonomía. Actívalo solo cuando el producto expone una API o SDK pública. |
 
-## Skills — oficios, no roles
+## Skills — oficios
 
-Un oficio que necesitan todos los roles es una **skill**, no un asiento del catálogo: se carga, no se invoca, y posee un *cómo* en lugar de una decisión.
+Un oficio que necesitan todos los roles es una **skill**. Una skill se carga dentro del trabajo de un rol, sin invocarse aparte, y es dueña de un *cómo*; las decisiones siguen siendo de los roles.
 
 - **`planning`** — la artesanía del work item, cargada siempre que se planifica o dimensiona trabajo. Resuelve el estándar efectivo del proyecto antes de escribir, mantiene los planes como work items en el repo (un doc publicado es una vista que los enlaza) y gobierna los dos niveles de estimación. Es dueña de la forma, nunca de las decisiones de dominio del plan.
 - **`writing`** — la artesanía de la comunicación, cargada cuando un rol redacta una pieza (brief, deck, one-pager, ensayo, doc técnico, discurso, guion). Posee idea-fuerza, arco narrativo, segmentación por público, principios de impacto — nunca el contenido de dominio.
@@ -84,7 +84,7 @@ El diseño técnico (etapa 3) **no** es un gate obligatorio antes de cada story:
 
 ## Aliases retirados
 
-El catálogo se consolidó; cada alias retirado tiene un sucesor, y durante una versión los slash commands antiguos responden con el sucesor en lugar de fallar. Para migrar un proyecto existente: [migration-0.21.md](migration-0.21.md).
+El catálogo se consolidó en la 0.21 y cada alias retirado tiene un sucesor. Los slash commands antiguos todavía existen: avisan cuál es el sucesor y siguen con la tarea en ese rol. Para migrar un proyecto existente: [migration-0.21.md](migration-0.21.md).
 
 | Alias antiguo | Sucesor | Por qué |
 |---------------|---------|---------|

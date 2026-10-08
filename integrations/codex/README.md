@@ -14,13 +14,13 @@ Interpret canonical Claude transport syntax in Codex as follows:
 
 - `/crew:<alias>` means select Crew's skill named `<alias>` in Codex's skill
   picker (for example `fe`, `setup`, `metrics`). `$ARGUMENTS` means the user's
-  task text, not a literal shell variable. Pass only validated arguments to
-  executables; metrics accepts an optional YYYY-MM and explicit `--csv`;
+  task text. Pass only validated arguments to
+  executables; metrics accepts an optional YYYY-MM or `catalog`, and an explicit `--csv`;
   check accepts an optional test kind passed as `--kind <kind>`; doctor accepts
   `repair` or `uninstall` plus `--dry-run`, and runs those two only on request.
 - `Spawn <role> subagent` means use the host's delegation facility when it is
   available and allowed. Supply the canonical `agents/<role>.md` body and this
-  adapter to the child; a skill is not a registered native Codex subagent type.
+  adapter to the child. Codex has no native subagent type registered for a skill.
   Ignore Claude frontmatter `model: opus`; preserve the user's model settings.
   If delegation is unavailable or prohibited, apply the role in the current
   task and disclose that no independent consultation occurred. Do not claim
@@ -30,8 +30,8 @@ Interpret canonical Claude transport syntax in Codex as follows:
   ordinary shell calls must use the resolved absolute path explicitly.
 - Claude-specific global activation (`~/.claude/CLAUDE.md`) applies only to
   Claude. For Codex prefer project `AGENTS.md`; change global Codex instructions
-  only on an explicit request. `.claude/launch.json` is evidence about Claude's
-  launch configuration, not proof of a Codex launch capability. Confirm an
+  only on an explicit request. `.claude/launch.json` describes Claude's launch
+  configuration only; it does not establish a Codex launch capability. Confirm an
   executable launch command or usable URL before declaring that capability.
 - `crew.json`, templates, roles, quality policy, design/testing capabilities and
   work records have exactly one meaning across hosts. Do not create Codex-only

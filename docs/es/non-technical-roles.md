@@ -21,7 +21,7 @@ En ambos casos escribís en lenguaje natural. El rol también responde en lengua
 | commercial-strategist | `/crew:com` o `COM:` | Discovery con el cliente, juzgar en términos de negocio si algo vale la pena, el manifiesto del proyecto, el mensaje de la web pública |
 | analytics-architect | `/crew:ana` o `ANA:` | Preguntas de métricas de producto: qué medir, qué KPIs, si el funnel dice lo que creés que dice |
 
-**Tus artefactos.** Los manifiestos en `docs/briefs/` — documentos narrativos escritos para leerse, no para máquinas. Podés leerlos, comentarlos y aprobarlos. Un manifiesto que aprobás es aquello sobre lo que se alinea el equipo técnico.
+**Tus artefactos.** Los manifiestos en `docs/briefs/` — documentos narrativos escritos para que los lea una persona. Podés leerlos, comentarlos y aprobarlos. Un manifiesto que aprobás es aquello sobre lo que se alinea el equipo técnico.
 
 **Revisar sin git en tu máquina.** No necesitás ninguna herramienta de desarrollador. El host de tu repositorio (GitHub o GitLab) muestra cada archivo en un navegador web: abrí la página del repositorio, navegá hasta `docs/briefs/` o `docs/stories/` y hacé clic en un archivo. Los briefs y las stories son markdown plano — se renderizan como texto formateado, legible como cualquier página web.
 

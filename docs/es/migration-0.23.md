@@ -20,9 +20,9 @@ Las tablas de estimación ahora cierran con una fila **Total**, y todo work item
 | **Total** | 12 | — | — | 15 | |
 ```
 
-Primera celda `Total` (el énfasis es opcional, no distingue mayúsculas), horas estimadas y reales completas. Las columnas de timestamp quedan vacías o con guion — el total suma hitos, no es uno. Los archivos ya Closed no se tocan: la puerta dispara en la transición, y de ahí en adelante manda la inmutabilidad.
+Primera celda `Total` (el énfasis es opcional, no distingue mayúsculas), horas estimadas y reales completas. Las columnas de timestamp quedan vacías o con guion, porque el total suma los hitos y no tiene fechas propias. Los archivos ya Closed no se tocan: la puerta dispara en la transición, y de ahí en adelante manda la inmutabilidad.
 
-Por qué obligatoria y no sugerida: un número que nadie suma es un número que nadie lee. El total es lo que vuelve comparable un plan con su resultado sin hacer aritmética, y cuesta una línea.
+Por qué es obligatoria: un número que nadie suma es un número que nadie lee. El total es lo que vuelve comparable un plan con su resultado sin hacer aritmética, y cuesta una línea.
 
 ## 2. La tabla de verificación — solo si declarás `testing`
 
@@ -51,7 +51,7 @@ Desde ahí, un work item no llega a `Closed` sin:
 
 Vale en **ambos** modos y no depende de `metrics`: la puerta de estimación es la disciplina de métricas, esta es tu propia declaración.
 
-**`no verificado` es una fila válida.** La puerta quiere un registro honesto, no uno completo. Lo que rechaza es el silencio, porque desde afuera una fila ausente y una cubierta se ven idénticas.
+**`no verificado` es una fila válida.** La puerta pide un registro honesto, aunque quede incompleto. Lo que rechaza es el silencio, porque desde afuera una fila ausente y una cubierta se ven idénticas.
 
 ## Por qué existe
 

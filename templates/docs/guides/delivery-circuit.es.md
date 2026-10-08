@@ -30,12 +30,12 @@ Un dev toma una story o requirement Ready:
 - Anota el branch en el encabezado del work item; estado → In progress (commits en ese mismo branch).
 - **Compuerta de estimación (planning):** la story se redacta sin estimación — las horas no son entregable del analista; la estimación gruesa de proyecto vive en el brief. Cuando el work item se toma para implementar, **quien ejecuta agrega** la tabla `## Estimation` (hitos, horas estimadas, cerrada por una fila **Total**) antes de codificar. Durante la ejecución se registra el inicio/fin real por hito **en tiempo real**: `Started` se anota al arrancar el hito y `Finished` inmediatamente al cerrarlo — antes de arrancar el siguiente; los timestamps llevan offset de zona horaria y el guard rechaza valores reconstruidos. Si una sesión se corta a mitad de un hito, `Finished` es la hora real del cierre al retomar y el corte se deja anotado en Notes. Ningún work item avanza con una tabla de estimación vacía.
 - **Compuerta de verificación (planning, mismo momento):** junto a la estimación, la misma persona agrega la tabla `## Verification` — una fila por comportamiento: nivel, arnés, artefacto, estado. Lleva el *método*; la story sigue siendo dueña del escenario. Escribir los tests es trabajo, así que es un hito de la tabla de arriba y no un descubrimiento en la revisión. El arnés sale de `crew.json` `testing`, nunca de esta guía; si el proyecto no declara ninguno, la fila lo dice y el motivo queda escrito. Reglas completas: [`../AGENTS.md`](../AGENTS.md#verification-discipline) · qué verifica este proyecto: [`testing.es.md`](testing.es.md).
-- El agente que implementa lee el work item como su especificación: el prompt de arranque es "implementa `docs/stories/<feature>/NNN-slug.md`" — nada más. Si el agente necesita más contexto, el hueco está en el archivo: arréglalo ahí, no en el chat.
+- El agente que implementa lee el work item como su especificación: el prompt de arranque es "implementa `docs/stories/<feature>/NNN-slug.md`" — nada más. Si el agente necesita más contexto, el hueco está en el archivo: arréglalo en el archivo.
 - El PR de implementación enlaza el archivo del work item. Al hacer merge, estado → Delivered.
 
 ### 4. Validación
 
-Stories: el analista (asistido por `FA` en modo validación) recorre los criterios de aceptación contra el comportamiento real, registra un veredicto por criterio en la sección Validación de la story. Pasa todo → Validated. Cualquier fallo → de vuelta al dev (esperado vs. observado), el estado vuelve a In progress. La validación es contra los criterios **escritos** — si los criterios pasan pero el resultado se siente mal, eso es una nueva señal de producto para `PROD`, no una validación fallida.
+Stories: el analista (asistido por `FA` en modo validación) recorre los criterios de aceptación contra el comportamiento real, registra un veredicto por criterio en la sección Validación de la story. Pasa todo → Validated. Cualquier fallo → de vuelta al dev (esperado vs. observado), el estado vuelve a In progress. La validación es contra los criterios **escritos** — si los criterios pasan pero el resultado se siente mal, la validación pasa igual y el hallazgo va a `PROD` como señal de producto nueva.
 
 Requirements: verificados contra el Entregable esperado por el rol autor o `QA` en modo veredicto.
 
@@ -68,14 +68,14 @@ No todo pedido necesita todos los pasos. Antes de arrancar el circuito, el rol q
 
 ## Política de encadenamiento — cuándo correr el siguiente rol, cuándo parar
 
-Tras cerrar su entregable un rol, la siguiente etapa puede encadenarse en la misma sesión o pasarse por el artefacto. La decisión es mecánica, no conversacional:
+Tras cerrar su entregable un rol, la siguiente etapa puede encadenarse en la misma sesión o pasarse por el artefacto. La decisión sigue una regla fija:
 
 1. **Busca al dueño** del rol de la siguiente etapa en el `AGENTS.md` del proyecto § Mapa de propiedad de roles.
 2. **Mismo humano que el usuario de la sesión** → encadena: corre el siguiente rol ahora, produce su salida como borrador, deja que el usuario apruebe todo junto.
 3. **Humano distinto** → para en el artefacto: registra el work item / spec en el repo y termina. El repo es la interfaz asíncrona entre humanos; su compuerta de aprobación (revisión de PR, pase a Ready) no debe ser simulada por un agente.
-4. **Encadena solo lo que desbloquea la siguiente decisión del usuario de la sesión** — no toda la cola. Cada rol encadenado suma tokens y volumen de salida; corre la etapa cuyo resultado condiciona todo lo demás (p. ej. modelo de datos, postura de seguridad) y deja el resto para después de la aprobación.
+4. **Encadena solo lo que desbloquea la siguiente decisión del usuario de la sesión**, y deja el resto de la cola. Cada rol encadenado suma tokens y volumen de salida; corre la etapa cuyo resultado condiciona todo lo demás (p. ej. modelo de datos, postura de seguridad) y deja el resto para después de la aprobación.
 
-"Dueño" significa quién aprueba la transición de la etapa (el PR, el pase a Ready) — no quién ejecuta el trabajo. Los agentes siempre ejecutan; la propiedad solo decide si el resultado se encadena hacia adelante o espera.
+"Dueño" significa quién aprueba la transición de la etapa (el PR, el pase a Ready). Los agentes siempre ejecutan; la propiedad solo decide si el resultado se encadena hacia adelante o espera.
 
 **Fallback:** si falta el mapa de propiedad o el rol no está mapeado, pregunta al usuario una vez y escribe la respuesta en el mapa — la pregunta nunca debe repetirse.
 

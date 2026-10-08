@@ -19,7 +19,7 @@ Todo ítem implementado cierra con una tabla `## Estimation` — la agrega en pl
 
 Los números solo valen la pena agregarse si nunca fueron reconstruidos. La regla:
 
-- Escribí `Started` **cuando el hito empieza** — no cuando te acordás.
+- Escribí `Started` **en el momento en que el hito empieza**.
 - Escribí `Finished` **inmediatamente al cerrarlo** — antes de empezar el hito siguiente.
 - `Actual hours` es el tiempo realmente trabajado dentro de ese intervalo; puede estar por debajo del wall-clock (pausas), nunca por encima.
 
@@ -27,7 +27,7 @@ Con `"metrics": true` en `crew.json`, el [guard de timestamps](enforcement.md#ti
 
 ### Sesiones interrumpidas
 
-La sesión muere a mitad de un hito y retomás mañana: escribí `Finished` con la **hora real de reanudación** cuando el hito efectivamente cierre, y anotá el hueco en `Notes`. No retro-datees. El intervalo wall-clock va a incluir la pausa — eso es de diseño, no una distorsión (ver la limitación más abajo). `Actual hours` es donde vive la cifra honesta de teclado.
+La sesión muere a mitad de un hito y retomás mañana: escribí `Finished` con la **hora real de reanudación** cuando el hito efectivamente cierre, y anotá el hueco en `Notes`. No retro-datees. El intervalo wall-clock va a incluir la pausa, y eso es de diseño (ver la limitación más abajo). `Actual hours` es donde vive la cifra honesta de teclado.
 
 ## Qué reporta `/crew:metrics`
 
@@ -61,7 +61,7 @@ Los items que llevan el campo opcional `Size:` (trivial, small, standard, large;
 
 ## Cómo leer los números
 
-**Lead time vs tiempo de ejecución.** La brecha entre ambos es tiempo de cola: cuánto estuvo el ítem escrito-pero-no-empezado. Una historia con 20 días de lead y 6 horas de exec no es una historia lenta — es una señal de priorización. El tiempo de ejecución es el que se compara contra las estimaciones; el lead time es el que siente quien pidió el trabajo.
+**Lead time vs tiempo de ejecución.** La brecha entre ambos es tiempo de cola: cuánto estuvo el ítem escrito-pero-no-empezado. Una historia con 20 días de lead y 6 horas de exec es una señal de priorización: el trabajo fue rápido, la espera fue larga. El tiempo de ejecución es el que se compara contra las estimaciones; el lead time es el que siente quien pidió el trabajo.
 
 **Estimado vs real, y desviación.** La desviación de un ítem es ruido; la desviación *promedio* es calibración. Un equipo consistentemente en +40% no tiene un problema de ejecución, tiene un hábito de estimación — escalá las próximas estimaciones en consecuencia. Mirá también el desglose por carpeta: la desviación suele concentrarse en un tipo de trabajo (digamos, todo lo de `stories/integrations/`), lo que te dice dónde viven las incógnitas.
 
@@ -69,11 +69,11 @@ Los items que llevan el campo opcional `Size:` (trivial, small, standard, large;
 
 ## La limitación asumida
 
-La métrica es **wall-clock, de punta a punta**. El tiempo de ejecución incluye pausas, esperas, idas y vueltas de review y sesiones interrumpidas — deliberadamente. Mide *lo que cuesta un requerimiento de arrancado a terminado*, no tiempo de teclado. No leas horas de ejecución como horas de esfuerzo: `Actual hours` es la cifra de esfuerzo, el tiempo de ejecución es la cifra de calendario, y ambas sirven para preguntas distintas. Comparar personas por números de wall-clock es un mal uso; el dataset sirve para calibrar el sistema, no para calificar gente.
+La métrica es **wall-clock, de punta a punta**. El tiempo de ejecución incluye pausas, esperas, idas y vueltas de review y sesiones interrumpidas — deliberadamente. Mide *lo que cuesta un requerimiento de arrancado a terminado*. No leas horas de ejecución como horas de esfuerzo: `Actual hours` es la cifra de esfuerzo, el tiempo de ejecución es la cifra de calendario, y ambas sirven para preguntas distintas. Comparar personas por números de wall-clock es un mal uso; el dataset sirve para calibrar el sistema.
 
 ## Qué decisiones alimenta
 
 - **Calibración de estimaciones** — la desviación promedio y por carpeta retroalimenta directamente las próximas `Est. hours` que se escriban en planning.
 - **Tamaño de hitos** — la mediana/p90 del tiempo de ejecución define qué significa "un hito" en este proyecto.
-- **Detectar sesgo sistemático** — la subestimación persistente en una carpeta o un mes es una señal sobre el trabajo (complejidad oculta, dependencias frágiles), no sobre quien estima.
-- **Honestidad en la priorización** — las brechas lead-vs-exec muestran dónde esperan las cosas, un insumo para [el circuito de entrega](../../templates/docs/guides/delivery-circuit.md), no algo a optimizar arrancando todo a la vez.
+- **Detectar sesgo sistemático** — la subestimación persistente en una carpeta o un mes es una señal sobre el trabajo: complejidad oculta, dependencias frágiles.
+- **Honestidad en la priorización** — las brechas lead-vs-exec muestran dónde esperan las cosas, un insumo para [el circuito de entrega](../../templates/docs/guides/delivery-circuit.es.md). Arrancar todo a la vez achica la brecha sin resolver la espera.
