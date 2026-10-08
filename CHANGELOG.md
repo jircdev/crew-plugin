@@ -2,6 +2,16 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [Unreleased]
+
+### Verified
+
+- `tests/runtime-smoke.py` is pinned to Codex 0.130.0-alpha.5 and adds three host cases. On 2026-10-08: Codex's native shell reaches hooks as `Bash` and `git commit --no-verify` is denied; an MCP tool reaches PreToolUse as `mcp__<server>__<tool>` and the off-repo notice reaches the model; Claude Code 2.1.227 shows the PreCompact notice and re-emits the work-in-progress block after compaction.
+
+### Known limits
+
+- Codex 0.130 runs plugin hooks only with the `plugin_hooks` feature and per-hook trust; without both, none of Crew's guards run there. After a Codex compaction no SessionStart runs, so the work-in-progress block does not return. Both are documented in `docs/en/compatibility.md`.
+
 ## [0.30.0] — 2026-10-07
 
 The catalog can learn from use without learning anything about the people using it. Requirement 011 of plan [`ecc-adoption`](docs/requirements/ecc-adoption/README.md), which closes the plan. Migration guide: [`docs/en/migration-0.30.md`](docs/en/migration-0.30.md) / [`docs/es/migration-0.30.md`](docs/es/migration-0.30.md).

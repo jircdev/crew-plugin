@@ -56,6 +56,16 @@ ellas las garantías de Claude Code. La carga alojada de archivos no fue probada
    confianza disponible en tu host. Instalar el plugin no concede esa confianza.
    Cada cambio en la definición de un hook requiere revisión de nuevo.
 
+**Codex 0.130 (verificado en 0.130.0-alpha.5, 2026-10-08).** Cambiaron dos cosas.
+La CLI ya no tiene `codex plugin add`: se registra el marketplace con
+`codex plugin marketplace add` y Crew se habilita desde el directorio de plugins
+de la app, que lo instala en `CODEX_HOME/plugins/cache/<marketplace>/crew/<versión>`.
+Y los hooks de plugins corren solo con la feature `plugin_hooks` activada
+(`[features] plugin_hooks = true`, todavía marcada como en desarrollo) **y** con
+cada hook en confianza. Si falta cualquiera de las dos, Codex carga las skills de
+Crew pero no corre **ninguno** de sus guards: el smoke vio pasar un
+`git commit --no-verify` en ese estado.
+
 Desde la fuente puedes generar el mismo catálogo sin registrarlo ni instalarlo:
 
 ```sh
@@ -118,12 +128,12 @@ y reinstala Crew. No edites la caché instalada.
 | Roles y oficios | Comandos/subagentes y skills | Skills que leen los mismos originales; delegación según host |
 | Inmutabilidad, estimación, verificación, fechas, calidad | Guards Edit/Write | apply_patch traducido por archivo y evaluado por los mismos guards |
 | Forma de los work items | Guard Edit/Write | apply_patch por el mismo guard |
-| Planes publicados fuera del repo | Aviso en llamadas MCP y Artifact | Registrado; sin verificar si Codex corre hooks en llamadas MCP |
-| Evasión de hooks, comandos destructivos | Guard Bash/PowerShell | Registrado para nombres de herramienta de shell; el nombre exacto en los hooks de Codex no está verificado |
+| Planes publicados fuera del repo | Aviso en llamadas MCP y Artifact | Verificado: una llamada MCP llega a PreToolUse como `mcp__<servidor>__<herramienta>`, el aviso corre y llega al modelo |
+| Evasión de hooks, comandos destructivos | Guard Bash/PowerShell | Verificado: la shell nativa llega a los hooks como `Bash` con `command`; `--no-verify` se niega |
 | Relajación de políticas | Guard Edit/Write | apply_patch por el mismo guard |
-| Trabajo en curso al iniciar sesión | SessionStart, también tras compactar; aviso en PreCompact | SessionStart; sin verificar si Codex dispara PreCompact |
+| Trabajo en curso al iniciar sesión | Verificado: SessionStart al iniciar, al reanudar y tras compactar (`compact`); se muestra el aviso de PreCompact | Solo al iniciar. PreCompact y PostCompact se disparan, pero el aviso no se ve en `exec` y ningún SessionStart sigue a la compactación, así que el bloque no vuelve al modelo |
 | Escaneo de seguridad de la configuración del agente | `scripts/sec-scan.js`, doctor, aviso en SessionStart | Mismo script; los archivos de configuración de Codex todavía no están entre los objetivos escaneados |
-| Uso del catálogo (opcional, por persona) | PostToolUse sobre Agent/Skill, UserPromptSubmit | Mismos hooks; sin verificar si Codex los emite para su delegación |
+| Uso del catálogo (opcional, por persona) | PostToolUse sobre Agent/Skill, UserPromptSubmit | UserPromptSubmit y PostToolUse se disparan; sin verificar si la delegación propia de Codex llega a PostToolUse |
 | Registro de trabajo | Stop | Mismo script: Git y cwd, sin interpretar transcripciones |
 | Tamaños en commit | Hook Git opcional del scaffold | Mismo hook; `node /ruta/crew/scripts/check-staged.js --all` comprueba archivos versionados |
 
@@ -157,13 +167,20 @@ deriva versión/autor del Claude; no se edita a mano. La prueba de contratos es
 
 El smoke opcional `python tests/runtime-smoke.py --output <carpeta-nueva>` usa
 las CLIs instaladas y un servidor de respuestas controladas en loopback. Si
-Claude no es un ejecutable directo, pasa `--claude /ruta/claude.exe`.
-En Windows se verificó descubrimiento de 33 skills en ambos hosts y 17 agentes
-en Claude; ambos rechazaron la modificación inválida por el hook real y dejaron
+Claude no es un ejecutable directo, pasa `--claude /ruta/claude.exe`. Está
+**fijado a Codex 0.130.0-alpha.5** y rechaza otra versión, porque la instalación
+de plugins y la confianza en hooks cambiaron entre releases; instala Crew como lo
+hace la app y escribe un `trusted_hash` por hook solo para el paquete que acaba
+de construir. Sobre los chequeos originales corren tres casos de host: la shell
+nativa de Codex ejecutando `git commit --no-verify` (negado; se registra el nombre
+de la herramienta), un servidor MCP stdio mínimo con una herramienta `publish`
+(aviso observado), y la compactación con un hito abierto en ambos hosts. El
+2026-10-08, con Claude Code 2.1.227, se verificó descubrimiento de 37 skills en
+ambos hosts y 17 agentes en Claude; ambos rechazaron la modificación inválida por el hook real y dejaron
 el archivo protegido intacto sin escribir tampoco el primer archivo válido del
 mismo parche. También se comprueba una edición válida con `@@ función`.
-Codex usa una excepción de confianza limitada a esa ejecución para las fuentes
-revisadas y permite escribir en los fixtures sin sandbox de Windows; solo recibe
+Codex corre con aprobaciones y sandbox desactivados dentro del perfil aislado
+para que las escrituras en los fixtures funcionen; solo recibe
 las operaciones fijas del servidor local, nunca decisiones de un modelo remoto.
 No se copiaron credenciales ni se cambiaron perfiles
 globales. Esto prueba integración/runtime; no prueba criterio, adherencia ni

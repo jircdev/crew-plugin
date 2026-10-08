@@ -95,6 +95,7 @@ La restricción de diseño no cambia: las reglas del proyecto ganan. Esas reglas
 | El orquestador dicta "Hito \| Est. horas": el rol aplica las 6 columnas y reporta la desviación | manual | evals | evals/planning/fixtures.md (P2) | not verified — requiere corrida humana |
 | En modo solo la skill no impone ceremonia de entrega | manual | evals | evals/planning/fixtures.md (P5) | not verified — requiere corrida humana |
 | En Codex, `apply_patch` sobre un work item recibe la misma validación | contract | node:test | tests/conformance.test.js | passing |
+| En Codex, una herramienta MCP que publica una tabla de horas recibe el aviso y el aviso llega al modelo | integration | runtime-smoke | tests/runtime_cases.py (case_codex_mcp) | passing — Codex 0.130.0-alpha.5, 2026-10-08: el hook recibe `mcp__smokedocs__publish`; requiere `plugin_hooks` y hooks en confianza |
 
 ## Changes
 

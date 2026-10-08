@@ -41,10 +41,11 @@ Hooks require host trust and Node.js. Without hooks, load the baseline through
 the skill and apply standards as instructions; report that mechanical guards
 were not verified. `apply_patch` is checked through a conservative adapter,
 including the work-item shape guard; shell writes are not checked by Crew's
-write guards. The off-repo plan notice is registered for MCP tools with the
-same hooks file, but whether Codex runs PreToolUse hooks on MCP calls is
-unverified: treat plans published through a connector as unguarded and follow
-the planning craft's repo-first rule by instruction. The work-in-progress
-block arrives through SessionStart; the PreCompact reminder depends on Codex
-firing that event, which is unverified. See
+write guards. Plugin hooks run only with the `plugin_hooks` feature enabled
+and each hook trusted; without both, none of Crew's guards run, so say so
+instead of assuming them. With them (verified on Codex 0.130.0-alpha.5), the
+native shell reaches hooks as `Bash` and MCP calls as `mcp__<server>__<tool>`.
+The work-in-progress block arrives through SessionStart at startup only: after
+a compaction no SessionStart runs, so re-read open milestones from the work
+items before continuing. See
 `docs/en/compatibility.md` for installation, coverage and validation limits.

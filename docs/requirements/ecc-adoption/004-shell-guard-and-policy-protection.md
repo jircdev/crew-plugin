@@ -63,7 +63,7 @@ Un agente también puede apagar sus propios controles editando `crew.json`, `doc
 | Relajar `crew.json` o los settings se niega con team + enforce salvo registro vigente en crew:policy | unit | node:test | tests/guards.test.js | passing |
 | Una exención o registro vencido deja de aplicar | unit | node:test | tests/guards.test.js | passing |
 | El mismo comando de shell en forma argv de Codex se bloquea | integration | node:test | tests/guards.test.js | passing |
-| La herramienta de shell real de Codex dispara el hook | integration | none | — | not verified — el nombre de la herramienta en los hooks de Codex no está confirmado; requiere instalación real de Codex |
+| La herramienta de shell real de Codex dispara el hook | integration | runtime-smoke | tests/runtime_cases.py (case_codex_no_verify) | passing — Codex 0.130.0-alpha.5, 2026-10-08: la shell nativa llega como `Bash` con `command`; `git commit --no-verify` negado, 0 commits. Sin `plugin_hooks` y confianza en los hooks, el mismo commit pasa |
 
 ## Changes
 

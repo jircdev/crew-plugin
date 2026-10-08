@@ -53,7 +53,8 @@ En crew el estado ya está en el repo. Basta con leerlo y mostrarlo en pocas lí
 | El bloque nunca supera 6 líneas y omite items cerrados | unit | node:test | tests/memory.test.js | passing |
 | En modo solo el bloque se omite; sin trabajo en curso calla | integration | node:test | tests/memory.test.js | passing |
 | PreCompact emite el recordatorio solo si hay hitos abiertos | integration | node:test | tests/memory.test.js | passing |
-| El host muestra el systemMessage de PreCompact al usuario | manual | none | — | not verified — requiere una compactación real en Claude Code; en Codex el evento no está confirmado |
+| Claude: PreCompact muestra el aviso y, tras compactar, SessionStart (`compact`) vuelve a emitir el bloque de trabajo en curso | integration | runtime-smoke | tests/runtime_cases.py (case_claude_compact) | passing — Claude Code 2.1.227, 2026-10-08 |
+| Codex: tras compactar, el bloque de trabajo en curso vuelve al modelo | integration | runtime-smoke | tests/runtime_cases.py (case_codex_compact) | not verified — observado en Codex 0.130.0-alpha.5: PreCompact y PostCompact se disparan, el aviso no aparece en `exec` y no corre SessionStart después de compactar, así que el bloque no vuelve |
 
 ## Changes
 

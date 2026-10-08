@@ -56,6 +56,15 @@ to them. Hosted archive upload was not tested.
    available trust UI. Plugin installation does not grant hook trust. Every
    change to a hook definition requires review again.
 
+**Codex 0.130 (verified on 0.130.0-alpha.5, 2026-10-08).** Two things changed.
+The CLI has no `codex plugin add`: register the marketplace with
+`codex plugin marketplace add` and enable Crew from the app's plugin directory,
+which installs it under `CODEX_HOME/plugins/cache/<marketplace>/crew/<version>`.
+And plugin hooks run only when the `plugin_hooks` feature is on
+(`[features] plugin_hooks = true`, still marked under development) **and** each
+hook is trusted. With either missing, Codex loads Crew's skills but runs **none**
+of its guards: the smoke observed a `git commit --no-verify` succeed in that state.
+
 From source, generate the same catalog without registering or installing it:
 
 ```sh
@@ -120,12 +129,12 @@ the installed cache.
 | Roles and crafts | Commands/subagents and skills | Skills reading the same originals; delegation depends on host |
 | Immutability, estimation, verification, timestamps, quality | Edit/Write guards | apply_patch translated per file and evaluated by the same guards |
 | Work-item shape | Edit/Write guard | apply_patch through the same guard |
-| Plans published outside the repo | Notice on MCP and Artifact calls | Registered; whether Codex runs hooks on MCP calls is unverified |
-| Hook bypass, destructive commands | Bash/PowerShell guard | Registered for shell tool names; the exact Codex tool name for shell hooks is unverified |
+| Plans published outside the repo | Notice on MCP and Artifact calls | Verified: an MCP call reaches PreToolUse as `mcp__<server>__<tool>`, the notice runs and reaches the model |
+| Hook bypass, destructive commands | Bash/PowerShell guard | Verified: the native shell reaches hooks as `Bash` with `command`; `--no-verify` is denied |
 | Policy relaxations | Edit/Write guard | apply_patch through the same guard |
-| Work in progress at session start | SessionStart, also after compaction; PreCompact notice | SessionStart; whether Codex fires PreCompact is unverified |
+| Work in progress at session start | Verified: SessionStart at startup, resume and after compaction (`compact`); PreCompact notice shown | At startup only. PreCompact and PostCompact fire, but the notice is not shown in `exec` and no SessionStart follows a compaction, so the block does not return to the model |
 | Agent configuration security scan | `scripts/sec-scan.js`, doctor, SessionStart notice | Same script; Codex config files are not yet among the scanned targets |
-| Catalog usage (opt-in per person) | PostToolUse on Agent/Skill, UserPromptSubmit | Same hooks; whether Codex emits them for its delegation is unverified |
+| Catalog usage (opt-in per person) | PostToolUse on Agent/Skill, UserPromptSubmit | UserPromptSubmit and PostToolUse fire; whether Codex's own delegation reaches PostToolUse is unverified |
 | Work log | Stop | Same script: Git and cwd, no transcript parsing |
 | Size at commit | Optional scaffolded Git hook | Same hook; `node /path/crew/scripts/check-staged.js --all` checks tracked files |
 
@@ -159,12 +168,19 @@ and author from Claude's; do not edit it manually. The contract suite is
 
 The optional `python tests/runtime-smoke.py --output <new-directory>` smoke uses
 installed CLIs and a loopback controlled-response server. If Claude is not a
-direct executable, pass `--claude /path/claude.exe`. On Windows, discovery of
-33 skills in both hosts and 17 Claude agents was verified; both rejected the
+direct executable, pass `--claude /path/claude.exe`. It is **pinned to Codex
+0.130.0-alpha.5** and refuses another version, because plugin install and hook
+trust changed between releases; it installs Crew the way the app does and writes
+a per-hook `trusted_hash` only for the package it just built. Three host cases
+run on top of the original checks: Codex's native shell running
+`git commit --no-verify` (denied; tool name recorded), a minimal stdio MCP
+server with a `publish` tool (notice observed), and compaction with an open
+milestone in both hosts. On 2026-10-08, with Claude Code 2.1.227, discovery of
+37 skills in both hosts and 17 Claude agents was verified; both rejected the
 invalid modification through the real hook, preserving the protected file and
 preventing the first valid file in the same patch from being written. A valid
-`@@ function` edit is also checked. Codex uses a one-invocation trust exception
-for reviewed sources and allows fixture writes without the Windows sandbox;
+`@@ function` edit is also checked. Codex runs with approvals and the sandbox
+bypassed inside the isolated profile so fixture writes succeed;
 it receives only fixed local-server operations, never remote-model decisions.
 No credentials were
 copied and no global profiles changed. This tests runtime integration, not
