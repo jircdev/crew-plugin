@@ -40,6 +40,7 @@ Which roles work at each stage, and the full catalog by area: [roles.md](docs/en
 | Work solo with the minimum ceremony | [solo-quickstart.md](docs/en/solo-quickstart.md) |
 | Use crew without being a developer (CEO, analyst) | [non-technical-roles.md](docs/en/non-technical-roles.md) |
 | Understand the end-to-end delivery process | [delivery circuit](templates/docs/guides/delivery-circuit.md) |
+| Set up a project after upgrading to 1.0 | [upgrade-1.0.md](docs/en/upgrade-1.0.md) — start here if you used crew before |
 | Move a project to a new version | Migration guides: [0.21](docs/en/migration-0.21.md) · [0.22](docs/en/migration-0.22.md) · [0.23](docs/en/migration-0.23.md) · [0.24](docs/en/migration-0.24.md) · [0.26](docs/en/migration-0.26.md) · [0.27](docs/en/migration-0.27.md) · [0.28](docs/en/migration-0.28.md) · [0.29](docs/en/migration-0.29.md) · [0.30](docs/en/migration-0.30.md) · [0.31](docs/en/migration-0.31.md) |
 | See what each host (Claude Code and Codex) covers, and its limits | [compatibility.md](docs/en/compatibility.md) |
 | Add a role or change the plugin | [contributing.md](docs/en/contributing.md) |

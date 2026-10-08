@@ -70,6 +70,13 @@
       "title": "Factory mode",
       "summary": "Additive: only projects that declare a factory block change. Closing a story there requires the Factory activity header; time capture starts only after each person runs /crew:factory login.",
       "doc": "docs/en/migration-0.31.md"
+    },
+    {
+      "version": "1.0.0",
+      "required": true,
+      "title": "Crew 1.0: review this project once",
+      "summary": "Version 1.0 brings together 0.26 to 0.31. Work items are checked against their template at every write, hook bypass and policy relaxations are denied, and in Codex the guards run only after enabling plugin_hooks and trusting the hooks. Follow the upgrade guide, then run /crew:setup.",
+      "doc": "docs/en/upgrade-1.0.md"
     }
   ]
 }

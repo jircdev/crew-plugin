@@ -98,6 +98,18 @@ Ask once, in either mode: **does this project track its tasks and work time in f
 - Say what declaring does: closing a work item then requires a `**Factory activity:** <uuid>` header in place of the estimation table, the timestamps guard stands down, `/crew:metrics` reads factory's backlog, and the plugin's hooks capture work-time intervals (timestamps only) for each person who connects their machine with `/crew:factory login`. The block uses factory's production environment unless it declares `"environment": "dev"`.
 - Never ask for, write or store the token, and keep it out of the chat. It is personal: each person connects their own machine with `/crew:factory login`. Point them to the plugin's `docs/en/factory.md` for that and for connecting the MCP server.
 
+### 11. Audit trail and catalog usage (optional)
+
+Two separate questions. The first is a team decision written to the shared `crew.json`; the second is a personal one that never goes there.
+
+- **Team, `team` mode only: do you want a record of what the guards decided?** Each denial or notice from the shell and policy guards becomes one line in `.crew/audit.log`: when, which guard, the decision and the rule. Never the command or any value. → `"audit": true`. Say that `.crew/.gitignore` keeps the log out of the repository.
+- **Team: should catalog usage be forbidden for everyone in this project?** Ask only if the user raises privacy or the project holds sensitive work. → `"telemetry": false`. Declaring nothing leaves the choice to each person.
+- **Personal: do you want your own usage of roles and skills counted on this machine?** It records the date, the kind and the catalog name, kept 90 days, read by `/crew:metrics catalog`, never sent anywhere. Consent is individual, so the answer goes to `.crew/local.json` (`{"telemetry": true}`), which is ignored by git — never to `crew.json`. Ask it only to the person running setup, and only if `crew.json` does not forbid it.
+
+## Changes that relax a control
+
+Some answers lower a control the agents work under: `quality` from `enforce` to `advise` or `off`, turning off `metrics` or `testing`, switching to `solo`, raising a ceiling. The policy guard denies those edits in a `team` project with `quality: enforce` unless the relaxation is registered. When the user confirms one, register it first in the `crew:policy` block of `docs/DEVIATIONS.md` with the user's own reason (and an owner or expiry if they give one), then edit `crew.json`. Never word the reason yourself.
+
 ## Closing the interview
 
 1. Show what will be written, in full, before writing it.
@@ -108,7 +120,7 @@ Ask once, in either mode: **does this project track its tasks and work time in f
 ## Anti-patterns
 
 - Guessing a dev-server command from `package.json` and declaring it without confirmation.
-- Asking all nine blocks at once.
+- Asking all eleven blocks at once.
 - Re-asking something `crew.json` already declares.
 - Writing design-memory content — references, approved or rejected patterns — instead of eliciting it.
 - Leaving the marker un-updated, so the notice repeats after a successful interview.

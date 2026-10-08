@@ -2,25 +2,46 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
-## [0.31.0] — 2026-10-08
+## [1.0.0] — 2026-10-08
 
-Factory mode merged from `feat/factory-work-tracking`, and the host runtime smoke pinned to Codex 0.130.0-alpha.5. Migration guide: [`docs/en/migration-0.31.md`](docs/en/migration-0.31.md) / [`docs/es/migration-0.31.md`](docs/es/migration-0.31.md).
+The first major version. It brings together 0.26 through 0.31, none of which was published: the last published version is 0.25.0. A project that upgrades follows one document, [`docs/en/upgrade-1.0.md`](docs/en/upgrade-1.0.md) / [`docs/es/upgrade-1.0.md`](docs/es/upgrade-1.0.md), and the session start points to it until `/crew:setup` runs.
+
+### Why a major version
+
+Behavior changes for every project that upgrades, with no opt-in: work items are checked against their template at every write (0.26), hook bypass and policy relaxations are denied (0.27), the scaffold records what it installs (0.29), and in Codex the guards run only after turning on `plugin_hooks` and trusting the hooks. A project should review its configuration once, and the version number says so.
 
 ### Added
 
-- Factory mode: an optional `factory` block in `crew.json` (`projectId`, `url`, `capture`) for projects whose tasks and work time live in factory. The personal token comes from `FACTORY_TOKEN` or `~/.crew/factory-token`, never from the repository. Guide: [`docs/en/factory.md`](docs/en/factory.md) / [`docs/es/factory.md`](docs/es/factory.md).
-- `hooks/capture-activity.js` on SessionStart, UserPromptSubmit, Stop, SessionEnd and PostToolUse (Edit|Write|MultiEdit, and Codex `apply_patch` through its file headers): records human-presence intervals (gaps of 15 minutes or less between events) and agent intervals (prompt → stop), tagged with the work item being edited, queues them in `~/.crew/activity/` and sends them to factory's `/activity/intervals`. Timestamps only; prompt and response content is never read. Silent, fails open, paused by `CREW_CAPTURE=off`, `"capture": false` or a missing token. SessionStart prunes session state older than 48 h.
-- `/crew:setup` asks one optional factory question; the templates' `AGENTS.md` estimation discipline covers factory mode.
-- `/crew:metrics` in factory mode reads the project backlog through factory's MCP tool `project_backlog`: per task original and current estimate, consumed hours and deviation, plus approved / consumed / pending / forecast.
-
-### Changed
-
-- In factory mode the estimation closure gate requires a `**Factory task:** <uuid>` header line in place of the `## Estimation` table, and the timestamps guard stands down. Without the block, behavior is unchanged. The Codex `apply_patch` adapter inherits both through the shared guards.
-- The contract suite runs every `tests/*.test.js`.
+- `/crew:setup` asks three more things: whether the team wants the guard audit trail (`audit`), whether catalog usage is forbidden for the project (`"telemetry": false`), and whether the person running setup wants their own usage counted (written to `.crew/local.json`, never to `crew.json`). When an answer relaxes a control, setup registers it in the `crew:policy` block of `docs/DEVIATIONS.md` with the user's reason before editing `crew.json`.
+- Upgrade guide `docs/{en,es}/upgrade-1.0.md`, linked first in both READMEs.
 
 ### Compatibility
 
-- Additive and opt-in: no `crew.json` field changes meaning and no migration is required. A `factory` block without `projectId` is named at session start and otherwise ignored.
+- `migrations.json` marks 1.0.0 as required, so every project configured before it sees one line at session start until `/crew:setup` updates `configuredWith`. Nothing else is required: every new key stays optional.
+
+## [0.31.0] — 2026-10-08
+
+Factory mode merged from `feat/factory-work-tracking`, the documentation audited, and the host runtime smoke pinned to Codex 0.130.0-alpha.5. Migration guide: [`docs/en/migration-0.31.md`](docs/en/migration-0.31.md) / [`docs/es/migration-0.31.md`](docs/es/migration-0.31.md).
+
+### Added
+
+- **Factory mode**: an optional `factory` block in `crew.json` (`projectId`; `environment: "dev"` or a `url` for another host; `capture`) for projects whose tasks and work time live in factory. A machine can override the environment with `CREW_FACTORY_ENV` or `CREW_FACTORY_URL`. Guide: [`docs/en/factory.md`](docs/en/factory.md) / [`docs/es/factory.md`](docs/es/factory.md).
+- **`/crew:factory login | status | logout`**: each person connects their own machine through the browser; the personal token is stored in `~/.crew/factory-token` (or read from `FACTORY_TOKEN`), never in the repository or the chat, and expires after 90 days. Login stays blocked until factory records the formal notice to the team's people.
+- **Time capture** (`hooks/capture-activity.js`) on SessionStart, UserPromptSubmit, Stop, SessionEnd and PostToolUse (Edit/Write/MultiEdit, and Codex `apply_patch` through its file headers). It records two kinds of interval that never overlap: the person's turn (from the session start or the end of an agent reply to the next prompt; a turn over 15 minutes counts as a pause) and the agent's work (from the prompt to the end of the reply). Each interval is tagged with the work item being edited and sent to factory's `/activity/intervals`, queued in `~/.crew/activity/` when factory does not answer. Timestamps only: prompt and response content is never read. Fails silently; paused by `CREW_CAPTURE=off`, `"capture": false`, a missing token or a revoked one.
+- **`/crew:metrics` in factory mode** reads the project backlog through factory's MCP tool `project_backlog`: original and current estimate, consumed hours and deviation per task, plus approved / consumed / pending / forecast. `/crew:metrics catalog` works the same in both modes.
+- `/crew:setup` asks one optional factory question; the story template gains the optional `**Factory activity:**` field.
+
+### Changed
+
+- In factory mode the estimation closure gate requires the `**Factory activity:** <uuid>` header (`**Factory task:**` is accepted) in place of the `## Estimation` table, and the timestamps guard stands down. Without the block, behavior is unchanged. Codex `apply_patch` inherits both through the shared guards.
+- **Documentation audit** (documentation steward): a documentation table in both READMEs routes to every command, guard, `docs/DEVIATIONS.md` block, the planning craft, the security scan and every migration guide; a commands table in `using-crew.md`; 14 statements that no longer matched the code corrected, among them the Codex install steps (Codex 0.130 has no `codex plugin add`), stale counts and "every guard fails open"; corrective contrast and inflated wording removed in both languages.
+- `/crew:metrics` documentation states that catalog usage is opted into per person.
+- CI runs every `tests/*.test.js`.
+
+### Fixed
+
+- Merging factory mode with the 0.26 shape guard: the story template's `**Factory activity:**` field is marked optional, so the shape guard does not require it outside factory mode.
+- A literal byte-order-mark character in `hooks/capture-activity.js` is now the `\uFEFF` escape.
 
 ### Verified
 
@@ -28,7 +49,12 @@ Factory mode merged from `feat/factory-work-tracking`, and the host runtime smok
 
 ### Known limits
 
-- Codex 0.130 runs plugin hooks only with the `plugin_hooks` feature and per-hook trust; without both, none of Crew's guards run there. After a Codex compaction no SessionStart runs, so the work-in-progress block does not return. Both are documented in `docs/en/compatibility.md`.
+- Codex 0.130 runs plugin hooks only with the `plugin_hooks` feature and per-hook trust; without both, none of Crew's guards and no time capture run there. After a Codex compaction no SessionStart runs, so the work-in-progress block does not return. Both are documented in `docs/en/compatibility.md`.
+- Estimates remain person hours; agent hours are recorded as a separate measure and nobody estimates them yet.
+
+### Compatibility
+
+- Additive and opt-in: no `crew.json` field changes meaning. A `factory` block without `projectId` is named at session start and otherwise ignored.
 
 ## [0.30.0] — 2026-10-07
 

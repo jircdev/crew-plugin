@@ -119,7 +119,7 @@ Both modes write a `crew.json` at the project root with explicit values (`mode`,
 
 ## Update the plugin
 
-Consumers run `/plugin update crew@factory-crew`. Author/local-dev installs consume the working tree directly — just pull. For template changes, existing projects re-run `scripts/init-project.sh` (which skips existing files) or merge the new template manually. Customizations you made to scaffolded files always survive an update — nothing overwrites them; how to reconcile your copies with a new baseline is in [using-crew.md § Customize the scaffolded docs](using-crew.md#customize-the-scaffolded-docs).
+Upgrading a project that already used crew to 1.0: follow [upgrade-1.0.md](upgrade-1.0.md). Consumers run `/plugin update crew@factory-crew`. Author/local-dev installs consume the working tree directly — just pull. For template changes, existing projects re-run `scripts/init-project.sh` (which skips existing files) or merge the new template manually. Customizations you made to scaffolded files always survive an update — nothing overwrites them; how to reconcile your copies with a new baseline is in [using-crew.md § Customize the scaffolded docs](using-crew.md#customize-the-scaffolded-docs).
 
 ## Remove the plugin
 
