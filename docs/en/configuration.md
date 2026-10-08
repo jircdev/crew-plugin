@@ -169,6 +169,10 @@ The same rule as `design`, applied to the other place an agent sounds confident 
 
 `"audit": true` (team mode only, opt-in) makes the shell and policy guards append one JSON line per decision to `.crew/audit.log`: when, which guard, deny or notice, and which rule fired. It never records the command, the file content or any matched value. Keep `.crew/audit.log` out of version control unless the team decides otherwise.
 
+## Catalog usage: `telemetry`
+
+Catalog usage — which roles, skills and commands get used — is recorded **only for a person who opts in**, in `.crew/local.json` (`{"telemetry": true}`, never versioned) or with `CREW_TELEMETRY=1`. The shared `crew.json` cannot switch it on for teammates; `"telemetry": false` there forbids it for everyone. Each event is one line in `.crew/usage.jsonl`: the date (no time of day), the kind, and a catalog name — anything else is stored as `other`, so no prompt text can land in it. Lines older than 90 days are dropped, `.crew/.gitignore` keeps the file out of the repository, and `/crew:doctor` blocks if it was committed anyway. `/crew:metrics catalog` reports it; `--purge` deletes it.
+
 ## The marker: `configuredWith`
 
 One line recording which plugin version last configured this project. It is **state, not policy**: no behavior reads it. Delete it and the only thing you lose is the notice.

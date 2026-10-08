@@ -169,6 +169,10 @@ La misma regla que `design`, aplicada al otro lugar donde un agente suena seguro
 
 `"audit": true` (solo en modo team, opcional) hace que los guards de shell y de políticas agreguen una línea JSON por decisión a `.crew/audit.log`: cuándo, qué guard, si negó o avisó y qué regla saltó. Nunca registra el comando, el contenido del archivo ni ningún valor detectado. Conviene dejar `.crew/audit.log` fuera del control de versiones salvo que el equipo decida otra cosa.
 
+## Uso del catálogo: `telemetry`
+
+El uso del catálogo (qué roles, skills y comandos se usan) se registra **solo para la persona que lo activa**, en `.crew/local.json` (`{"telemetry": true}`, nunca versionado) o con `CREW_TELEMETRY=1`. El `crew.json` compartido no puede encenderlo para el resto del equipo; `"telemetry": false` ahí lo prohíbe para todos. Cada evento es una línea en `.crew/usage.jsonl`: la fecha (sin hora), el tipo y un nombre del catálogo; cualquier otra cosa se guarda como `other`, así que ningún texto de un prompt puede terminar ahí. Las líneas de más de 90 días se descartan, `.crew/.gitignore` deja el archivo fuera del repositorio y `/crew:doctor` bloquea si igual se commiteó. `/crew:metrics catalog` lo informa; `--purge` lo borra.
+
 ## La marca: `configuredWith`
 
 Una línea que registra con qué versión del plugin se configuró este proyecto por última vez. Es **estado, no política**: ningún comportamiento la lee. Borrala y lo único que perdés es el aviso.

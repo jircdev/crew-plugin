@@ -175,6 +175,10 @@ function normalize(raw) {
       configuredWith: str(parsed.configuredWith),
       // Opt-in audit trail of guard decisions (hooks/lib/audit.js), team only.
       audit: parsed.audit === true,
+      // Catalog usage is opted into per person (.crew/local.json or
+      // CREW_TELEMETRY=1, see hooks/lib/usage.js); the shared file can only
+      // forbid it for everyone. It can never switch it on for a teammate.
+      telemetryForbidden: parsed.telemetry === false,
       design: normalizeDesign(parsed.design),
       testing: normalizeTesting(parsed.testing),
     };

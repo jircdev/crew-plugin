@@ -125,6 +125,7 @@ the installed cache.
 | Policy relaxations | Edit/Write guard | apply_patch through the same guard |
 | Work in progress at session start | SessionStart, also after compaction; PreCompact notice | SessionStart; whether Codex fires PreCompact is unverified |
 | Agent configuration security scan | `scripts/sec-scan.js`, doctor, SessionStart notice | Same script; Codex config files are not yet among the scanned targets |
+| Catalog usage (opt-in per person) | PostToolUse on Agent/Skill, UserPromptSubmit | Same hooks; whether Codex emits them for its delegation is unverified |
 | Work log | Stop | Same script: Git and cwd, no transcript parsing |
 | Size at commit | Optional scaffolded Git hook | Same hook; `node /path/crew/scripts/check-staged.js --all` checks tracked files |
 

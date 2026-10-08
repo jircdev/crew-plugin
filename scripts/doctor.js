@@ -9,6 +9,7 @@
 //
 // Exit 1 when any blocking finding exists, 0 otherwise.
 const fs = require("node:fs");
+const { spawnSync } = require("node:child_process");
 const path = require("node:path");
 const { loadConfig } = require("../hooks/lib/config");
 const { findRoot } = require("../hooks/lib/ceilings");
@@ -70,6 +71,10 @@ function diagnose(root) {
     for (const e of readBlock(root, name).filter((x) => x.expired)) {
       out.push(f("important", `crew:${name} entry expired on ${e.expires}`, e.raw, "renew it with the owner or remove it — it no longer applies"));
     }
+  }
+  const tracked = spawnSync("git", ["ls-files", "--", ".crew/usage.jsonl", ".crew/local.json", ".crew/audit.log"], { cwd: root, encoding: "utf8", windowsHide: true });
+  for (const t of (tracked.status === 0 ? tracked.stdout : "").split("\n").filter(Boolean)) {
+    out.push(f("blocking", "a personal crew log is under version control", t, `git rm --cached ${t}; .crew/.gitignore keeps it out from now on`));
   }
   let nonconforming = 0;
   for (const file of workItems(root)) {

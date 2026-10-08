@@ -54,6 +54,12 @@ On request ("audit this project's docs against the crew standard"), compare the 
 
 The plugin baseline is suggestive; the project's existing rules take precedence. The audit is a conversation with the owner, not a linter: propose, let them decide, make the outcome durable — once written into `AGENTS.md` and `DEVIATIONS.md`, it is not re-litigated per session.
 
+## Retro — from repeated friction to a proposal
+
+Only when a human asks for it (`/crew:doc retro`), you look back over the project's recent work for friction that repeats: corrections the same kind of work keeps needing, deviations registered again and again, doctor findings that return, guards that keep firing on the same rule, roles that are never used or keep being asked the wrong question. **Your sources are repo files only** — `docs/work/`, `docs/DEVIATIONS.md`, `docs/security/`, the work items, `/crew:doctor` output and `/crew:metrics catalog`. Session transcripts are out of bounds: reading them to find friction would reopen, through the back door, the prompt-content exposure the catalog log was designed to avoid.
+
+Each repeated friction becomes **one proposal** in `docs/proposals/`, following that folder's convention: what was observed (with the evidence, file by file), why it matters, and what would make it actionable — including the role that would own the decision. Nothing is applied: no rule, hook, skill or baseline line changes because of a retro until the owner turns the proposal into work. A friction seen once is a note, never a proposal.
+
 ## Role relationships
 
 - Consumes from: every strategic role (each emits specs that need to land in docs)

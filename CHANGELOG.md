@@ -2,6 +2,26 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [0.30.0] — 2026-10-07
+
+The catalog can learn from use without learning anything about the people using it. Requirement 011 of plan [`ecc-adoption`](docs/requirements/ecc-adoption/README.md), which closes the plan. Migration guide: [`docs/en/migration-0.30.md`](docs/en/migration-0.30.md) / [`docs/es/migration-0.30.md`](docs/es/migration-0.30.md).
+
+### Added
+
+- **Catalog usage, opt-in per person** ([`hooks/record-usage.js`](hooks/record-usage.js), [`hooks/lib/usage.js`](hooks/lib/usage.js)): `.crew/local.json` or `CREW_TELEMETRY=1` enables it for one person; the shared `crew.json` can only forbid it. One line per event — date, kind, catalog name (anything else is `other`) — kept 90 days, ignored by git through `.crew/.gitignore`. Built to the conditions of a `security-compliance` ruling.
+- **`/crew:metrics catalog`** ([`scripts/catalog-usage.js`](scripts/catalog-usage.js)): usage per role, skill and command over 30 and 90 days, unused roles, and `--purge`.
+- **Retro** in the documentation steward: on request only, repeated friction found in repo files becomes ownerless proposals in `docs/proposals/`; transcripts are never read.
+- **Doctor**: blocks when a personal crew log is under version control.
+- **Evaluation set** [`evals/routing/`](evals/routing/README.md): fourteen prompts over seven neighbor-role pairs.
+
+### Fixed
+
+- `*.sh` is pinned to LF in `.gitattributes`. A Windows checkout could turn `check-quality.sh` — the script the pre-commit gate runs — into CRLF, which bash rejects.
+
+### Compatibility
+
+- `required: false`. Whether Codex emits PostToolUse for its delegation and UserPromptSubmit is unverified, so usage may go unrecorded there.
+
 ## [0.29.0] — 2026-10-07
 
 An install that can be diagnosed, repaired and removed cleanly; adoption of codebases that already exist; and a security scan of the agent configuration that ships no third-party code. Requirements 008, 009 and 010 of plan [`ecc-adoption`](docs/requirements/ecc-adoption/README.md). Migration guide: [`docs/en/migration-0.29.md`](docs/en/migration-0.29.md) / [`docs/es/migration-0.29.md`](docs/es/migration-0.29.md).

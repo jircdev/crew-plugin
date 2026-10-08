@@ -97,6 +97,25 @@
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/nudge-scope.js\""
           }
         ]
+      },
+      {
+        "matcher": "^(Agent|Task|Skill)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/record-usage.js\""
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/record-usage.js\""
+          }
+        ]
       }
     ]
   }

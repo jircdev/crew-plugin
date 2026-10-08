@@ -13,6 +13,7 @@ const { execSync } = require("node:child_process");
 const { join, relative, dirname, sep } = require("node:path");
 
 const args = process.argv.slice(2);
+if (args[0] === "catalog") process.exit(require("./catalog-usage").main(args.slice(1)));
 const csv = args.includes("--csv");
 const period = args.find((a) => /^\d{4}-\d{2}$/.test(a)) || null;
 

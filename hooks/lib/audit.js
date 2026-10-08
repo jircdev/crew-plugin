@@ -10,6 +10,7 @@ function record(root, cfg, entry) {
   if (!root || !cfg || cfg.audit !== true || cfg.mode === "solo") return;
   try {
     mkdirSync(join(root, ".crew"), { recursive: true });
+    require("./usage").guardIgnore(root);
     const line = { at: new Date().toISOString(), guard: entry.guard, decision: entry.decision, rule: entry.rule };
     appendFileSync(join(root, ".crew", "audit.log"), JSON.stringify(line) + "\n");
   } catch {

@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-07
 - **Author role:** CREW, con SEC en seguridad
-- **Status del plan:** Draft, pendiente de aprobación del maintainer
+- **Status del plan:** Delivered — los 11 requirements implementados el 2026-10-07 en las versiones 0.26.0 a 0.30.0, sin push. Cada uno espera la revisión del maintainer para cerrar.
 
 ## Contexto
 
@@ -102,12 +102,26 @@ Cada total incluye un hito de revisión del maintainer (39.5 h en todo el plan).
 
 F0 agrega funcionalidad (skill y guard nuevos), así que corresponde a una versión minor. La línea base de alcance estaba prevista como 0.26.0; asignar versiones a cada fase queda a decisión del maintainer.
 
+## Ejecución
+
+| Fase | Versión | Requirements | Est. horas | Horas reales del agente |
+|---|---|---|---|---|
+| F0 | 0.26.0 | 001, 002 | 50.5 | 0.28 |
+| F1 | 0.27.0 | 003, 004, 005 | 72.5 | 0.29 |
+| F2 | 0.28.0 | 006, 007 | 72 | 0.22 |
+| F3 | 0.29.0 | 008, 009, 010 | 95.5 | 0.30 |
+| F4 | 0.30.0 | 011 | 33 | 0.13 |
+| | | **Total** | **323.5** | **1.22** |
+
+Las horas reales son tiempo de reloj del agente, anotado en vivo hito por hito; no incluyen la revisión del maintainer, que sigue abierta en cada tabla. La diferencia con la estimación es la señal más importante de este plan para `/crew:metrics`: las estimaciones suponían un ritmo de ejecución humano. Lo que quedó sin verificar está en la tabla `## Verification` de cada requirement: las corridas humanas de los evals y el comportamiento real de los hooks en Codex.
+
 ## Decisiones pendientes del maintainer
 
-- [ ] Aprobar el plan para pasar 001 y 002 a Ready.
-- [ ] Versión de F0 y si la línea base de alcance se corre una versión.
-- [ ] Recibos de ejecución (006): migración requerida o clave opt-in en `crew.json`.
-- [ ] Guards contra evasión (004): si fallan cerrados también en modo solo. SEC recomienda que sí.
+- [ ] Revisar cada requirement y completar su hito "Revisión del maintainer" para poder cerrarlo.
+- [ ] Autorizar el push de las versiones 0.26.0 a 0.30.0.
+- [ ] La línea base de alcance, prevista como 0.26.0, queda para una versión posterior; 005, 007 y 009 no la necesitaron.
+- [x] Recibos de ejecución (006): resuelto como clave opt-in `testing.receipts`, por la invariante 4 de `hooks/lib/config.js`.
+- [ ] Guards contra evasión (004): se implementaron fallando cerrados también en modo solo, como recomendó SEC; confirmar o pedir que en solo avisen.
 - [ ] Otros harnesses: fuera hasta que alguien los pida.
 
 ## Fuentes

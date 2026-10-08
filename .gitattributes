@@ -2,3 +2,4 @@
 *.py text eol=lf
 skills/*/SKILL.md text eol=lf
 .codex-plugin/plugin.json text eol=lf
+*.sh text eol=lf

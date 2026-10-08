@@ -70,7 +70,7 @@ Los roles y las plantillas evolucionan. Para propagar cambios a los consumidores
 3. Agrega la entrada de changelog.
 4. Agrega una fila en `migrations.json` **si y solo si** la versión exige que el consumidor actúe. Todo lo aditivo u opt-in va con `required: false` y no debe avisar — un aviso de arranque que salta por cosas que nadie tiene que hacer es un aviso que nadie lee.
 5. Regenera con `node scripts/sync-codex.js`, ejecuta
-   `node scripts/check-supply-chain.js`, `node --test tests/compatibility.test.js tests/conformance.test.js tests/catalog.test.js tests/baseline.test.js tests/guards.test.js tests/memory.test.js tests/review.test.js tests/scope.test.js tests/metrics.test.js tests/install.test.js tests/adopt.test.js tests/sec-scan.test.js`
+   `node scripts/check-supply-chain.js`, `node --test tests/compatibility.test.js tests/conformance.test.js tests/catalog.test.js tests/baseline.test.js tests/guards.test.js tests/memory.test.js tests/review.test.js tests/scope.test.js tests/metrics.test.js tests/install.test.js tests/adopt.test.js tests/sec-scan.test.js tests/usage.test.js`
    y `python tests/release-test.py`,
    y valida ambos manifiestos. Si cambia la integración con el host, ejecuta
    el [smoke aislado de runtime](compatibility.md#pruebas-y-mantenimiento).

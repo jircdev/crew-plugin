@@ -56,6 +56,13 @@
       "title": "Doctor, brownfield adoption and configuration security scan",
       "summary": "Additive. Projects scaffolded earlier have no install record; the doctor works without it. A one-line security notice appears at session start in crew projects until a scan is filed.",
       "doc": "docs/en/migration-0.29.md"
+    },
+    {
+      "version": "0.30.0",
+      "required": false,
+      "title": "Catalog usage per person, retro and LF shell scripts",
+      "summary": "Additive. Usage recording is opt-in per person and never versioned; the doctor blocks if a personal crew log was committed.",
+      "doc": "docs/en/migration-0.30.md"
     }
   ]
 }

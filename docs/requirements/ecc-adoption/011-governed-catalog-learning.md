@@ -1,10 +1,10 @@
 # 011 — Catálogo que aprende, con gobierno
 
-- **Status:** Draft
+- **Status:** Delivered
 - **Plan:** ecc-adoption ([README](README.md))
 - **Date:** 2026-10-07
 - **Author role:** CREW
-- **Branch:** —
+- **Branch:** main (the plugin ships from main; no feature branch)
 - **Depends on:** [002](002-catalog-integrity.md)
 
 ## Context
@@ -37,17 +37,17 @@ Crew puede medir el uso de roles y skills de forma local y opt-in, y convertir l
 
 | Milestone | Est. hours | Started | Finished | Actual hours | Notes |
 |-----------|-----------|---------|----------|--------------|-------|
-| Clave en la configuración | 2 | | | | |
-| Log de uso | 4 | | | | |
-| Redacción y retención del log | 1 | | | | |
-| Métricas de catálogo | 3 | | | | |
-| Retro a propuesta | 4 | | | | |
-| Evals de ruteo | 5 | | | | |
-| Revisión SEC | 1 | | | | |
-| Paridad Codex | 2 | | | | (BC) |
-| Tests | 3 | | | | |
-| Docs EN y ES | 3 | | | | |
-| Release | 1 | | | | |
+| Clave en la configuración | 2 | 2026-10-07 22:50 -03:00 | 2026-10-07 22:51 -03:00 | 0.01 | telemetry transportada por normalize(); ausente = apagado |
+| Log de uso | 4 | 2026-10-07 22:51 -03:00 | 2026-10-07 22:51 -03:00 | 0.02 | hooks/record-usage.js en PostToolUse Agent/Task/Skill y UserPromptSubmit (solo el alias inicial) |
+| Redacción y retención del log | 1 | 2026-10-07 22:51 -03:00 | 2026-10-07 22:51 -03:00 | 0 | Nombres fuera del catálogo se guardan como other; poda a 90 días en cada escritura; escrito junto con el hito anterior |
+| Métricas de catálogo | 3 | 2026-10-07 22:51 -03:00 | 2026-10-07 22:51 -03:00 | 0.01 | /crew:metrics catalog vía scripts/catalog-usage.js |
+| Retro a propuesta | 4 | 2026-10-07 22:51 -03:00 | 2026-10-07 22:52 -03:00 | 0.02 | Procedimiento en DOC, solo a pedido; fuentes: archivos del repo, nunca transcripciones (condición 7 de SEC) |
+| Evals de ruteo | 5 | 2026-10-07 22:52 -03:00 | 2026-10-07 22:53 -03:00 | 0.01 | evals/routing: 14 prompts sobre 7 pares de roles vecinos |
+| Revisión SEC | 1 | 2026-10-07 22:52 -03:00 | 2026-10-07 22:52 -03:00 | 0.02 | APPROVED WITH CONDITIONS; aplicadas las 7: escritura nula ante fallo, lista de campos, fecha sin hora, consentimiento por persona, .crew/.gitignore y chequeo del doctor, retención al leer y --purge, retro sin transcripciones |
+| Paridad Codex | 2 | 2026-10-07 22:53 -03:00 | 2026-10-07 22:53 -03:00 | 0.01 | (BC) Hooks compartidos; sin verificar si Codex emite PostToolUse para su delegación ni UserPromptSubmit |
+| Tests | 3 | 2026-10-07 22:53 -03:00 | 2026-10-07 22:53 -03:00 | 0.01 | tests/usage.test.js, incluye la regresión de SEC con texto sensible tras el alias |
+| Docs EN y ES | 3 | 2026-10-07 22:53 -03:00 | 2026-10-07 22:53 -03:00 | 0.01 | configuration, metrics, compatibility |
+| Release | 1 | 2026-10-07 22:53 -03:00 | 2026-10-07 22:54 -03:00 | 0.01 | Release 0.30.0 local; push pendiente de autorización |
 | Revisión del maintainer | 4 | | | | |
 | **Total** | **33** | — | — | | |
 
@@ -55,11 +55,13 @@ Crew puede medir el uso de roles y skills de forma local y opt-in, y convertir l
 
 | Scenario | Level | Harness | Artifact | Status |
 |----------|-------|---------|----------|--------|
-| Sin la clave `telemetry` no se escribe ningún log | unit | node:test | tests/telemetry.test.js | planned |
-| El log no contiene texto de prompts ni de salidas | unit | node:test | tests/telemetry.test.js | planned |
-| `/crew:metrics catalog` cuenta usos por rol | unit | node:test | tests/metrics.test.js | planned |
-| Un pedido de esquema llega a DA y no a SYS | manual | evals | evals/routing/fixtures.md | planned |
+| Sin opt-in personal no se escribe nada, aunque el crew.json compartido lo pida | integration | node:test | tests/usage.test.js | passing |
+| El log no contiene texto de prompts ni de entradas; guarda solo fecha, tipo y nombre del catálogo | integration | node:test | tests/usage.test.js | passing |
+| `/crew:metrics catalog` cuenta usos por rol y lista los no usados; --purge borra | integration | node:test | tests/usage.test.js | passing |
+| crew.json puede prohibirlo para todos; las líneas viejas se podan | integration | node:test | tests/usage.test.js | passing |
+| El doctor bloquea si un log personal está versionado | integration | node:test | tests/usage.test.js | passing |
+| Un pedido de esquema llega a DA y no a SYS | manual | evals | evals/routing/fixtures.md (R1) | not verified — requiere corrida humana |
 
 ## Changes
 
-- (Solo si el objetivo cambia después de In progress.)
+- 2026-10-07: tras la revisión de SEC (APPROVED WITH CONDITIONS), la activación pasa a ser por persona (`.crew/local.json` o `CREW_TELEMETRY=1`) y `crew.json` solo puede prohibirla; se guarda la fecha sin hora; `.crew/.gitignore` y el doctor impiden versionar el log; la retro no lee transcripciones.
