@@ -95,7 +95,7 @@ Ask this whenever the project has code, in either mode. It is the block that dec
 
 Ask once, in either mode: **does this project track its tasks and work time in factory? If so, what is the factory project id?** → `factory.projectId` (plus `factory.environment: "dev"` only when the whole team works against factory's development environment). "No" leaves the block out, and nothing changes.
 
-- Say what declaring does: closing a work item then requires a `**Factory activity:** <uuid>` header in place of the estimation table, the timestamps guard stands down, `/crew:metrics` reads factory's backlog, and the plugin's hooks capture work-time intervals (timestamps only) for each person who connects their machine with `/crew:factory login`. The block uses factory's production environment unless it declares `"environment": "dev"`.
+- Say what declaring does: closing a work item then requires a `**Factory activity:** <uuid>` header in place of the estimation table, the timestamps guard stands down, `/crew:metrics` reads factory's backlog, and the plugin's hooks capture work-time intervals (timestamps only) for each person who connects their machine with `/crew:factory login`. The block uses factory's production environment unless it declares `"environment": "dev"`. **Factory's production environment is not ready yet:** until it is, propose `"environment": "dev"` and say why; declare production only if the user confirms it is available to them.
 - Never ask for, write or store the token, and keep it out of the chat. It is personal: each person connects their own machine with `/crew:factory login`. Point them to the plugin's `docs/en/factory.md` for that and for connecting the MCP server.
 
 ### 11. Audit trail and catalog usage (optional)

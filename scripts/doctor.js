@@ -6,6 +6,8 @@
 //   node scripts/doctor.js [--cwd <dir>] [--json]
 //   node scripts/doctor.js repair    [--dry-run]   restore missing recorded files and the pre-commit gate
 //   node scripts/doctor.js uninstall [--dry-run]   remove only unedited recorded files and the gate line
+//   node scripts/doctor.js standard [<path>]       the effective standard, or every item off it
+//   node scripts/doctor.js security [--user]       scan the agent configuration and file the report
 //
 // Exit 1 when any blocking finding exists, 0 otherwise.
 const fs = require("node:fs");
@@ -76,12 +78,14 @@ function diagnose(root) {
   for (const t of (tracked.status === 0 ? tracked.stdout : "").split("\n").filter(Boolean)) {
     out.push(f("blocking", "a personal crew log is under version control", t, `git rm --cached ${t}; .crew/.gitignore keeps it out from now on`));
   }
-  let nonconforming = 0;
+  const nonconforming = [];
   for (const file of workItems(root)) {
     const std = resolve(file, PLUGIN);
-    if (std && problems(fs.readFileSync(file, "utf8"), std).length) nonconforming++;
+    if (std && problems(fs.readFileSync(file, "utf8"), std).length) nonconforming.push(rel(root, file));
   }
-  if (nonconforming) out.push(f("refinement", `${nonconforming} work item(s) depart from their standard`, "scripts/conformance.js --check docs/**/*.md", "bring them to the standard when next edited, or declare a deviation"));
+  if (nonconforming.length) out.push(f("refinement", `${nonconforming.length} work item(s) depart from their standard`,
+    nonconforming.slice(0, 3).join(", ") + (nonconforming.length > 3 ? `, +${nonconforming.length - 3} more` : ""),
+    "run /crew:doctor standard to see each gap; fix it when the item is next edited, or declare a deviation"));
   return [...out, ...extra.run(root, cfg)];
 }
 
@@ -134,6 +138,12 @@ if (require.main === module) {
   const cwd = path.resolve(i === -1 ? process.cwd() : argv[i + 1]);
   const root = findRoot(cwd) || cwd;
   const dry = argv.includes("--dry-run");
+  if (argv[0] === "standard" || argv[0] === "security") {
+    const commands = require("./lib/doctor-commands");
+    const target = argv[1] && !argv[1].startsWith("--") ? argv[1] : null;
+    console.log(argv[0] === "standard" ? commands.standard(root, target) : commands.security(root, { user: argv.includes("--user") }));
+    process.exit(0);
+  }
   if (argv[0] === "repair" || argv[0] === "uninstall") {
     const acts = (argv[0] === "repair" ? repair : uninstall)(root, dry);
     console.log(`${dry ? "Would" : "Did"} ${argv[0]} in ${root}:\n  ${acts.join("\n  ")}`);

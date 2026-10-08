@@ -182,7 +182,7 @@ Antes de escribir, la skill resuelve el **estándar efectivo** del work item, es
 2. la plantilla de crew, donde el proyecto no tiene una;
 3. encima, las desviaciones declaradas en el bloque `crew:standard` de `docs/DEVIATIONS.md`.
 
-`node <plugin>/scripts/conformance.js <ruta-del-work-item>` imprime ese estándar, y `--check` revisa archivos. El guard de forma lo exige en cada escritura ([enforcement.md § Forma de los work items](enforcement.md#forma-de-los-work-items)). La tabla de estimación la agrega quien ejecuta, en planning, y se mide como explica la sección siguiente.
+`/crew:doctor standard <ruta-del-work-item>` imprime ese estándar, y `/crew:doctor standard` sin ruta lista los items que no lo siguen. El guard de forma lo exige en cada escritura ([enforcement.md § Forma de los work items](enforcement.md#forma-de-los-work-items)). La tabla de estimación la agrega quien ejecuta, en planning, y se mide como explica la sección siguiente.
 
 ## Medir tu trabajo (métricas)
 
@@ -204,7 +204,7 @@ Dos reglas que todos los roles heredan del baseline de sesión.
 
 **También se escanea la configuración del agente.** Instrucciones, settings del host, servidores MCP, hooks y agentes del proyecto corren con tus permisos, así que `security-compliance` los escanea con `scripts/sec-scan.js`: secretos en texto plano, permisos en bypass, allows de shell con comodín, hooks desactivados, servidores `npx -y` sin versión fija, caracteres ocultos, instrucciones plantadas, agentes de solo lectura con herramientas de escritura. Es de solo lectura, sin red, y enmascara todo secreto. `--report` deja un informe fechado en `docs/security/`, y el inicio de sesión avisa cuando la configuración cambió desde el último. En proyectos `team`, el CI puede correrlo con `--ci` para fallar ante un hallazgo crítico o alto no aceptado; los riesgos aceptados van en el bloque `crew:security` de `docs/DEVIATIONS.md`.
 
-Para correrlo, pídeselo a `/crew:sec` o ejecuta `node <plugin>/scripts/sec-scan.js` desde la raíz del proyecto; `--user` suma la configuración de usuario de Claude. `/crew:doctor` también lo incluye.
+Para correrlo y archivar el informe: `/crew:doctor security` (con `--user` suma la configuración de usuario de Claude). `/crew:doctor` sin argumentos también muestra sus hallazgos.
 
 ## Reglas de composición
 

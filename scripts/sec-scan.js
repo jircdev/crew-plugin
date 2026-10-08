@@ -115,4 +115,4 @@ if (require.main === module) {
   const blocking = result.findings.some((f) => !f.accepted && RANK[f.severity] <= 1);
   process.exit(argv.includes("--ci") && blocking && !(cfg && cfg.mode === "solo") ? 1 : 0);
 }
-module.exports = { scan, markdown, targets, fingerprint, RANK };
+module.exports = { scan, markdown, targets, fingerprint, writeReport, RANK };

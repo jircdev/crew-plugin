@@ -121,7 +121,7 @@ Guard: [`../../hooks/guard-shape.js`](../../hooks/guard-shape.js) (PreToolUse on
 2. where the project has none, the crew template;
 3. the deviations declared in the `crew:standard` block of `docs/DEVIATIONS.md`, applied on top.
 
-Print the standard for any path with `node scripts/conformance.js docs/requirements/<plan>/001-x.md`, and check files with `--check`.
+Print the standard for any path with `/crew:doctor standard docs/requirements/<plan>/001-x.md`; `/crew:doctor standard` with no path lists the items that do not follow it.
 
 ### "This requirement departs from its standard, …"
 
@@ -137,7 +137,7 @@ requirement omit section Verification   # verified in the release checklist
 -->
 ```
 
-Grammar: `<requirement|story> omit section <Name>`, `<…> omit header <Field>`, `<…> columns <Table> <col> | <col> …`. A line without `# rationale` is ignored and reported by `conformance.js`.
+Grammar: `<requirement|story> omit section <Name>`, `<…> omit header <Field>`, `<…> columns <Table> <col> | <col> …`. A line without `# rationale` is ignored and reported by `/crew:doctor standard`.
 
 ## Off-repo plan notice
 
@@ -184,9 +184,9 @@ crew.json quality   # advise while the legacy module is migrated · owner: ana �
 | Block | What it records | Read by | More detail |
 |---|---|---|---|
 | `crew:exempt` | Paths exempt from the size ceilings, one glob per line | quality guard and pre-commit gate | [Exemptions](#exemptions) |
-| `crew:standard` | Departures from the story or requirement template | shape guard and `conformance.js` | [Work-item shape](#work-item-shape) |
+| `crew:standard` | Departures from the story or requirement template | shape guard and `/crew:doctor standard` | [Work-item shape](#work-item-shape) |
 | `crew:policy` | Approved relaxations of `crew.json` or host settings | policy guard | [Policy relaxations](#policy-relaxations) |
-| `crew:security` | Accepted risks from the security scan, as `<rule-id> [path]` | `scripts/sec-scan.js` and `/crew:doctor` | [using-crew.md](using-crew.md#security-triggers-and-the-instruction-boundary) |
+| `crew:security` | Accepted risks from the security scan, as `<rule-id> [path]` | `/crew:doctor security` | [using-crew.md](using-crew.md#security-triggers-and-the-instruction-boundary) |
 
 Each line carries its rationale after `#`. In every block the comment also accepts `owner:` and `expires: YYYY-MM-DD`:
 

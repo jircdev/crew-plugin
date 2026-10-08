@@ -182,7 +182,7 @@ Before writing, the skill resolves the work item's **effective standard**, that 
 2. the crew template, where the project has none;
 3. on top, the deviations declared in the `crew:standard` block of `docs/DEVIATIONS.md`.
 
-`node <plugin>/scripts/conformance.js <work-item-path>` prints that standard, and `--check` checks files. The shape guard enforces it on every write ([enforcement.md § Work-item shape](enforcement.md#work-item-shape)). Whoever executes adds the estimation table at planning, and it is measured as the next section explains.
+`/crew:doctor standard <work-item-path>` prints that standard, and `/crew:doctor standard` with no path lists the items that do not follow it. The shape guard enforces it on every write ([enforcement.md § Work-item shape](enforcement.md#work-item-shape)). Whoever executes adds the estimation table at planning, and it is measured as the next section explains.
 
 ## Measure your work (metrics)
 
@@ -204,7 +204,7 @@ Two rules every role inherits from the session baseline.
 
 **The agent configuration is scanned too.** Instructions, host settings, MCP servers, hooks and project agents run with your permissions, so `security-compliance` scans them with `scripts/sec-scan.js`: secrets in plain text, bypassed permissions, wildcard shell allows, disabled hooks, unpinned `npx -y` servers, hidden characters, planted instructions, read-only agents with write tools. It is read-only, offline and masks every secret. `--report` files a dated report in `docs/security/`, and the session start says when the configuration changed since the last one. In `team` projects, CI can run it with `--ci` to fail on an unaccepted critical or high finding; accepted risks go in the `crew:security` block of `docs/DEVIATIONS.md`.
 
-To run it, ask `/crew:sec` or run `node <plugin>/scripts/sec-scan.js` from the project root; `--user` adds the user-level Claude config. `/crew:doctor` includes it too.
+To run it and file the report: `/crew:doctor security` (`--user` adds the user-level Claude config). `/crew:doctor` with no argument shows its findings too.
 
 ## Composition rules
 

@@ -77,6 +77,13 @@
       "title": "Crew 1.0: review this project once",
       "summary": "Version 1.0 brings together 0.26 to 0.31. Work items are checked against their template at every write, hook bypass and policy relaxations are denied, and in Codex the guards run only after enabling plugin_hooks and trusting the hooks. Follow the upgrade guide, then run /crew:setup.",
       "doc": "docs/en/upgrade-1.0.md"
+    },
+    {
+      "version": "1.1.0",
+      "required": false,
+      "title": "Doctor subcommands and factory development environment",
+      "summary": "Additive: /crew:doctor standard and /crew:doctor security replace the script paths in the upgrade guide; factory projects point to the development environment until production is ready.",
+      "doc": "docs/en/upgrade-1.0.md"
     }
   ]
 }

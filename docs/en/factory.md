@@ -10,7 +10,7 @@ Some projects keep their work and their work time in factory, Baleares' manageme
 
 ## Setting it up
 
-**1. The project declares it (once, whoever configures the repository).** `crew.json` gets a `factory` block with the factory project id. That is enough to use factory's production environment. Reference: [configuration.md](configuration.md#factory-mode).
+**1. The project declares it (once, whoever configures the repository).** `crew.json` gets a `factory` block with the factory project id. **Factory's production environment is not ready yet:** for now also declare `"environment": "dev"`, with the project's id in factory's development environment, which can differ from the production one. Reference: [configuration.md](configuration.md#factory-mode).
 
 ```json
 { "factory": { "projectId": "3f0c9a52-…" } }
@@ -45,10 +45,12 @@ In Codex, add the server to `~/.codex/config.toml` with `url = "https://api.fact
 
 | Environment | API | Web |
 |---|---|---|
-| `prod` (default) | `https://api.factory.balearesgroup.com/api/v1` | `https://factory.balearesgroup.com` |
+| `prod` (default; not ready yet) | `https://api.factory.balearesgroup.com/api/v1` | `https://factory.balearesgroup.com` |
 | `dev` | `https://api.dev.factory.balearesgroup.com/api/v1` | `https://dev.factory.balearesgroup.com` |
 
 The project picks the environment in `crew.json` (`"environment": "dev"`, or a `url` for any other host). Your machine can override it without touching the shared file: `CREW_FACTORY_ENV=dev`, or `CREW_FACTORY_URL` with a full API base. Machine variables win over `crew.json`.
+
+There is one token per machine (`~/.crew/factory-token`). If you switch environments, `/crew:factory login` against the new one replaces the previous token, and going back needs another login. `/crew:factory status` says which environment you are connected to.
 
 ## What is captured
 

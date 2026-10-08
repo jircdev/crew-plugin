@@ -10,7 +10,7 @@ Algunos proyectos llevan su trabajo y su tiempo en factory, el sistema de gesti�
 
 ## Cómo se configura
 
-**1. El proyecto lo declara (una vez, quien configura el repositorio).** `crew.json` lleva un bloque `factory` con el id del proyecto en factory. Con eso alcanza para usar el entorno de producción. Referencia: [configuration.md](configuration.md#modo-factory).
+**1. El proyecto lo declara (una vez, quien configura el repositorio).** `crew.json` lleva un bloque `factory` con el id del proyecto en factory. **El entorno de producción de factory todavía no está listo:** por ahora declará también `"environment": "dev"`, con el id del proyecto en factory de desarrollo, que puede ser distinto del de producción. Referencia: [configuration.md](configuration.md#modo-factory).
 
 ```json
 { "factory": { "projectId": "3f0c9a52-…" } }
@@ -45,10 +45,12 @@ En Codex, agregá el servidor en `~/.codex/config.toml` con `url = "https://api.
 
 | Entorno | API | Web |
 |---|---|---|
-| `prod` (por defecto) | `https://api.factory.balearesgroup.com/api/v1` | `https://factory.balearesgroup.com` |
+| `prod` (por defecto; todavía no está listo) | `https://api.factory.balearesgroup.com/api/v1` | `https://factory.balearesgroup.com` |
 | `dev` | `https://api.dev.factory.balearesgroup.com/api/v1` | `https://dev.factory.balearesgroup.com` |
 
 El proyecto elige el entorno en `crew.json` (`"environment": "dev"`, o un `url` para cualquier otro host). Tu máquina puede cambiarlo sin tocar el archivo compartido: `CREW_FACTORY_ENV=dev`, o `CREW_FACTORY_URL` con una base de API completa. Lo de la máquina gana sobre `crew.json`.
+
+El token es uno solo por máquina (`~/.crew/factory-token`). Si cambiás de entorno, `/crew:factory login` contra el nuevo reemplaza el token anterior, y para volver hay que loguearse otra vez. `/crew:factory status` dice a qué entorno estás conectado.
 
 ## Qué se captura
 

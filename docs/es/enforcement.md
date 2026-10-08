@@ -123,7 +123,7 @@ Guard: [`../../hooks/guard-shape.js`](../../hooks/guard-shape.js) (PreToolUse so
 2. donde el proyecto no tiene una, la plantilla de crew;
 3. las desviaciones declaradas en el bloque `crew:standard` de `docs/DEVIATIONS.md`, aplicadas encima.
 
-El estándar de cualquier ruta se imprime con `node scripts/conformance.js docs/requirements/<plan>/001-x.md`, y los archivos se chequean con `--check`.
+El estándar de cualquier ruta se imprime con `/crew:doctor standard docs/requirements/<plan>/001-x.md`, y `/crew:doctor standard` sin ruta lista los items que no lo siguen.
 
 ### "This requirement departs from its standard, …"
 
@@ -139,7 +139,7 @@ requirement omit section Verification   # se verifica en el checklist de release
 -->
 ```
 
-Gramática: `<requirement|story> omit section <Nombre>`, `<…> omit header <Campo>`, `<…> columns <Tabla> <col> | <col> …`. Una línea sin `# justificación` se ignora y `conformance.js` la reporta.
+Gramática: `<requirement|story> omit section <Nombre>`, `<…> omit header <Campo>`, `<…> columns <Tabla> <col> | <col> …`. Una línea sin `# justificación` se ignora y `/crew:doctor standard` la reporta.
 
 ## Aviso de planes fuera del repo
 
@@ -186,9 +186,9 @@ crew.json quality   # advise mientras se migra el módulo legacy · owner: ana �
 | Bloque | Qué registra | Quién lo lee | Más detalle |
 |---|---|---|---|
 | `crew:exempt` | Rutas exentas de los techos de tamaño, un glob por línea | guard de calidad y puerta pre-commit | [Exenciones](#exenciones) |
-| `crew:standard` | Desvíos de la plantilla de stories o requirements | guard de forma y `conformance.js` | [Forma de los work items](#forma-de-los-work-items) |
+| `crew:standard` | Desvíos de la plantilla de stories o requirements | guard de forma y `/crew:doctor standard` | [Forma de los work items](#forma-de-los-work-items) |
 | `crew:policy` | Relajaciones aprobadas de `crew.json` o de los settings del host | guard de políticas | [Relajación de políticas](#relajación-de-políticas) |
-| `crew:security` | Riesgos aceptados del escaneo de seguridad, como `<id-de-regla> [ruta]` | `scripts/sec-scan.js` y `/crew:doctor` | [using-crew.md](using-crew.md#disparadores-de-seguridad-y-frontera-de-instrucciones) |
+| `crew:security` | Riesgos aceptados del escaneo de seguridad, como `<id-de-regla> [ruta]` | `/crew:doctor security` | [using-crew.md](using-crew.md#disparadores-de-seguridad-y-frontera-de-instrucciones) |
 
 Cada línea lleva su justificación después de `#`. En cualquier bloque, el comentario acepta además `owner:` y `expires: AAAA-MM-DD`:
 

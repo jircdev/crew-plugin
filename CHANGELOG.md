@@ -2,6 +2,27 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [1.1.0] — 2026-10-08
+
+Every step of the 1.0 upgrade guide now has its own command, and the guide says plainly that factory's production environment is not ready yet.
+
+### Added
+
+- **`/crew:doctor standard [<path>]`**: with a path, the effective standard for that story or requirement; without one, every work item that departs from its standard and what each one is missing.
+- **`/crew:doctor security [--user]`**: scans the agent configuration and files the dated report in `docs/security/`, which also closes the security notice at session start.
+- Comparison with ECC: [`docs/en/comparison-ecc.md`](docs/en/comparison-ecc.md) / [`docs/es/comparison-ecc.md`](docs/es/comparison-ecc.md).
+
+### Changed
+
+- The upgrade guide replaces its two `node <plugin>/scripts/...` steps with `/crew:doctor standard` and `/crew:doctor security`, and its factory step now walks through pointing the project to factory's development environment, connecting with `/crew:factory login` and checking with `/crew:factory status`.
+- Factory's production environment is marked as not ready in `factory.md`; `/crew:setup` proposes `"environment": "dev"` and declares production only if the user confirms it is available. The plugin's default environment does not change.
+- `factory.md` explains that there is one token per machine, so switching environments needs another login.
+- The doctor's "items off their standard" finding names the items and points to `/crew:doctor standard`; the session-start security notice points to `/crew:doctor security`. `using-crew.md` and `enforcement.md` use the commands instead of script paths.
+
+### Compatibility
+
+- `required: false`. Nothing changes for projects that already followed the 1.0 guide.
+
 ## [1.0.0] — 2026-10-08
 
 The first major version. It brings together 0.26 through 0.31, none of which was published: the last published version is 0.25.0. A project that upgrades follows one document, [`docs/en/upgrade-1.0.md`](docs/en/upgrade-1.0.md) / [`docs/es/upgrade-1.0.md`](docs/es/upgrade-1.0.md), and the session start points to it until `/crew:setup` runs.

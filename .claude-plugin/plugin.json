@@ -1,6 +1,6 @@
 {
   "name": "crew",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Shared catalog of specialized Crew roles, design/writing crafts, project standards and crew.json. Claude Code commands and Codex skills use the same canonical procedures, with host-specific hook adapters.",
   "author": {
     "name": "Julio",

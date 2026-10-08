@@ -42,7 +42,7 @@ The interview asks only what is missing and writes only what you confirm. What i
 | Question | What it turns on |
 |---|---|
 | Does a `passing` row need a receipt of the run? | `testing.receipts`: closing requires the receipt `/crew:check` writes |
-| Does the project keep its tasks and time in factory? | The `factory` block and factory mode ([factory.md](factory.md)) |
+| Does the project keep its tasks and time in factory? | The `factory` block, pointed to development (see step 8) |
 | Do you want a record of what the guards decide? (team) | `audit`: one line per decision in `.crew/audit.log` |
 | Should catalog usage be forbidden? (team) | `"telemetry": false` |
 | Do you want your own use of roles and skills counted? (person) | `.crew/local.json`, ignored by git |
@@ -51,11 +51,13 @@ If an answer lowers a control (for example `quality` from `enforce` to `advise`)
 
 ## 5. Review your templates
 
-Your project's templates (`docs/stories/README.md`, `docs/requirements/README.md`) do not change on their own. From 1.0 they are your standard: crew checks every story and requirement against them at write time. To see the standard applied to a path:
+Your project's templates (`docs/stories/README.md`, `docs/requirements/README.md`) do not change on their own. From 1.0 they are your standard: crew checks every story and requirement against them at write time. To see which items do not follow them, and what each one is missing:
 
 ```
-node <plugin>/scripts/conformance.js docs/requirements/<plan>/001-x.md
+/crew:doctor standard
 ```
+
+With a path (`/crew:doctor standard docs/requirements/<plan>/001-x.md`) it shows the standard applied to that file.
 
 Crew's templates add three things you can copy into yours if they help: the `## Must not` section in stories, and the optional `**Size:**` and `**Factory activity:**` fields.
 
@@ -74,23 +76,32 @@ Details are in [enforcement.md](enforcement.md).
 
 ## 7. Scan the agent configuration
 
-Ask `security-compliance` to run the scan, or run it yourself:
-
 ```
-node <plugin>/scripts/sec-scan.js --report
+/crew:doctor security
 ```
 
-It checks the project's instructions, settings, MCP servers, hooks and agents. It uses no network and masks secrets. Until a report exists in `docs/security/`, every session reminds you with one line.
+It checks the project's instructions, settings, MCP servers, hooks and agents. It uses no network, masks secrets and files a dated report in `docs/security/`. Until that report exists, every session reminds you with one line.
 
 ## 8. If the project uses factory
 
-Each person connects their machine once:
+**Factory's production environment is not ready yet.** Until it is, every project uses the development environment (`https://dev.factory.balearesgroup.com`).
 
-```
-/crew:factory login
-```
+1. **The project points to development.** `/crew:setup` proposes it when it asks about factory; the `crew.json` block ends up like this:
+   ```json
+   { "factory": { "projectId": "<project id in factory's development environment>", "environment": "dev" } }
+   ```
+   The id is the project's id in factory's development environment, which can differ from the production one.
+2. **Each person connects their machine once:**
+   ```
+   /crew:factory login
+   ```
+   Factory's development environment opens in the browser to approve the machine. Without this step nothing is recorded about that person.
+3. **Check which environment you are connected to:**
+   ```
+   /crew:factory status
+   ```
 
-Without that step nothing is recorded about that person. Details are in [factory.md](factory.md).
+There is one token per machine. When production is ready, switching environments needs another `/crew:factory login`. Details are in [factory.md](factory.md).
 
 ## What changes day to day
 

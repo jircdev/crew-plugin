@@ -42,7 +42,7 @@ La entrevista pregunta solo lo que falta y escribe solo lo que confirmás. Lo nu
 | Pregunta | Qué activa |
 |---|---|
 | ¿Un `passing` necesita un recibo de la corrida? | `testing.receipts`: el cierre exige el recibo que deja `/crew:check` |
-| ¿El proyecto lleva sus tareas y su tiempo en factory? | El bloque `factory` y el modo factory ([factory.md](factory.md)) |
+| ¿El proyecto lleva sus tareas y su tiempo en factory? | El bloque `factory`, apuntado a desarrollo (ver el paso 8) |
 | ¿Querés un registro de lo que deciden los guards? (equipo) | `audit`: una línea por decisión en `.crew/audit.log` |
 | ¿Se prohíbe medir el uso del catálogo? (equipo) | `"telemetry": false` |
 | ¿Querés contar tu propio uso de roles y skills? (persona) | `.crew/local.json`, que git ignora |
@@ -51,11 +51,13 @@ Si alguna respuesta baja un control (por ejemplo, `quality` de `enforce` a `advi
 
 ## 5. Revisar tus plantillas
 
-Las plantillas de tu proyecto (`docs/stories/README.md`, `docs/requirements/README.md`) no cambian solas. Desde la 1.0 son tu estándar: crew valida cada story y cada requirement contra ellas al escribir. Para ver el estándar que se aplica a una ruta:
+Las plantillas de tu proyecto (`docs/stories/README.md`, `docs/requirements/README.md`) no cambian solas. Desde la 1.0 son tu estándar: crew valida cada story y cada requirement contra ellas al escribir. Para ver qué items no las siguen, y qué les falta a cada uno:
 
 ```
-node <plugin>/scripts/conformance.js docs/requirements/<plan>/001-x.md
+/crew:doctor standard
 ```
+
+Con una ruta (`/crew:doctor standard docs/requirements/<plan>/001-x.md`) muestra el estándar que se aplica a ese archivo.
 
 Las plantillas de crew suman tres cosas que podés copiar a las tuyas si te sirven: la sección `## Must not` en las stories, y los campos opcionales `**Size:**` y `**Factory activity:**`.
 
@@ -74,23 +76,32 @@ El detalle está en [enforcement.md](enforcement.md).
 
 ## 7. Escanear la configuración del agente
 
-Pedile a `security-compliance` que corra el escaneo, o corrélo vos:
-
 ```
-node <plugin>/scripts/sec-scan.js --report
+/crew:doctor security
 ```
 
-Revisa instrucciones, settings, servidores MCP, hooks y agentes del proyecto. No usa red y enmascara los secretos. Hasta que haya un informe en `docs/security/`, cada sesión lo recuerda con una línea.
+Revisa instrucciones, settings, servidores MCP, hooks y agentes del proyecto. No usa red, enmascara los secretos y deja un informe fechado en `docs/security/`. Hasta que exista ese informe, cada sesión lo recuerda con una línea.
 
 ## 8. Si el proyecto usa factory
 
-Cada persona conecta su máquina una vez:
+**El entorno de producción de factory todavía no está listo.** Hasta que lo esté, todo proyecto usa el entorno de desarrollo (`https://dev.factory.balearesgroup.com`).
 
-```
-/crew:factory login
-```
+1. **El proyecto apunta a desarrollo.** `/crew:setup` te lo propone al preguntar por factory; el bloque de `crew.json` queda así:
+   ```json
+   { "factory": { "projectId": "<id del proyecto en factory de desarrollo>", "environment": "dev" } }
+   ```
+   El id es el del proyecto en factory de desarrollo, que puede ser distinto del de producción.
+2. **Cada persona conecta su máquina una vez:**
+   ```
+   /crew:factory login
+   ```
+   Se abre factory de desarrollo en el navegador para aprobar la máquina. Sin este paso no se registra nada sobre esa persona.
+3. **Comprobá a qué entorno quedaste conectado:**
+   ```
+   /crew:factory status
+   ```
 
-Sin ese paso no se registra nada sobre esa persona. El detalle está en [factory.md](factory.md).
+El token es uno solo por máquina. Cuando producción esté lista, cambiar el entorno pide volver a correr `/crew:factory login`. El detalle está en [factory.md](factory.md).
 
 ## Qué cambia en el día a día
 

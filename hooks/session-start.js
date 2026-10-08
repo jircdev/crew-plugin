@@ -152,7 +152,7 @@ try {
     try { last = JSON.parse(readFileSync(join(projectRoot, ".crew", "sec-scan.json"), "utf8")).hash; } catch { /* never scanned */ }
     if (fingerprint(projectRoot) !== last) {
       process.stdout.write(`\n## crew — security\n\n- The agent configuration ${last ? "changed since the last security scan" : "has no recorded security scan"}. ` +
-        "Ask `security-compliance` to run `scripts/sec-scan.js --report` (read-only; secrets masked).\n");
+        "Run `/crew:doctor security` to scan it and file the report (read-only; secrets masked).\n");
     }
   }
 } catch {
