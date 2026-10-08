@@ -16,6 +16,7 @@ const { configFor } = require("./lib/config");
 const { findRoot } = require("./lib/ceilings");
 const { readBlock } = require("./lib/deviation-lines");
 const { relaxations, kindOf } = require("./lib/policy");
+const { record } = require("./lib/audit");
 
 function emit(output) {
   process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: "PreToolUse", ...output } }));
@@ -56,7 +57,9 @@ try {
     `is a project decision: register each key with its rationale (and ideally an owner and an expiry) in the ` +
     `crew:policy block of docs/DEVIATIONS.md, e.g. "${missing[0]}   # why · owner: … · expires: YYYY-MM-DD", ` +
     `after the owner agrees. Never relax it to get past a guard.`;
-  if (cfg && cfg.mode !== "solo" && cfg.quality === "enforce") deny(`Policy relaxation denied: ${detail}`);
+  const denied = !!(cfg && cfg.mode !== "solo" && cfg.quality === "enforce");
+  record(root, cfg, { guard: "policy", decision: denied ? "deny" : "notice", rule: missing.join("+") });
+  if (denied) deny(`Policy relaxation denied: ${detail}`);
   emit({ additionalContext: `Crew notice: ${detail}` });
 } catch {
   if (cfg && kindOf(path)) deny("The crew policy guard could not evaluate this edit to a policy file, so it is " +

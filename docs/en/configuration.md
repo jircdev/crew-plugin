@@ -165,6 +165,10 @@ The same rule as `design`, applied to the other place an agent sounds confident 
 
 **What the standard never mandates.** A specific tool. A plan that requires Playwright in a repo that never adopted it produces specs that never run and a table that reads covered while nothing executes. Declare the harness once, here, and every role derives from it.
 
+## Audit trail: `audit`
+
+`"audit": true` (team mode only, opt-in) makes the shell and policy guards append one JSON line per decision to `.crew/audit.log`: when, which guard, deny or notice, and which rule fired. It never records the command, the file content or any matched value. Keep `.crew/audit.log` out of version control unless the team decides otherwise.
+
 ## The marker: `configuredWith`
 
 One line recording which plugin version last configured this project. It is **state, not policy**: no behavior reads it. Delete it and the only thing you lose is the notice.

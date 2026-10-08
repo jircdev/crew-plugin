@@ -15,6 +15,8 @@
 const { readFileSync } = require("node:fs");
 const { loadConfig } = require("./lib/config");
 const { commandOf, hookBypass, destructive } = require("./lib/shell");
+const { findRoot } = require("./lib/ceilings");
+const { record } = require("./lib/audit");
 
 const SHELL_TOOLS = /^(Bash|PowerShell|shell|local_shell|exec_command|container\.exec)$/;
 
@@ -33,19 +35,23 @@ try {
   if (!SHELL_TOOLS.test(String(input.tool_name || ""))) process.exit(0);
   cmd = commandOf(input.tool_input);
   if (!cmd) process.exit(0);
-  governed = !!loadConfig(input.cwd || process.cwd());
+  const cfg = loadConfig(input.cwd || process.cwd());
+  governed = !!cfg;
+  const trail = (decision, rule) => record(findRoot(input.cwd || process.cwd()), cfg, { guard: "shell", decision, rule });
 
   const bypass = hookBypass(cmd);
   if (bypass) {
     const detail = `\`${bypass}\` switches off the git hooks this project relies on, including the crew ` +
       `quality gate. Run the command without it; if the gate is wrong for this change, fix the code or ` +
       `pre-register the exception in docs/DEVIATIONS.md — never skip the gate.`;
+    trail(governed ? "deny" : "notice", `hook-bypass:${bypass}`);
     if (governed) deny(`Hook bypass denied: ${detail}`);
     emit({ additionalContext: `Crew notice: ${detail}` });
   }
 
   const hits = destructive(cmd);
   if (hits.length) {
+    trail("notice", `destructive:${hits.join("+")}`);
     emit({ additionalContext:
       `Crew notice — destructive command (${hits.join(", ")}). Before running it, state the exact targets ` +
       `it will affect and how to undo it (a backup, a branch, a migration down). If you cannot name both, ` +

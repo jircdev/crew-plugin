@@ -113,6 +113,25 @@ try {
   // Configuration status is a convenience; it must never break the session.
 }
 
+// Security scan freshness: one line when the agent configuration (instructions,
+// settings, MCP, agents) changed since the last recorded scan, or was never
+// scanned. Only in crew projects; never runs the scan itself.
+try {
+  const cwd = event.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  if (loadConfig(cwd)) {
+    const projectRoot = findRoot(cwd) || cwd;
+    const { fingerprint } = require("../scripts/sec-scan.js");
+    let last = null;
+    try { last = JSON.parse(readFileSync(join(projectRoot, ".crew", "sec-scan.json"), "utf8")).hash; } catch { /* never scanned */ }
+    if (fingerprint(projectRoot) !== last) {
+      process.stdout.write(`\n## crew — security\n\n- The agent configuration ${last ? "changed since the last security scan" : "has no recorded security scan"}. ` +
+        "Ask `security-compliance` to run `scripts/sec-scan.js --report` (read-only; secrets masked).\n");
+    }
+  }
+} catch {
+  // Never break the session over a notice.
+}
+
 // Work in progress, derived from the repo (never from transcripts): at most six
 // lines, silent when nothing is in flight, and skipped in solo mode where the
 // delivery circuit does not apply. Also runs after a compaction, which is when

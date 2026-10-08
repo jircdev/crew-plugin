@@ -37,7 +37,7 @@ crew-plugin/
 ├── standards/
 │   ├── session-context.md    # baseline de sesión siempre activo (defaults sugeridos)
 │   └── configuration-interview.md  # el set fijo de preguntas que sigue /crew:setup
-├── evals/
+├── evals/                    # sets de corrida humana: design, planning, security, review
 │   └── design/               # fixtures + rúbrica: puntúan conducta del agente, nunca gusto
 ├── templates/
 │   ├── AGENTS.md             # contexto canónico de agentes (precedencia, mapa de propiedad, interop)
@@ -46,7 +46,11 @@ crew-plugin/
 │   │   └── code-quality.md   # núcleo universal (sugerido; las reglas del proyecto ganan)
 │   └── docs/                 # taxonomía sembrada en los proyectos consumidores (incl. design/)
 ├── scripts/
-│   ├── init-project.sh       # scaffold + crew.json (team / --solo)
+│   ├── init-project.js       # scaffold + crew.json + registro de instalación (init-project.sh lo envuelve)
+│   ├── doctor.js             # /crew:doctor — diagnóstico, reparar, desinstalar
+│   ├── conformance.js        # estándar efectivo de work items y --check
+│   ├── verify.js             # /crew:check — comandos de test declarados, recibos
+│   ├── check-supply-chain.js # caracteres ocultos y rutas personales en lo que se distribuye
 │   ├── metrics.js            # reporte de /crew:metrics
 │   ├── check-quality.sh      # puerta de calidad pre-commit (instalada por init)
 │   └── check-staged.js
@@ -66,7 +70,7 @@ Los roles y las plantillas evolucionan. Para propagar cambios a los consumidores
 3. Agrega la entrada de changelog.
 4. Agrega una fila en `migrations.json` **si y solo si** la versión exige que el consumidor actúe. Todo lo aditivo u opt-in va con `required: false` y no debe avisar — un aviso de arranque que salta por cosas que nadie tiene que hacer es un aviso que nadie lee.
 5. Regenera con `node scripts/sync-codex.js`, ejecuta
-   `node scripts/check-supply-chain.js`, `node --test tests/compatibility.test.js tests/conformance.test.js tests/catalog.test.js tests/baseline.test.js tests/guards.test.js tests/memory.test.js tests/review.test.js tests/scope.test.js tests/metrics.test.js`
+   `node scripts/check-supply-chain.js`, `node --test tests/compatibility.test.js tests/conformance.test.js tests/catalog.test.js tests/baseline.test.js tests/guards.test.js tests/memory.test.js tests/review.test.js tests/scope.test.js tests/metrics.test.js tests/install.test.js tests/adopt.test.js tests/sec-scan.test.js`
    y `python tests/release-test.py`,
    y valida ambos manifiestos. Si cambia la integración con el host, ejecuta
    el [smoke aislado de runtime](compatibility.md#pruebas-y-mantenimiento).

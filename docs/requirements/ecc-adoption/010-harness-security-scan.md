@@ -1,10 +1,10 @@
 # 010 — Escaneo de seguridad de la configuración del agente
 
-- **Status:** Draft
+- **Status:** Delivered
 - **Plan:** ecc-adoption ([README](README.md))
 - **Date:** 2026-10-07
 - **Author role:** SEC
-- **Branch:** —
+- **Branch:** main (the plugin ships from main; no feature branch)
 - **Depends on:** [004](004-shell-guard-and-policy-protection.md), [008](008-install-lifecycle.md)
 
 ## Context
@@ -40,11 +40,11 @@ Crew necesita un escaneo propio, de solo lectura, que reporte en el estilo del s
 
 | Milestone | Est. hours | Started | Finished | Actual hours | Notes |
 |-----------|-----------|---------|----------|--------------|-------|
-| Motor: reglas, severidad, enmascarado, informe | 10 | | | | |
-| Integración: comando, aviso por hash, CI | 4 | | | | |
-| Log de auditoría opt-in | 3 | | | | |
-| Tests | 2 | | | | |
-| Docs EN y ES | 2 | | | | |
+| Motor: reglas, severidad, enmascarado, informe | 10 | 2026-10-07 22:46 -03:00 | 2026-10-07 22:47 -03:00 | 0.03 | scripts/sec-scan.js y scripts/lib/sec-rules.js; secretos enmascarados; informe fechado en docs/security/; riesgos aceptados en el bloque crew:security |
+| Integración: comando, aviso por hash, CI | 4 | 2026-10-07 22:47 -03:00 | 2026-10-07 22:47 -03:00 | 0.02 | Comando vía rol SEC (sin comando nuevo), check del doctor, aviso por hash en SessionStart solo en proyectos crew, --ci para el pipeline |
+| Log de auditoría opt-in | 3 | 2026-10-07 22:47 -03:00 | 2026-10-07 22:48 -03:00 | 0.01 | audit: true en crew.json, solo team; registra guard, decisión y regla, nunca valores |
+| Tests | 2 | 2026-10-07 22:48 -03:00 | 2026-10-07 22:49 -03:00 | 0.01 | tests/sec-scan.test.js, 5 tests |
+| Docs EN y ES | 2 | 2026-10-07 22:49 -03:00 | 2026-10-07 22:49 -03:00 | 0.01 | using-crew, configuration, compatibility, plantilla DEVIATIONS, rol SEC |
 | Revisión del maintainer | 3 | | | | |
 | **Total** | **24** | — | — | | |
 
@@ -52,12 +52,14 @@ Crew necesita un escaneo propio, de solo lectura, que reporte en el estilo del s
 
 | Scenario | Level | Harness | Artifact | Status |
 |----------|-------|---------|----------|--------|
-| Un MCP con secreto escrito a mano produce un crítico enmascarado | unit | node:test | tests/sec-scan.test.js | planned |
-| Un allow con comodín produce un alto | unit | node:test | tests/sec-scan.test.js | planned |
-| En team, un crítico sin exención hace fallar el CI | integration | node:test | tests/sec-scan.test.js | planned |
-| El escaneo no abre conexiones de red | unit | node:test | tests/sec-scan.test.js | planned |
-| El log de auditoría no contiene valores coincidentes | unit | node:test | tests/sec-audit-log.test.js | planned |
+| Un MCP con secreto escrito a mano produce un crítico enmascarado y el secreto no sale del escáner | unit | node:test | tests/sec-scan.test.js | passing |
+| Un allow con comodín, hooks apagados y npx -y sin versión producen altos | unit | node:test | tests/sec-scan.test.js | passing |
+| Instrucciones plantadas, caracteres ocultos y agentes de solo lectura con escritura se reportan | unit | node:test | tests/sec-scan.test.js | passing |
+| En team, un alto sin aceptar hace fallar `--ci`; aceptado o en solo, no | integration | node:test | tests/sec-scan.test.js | passing |
+| SessionStart avisa sin escaneo previo o con configuración cambiada, y calla tras `--report` | integration | node:test | tests/sec-scan.test.js | passing |
+| El log de auditoría no contiene valores | unit | node:test | tests/sec-scan.test.js | passing |
+| El escaneo no abre conexiones de red | manual | none | scripts/sec-scan.js (revisión de código: sin módulos de red) | not verified — sin test que intercepte la red; el código no importa http, https ni net |
 
 ## Changes
 
-- (Solo si el objetivo cambia después de In progress.)
+- 2026-10-07: el escaneo se invoca desde el rol SEC y desde `/crew:doctor` en lugar de un comando propio, para no sumar una entrada al catálogo. Los archivos de configuración de Codex quedan fuera de los objetivos en esta versión; está documentado como hueco en `compatibility.md`.

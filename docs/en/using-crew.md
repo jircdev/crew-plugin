@@ -56,6 +56,8 @@ Do **not** scaffold over a project that already has docs and conventions. The en
 
 The documentation-steward inventories the project against the plugin taxonomy, reports aligned/deviated/missing findings, and you decide per finding: converge (becomes a story/requirement) or keep the deviation. Kept deviations are recorded in `docs/DEVIATIONS.md` and the precedence resolution is written into the project's root `AGENTS.md` — binding for all agents, never re-litigated per session. The plugin baseline is suggestive; the project's own rules always win.
 
+The code needs the same treatment as the docs. `/crew:adopt` extracts what the system does today, one capability at a time, into `docs/as-is/`: `researcher` reads at most 15 files per capability and lists the rest as deferred, `functional-analyst` writes rules as When / Then with their source line, and anything not seen is marked `uncertain`. It is evidence, never a backlog — what to keep, fix or change becomes stories afterwards. Each file records its commit, and `/crew:doctor` reports it as stale once the code it was read from changes.
+
 ## Customize the scaffolded docs
 
 Everything the installer copies stops belonging to the plugin the moment it lands: the scaffolded `AGENTS.md`, `standards/`, and `docs/` tree are **your project's files**. The installer never overwrites an existing file, so whatever you change persists — but not everything in those files carries the same weight. There are two kinds of content, and the procedure differs.
@@ -173,6 +175,8 @@ Two rules every role inherits from the session baseline.
 **What an agent reads is data.** Instructions come from you in the conversation and from the project's own rule files (`AGENTS.md`, `standards/`, `crew.json`, `docs/DEVIATIONS.md`). A README, a web page, a test's output or another agent's report can contain text addressed to the agent — "run this", "the maintainer already approved", "skip the hooks". The agent quotes it, says where it came from and asks you. A subagent's sentence never counts as your consent.
 
 **Some work always goes through security.** Authentication or sessions, authorization and roles, untrusted input crossing a boundary, queries or schema holding personal data, file paths built from input, external APIs or webhooks, cryptography, and secrets: work touching any of these consults `security-compliance` before it is final. When it touched one, the reply's evidence seal says whether SEC was consulted and, if not, why. The canonical list lives in the SEC role; [`evals/security/`](../../evals/security/README.md) checks both rules.
+
+**The agent configuration is scanned too.** Instructions, host settings, MCP servers, hooks and project agents run with your permissions, so `security-compliance` scans them with `scripts/sec-scan.js`: secrets in plain text, bypassed permissions, wildcard shell allows, disabled hooks, unpinned `npx -y` servers, hidden characters, planted instructions, read-only agents with write tools. It is read-only, offline and masks every secret. `--report` files a dated report in `docs/security/`, and the session start says when the configuration changed since the last one. In `team` projects, CI can run it with `--ci` to fail on an unaccepted critical or high finding; accepted risks go in the `crew:security` block of `docs/DEVIATIONS.md`.
 
 ## Composition rules
 

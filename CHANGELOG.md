@@ -2,6 +2,23 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [0.29.0] — 2026-10-07
+
+An install that can be diagnosed, repaired and removed cleanly; adoption of codebases that already exist; and a security scan of the agent configuration that ships no third-party code. Requirements 008, 009 and 010 of plan [`ecc-adoption`](docs/requirements/ecc-adoption/README.md). Migration guide: [`docs/en/migration-0.29.md`](docs/en/migration-0.29.md) / [`docs/es/migration-0.29.md`](docs/es/migration-0.29.md).
+
+### Added
+
+- **Scaffold in Node** ([`scripts/init-project.js`](scripts/init-project.js)), the single source of what gets seeded; `init-project.sh` wraps it. `--dry-run`, `--json`, and an install record with a hash per file in `.crew/install-state.json`. Pre-existing files are never overwritten nor claimed.
+- **`/crew:doctor`** ([`scripts/doctor.js`](scripts/doctor.js)): read-only diagnosis in the findings shape — `crew.json` parse and declarations, pending required migrations, receipts without commands, the pre-commit gate, missing scaffold files, expired `DEVIATIONS.md` entries, work items off their standard, stale as-is specs, and the security scan. `repair` and `uninstall` (with `--dry-run`) touch only recorded files the project did not edit.
+- **`/crew:adopt`**: `researcher` extracts behavior per capability (at most 15 files, deferred list, `uncertain:` marks, commit recorded) and `functional-analyst` writes it in `docs/as-is/` as When / Then rules and invariants. The doctor reports a spec as stale once its files change.
+- **Configuration security scan** ([`scripts/sec-scan.js`](scripts/sec-scan.js)), owned by `security-compliance`: secrets in plain text (masked), bypassed permissions, wildcard shell allows, disabled hooks, hooks calling the network or silencing errors, unpinned `npx -y` MCP servers, hidden characters, planted instructions, read-only agents with write tools. Critical/high/medium/info with no averaged grade; dated reports in `docs/security/`; accepted risks in a `crew:security` block; `--ci` fails a team pipeline on an unaccepted critical or high finding; a session-start notice when the configuration changed since the last scan.
+- **Audit trail** (`"audit": true`, team): guard decisions appended to `.crew/audit.log`, never values.
+- **Evaluation set** [`evals/brownfield/`](evals/brownfield/README.md).
+
+### Compatibility
+
+- `required: false`. Codex configuration files are not yet among the scanned targets.
+
 ## [0.28.0] — 2026-10-07
 
 Reviews whose findings someone else can check, passes that point at a run, and ceremony sized to the request. Requirements 006 and 007 of plan [`ecc-adoption`](docs/requirements/ecc-adoption/README.md). Migration guide: [`docs/en/migration-0.28.md`](docs/en/migration-0.28.md) / [`docs/es/migration-0.28.md`](docs/es/migration-0.28.md).

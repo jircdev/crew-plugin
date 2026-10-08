@@ -106,9 +106,12 @@ On the first session after enabling, Claude Code asks you to approve the plugin'
 Installing makes the roles available everywhere; each repo then decides how much process it wants. In the project you'll work in, run the plugin's init script:
 
 ```bash
-scripts/init-project.sh          # team — full delivery circuit + all guards
-scripts/init-project.sh --solo   # solo — the catalog without the ceremony
+scripts/init-project.sh             # team — full delivery circuit + all guards
+scripts/init-project.sh --solo      # solo — the catalog without the ceremony
+scripts/init-project.sh --dry-run   # list what would be written, write nothing
 ```
+
+The script never overwrites a file, and it records every file it does write, with its hash, in `.crew/install-state.json`. That record is what lets `/crew:doctor` check the install against its own declarations, and lets `/crew:doctor repair` restore a missing scaffold or `/crew:doctor uninstall` remove exactly what crew wrote — a scaffolded file you edited is yours and is never touched.
 
 Both write a `crew.json` at the project root with explicit values (`mode`, `metrics`, `quality`, `ceilings`), so the repo's behavior is visible and editable — no hidden defaults. A repo **without** `crew.json` keeps the legacy behavior: guards infer by structure and quality enforces at write time. Every field and its effects are documented in [configuration.md](configuration.md).
 

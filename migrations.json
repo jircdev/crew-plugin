@@ -49,6 +49,13 @@
       "title": "Findings shape, receipts and sized ceremony",
       "summary": "Additive and opt-in. Note: /crew:metrics doubled estimated and actual hours since 0.23 by counting the Total row; regenerate any exported metrics.csv.",
       "doc": "docs/en/migration-0.28.md"
+    },
+    {
+      "version": "0.29.0",
+      "required": false,
+      "title": "Doctor, brownfield adoption and configuration security scan",
+      "summary": "Additive. Projects scaffolded earlier have no install record; the doctor works without it. A one-line security notice appears at session start in crew projects until a scan is filed.",
+      "doc": "docs/en/migration-0.29.md"
     }
   ]
 }

@@ -16,7 +16,8 @@ Interpret canonical Claude transport syntax in Codex as follows:
   picker (for example `fe`, `setup`, `metrics`). `$ARGUMENTS` means the user's
   task text, not a literal shell variable. Pass only validated arguments to
   executables; metrics accepts an optional YYYY-MM and explicit `--csv`;
-  check accepts an optional test kind passed as `--kind <kind>`.
+  check accepts an optional test kind passed as `--kind <kind>`; doctor accepts
+  `repair` or `uninstall` plus `--dry-run`, and runs those two only on request.
 - `Spawn <role> subagent` means use the host's delegation facility when it is
   available and allowed. Supply the canonical `agents/<role>.md` body and this
   adapter to the child; a skill is not a registered native Codex subagent type.

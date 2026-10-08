@@ -1,10 +1,10 @@
 # 009 — Onboarding brownfield
 
-- **Status:** Draft
+- **Status:** Delivered
 - **Plan:** ecc-adoption ([README](README.md))
 - **Date:** 2026-10-07
 - **Author role:** FA
-- **Branch:** —
+- **Branch:** main (the plugin ships from main; no feature branch)
 - **Depends on:** [008](008-install-lifecycle.md), propuesta de línea base de alcance (0.26)
 
 ## Context
@@ -37,15 +37,15 @@ Crew puede llevar esas reglas un paso más allá y sembrar con ellas la línea b
 
 | Milestone | Est. hours | Started | Finished | Actual hours | Notes |
 |-----------|-----------|---------|----------|--------------|-------|
-| Protocolo RES y FA | 4 | | | | |
-| Plantilla as-is | 2 | | | | |
-| `/crew:adopt` | 4 | | | | |
-| Siembra de la línea base | 4 | | | | (BC) depende de la forma final de la 0.26 |
-| Frescura en el doctor | 3 | | | | |
-| Evals | 3 | | | | |
-| Paridad Codex | 1.5 | | | | |
-| Docs EN y ES | 4 | | | | |
-| Release | 1 | | | | |
+| Protocolo RES y FA | 4 | 2026-10-07 22:44 -03:00 | 2026-10-07 22:44 -03:00 | 0.02 | Protocolo de extracción en RES y modo as-is en FA |
+| Plantilla as-is | 2 | 2026-10-07 22:44 -03:00 | 2026-10-07 22:44 -03:00 | 0.01 | templates/docs/as-is/README.md, sembrada por init en modo team |
+| `/crew:adopt` | 4 | 2026-10-07 22:44 -03:00 | 2026-10-07 22:44 -03:00 | 0.01 | commands/adopt.md y skill Codex generada |
+| Siembra de la línea base | 4 | 2026-10-07 22:44 -03:00 | 2026-10-07 22:45 -03:00 | 0 | No ejecutado: la línea base de alcance sigue como propuesta sin implementar. docs/as-is/ queda como el insumo que esa propuesta podrá sembrar |
+| Frescura en el doctor | 3 | 2026-10-07 22:45 -03:00 | 2026-10-07 22:45 -03:00 | 0.02 | scripts/lib/as-is-freshness.js registrado en el doctor; tests/adopt.test.js |
+| Evals | 3 | 2026-10-07 22:45 -03:00 | 2026-10-07 22:45 -03:00 | 0.01 | evals/brownfield |
+| Paridad Codex | 1.5 | 2026-10-07 22:45 -03:00 | 2026-10-07 22:45 -03:00 | 0.01 | Skill adopt generada; el comando delega en roles y scripts compartidos |
+| Docs EN y ES | 4 | 2026-10-07 22:45 -03:00 | 2026-10-07 22:45 -03:00 | 0.01 | using-crew EN y ES |
+| Release | 1 | 2026-10-07 22:49 -03:00 | 2026-10-07 22:50 -03:00 | 0.01 | Release conjunta 0.29.0 local (008, 009, 010); push pendiente de autorización |
 | Revisión del maintainer | 4 | | | | |
 | **Total** | **30.5** | — | — | | |
 
@@ -53,10 +53,11 @@ Crew puede llevar esas reglas un paso más allá y sembrar con ellas la línea b
 
 | Scenario | Level | Harness | Artifact | Status |
 |----------|-------|---------|----------|--------|
-| Una regla sin evidencia suficiente queda marcada como incierta | manual | evals | evals/brownfield/fixtures.md | planned |
-| `/crew:adopt` crea `baseline.md` con hash de commit | integration | node:test | tests/adopt.test.js | planned |
-| El doctor reporta una regla con commit viejo | integration | node:test | tests/doctor.test.js | planned |
+| Una regla sin evidencia suficiente queda marcada como incierta | manual | evals | evals/brownfield/fixtures.md (A3) | not verified — requiere corrida humana sobre un repo real |
+| El scaffold team siembra `docs/as-is/README.md`; existen el comando y su skill de Codex | integration | node:test | tests/adopt.test.js | passing |
+| El doctor reporta una spec as-is cuyo código cambió desde su commit | integration | node:test | tests/adopt.test.js | passing |
+| Una spec sin commit o con commit ajeno pide re-extracción | integration | node:test | tests/adopt.test.js | passing |
 
 ## Changes
 
-- (Solo si el objetivo cambia después de In progress.)
+- 2026-10-07: la extracción escribe en `docs/as-is/` en lugar de sembrar `baseline.md`, porque la línea base de alcance sigue como propuesta sin implementar. `/crew:adopt` deja la evidencia lista para que esa propuesta la consuma cuando exista.

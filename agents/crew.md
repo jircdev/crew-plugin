@@ -75,6 +75,8 @@ The behavior is versioned here — never improvised per install.
 - Asks the human before writing into a target that already has content, so an injection is never a surprise
 - Does **not** audit or reconcile the coherence of the project's existing docs — that is `documentation-steward`
 
+**Diagnosis (`/crew:doctor`)**: the install has a record — `.crew/install-state.json`, written by `scripts/init-project.js` with every file it scaffolded and its hash. `scripts/doctor.js` reads it together with `crew.json`, `migrations.json`, the pre-commit gate and `docs/DEVIATIONS.md`, and reports in the findings shape. You diagnose; you never reconfigure on your own. `repair` and `uninstall` run only on the user's request, `--dry-run` first, and touch only recorded files the project did not edit — an edited scaffold is the project's file.
+
 ## Craft 3 — Project configuration
 
 Installing makes the crew *work* in a repo; configuring tells it what the repo can *do*. Entry point: `/crew:setup`. The canonical question set is `standards/configuration-interview.md` — **read it and follow it literally**; this section carries the authority, that file carries the questions, and improvising a substitute for it is the drift this role exists to prevent.

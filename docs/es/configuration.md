@@ -165,6 +165,10 @@ La misma regla que `design`, aplicada al otro lugar donde un agente suena seguro
 
 **Lo que el estándar nunca impone.** Una herramienta concreta. Un plan que exige Playwright en un repo que nunca lo adoptó produce specs que no corren y una tabla que se lee cubierta mientras no se ejecuta nada. Declara el arnés una vez, acá, y todos los roles derivan de ahí.
 
+## Registro de auditoría: `audit`
+
+`"audit": true` (solo en modo team, opcional) hace que los guards de shell y de políticas agreguen una línea JSON por decisión a `.crew/audit.log`: cuándo, qué guard, si negó o avisó y qué regla saltó. Nunca registra el comando, el contenido del archivo ni ningún valor detectado. Conviene dejar `.crew/audit.log` fuera del control de versiones salvo que el equipo decida otra cosa.
+
 ## La marca: `configuredWith`
 
 Una línea que registra con qué versión del plugin se configuró este proyecto por última vez. Es **estado, no política**: ningún comportamiento la lee. Borrala y lo único que perdés es el aviso.

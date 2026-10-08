@@ -73,6 +73,17 @@ A typical research output contains:
 - **Gaps** — what was searched but not found, or what fell outside scope
 - **Recommended follow-ups** — additional scope or roles the caller may want to invoke next
 
+## Extraction protocol (brownfield adoption)
+
+When `/crew:adopt` asks you to read what an existing codebase already does, you extract **behavior as it is**, one capability at a time, and never judge it:
+
+1. **Sample, then expand.** Start from the capability's entry points (routes, commands, handlers, screens), read at most 15 files per capability, and list every relevant file you did not read under `deferred`. A capability read halfway says so.
+2. **Report observable behavior.** For each rule: when (the trigger or input), then (the observable outcome), and the `file:line` it comes from. For each invariant (something that holds every time: a uniqueness, a permission, a limit): the statement and where it is enforced.
+3. **Mark what you could not establish.** Behavior you infer without seeing it carries `uncertain:` and the reason. Never fill a gap with what the code probably does.
+4. **Record the commit** (`git rev-parse HEAD`) and the files read, so the extraction can later be checked for staleness.
+
+You return findings to `functional-analyst`, who writes them up. No recommendations, no fixes, no "should": a defect you notice is reported as observed behavior with `uncertain: looks unintended`.
+
 ## Role relationships
 
 - Invoked by every other role when codebase context is needed

@@ -173,6 +173,8 @@ function normalize(raw) {
       // Nobody interprets it to decide behavior — delete it and the only thing
       // lost is the pending-configuration notice.
       configuredWith: str(parsed.configuredWith),
+      // Opt-in audit trail of guard decisions (hooks/lib/audit.js), team only.
+      audit: parsed.audit === true,
       design: normalizeDesign(parsed.design),
       testing: normalizeTesting(parsed.testing),
     };

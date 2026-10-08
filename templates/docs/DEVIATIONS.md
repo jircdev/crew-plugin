@@ -56,7 +56,16 @@ Keys: `crew.json quality`, `crew.json metrics`, `crew.json testing`, `crew.json 
 crew.json quality   # advise while the legacy module is migrated · owner: ana · expires: 2027-01-31
 ```
 
-Every block in this file (`crew:exempt`, `crew:standard`, `crew:policy`) accepts `owner:` and `expires: YYYY-MM-DD` in the comment. An entry past its date stops applying.
+## Accepted security risks (machine-readable)
+
+A finding of the configuration security scan (`scripts/sec-scan.js`, run by `security-compliance`) that the owner decides to accept is registered here, rule and file, with the rationale. Accepted findings stay in the report, marked as accepted, and no longer fail CI.
+
+<!-- crew:security
+-->
+
+Example: `SEC-HOOK-NET .claude/settings.json   # posts to our own status page · owner: ana · expires: 2027-01-31`
+
+Every block in this file (`crew:exempt`, `crew:standard`, `crew:policy`, `crew:security`) accepts `owner:` and `expires: YYYY-MM-DD` in the comment. An entry past its date stops applying.
 
 ## Convention
 
