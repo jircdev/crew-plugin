@@ -7,7 +7,7 @@ Improvements detected during work that nobody owns yet: a gap, a refactor idea, 
 A proposal exits this folder in one of three ways:
 
 1. **Matures** — someone owns it → it becomes a story (`stories/`) or requirement (`requirements/`) and this file is deleted (the new artifact links back to the idea's origin if useful).
-2. **Is decided** — it turns out to be a decision, not work → ADR in `decisions/`.
+2. **Is decided** — it turns out to be a decision → ADR in `decisions/`.
 3. **Is discarded** — with the reason recorded in the file before archiving it in the closing commit message.
 
 ## Convention
