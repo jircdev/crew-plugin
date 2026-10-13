@@ -28,6 +28,7 @@ const { readFileSync } = require("node:fs");
 const { join, dirname } = require("node:path");
 const { configDir } = require("./config-dir");
 const { normalizeFactory } = require("./factory-env");
+const { normalizeStack } = require("./stack");
 
 const QUALITY_MODES = new Set(["advise", "enforce", "off"]);
 // Enums exist ONLY where a role must know HOW to consume the capability.
@@ -177,6 +178,7 @@ function normalize(raw) {
       telemetryForbidden: parsed.telemetry === false,
       design: normalizeDesign(parsed.design),
       testing: normalizeTesting(parsed.testing),
+      stack: normalizeStack(parsed.stack),
       factory: normalizeFactory(parsed.factory),
     };
   } catch {

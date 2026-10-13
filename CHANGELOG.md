@@ -2,6 +2,25 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [Unreleased]
+
+Stack specifications belong to the project. crew carries method, and each project declares where the knowledge of its stack lives.
+
+### Added
+
+- **`stack` section in `crew.json`**: per area, a skill to load or a document to read (`specs: [{ area, kind: "skill" | "doc", ref }]`). A spec without `area` applies to every area. Reference: [`docs/en/configuration.md#stack-specifications`](docs/en/configuration.md#stack-specifications) / [`docs/es/configuration.md#especificaciones-de-stack`](docs/es/configuration.md#especificaciones-de-stack).
+- The session baseline states the principle for every role: before deciding or implementing in an area, load what the project declared for it; with nothing declared, work from the role's general craft and name the gap in the evidence seal.
+- `/crew:setup` asks for the stack specifications in a new block 10, and never proposes or writes one. Factory and audit move to blocks 11 and 12.
+- The session start names an unusable `stack` declaration, and `/crew:doctor` reports it together with a declared document that does not exist.
+
+### Changed
+
+- The `crew` role carries the principle as an operating rule and refuses to ship stack knowledge inside the plugin.
+
+### Compatibility
+
+- `required: false`. A project without `stack` behaves exactly as before.
+
 ## [1.1.0] — 2026-10-08
 
 Every step of the 1.0 upgrade guide now has its own command, and the guide says plainly that factory's production environment is not ready yet.

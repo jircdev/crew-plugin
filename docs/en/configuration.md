@@ -29,6 +29,7 @@ Two consequences. First, the plugin has **no hidden defaults**: the friendlier v
 | `configuredWith` | version string | `null` | State data: which plugin version last configured this project. No behavior uses it to decide; see [The marker](#the-marker-configuredwith). |
 | `design` | object | `null` | What this project *can do* for interface work. Nothing is granted by default; see [Design capabilities](#design-capabilities). |
 | `testing` | object (`guide`, `e2e`, `commands`, `receipts`) | `null` | What this project can verify, and with what. Declaring it turns the verification table into a closure gate; see [Testing capabilities](#testing-capabilities). |
+| `stack` | object (`specs`) | `null` | Where the knowledge of this project's stack lives, per area. The plugin ships none; see [Stack specifications](#stack-specifications). |
 | `audit` | `true` \| `false` | `false` | Log of guard decisions in `.crew/audit.log`, team mode only; see [Audit trail](#audit-trail-audit). |
 | `telemetry` | `false` | no effect | Can only forbid catalog usage recording for the whole team. Each person turns it on locally; see [Catalog usage](#catalog-usage-telemetry). |
 | `factory` | object (`projectId`, `environment`, `url`, `web`, `capture`) | `null` | Tasks, estimates and work time live in factory; see [Factory mode](#factory-mode). |
@@ -168,6 +169,34 @@ The same rule as `design`, applied to the other place an agent sounds confident 
 **`receipts: true` makes a pass checkable.** Opt-in, because an absent field keeps the previous behavior. With it, a `passing` verification row closes only when it cites a receipt written by `/crew:check` (`scripts/verify.js` runs the declared `commands` and records exit code, times, git HEAD and output tail, hashed so it cannot be edited unnoticed). Without `commands`, receipts cannot exist, so declare both.
 
 **What the standard never mandates.** A specific tool. A plan that requires Playwright in a repo that never adopted it produces specs that never run and a table that reads covered while nothing executes. Declare the harness once, here, and every role derives from it.
+
+## Stack specifications
+
+crew carries method: who decides, with what procedure, what counts as evidence. The knowledge of a specific stack — its conventions, tools and diagnostics — belongs to the project. The plugin ships no framework packs and no default conventions, and it never will: a pack ages at its framework's pace, and shipping one would make the plugin choose the stack for every project. The `stack` section is where the project says where that knowledge lives.
+
+| What you declare | What it enables | What happens if you don't |
+|---|---|---|
+| `specs` — per area, a skill to load or a document to read | A role deciding or implementing in that area loads it first and names it in the evidence seal | The role works from its general craft, and the seal says *"no stack specification declared for <area>"* |
+
+```json
+{
+  "stack": {
+    "specs": [
+      { "area": "frontend", "kind": "skill", "ref": "react-conventions" },
+      { "area": "backend",  "kind": "doc",   "ref": "docs/stack/backend.md" },
+      { "kind": "doc", "ref": "docs/stack/shared.md" }
+    ]
+  }
+}
+```
+
+**`area` is a free label.** The project names its own areas. A spec without `area` applies to every area.
+
+**`kind` is closed: `skill` or `doc`.** Loading a skill and reading a document are different actions, so a role has to know which one it is. An unknown `kind`, or a spec without `ref`, is treated as undeclared and named at session start; `/crew:doctor` also reports a `doc` that points at a missing file.
+
+**Verification commands stay where they are.** The commands that check the stack live in `testing.commands` and `design.checks`. A stack spec can describe how to read their output; it does not declare them a second time.
+
+**`/crew:setup` asks and never proposes.** It records the skill or document the project names for each area. It does not offer packs or popular conventions, and it never writes a spec on the project's behalf.
 
 ## Audit trail: `audit`
 

@@ -116,6 +116,7 @@ try {
     for (const [section, cfg] of [
       ["design", config.design],
       ["testing", config.testing],
+      ["stack", config.stack],
       ["factory", config.factory],
     ]) {
       for (const unknown of (cfg && cfg.unknown) || []) {

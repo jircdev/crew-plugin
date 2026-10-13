@@ -29,6 +29,7 @@ Dos consecuencias. Primera, el plugin **no tiene defaults ocultos**: los valores
 | `configuredWith` | string de versión | `null` | Dato de estado: con qué versión del plugin se configuró este proyecto por última vez. Ningún comportamiento lo usa para decidir; ver [La marca](#la-marca-configuredwith). |
 | `design` | objeto | `null` | Qué *puede hacer* este proyecto para el trabajo de interfaz. Nada se concede por defecto; ver [Capacidades de diseño](#capacidades-de-diseño). |
 | `testing` | objeto (`guide`, `e2e`, `commands`, `receipts`) | `null` | Qué puede verificar este proyecto y con qué. Declararlo convierte la tabla de verificación en compuerta de cierre; ver [Capacidades de testing](#capacidades-de-testing). |
+| `stack` | objeto (`specs`) | `null` | Dónde vive el conocimiento del stack de este proyecto, por área. El plugin no trae ninguno; ver [Especificaciones de stack](#especificaciones-de-stack). |
 | `audit` | `true` \| `false` | `false` | Registro de las decisiones de los guards en `.crew/audit.log`, solo en modo team; ver [Registro de auditoría](#registro-de-auditoría-audit). |
 | `telemetry` | `false` | sin efecto | Solo puede prohibir el registro de uso del catálogo para todo el equipo. Cada persona lo activa en su máquina; ver [Uso del catálogo](#uso-del-catálogo-telemetry). |
 | `factory` | objeto (`projectId`, `environment`, `url`, `web`, `capture`) | `null` | Las tareas, las estimaciones y el tiempo de trabajo viven en factory; ver [Modo factory](#modo-factory). |
@@ -168,6 +169,34 @@ La misma regla que `design`, aplicada al otro lugar donde un agente suena seguro
 **`receipts: true` vuelve comprobable un pass.** Es opcional, porque un campo ausente mantiene el comportamiento anterior. Con él, una fila de verificación `passing` cierra solo si cita un recibo escrito por `/crew:check` (`scripts/verify.js` corre los `commands` declarados y registra código de salida, horarios, HEAD de git y el final de la salida, con un hash para que no se pueda editar sin que se note). Sin `commands` no puede haber recibos, así que hay que declarar ambos.
 
 **Lo que el estándar nunca impone.** Una herramienta concreta. Un plan que exige Playwright en un repo que nunca lo adoptó produce specs que no corren y una tabla que se lee cubierta mientras no se ejecuta nada. Declara el arnés una vez, acá, y todos los roles derivan de ahí.
+
+## Especificaciones de stack
+
+crew aporta el método: quién decide, con qué procedimiento, qué cuenta como evidencia. El conocimiento de un stack concreto (sus convenciones, herramientas y diagnósticos) pertenece al proyecto. El plugin no trae packs de frameworks ni convenciones por defecto, y no los va a traer: un pack envejece al ritmo de su framework, y traerlo haría que el plugin eligiera el stack de cada proyecto. La sección `stack` es donde el proyecto dice dónde vive ese conocimiento.
+
+| Qué declaras | Qué habilita | Qué pasa si no |
+|---|---|---|
+| `specs` — por área, una skill a cargar o un documento a leer | Un rol que decide o implementa en esa área la carga primero y la nombra en el sello de evidencia | El rol trabaja con su oficio general y el sello dice *"no hay especificación de stack declarada para <área>"* |
+
+```json
+{
+  "stack": {
+    "specs": [
+      { "area": "frontend", "kind": "skill", "ref": "react-conventions" },
+      { "area": "backend",  "kind": "doc",   "ref": "docs/stack/backend.md" },
+      { "kind": "doc", "ref": "docs/stack/shared.md" }
+    ]
+  }
+}
+```
+
+**`area` es una etiqueta libre.** El proyecto nombra sus propias áreas. Una spec sin `area` aplica a todas.
+
+**`kind` es cerrado: `skill` o `doc`.** Cargar una skill y leer un documento son acciones distintas, así que el rol tiene que saber cuál es. Un `kind` desconocido, o una spec sin `ref`, se trata como no declarada y se nombra al iniciar sesión; `/crew:doctor` además reporta un `doc` que apunta a un archivo inexistente.
+
+**Los comandos de verificación quedan donde están.** Los comandos que verifican el stack viven en `testing.commands` y `design.checks`. Una spec de stack puede explicar cómo leer su salida, sin declararlos por segunda vez.
+
+**`/crew:setup` pregunta y nunca propone.** Registra la skill o el documento que el proyecto nombra para cada área. No ofrece packs ni convenciones populares, y nunca escribe una spec en nombre del proyecto.
 
 ## Registro de auditoría: `audit`
 

@@ -20,7 +20,7 @@ Canonical question set for configuring a project. The `crew` role reads this fil
 | Source | What it may already answer |
 |---|---|
 | `crew.json` | What is already declared — never re-ask it |
-| `AGENTS.md` | Stack, folder layout, common commands, the project's own rules |
+| `AGENTS.md` | Stack, folder layout, common commands, the project's own rules, where its stack specifications live |
 | `.claude/launch.json` | How the app starts, and on which port |
 | `package.json` scripts (or the stack's equivalent) | Dev server, storybook, accessibility and performance checks |
 | `docs/design/` | Whether design memory exists and whether it has content or is still the empty scaffold |
@@ -91,14 +91,24 @@ Ask this whenever the project has code, in either mode. It is the block that dec
 - Say what declaring costs and what it buys: with `e2e` declared, plans specify scenarios as specs in that harness at that path and the estimate carries writing them; undeclared, a scenario stays a walkthrough and the plan names the missing harness as a cost. Declaring `testing` at all makes the work item's verification table a closure gate.
 - Never propose a tool the project did not name. Suggesting a harness because it is popular is the plugin choosing the stack through the back door — the same failure the design blocks exist to prevent.
 
-### 10. Factory (optional)
+### 10. Stack specifications
+
+Ask this whenever the project has code, in either mode. The plugin carries method; the knowledge of this project's stack is the project's, and this block records where it lives.
+
+- **Which areas does this project have, and what describes how each one is built here?** For each area the project names (its own labels: frontend, backend, data, infra, mobile...), the answer is an installed skill to load or a document to read. → `stack.specs` (`area` free label, `kind`: `skill` | `doc`, `ref`)
+- Look before asking: `AGENTS.md`, `standards/`, a `docs/stack/` or `docs/guides/` folder, the skills installed in the host. Propose what you found and confirm it; a lint config or a dependency names a tool, and a specification says how this project builds with it.
+- A spec without `area` applies to every area. Verification commands stay in `testing.commands` and `design.checks`.
+- Say what each answer means: declared, a role deciding or implementing in that area loads it first and names it in the evidence seal; undeclared, the role works from its general craft and the seal says no stack specification was declared for that area.
+- Never propose a spec the project did not name, and never write one on its behalf. Offering a framework pack or a popular convention is the plugin choosing the stack through the back door. When an area has nothing, say so and offer to note it as a gap for the project to fill.
+
+### 11. Factory (optional)
 
 Ask once, in either mode: **does this project track its tasks and work time in factory? If so, what is the factory project id?** → `factory.projectId` (plus `factory.environment: "dev"` only when the whole team works against factory's development environment). "No" leaves the block out, and nothing changes.
 
 - Say what declaring does: closing a work item then requires a `**Factory activity:** <uuid>` header in place of the estimation table, the timestamps guard stands down, `/crew:metrics` reads factory's backlog, and the plugin's hooks capture work-time intervals (timestamps only) for each person who connects their machine with `/crew:factory login`. The block uses factory's production environment unless it declares `"environment": "dev"`. **Factory's production environment is not ready yet:** until it is, propose `"environment": "dev"` and say why; declare production only if the user confirms it is available to them.
 - Never ask for, write or store the token, and keep it out of the chat. It is personal: each person connects their own machine with `/crew:factory login`. Point them to the plugin's `docs/en/factory.md` for that and for connecting the MCP server.
 
-### 11. Audit trail and catalog usage (optional)
+### 12. Audit trail and catalog usage (optional)
 
 Two separate questions. The first is a team decision written to the shared `crew.json`; the second is a personal one that never goes there.
 
@@ -120,8 +130,9 @@ Some answers lower a control the agents work under: `quality` from `enforce` to 
 ## Anti-patterns
 
 - Guessing a dev-server command from `package.json` and declaring it without confirmation.
-- Asking all eleven blocks at once.
+- Asking every block at once.
 - Re-asking something `crew.json` already declares.
 - Writing design-memory content — references, approved or rejected patterns — instead of eliciting it.
+- Proposing or writing a stack specification the project did not name.
 - Leaving the marker un-updated, so the notice repeats after a successful interview.
 - Declaring a capability "so the agent can do more". Undeclared is a valid state and its cost is already visible in every deliverable.

@@ -12,7 +12,7 @@ crew le da un proceso a ese agente. Es un plugin para Claude Code y Codex que ap
 - un flujo guiado por especificaciones (spec-driven), de la idea a producción;
 - convenciones que viven en el repo y que Claude Code, Cursor, Copilot y Codex leen de forma nativa, así cada decisión se escribe una vez y se lee muchas.
 
-Funciona con cualquier stack.
+Funciona con cualquier stack. crew aporta el método; el conocimiento de tu stack (convenciones, herramientas, diagnósticos) queda en tu proyecto, que lo declara en `crew.json` para que los roles lo carguen. Ver [Especificaciones de stack](configuration.md#especificaciones-de-stack).
 
 ## Cómo fluye el trabajo
 
@@ -30,7 +30,7 @@ Qué roles trabajan en cada etapa, y el catálogo completo por área: [roles.md]
 | Elegir el modo del proyecto (team o solo) | [using-crew.md § Elegir el modo](using-crew.md#elegir-el-modo-del-proyecto) |
 | Ver todos los comandos: roles, `/crew:setup`, `/crew:check`, `/crew:doctor`, `/crew:adopt`, `/crew:metrics`, `/crew:factory` | [using-crew.md § Comandos](using-crew.md#comandos-de-crew) |
 | Conocer los roles y qué decide cada uno | [roles.md](roles.md) |
-| Configurar `crew.json`: modo, métricas, calidad, techos, diseño, testing y recibos, auditoría, telemetría, factory | [configuration.md](configuration.md) |
+| Configurar `crew.json`: modo, métricas, calidad, techos, diseño, testing y recibos, stack, auditoría, telemetría, factory | [configuration.md](configuration.md) |
 | Entender qué hace cada guard y resolver un bloqueo | [enforcement.md](enforcement.md) |
 | Registrar una excepción en `docs/DEVIATIONS.md` (`crew:exempt`, `crew:standard`, `crew:policy`, `crew:security`, con `owner:` y `expires:`) | [enforcement.md § Bloques](enforcement.md#bloques-de-docsdeviationsmd) |
 | Planificar y estimar trabajo (skill `planning`, estándar efectivo) | [using-crew.md § Planificar](using-crew.md#planificar-y-estimar-trabajo) |
@@ -49,7 +49,7 @@ Qué roles trabajan en cada etapa, y el catálogo completo por área: [roles.md]
 ## Qué incluye
 
 - **Roles** (`agents/`, `commands/`): 17 roles, cada uno con su comando `/crew:<alias>`. Los alias retirados todavía responden y derivan a su sucesor.
-- **Skills** (`skills/`): 35 entradas de alias generadas a partir de los comandos, que comparten Claude y Codex, y tres oficios que cualquier rol carga: `planning` (planes y estimaciones como work items en el estándar del proyecto), `writing` (cómo comunica una pieza) y `design` (composición, entrega, revisión de implementación y juicio de renders). Los oficios llevan solo método; el gusto de cada producto lo declara su proyecto.
+- **Skills** (`skills/`): 35 entradas de alias generadas a partir de los comandos, que comparten Claude y Codex, y tres oficios que cualquier rol carga: `planning` (planes y estimaciones como work items en el estándar del proyecto), `writing` (cómo comunica una pieza) y `design` (composición, entrega, revisión de implementación y juicio de renders). Los oficios llevan solo método; el gusto de cada producto y el conocimiento de su stack los declara su proyecto.
 - **Hooks** (`hooks/`): `SessionStart` carga el baseline de sesión, el estado de configuración y el trabajo en curso. Los guards de `PreToolUse` protegen los artefactos inmutables, las tablas de estimación y verificación, los timestamps, los techos de tamaño, la forma de los work items, la evasión de hooks y la relajación de políticas. `Stop` revisa el registro de trabajo. En modo factory, `capture-activity` registra intervalos de tiempo de trabajo (solo marcas de tiempo) y los envía a factory. Detalle: [enforcement.md](enforcement.md).
 - **Puerta pre-commit**: la instala el scaffold y exige los mismos techos de tamaño al commitear. Las exenciones se pre-registran en el bloque `crew:exempt` de `docs/DEVIATIONS.md`.
 - **Plantillas** (`templates/`): `AGENTS.md` (contexto canónico de agentes), un puntero `CLAUDE.md`, `standards/` y la taxonomía de `docs/` (stories, requirements, decisions, briefs, proposals, as-is, guides, work, DEVIATIONS). La memoria de diseño (`docs/design/`) y la estrategia de testing (`docs/guides/testing.md`) se instalan vacías: las completa el proyecto.
