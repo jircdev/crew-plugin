@@ -49,7 +49,8 @@ function violation(path, content, overrides) {
   if (!CODE_EXTENSIONS.has(ext)) return null;
   const kind = kindOf(path);
   const ceiling = Number((overrides || {})[kind]) || CEILINGS[kind];
-  const lines = content.split("\n").length;
+  // A final newline ends the last line; it does not open another one.
+  const lines = content ? content.split("\n").length - (content.endsWith("\n") ? 1 : 0) : 0;
   return lines > ceiling ? { lines, kind, ceiling } : null;
 }
 
