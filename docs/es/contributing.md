@@ -22,8 +22,9 @@ crew-plugin/
 │   ├── fa.md
 │   ├── sys.md
 │   ├── ...                   # un archivo por alias
-├── skills/                   # 34 entradas de alias generadas + 3 oficios que cualquier rol carga
+├── skills/                   # 35 entradas de alias generadas + 4 oficios que cualquier rol carga
 │   ├── planning/SKILL.md     # planes y estimaciones como work items, en el estándar efectivo
+│   ├── execution/SKILL.md    # un procedimiento por tipo de cambio de código, escalado al riesgo y cerrado con evidencia
 │   ├── writing/SKILL.md      # cómo comunica una pieza
 │   └── design/SKILL.md       # cómo formar, entregar, revisar y juzgar una interfaz
 ├── hooks/
@@ -42,7 +43,8 @@ crew-plugin/
 │   ├── precompact-reminder.js # PreCompact: hitos abiertos antes de compactar
 │   ├── codex-pre-tool.js     # adaptador de apply_patch para Codex
 │   ├── check-work-log.js     # Stop: chequeo de cierre de sesión
-│   └── lib/config.js         # EL intérprete autorizado de crew.json (invariantes de evolución)
+│   └── lib/                  # lectores compartidos; config.js es EL intérprete autorizado de crew.json (invariantes de evolución),
+│                             # stack.js lee `stack`, code-state.js toma la huella del código para los recibos, criteria.js revisa la cobertura AC<n>
 ├── integrations/codex/README.md  # adaptador de transporte para Codex
 ├── migrations.json           # qué versiones exigen acción (alimenta el aviso de arranque)
 ├── standards/
@@ -63,12 +65,16 @@ crew-plugin/
 │   ├── conformance.js        # estándar efectivo de work items y --check
 │   ├── verify.js             # /crew:check — comandos de test declarados, recibos
 │   ├── check-supply-chain.js # caracteres ocultos y rutas personales en lo que se distribuye
-│   ├── metrics.js            # reporte de /crew:metrics (catalog-usage.js para `catalog`)
+│   ├── metrics.js            # reporte de /crew:metrics (catalog-usage.js para `catalog`, learning.js para `learning`)
+│   ├── learning.js           # aprendizaje verificado: registrar, retro, comparación A/B
+│   ├── plan-graph.js         # qué puede empezar un plan, lotes sin rutas compartidas, puerta de integración
+│   ├── eval-delivery.js      # runner de la evaluación de entrega (evals/delivery)
 │   ├── sec-scan.js           # escaneo de seguridad de la configuración del agente
 │   ├── sync-codex.js         # genera las skills de alias para Codex
 │   ├── build-release.py      # archivos de release y catálogo Codex
 │   ├── check-quality.sh      # puerta de calidad pre-commit (instalada por init)
-│   └── check-staged.js
+│   ├── check-staged.js       # lo que corre la puerta: archivos en stage, o todos los versionados con --all
+│   └── lib/                  # hook-manager.js (Lefthook, husky, core.hooksPath), eval-*, learning-*, plan-items, chequeos de doctor
 ├── docs/                     # documentación propia del plugin
 │   ├── en/                   # sub-docs en inglés (roles, install, usage, contributing)
 │   └── es/                   # español (README completo + sub-docs)

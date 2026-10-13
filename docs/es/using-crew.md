@@ -11,9 +11,9 @@ En Claude Code cada comando se escribe `/crew:<nombre>`. En Codex se elige la sk
 | `/crew:<alias>` | Pone a trabajar un rol: `/crew:sys`, `/crew:ux`, etc. Son 17 roles; los 12 alias retirados responden con su sucesor. | [Invocar un rol](#invocar-un-rol), [roles.md](roles.md) |
 | `/crew:setup` | Entrevista de configuración: pregunta qué puede hacer el proyecto y escribe en `crew.json` solo lo que confirmaste. | [Decirle a la crew qué puede hacer este proyecto](#decirle-a-la-crew-qué-puede-hacer-este-proyecto) |
 | `/crew:check [tipo]` | Corre los comandos de test que declara `crew.json`, deja un recibo por corrida y responde READY o NOT READY. | [configuration.md § Capacidades de testing](configuration.md#capacidades-de-testing) |
-| `/crew:doctor` | Revisa la instalación del proyecto sin cambiar nada. `repair` restaura archivos faltantes del scaffold y la puerta pre-commit; `uninstall` quita lo que escribió crew. Ambos aceptan `--dry-run` y nunca tocan un archivo que editaste. | [installation.md](installation.md#después-de-instalar--elige-el-modo-del-proyecto) |
+| `/crew:doctor` | Revisa la instalación del proyecto sin cambiar nada. `repair` restaura archivos faltantes del scaffold y la puerta pre-commit (con un gestor de hooks como Lefthook o husky revisa su configuración e imprime el job a agregar; crew nunca la edita); `uninstall` quita lo que escribió crew. Ambos aceptan `--dry-run` y nunca tocan un archivo que editaste. | [installation.md](installation.md#después-de-instalar--elige-el-modo-del-proyecto) |
 | `/crew:adopt [capacidad]` | Extrae en `docs/as-is/` lo que hace hoy un sistema existente. | [Onboarding de un proyecto existente](#onboarding-de-un-proyecto-existente) |
-| `/crew:metrics [AAAA-MM]` | Reporte de estimación: lead time, tiempo de ejecución y desvío; `--csv` lo exporta. `/crew:metrics catalog` informa el uso de roles, skills y comandos. En modo factory muestra el backlog de factory. | [metrics.md](metrics.md) |
+| `/crew:metrics [AAAA-MM]` | Reporte de estimación: lead time, tiempo de ejecución y desvío; `--csv` lo exporta. `/crew:metrics catalog` informa el uso de roles, skills y comandos; `/crew:metrics learning record\|retro\|compare` registra dónde empezaron las correcciones y da el veredicto A/B de un cambio a crew. En modo factory muestra el backlog de factory. | [metrics.md](metrics.md), [aprendizaje verificado](metrics.md#aprendizaje-verificado) |
 | `/crew:factory [login\|status\|logout]` | Conecta esta máquina con factory, dice con qué factory habla y como quién, o la desconecta. Solo para proyectos cuyo `crew.json` declara un bloque `factory`. | [factory.md](factory.md) |
 
 ## Configurar un proyecto nuevo
@@ -39,7 +39,7 @@ Luego:
 /crew:setup
 ```
 
-El scaffold le da a la crew una *estructura*; esto le da *capacidades*. Pregunta dónde corre la app en desarrollo, dónde se mira para saber si un componente ya existe, si se pueden capturar renders y en qué formatos, y qué comandos miden accesibilidad o rendimiento — y escribe en `crew.json` solo lo que confirmaste.
+El scaffold le da a la crew una *estructura*; esto le da *capacidades*. Pregunta dónde corre la app en desarrollo, dónde se mira para saber si un componente ya existe, si se pueden capturar renders y en qué formatos, y qué comandos miden accesibilidad o rendimiento. También pregunta qué tests y comandos verifican el trabajo, si cada criterio de aceptación tiene que estar citado por una fila de verificación (`testing.criteria`), y qué skill o documento describe cómo se construye cada área de tu stack (`stack`); nunca propone una especificación de stack. Después escribe en `crew.json` solo lo que confirmaste.
 
 Tres razones para correrlo:
 
@@ -48,6 +48,19 @@ Tres razones para correrlo:
 - **Pregunta en vez de adivinar.** Como máximo dos preguntas por turno, tu entendimiento confirmado en una línea antes de escribir nada, y "nada, gracias" como respuesta completa y válida.
 
 Completá también `docs/design/` — una referencia, un patrón aprobado y un patrón rechazado ya alcanzan para cambiar lo que producen los roles. Esa carpeta es el gusto de tu producto; el plugin nunca escribe adentro. Referencia completa: [configuration.md](configuration.md#capacidades-de-diseño).
+
+## Cómo se hacen los cambios de código
+
+Antes de la primera edición de código, cualquier rol carga el oficio `execution`. Clasifica el trabajo con una pregunta: ¿cambia algún comportamiento observable?
+
+- **No → refactor.** Primero los tests fijan el comportamiento actual; la estructura cambia en pasos chicos; ninguna aserción cambia en el diff.
+- **Sí, para volver a lo que se buscaba → defecto.** El reporte se convierte en un test que falla por el motivo reportado; la corrección va donde se produce el valor equivocado; el test queda como guardia.
+- **Sí, algo nuevo → funcionalidad.** Primero se escriben los criterios, rechazos incluidos (entrada inválida, permiso faltante, datos de otra cuenta, límites); un test por criterio; pasos chicos con la suite en verde.
+- **Cambia la forma de los datos guardados → migración**, además de lo anterior: primero se planifica la vuelta atrás, el cambio se ensaya sobre una copia, los datos se verifican antes y después, y los pasos destructivos van al final.
+
+El procedimiento tiene dos pesos. Pasa a **elevado** cuando el cambio toca un disparador de seguridad (autenticación, permisos, entrada no confiable, datos personales, llamadas externas, secretos), dinero o cálculos de los que alguien depende, la forma de los datos guardados, un contrato que consume otro código, o borra algo. El peso elevado suma una consulta a `security-compliance` cuando hay seguridad en juego, tests de los rechazos escritos antes de implementar, una revisión del diff contra cada criterio y una forma declarada de deshacer el cambio.
+
+Un cambio cierra con evidencia: qué cambió, qué test prueba qué criterio, qué se corrió y con qué resultado, y qué quedó sin verificar y por qué. Con recibos declarados, la corrida pasa por `/crew:check`.
 
 ## Qué aporta crew y qué aporta tu proyecto
 

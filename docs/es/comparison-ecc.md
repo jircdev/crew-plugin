@@ -11,6 +11,8 @@ Crew 1.0 cerró la mayoría de las brechas que tenía contra ECC. ECC sigue adel
 
 ## Tabla comparativa
 
+La tabla es una foto de crew 1.0. Lo que cambió en la 1.2 está en [Desde la 1.0](#desde-la-10).
+
 | Dimensión | ECC 2.2.3 | Crew 0.25 | Crew 1.0 | Mejor ahora |
 |---|---|---|---|---|
 | Foco | Ejecución de código: planificar, testear, revisar | Proceso de equipo, del negocio a la gobernanza | Igual, con más mecanismos | Depende del uso |
@@ -42,11 +44,22 @@ Crew 1.0 cerró la mayoría de las brechas que tenía contra ECC. ECC sigue adel
 - Perfiles de instalación por módulo.
 - La escala de su comunidad.
 
+## Desde la 1.0
+
+Crew 1.2 suma lo que la tabla de arriba no muestra:
+
+- **Las horas de agente se estiman**, junto a las horas a ritmo de persona, en cada hito, y `/crew:metrics` informa el desvío de cada una.
+- **Los recibos respaldan el código sobre el que corrieron**: un recibo tomado antes de que cambiara el código ya no cierra un work item, y `testing.criteria` pide una fila de verificación por cada criterio de aceptación.
+- **Un procedimiento por tipo de cambio** (oficio `execution`): defecto, funcionalidad, refactor y migración, escalados al riesgo.
+- **Ejecución de planes**: el coordinador de entrega corre en paralelo los items listos de un plan, en worktrees, y los integra detrás de una puerta en verde.
+- **Aprendizaje verificado**: las fallas repetidas se convierten en propuestas, y un cambio a crew se acepta solo con una corrida A/B de la evaluación de entrega. ECC promueve instintos de forma automática; crew conserva la decisión humana y le suma la medición.
+- **Evaluación de entrega**: tareas reales corridas con y sin crew, puntuadas con tests de aceptación ocultos. La primera línea base (1.1.0) da aceptación igual y costo mayor para crew en tareas que el modelo actual ya resuelve; [resultados](../../evals/delivery/results/).
+
 ## Huecos abiertos en crew
 
 - **Compactación en Codex:** después de compactar no corre ningún SessionStart, así que el bloque de trabajo en curso no vuelve al modelo.
-- **Horas de agente:** se capturan, pero todavía no se estiman.
-- **Evals:** los cinco sets requieren una corrida humana que todavía no se hizo.
+- **Evidencia de entrega:** la evaluación de entrega todavía no muestra que crew mejore la aceptación; sus tareas son demasiado fáciles para el modelo actual, y las siguientes van a ser más difíciles.
+- **Evals:** los cinco sets de corrida humana todavía necesitan una corrida.
 
 ## Qué se descartó de ECC y por qué
 

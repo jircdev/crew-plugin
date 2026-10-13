@@ -39,6 +39,8 @@ La evaluación también mencionó hallazgos sobre hooks y recibos que vienen de 
 | 007 | [Ejecución coordinada de un plan completo](007-coordinated-execution.md) | Delivered | 32 | 004, 005 | Paralelizar exige procedimientos y evidencia previos |
 | | **Total estimado (001 a 007)** | | **167.5** | | |
 
+Las tablas de estimación de estos requirements tienen la forma de seis columnas: se escribieron antes de que la versión 1.2.0 sumara las horas de IA. No se migran porque completar `Est. AI hours` ahora sería estimar en retrospectiva. La forma anterior se acepta hasta la próxima versión menor, y el cierre de cada item lo decide el maintainer en su revisión.
+
 ## Primera medición (2026-10-13)
 
 Línea base: `evals/delivery/results/1.1.0-202610131820.md`, 24 sesiones con modelo real; más una repetición de la tarea de seguridad (`1.1.0-202610131831`).

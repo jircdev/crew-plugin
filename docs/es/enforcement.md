@@ -40,19 +40,29 @@ Guard: [`../../hooks/guard-estimation.js`](../../hooks/guard-estimation.js). Dis
 
 ### "Cannot close this work item: milestone … is missing Est. hours, Started, Finished, or Actual hours"
 
-**Causa.** Una fila de hito tiene una celda vacía entre las primeras cinco columnas (`Milestone | Est. hours | Started | Finished | Actual hours`). Solo `Notes` puede quedar vacía.
+**Causa.** Una fila de hito tiene vacía alguna de `Milestone`, `Est. hours`, `Started`, `Finished` y `Actual hours`. Solo `Notes` puede quedar vacía.
+
+La tabla estándar tiene ocho columnas: `Milestone | Est. hours | Est. AI hours | Started | Finished | Actual hours | Actual AI hours | Notes` (ver [metrics.md](metrics.md#la-tabla)). Una tabla con las seis columnas anteriores, sin las dos de IA, sigue cerrando hasta la próxima versión menor.
 
 **Solución.** Completá toda fila iniciada antes de poner `Status:` en `Closed`. Si un hito planificado nunca se ejecutó, borrá la fila o fusionala con otra — una fila vacía no es un registro válido. El sentido de la puerta es que el cierre certifica los números que van a consumir las [métricas](metrics.md).
+
+### "Cannot close this work item: milestone … is missing Est. AI hours or Actual AI hours"
+
+**Causa.** La tabla tiene las columnas de IA y un hito dejó una vacía. Cuando la tabla las tiene, son parte del registro.
+
+**Solución.** `Est. AI hours` es `0` cuando el hito no tiene trabajo de agentes. `Actual AI hours` sale de una captura, o `—` cuando nada lo midió; una celda vacía no es una respuesta.
 
 ### "Cannot close this work item: the estimation table has no **Total** row"
 
 **Causa.** Los hitos están completos pero nada los suma. La fila Total le ahorra al lector sumar la columna.
 
-**Solución.** Cerrá la tabla con una fila cuya primera celda sea `Total` (el énfasis markdown es opcional, no distingue mayúsculas), con horas estimadas y reales. Las columnas de timestamp quedan vacías o con un guion, porque el total suma los hitos y no tiene fechas propias:
+**Solución.** Cerrá la tabla con una fila cuya primera celda sea `Total` (el énfasis markdown es opcional, no distingue mayúsculas), con horas estimadas y reales, y las cifras de IA cuando la tabla tiene esas columnas. Las columnas de timestamp quedan vacías o con un guion, porque el total suma los hitos y no tiene fechas propias:
 
 ```
-| **Total** | 12 | — | — | 15 | |
+| **Total** | 12 | 3 | — | — | 15 | 2.5 | |
 ```
+
+Las variantes "the **Total** row is missing estimated or actual hours" y "… missing estimated or actual AI hours" indican que quedó vacía una suma.
 
 ## Puerta de verificación al cierre
 
@@ -81,9 +91,15 @@ El heading puede ser `## Verification` o `## Verificación`. Ninguna columna pue
 
 ### "verification row … is passing but cites no receipt" (y sus variantes)
 
-**Causa.** El proyecto declara `testing.receipts: true`, así que una fila `passing` tiene que apuntar a una corrida: su celda Status o Artifact cita `receipt: <id>`, y `docs/verification/receipts/` tiene ese recibo, sin editar, con código de salida 0. Las variantes dicen cuál falló: sin cita, recibo inexistente, recibo cuyo contenido ya no coincide con su id, o uno que registró una falla.
+**Causa.** El proyecto declara `testing.receipts: true`, así que una fila `passing` tiene que apuntar a una corrida: su celda Status o Artifact cita `receipt: <id>`, y `docs/verification/receipts/` tiene ese recibo, sin editar, con código de salida 0. Las variantes dicen cuál falló: sin cita, recibo inexistente, recibo cuyo contenido ya no coincide con su id, o uno que registró una falla. La variante "taken before the code changed" indica que el código en disco cambió después de la corrida: el recibo guarda una huella del código (todos los archivos que ve git salvo `docs/` y `*.md`) y respalda solo el código sobre el que corrió.
 
-**Solución.** Correr `/crew:check` (ejecuta `scripts/verify.js`, que corre solo los comandos que declara `crew.json` y escribe un recibo por corrida) y citar el id: `passing (receipt: 3f9c1a0b2e7d)`. El recibo se commitea con el trabajo. Una fila honestamente sin cobertura no necesita recibo: `not verified — <motivo>` cierra sin problema.
+**Solución.** Correr `/crew:check` (ejecuta `scripts/verify.js`, que corre solo los comandos que declara `crew.json` y escribe un recibo por corrida) y citar el id: `passing (receipt: 3f9c1a0b2e7d)`. El recibo se commitea con el trabajo. Una fila honestamente sin cobertura no necesita recibo: `not verified — <motivo>` cierra sin problema. Ante un recibo vencido, corré `/crew:check` de nuevo y citá el id nuevo; commitear no cambia la huella, así que un recibo tomado justo antes del commit sigue valiendo.
+
+### "Cannot close this work item: acceptance criteria AC… are cited by no verification row"
+
+**Causa.** El proyecto declara `testing.criteria: true` y la story tiene criterios de aceptación numerados que ninguna fila de verificación cita. Cada fila cita el criterio que prueba como `AC<n>` en cualquier celda, normalmente el escenario.
+
+**Solución.** Agregá la cita a la fila que lo prueba (`AC2 descuento rechazado`), o una fila para ese criterio, aunque diga `not verified — <motivo>`. Los requirements declaran objetivos en lugar de criterios numerados y no se revisan.
 
 ## Timestamps
 
@@ -224,8 +240,6 @@ El adaptador de `apply_patch` de Codex corre estos mismos guards, así que ambos
 ```
 
 En este modo la tabla `## Estimation` es opcional y ningún guard la revisa.
-
-## Estimation` es opcional y ningún guard la revisa.
 
 ## Calidad de código
 

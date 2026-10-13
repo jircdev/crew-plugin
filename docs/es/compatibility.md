@@ -1,7 +1,7 @@
 # Claude Code y Codex
 
 Crew tiene una sola base: `agents/` contiene los 17 roles,
-`commands/` sus procedimientos, `skills/design`, `skills/writing` y `skills/planning` los oficios,
+`commands/` sus procedimientos, `skills/design`, `skills/writing`, `skills/planning` y `skills/execution` los oficios,
 y `standards/` y `templates/` las convenciones. `hooks/lib/config.js` interpreta
 el mismo `crew.json` en ambos hosts. No se necesita una configuración paralela.
 
@@ -94,7 +94,7 @@ plugin y activar los hooks.
    **ninguno** de sus guards. En ese estado el smoke vio pasar un `git commit --no-verify`.
 5. **Comprueba.** Abre una tarea nueva en el proyecto. En el selector de skills
    deben aparecer los alias (`crew:fe`, `crew:setup`, etc.) y los oficios design,
-   writing y planning. Para confirmar que los guards corren, sigue
+   writing, planning y execution. Para confirmar que los guards corren, sigue
    [Verificar y actualizar](#verificar-y-actualizar).
 
 El repositorio GitHub contiene el catálogo de Claude. Codex usa el catálogo
@@ -157,6 +157,8 @@ hooks que cambiaron. No edites archivos dentro de una versión ya instalada.
 | Escaneo de seguridad de la configuración del agente | `scripts/sec-scan.js`, doctor, aviso en SessionStart | Mismo script; los archivos de configuración de Codex todavía no están entre los objetivos escaneados |
 | Uso del catálogo (opcional, por persona) | PostToolUse sobre Agent/Skill, UserPromptSubmit | UserPromptSubmit y PostToolUse se disparan; sin verificar si la delegación propia de Codex llega a PostToolUse |
 | Registro de trabajo | Stop | Mismo script: Git y cwd, sin interpretar transcripciones |
+| Oficio execution antes de editar código | El baseline de sesión carga la skill | Mismo baseline; el adaptador apunta a `skills/execution/SKILL.md` |
+| Ejecución de planes (`COORD: ejecutá`) | Los items listos de un lote corren en paralelo, cada uno en su worktree | Los items del lote corren uno tras otro en el mismo checkout: no hay aislamiento en worktrees para subagentes |
 | Captura de actividad (modo factory) | SessionStart, UserPromptSubmit, Stop, SessionEnd, PostToolUse Edit/Write/MultiEdit | Mismos eventos que emita el host; la tarea sale de las cabeceras de archivo de apply_patch en PostToolUse |
 | Tamaños en commit | Hook Git opcional del scaffold | Mismo hook; `node /ruta/crew/scripts/check-staged.js --all` comprueba archivos versionados |
 

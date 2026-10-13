@@ -76,6 +76,15 @@ Cuando un cambio tuvo que corregirse, registrá dónde empezó la falla:
 
 `kind` es el tipo de trabajo y `stage` el paso del oficio `execution` donde salió mal. `origin` dice qué falló: `method` (un procedimiento de crew), `role:<rol>` o `stack:<área>` (la especificación de stack del proyecto para esa área, como la declara `crew.json`). La línea guarda la fecha y esos tres valores; queda en `.crew/learning.jsonl` en tu máquina, fuera del repositorio, durante 90 días.
 
+| `kind` | Valores válidos de `stage` (los pasos del oficio execution) |
+|---|---|
+| `defect` | `classify`, `context`, `reproduce`, `cause`, `fix`, `verify`, `evidence` |
+| `feature` | `classify`, `context`, `criteria`, `design`, `implement`, `test`, `validate`, `evidence` |
+| `refactor` | `classify`, `context`, `pin`, `restructure`, `verify`, `evidence` |
+| `migration` | `classify`, `context`, `plan-back`, `rehearse`, `verify-data`, `destructive`, `evidence` |
+
+Cualquier otro valor se rechaza y no se escribe nada.
+
 `/crew:metrics learning retro` agrupa las fallas que se repiten y dice dónde va cada arreglo. Una falla de stack va al proyecto, como propuesta para cambiar su especificación de stack. Una falla de método o de rol va a crew, como propuesta en el plugin. Con `--eval <result.json>` también cuenta las corridas de crew que fallaron en una [evaluación de entrega](../../evals/delivery/README.md). Una falla vista una vez es una nota, nunca una propuesta.
 
 Una propuesta para cambiar crew se acepta con evidencia: corré la evaluación de entrega antes y después del cambio, y después

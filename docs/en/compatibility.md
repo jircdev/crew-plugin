@@ -1,7 +1,7 @@
 # Claude Code and Codex
 
 Crew keeps one base: `agents/` contains the 17 roles, `commands/` their
-procedures, `skills/design`, `skills/writing` and `skills/planning` the crafts, and `standards/`
+procedures, `skills/design`, `skills/writing`, `skills/planning` and `skills/execution` the crafts, and `standards/`
 and `templates/` the conventions. `hooks/lib/config.js` interprets the same
 `crew.json` in both hosts. No parallel project configuration is needed.
 
@@ -93,8 +93,8 @@ plugin and enabling the hooks.
    With either missing, Codex loads Crew's skills but runs **none** of its
    guards. In that state the smoke observed a `git commit --no-verify` succeed.
 5. **Check.** Open a new task in the project. The skill picker should list the
-   aliases (`crew:fe`, `crew:setup`, etc.) and the design, writing and planning
-   crafts. To confirm the guards run, follow [Verify and update](#verify-and-update).
+   aliases (`crew:fe`, `crew:setup`, etc.) and the design, writing, planning and
+   execution crafts. To confirm the guards run, follow [Verify and update](#verify-and-update).
 
 The GitHub repository holds the Claude catalog. Codex uses the generated
 catalog, which has a different schema. As an alternative not verified on 0.130,
@@ -155,6 +155,8 @@ trust changed hooks again. Do not edit files inside an installed version.
 | Agent configuration security scan | `scripts/sec-scan.js`, doctor, SessionStart notice | Same script; Codex config files are not yet among the scanned targets |
 | Catalog usage (opt-in per person) | PostToolUse on Agent/Skill, UserPromptSubmit | UserPromptSubmit and PostToolUse fire; whether Codex's own delegation reaches PostToolUse is unverified |
 | Work log | Stop | Same script: Git and cwd, no transcript parsing |
+| Execution craft before code edits | Session baseline loads the skill | Same baseline; the adapter points at `skills/execution/SKILL.md` |
+| Plan execution (`COORD: execute`) | Ready items of a batch run in parallel, each in its own worktree | Batch items run one after another in the same checkout: no worktree isolation for subagents |
 | Activity capture (factory mode) | SessionStart, UserPromptSubmit, Stop, SessionEnd, PostToolUse Edit/Write/MultiEdit | Same events as far as the host emits them; the task comes from apply_patch file headers on PostToolUse |
 | Size at commit | Optional scaffolded Git hook | Same hook; `node /path/crew/scripts/check-staged.js --all` checks tracked files |
 

@@ -4,6 +4,8 @@ A small set of hooks enforces the crew standards at the moment of the write, the
 
 One principle first: **almost every guard fails open**. An internal error in a hook lets the operation through, so a guard bug does not block legitimate work. If you were blocked, a rule fired and the message names it. The two exceptions are the [shell guard](#hook-bypass) and the [policy guard](#policy-relaxations): they fail closed, because in a guard against bypass an error and a bypass end the same way.
 
+Guard messages are emitted in English; they are quoted here exactly as you will see them.
+
 ## Immutability
 
 Guard: [`../../hooks/guard-immutable.js`](../../hooks/guard-immutable.js) (PreToolUse on Edit/Write).
@@ -38,19 +40,29 @@ Guard: [`../../hooks/guard-estimation.js`](../../hooks/guard-estimation.js). It 
 
 ### "Cannot close this work item: milestone … is missing Est. hours, Started, Finished, or Actual hours"
 
-**Cause.** A milestone row has an empty cell among the first five columns (`Milestone | Est. hours | Started | Finished | Actual hours`). Only `Notes` may be empty.
+**Cause.** A milestone row has an empty cell among `Milestone`, `Est. hours`, `Started`, `Finished` and `Actual hours`. Only `Notes` may be empty.
+
+The standard table has eight columns: `Milestone | Est. hours | Est. AI hours | Started | Finished | Actual hours | Actual AI hours | Notes` (see [metrics.md](metrics.md#the-table)). A table on the previous six columns, without the two AI columns, still closes until the next minor version.
 
 **Fix.** Complete every started row before flipping `Status:` to `Closed`. If a planned milestone was never executed, remove the row or fold it into another — an empty row is not a valid record. The point of the gate is that closure certifies the numbers [metrics](metrics.md) will consume.
+
+### "Cannot close this work item: milestone … is missing Est. AI hours or Actual AI hours"
+
+**Cause.** The table carries the AI columns and a milestone left one of them empty. Once a table has them, they are part of the record.
+
+**Fix.** `Est. AI hours` is `0` when the milestone has no agent work. `Actual AI hours` comes from a capture, or `—` when nothing measured it; an empty cell is no answer.
 
 ### "Cannot close this work item: the estimation table has no **Total** row"
 
 **Cause.** The table's milestones are complete but nothing sums them. The Total row saves the reader from adding up the column.
 
-**Fix.** Close the table with a row whose first cell is `Total` (markdown emphasis optional, case-insensitive), carrying estimated and actual hours. The timestamp columns stay empty or a dash, because the total sums the milestones and has no dates of its own:
+**Fix.** Close the table with a row whose first cell is `Total` (markdown emphasis optional, case-insensitive), carrying estimated and actual hours, and the AI figures when the table has those columns. The timestamp columns stay empty or a dash, because the total sums the milestones and has no dates of its own:
 
 ```
-| **Total** | 12 | — | — | 15 | |
+| **Total** | 12 | 3 | — | — | 15 | 2.5 | |
 ```
+
+The variants "the **Total** row is missing estimated or actual hours" and "… missing estimated or actual AI hours" mean a sum was left empty.
 
 ## Verification closure gate
 
@@ -79,9 +91,15 @@ The heading may be `## Verification` or `## Verificación`. Every column except 
 
 ### "verification row … is passing but cites no receipt" (and its variants)
 
-**Cause.** The project declares `testing.receipts: true`, so a `passing` row must point at a run: its Status or Artifact cell cites `receipt: <id>`, and `docs/verification/receipts/` holds that receipt, unedited, with exit code 0. The variants say which of those failed — no citation, a missing receipt, a receipt whose content no longer matches its id, or one that recorded a failure.
+**Cause.** The project declares `testing.receipts: true`, so a `passing` row must point at a run: its Status or Artifact cell cites `receipt: <id>`, and `docs/verification/receipts/` holds that receipt, unedited, with exit code 0. The variants say which of those failed — no citation, a missing receipt, a receipt whose content no longer matches its id, or one that recorded a failure. The variant "taken before the code changed" means the code on disk changed after the run: the receipt carries a fingerprint of the code (every file git sees except `docs/` and `*.md`), and it backs only the code it ran on.
 
-**Fix.** Run `/crew:check` (it runs `scripts/verify.js`, which executes only the commands `crew.json` declares and writes one receipt per run), then cite the id: `passing (receipt: 3f9c1a0b2e7d)`. Commit the receipt with the work. A row that is honestly not covered needs no receipt: `not verified — <reason>` closes fine.
+**Fix.** Run `/crew:check` (it runs `scripts/verify.js`, which executes only the commands `crew.json` declares and writes one receipt per run), then cite the id: `passing (receipt: 3f9c1a0b2e7d)`. Commit the receipt with the work. A row that is honestly not covered needs no receipt: `not verified — <reason>` closes fine. For a stale receipt, run `/crew:check` again and cite the new id; committing does not change the fingerprint, so a receipt taken right before the commit stays valid.
+
+### "Cannot close this work item: acceptance criteria AC… are cited by no verification row"
+
+**Cause.** The project declares `testing.criteria: true`, and the story has numbered acceptance criteria that no verification row cites. Each row cites the criterion it proves as `AC<n>` in any cell, usually the scenario.
+
+**Fix.** Add the citation to the row that proves it (`AC2 rejected discount`), or a row for the criterion, even one that says `not verified — <reason>`. Requirements state goals instead of numbered criteria and are not checked.
 
 ## Timestamps
 
@@ -222,8 +240,6 @@ The Codex `apply_patch` adapter runs these same guards, so both hosts apply the 
 ```
 
 An `## Estimation` table is optional in this mode and never checked.
-
-## Estimation` table is optional in this mode and never checked.
 
 ## Code quality
 

@@ -22,8 +22,9 @@ crew-plugin/
 │   ├── fa.md
 │   ├── sys.md
 │   ├── ...                   # one file per alias
-├── skills/                   # 34 generated alias entries + 3 crafts any role loads
+├── skills/                   # 35 generated alias entries + 4 crafts any role loads
 │   ├── planning/SKILL.md     # plans and estimates as work items, in the effective standard
+│   ├── execution/SKILL.md    # a procedure per kind of code change, scaled to risk, ending in evidence
 │   ├── writing/SKILL.md      # how a piece communicates
 │   └── design/SKILL.md       # how to shape, hand off, review and judge an interface
 ├── hooks/
@@ -42,7 +43,8 @@ crew-plugin/
 │   ├── precompact-reminder.js # PreCompact: open milestones before compaction
 │   ├── codex-pre-tool.js     # apply_patch adapter for Codex
 │   ├── check-work-log.js     # Stop: session closure check
-│   └── lib/config.js         # THE authorized crew.json interpreter (evolution invariants)
+│   └── lib/                  # shared readers; config.js is THE authorized crew.json interpreter (evolution invariants),
+│                             # stack.js reads `stack`, code-state.js fingerprints the code for receipts, criteria.js checks AC<n> coverage
 ├── integrations/codex/README.md  # transport adapter for Codex
 ├── migrations.json           # which versions require action (drives the startup notice)
 ├── standards/
@@ -63,12 +65,16 @@ crew-plugin/
 │   ├── conformance.js        # effective work-item standard and --check
 │   ├── verify.js             # /crew:check — declared test commands, receipts
 │   ├── check-supply-chain.js # hidden characters and personal paths in shipped files
-│   ├── metrics.js            # /crew:metrics report (catalog-usage.js for `catalog`)
+│   ├── metrics.js            # /crew:metrics report (catalog-usage.js for `catalog`, learning.js for `learning`)
+│   ├── learning.js           # verified learning: record, retro, A/B compare
+│   ├── plan-graph.js         # what a plan can start now, batches without shared paths, integration gate
+│   ├── eval-delivery.js      # delivery evaluation runner (evals/delivery)
 │   ├── sec-scan.js           # security scan of the agent configuration
 │   ├── sync-codex.js         # generates the alias skills for Codex
 │   ├── build-release.py      # release archives and Codex catalog
 │   ├── check-quality.sh      # pre-commit quality gate (installed by init)
-│   └── check-staged.js
+│   ├── check-staged.js       # what the gate runs: staged files, or every tracked one with --all
+│   └── lib/                  # hook-manager.js (Lefthook, husky, core.hooksPath), eval-*, learning-*, plan-items, doctor checks
 ├── docs/                     # this plugin's own documentation
 │   ├── en/                   # English sub-docs (roles, install, usage, contributing)
 │   └── es/                   # Spanish (full README + sub-docs)

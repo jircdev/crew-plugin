@@ -49,6 +49,7 @@ Until Closed, the story is editable. Any criteria change after In progress is lo
 - **Branch:** (on In progress: `story/<feature>-NNN-slug`)
 - **Depends on:** (stories or ADRs that must land first; "None" if none)
 - **Size:** (optional) trivial | small | standard | large
+- **Blocked:** (optional) owner — what is needed; only while waiting on a person's decision, removed when answered
 - **Factory activity:** (optional) factory mode only: the activity's uuid
 
 ## Narrative

@@ -40,6 +40,7 @@ Same semantics as stories, minus functional validation: a requirement is verifie
 - **Branch:** (on In progress: `req/<plan>-NNN-slug`)
 - **Depends on:** (requirements, stories, or ADRs that must land first; "None" if none)
 - **Size:** (optional) trivial | small | standard | large
+- **Blocked:** (optional) owner — what is needed; only while waiting on a person's decision, removed when answered
 
 ## Context
 

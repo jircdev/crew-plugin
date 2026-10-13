@@ -76,6 +76,15 @@ When a change had to be corrected, record where the failure started:
 
 `kind` is the kind of work and `stage` the step of the `execution` craft where it went wrong. `origin` says what failed: `method` (a crew procedure), `role:<role>`, or `stack:<area>` (the project's stack specification for that area, as declared in `crew.json`). The line keeps the date and those three values; it stays in `.crew/learning.jsonl` on your machine, out of the repository, for 90 days.
 
+| `kind` | Valid `stage` values (the steps of the execution craft) |
+|---|---|
+| `defect` | `classify`, `context`, `reproduce`, `cause`, `fix`, `verify`, `evidence` |
+| `feature` | `classify`, `context`, `criteria`, `design`, `implement`, `test`, `validate`, `evidence` |
+| `refactor` | `classify`, `context`, `pin`, `restructure`, `verify`, `evidence` |
+| `migration` | `classify`, `context`, `plan-back`, `rehearse`, `verify-data`, `destructive`, `evidence` |
+
+Any other value is refused and nothing is written.
+
 `/crew:metrics learning retro` groups the failures that repeat and says where each fix belongs. A stack failure goes to the project, as a proposal to change its stack specification. A method or role failure goes to crew, as a proposal in the plugin. Add `--eval <result.json>` to count the failing crew runs of a [delivery evaluation](../../evals/delivery/README.md) too. A failure seen once is a note, never a proposal.
 
 A proposal to change crew is accepted with evidence: run the delivery evaluation before and after the change, then

@@ -40,7 +40,7 @@ Sin esa medición, cada mejora de este plan se valida a ojo, y el aprendizaje de
 |-----------|-----------|---------|----------|--------------|-------|
 | Repositorio de prueba con stack, spec de stack y tests | 6 | 2026-10-13 13:27 -03:00 | 2026-10-13 13:28 -03:00 | 0.02 | Proyecto Node sin dependencias, con crew.json en modo solo y spec de stack declarada |
 | Cuatro tareas con tests de aceptación ocultos | 8 | 2026-10-13 13:28 -03:00 | 2026-10-13 13:30 -03:00 | 0.05 | Cada tarea validada contra una solución de referencia (pasa) y contra el código original (falla) |
-| Runner con modelo real, con y sin crew | 10 | 2026-10-13 13:30 -03:00 | 2026-10-13 13:32 -03:00 | 0.03 | Ambas variantes en safe mode; la de crew carga una copia del plugin sin evals/ ni tests/. Preflight que aborta si las variantes no están aisladas |
+| Runner con modelo real, con y sin crew | 10 | 2026-10-13 13:30 -03:00 | 2026-10-13 13:32 -03:00 | 0.03 | La de crew carga una copia del plugin sin evals/ ni tests/; el aislamiento final (solo configuración del proyecto, sin CLAUDE.md) se fijó en la primera corrida real. Preflight que aborta si las variantes no están aisladas |
 | Medición de intervenciones, tiempo, tokens y costo | 4 | 2026-10-13 13:31 -03:00 | 2026-10-13 13:32 -03:00 | 0.02 | Decisión: cada respuesta que el runner tiene que dar cuenta como una intervención; la primera es la aclaración de la tarea |
 | Reporte comparativo y archivo por versión | 4 | 2026-10-13 13:31 -03:00 | 2026-10-13 13:32 -03:00 | 0.02 | |
 | Corrida de línea base | 4 | 2026-10-13 14:19 -03:00 | 2026-10-13 15:20 -03:00 | 1.02 | Tras el login del maintainer. La primera corrida real mostró que safe mode apagaba el plugin; se corrigió el aislamiento antes de la línea base |

@@ -11,9 +11,9 @@ In Claude Code each command is typed `/crew:<name>`. In Codex you pick the skill
 | `/crew:<alias>` | Puts a role to work: `/crew:sys`, `/crew:ux`, etc. There are 17 roles; the 12 retired aliases answer with their successor. | [Invoking a role](#invoking-a-role), [roles.md](roles.md) |
 | `/crew:setup` | Configuration interview: asks what the project can do and writes into `crew.json` only what you confirmed. | [Tell the crew what this project can do](#tell-the-crew-what-this-project-can-do) |
 | `/crew:check [kind]` | Runs the test commands `crew.json` declares, leaves one receipt per run and answers READY or NOT READY. | [configuration.md § Testing capabilities](configuration.md#testing-capabilities) |
-| `/crew:doctor` | Checks the project's install without changing anything. `repair` restores missing scaffold files and the pre-commit gate; `uninstall` removes what crew wrote. Both accept `--dry-run` and never touch a file you edited. | [installation.md](installation.md#after-installing--choose-the-project-mode) |
+| `/crew:doctor` | Checks the project's install without changing anything. `repair` restores missing scaffold files and the pre-commit gate (under a hook manager such as Lefthook or husky it checks the manager's config and prints the job to add; crew never edits it); `uninstall` removes what crew wrote. Both accept `--dry-run` and never touch a file you edited. | [installation.md](installation.md#after-installing--choose-the-project-mode) |
 | `/crew:adopt [capability]` | Extracts into `docs/as-is/` what an existing system does today. | [Onboard an existing project](#onboard-an-existing-project) |
-| `/crew:metrics [YYYY-MM]` | Estimation report: lead time, execution time and deviation; `--csv` exports it. `/crew:metrics catalog` reports how roles, skills and commands are used. In factory mode it shows factory's backlog. | [metrics.md](metrics.md) |
+| `/crew:metrics [YYYY-MM]` | Estimation report: lead time, execution time and deviation; `--csv` exports it. `/crew:metrics catalog` reports how roles, skills and commands are used; `/crew:metrics learning record\|retro\|compare` records where corrections started and gives the A/B verdict of a change to crew. In factory mode it shows factory's backlog. | [metrics.md](metrics.md), [verified learning](metrics.md#verified-learning) |
 | `/crew:factory [login\|status\|logout]` | Connects this machine to factory, says which factory it talks to and as whom, or disconnects it. Only for projects whose `crew.json` declares a `factory` block. | [factory.md](factory.md) |
 
 ## Set up a new project
@@ -39,7 +39,7 @@ Then:
 /crew:setup
 ```
 
-Scaffolding gives the crew a *structure*; this gives it *capabilities*. It asks where the app runs in development, where someone looks to see whether a component already exists, whether renders can be captured and at which form factors, and which commands measure accessibility or performance — then writes only what you confirmed into `crew.json`.
+Scaffolding gives the crew a *structure*; this gives it *capabilities*. It asks where the app runs in development, where someone looks to see whether a component already exists, whether renders can be captured and at which form factors, and which commands measure accessibility or performance. It also asks which tests and commands verify the work, whether every acceptance criterion must be cited by a verification row (`testing.criteria`), and which skill or document describes how each area of your stack is built (`stack`); it never proposes a stack specification. Then it writes only what you confirmed into `crew.json`.
 
 Three reasons to run it:
 
@@ -48,6 +48,19 @@ Three reasons to run it:
 - **It asks instead of guessing.** At most two questions per turn, your understanding confirmed in one line before anything is written, and "nothing, thanks" as a complete, valid answer.
 
 Fill in `docs/design/` too — one reference, one approved pattern, one rejected pattern is already enough to change what the roles produce. That folder is your product's taste; the plugin never writes into it. Full reference: [configuration.md](configuration.md#design-capabilities).
+
+## How code changes are made
+
+Before the first code edit, any role loads the `execution` craft. It asks one question to classify the work: does any observable behavior change?
+
+- **No → refactor.** Tests pin the current behavior first; the structure changes in small steps; no assertion changes in the diff.
+- **Yes, back to what was intended → defect.** The report becomes a test that fails for the reported reason; the fix goes where the wrong value is produced; the test stays as the guard.
+- **Yes, something new → feature.** The criteria are written first, rejections included (invalid input, missing permission, another account's data, limits); one test per criterion; small steps with the suite green.
+- **The shape of stored data changes → migration**, on top of the above: the way back is planned first, the change is rehearsed on a copy, the data is verified before and after, and destructive steps go last.
+
+The procedure has two weights. It becomes **elevated** when the change touches a security trigger (authentication, permissions, untrusted input, personal data, external calls, secrets), money or calculations people rely on, the shape of stored data, a contract other code consumes, or deletes anything. Elevated adds a consultation with `security-compliance` when security is involved, tests for the rejections written before the implementation, a review of the diff against every criterion, and a stated way to undo the change.
+
+A change closes with evidence: what changed, which test proves which criterion, what ran and with what result, and what stayed unverified and why. With receipts declared, the run goes through `/crew:check`.
 
 ## What crew brings and what your project brings
 

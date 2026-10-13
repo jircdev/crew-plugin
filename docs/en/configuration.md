@@ -168,7 +168,7 @@ The same rule as `design`, applied to the other place an agent sounds confident 
 
 **`receipts: true` makes a pass checkable.** Opt-in, because an absent field keeps the previous behavior. With it, a `passing` verification row closes only when it cites a receipt written by `/crew:check` (`scripts/verify.js` runs the declared `commands` and records exit code, times, git HEAD, a fingerprint of the code on disk and the output tail, hashed so it cannot be edited unnoticed). Without `commands`, receipts cannot exist, so declare both.
 
-**A receipt backs the code it ran on.** The fingerprint covers every file git sees, committed or not, except documentation (`docs/`, `*.md`). When the code changed after the run, the receipt no longer backs a `passing` row and closure asks for a new `/crew:check`. Committing does not change the fingerprint. Receipts written before this version carry no fingerprint and keep closing on the old rule until the next minor version.
+**A receipt backs the code it ran on.** The fingerprint covers every file git sees, committed or not, except documentation (`docs/`, `*.md`). When the code changed after the run, the receipt no longer backs a `passing` row and closure asks for a new `/crew:check`. Committing does not change the fingerprint. Receipts written before 1.2 carry no fingerprint and keep closing on the old rule until the next minor version.
 
 **`criteria: true` makes every criterion count.** Opt-in. With it, a story's numbered acceptance criteria must each be cited by some verification row as `AC<n>` (for example `AC2 rejected discount`) before the story closes. A criterion no row cites is a promise nothing checks. Requirements, which state goals instead of numbered criteria, are not affected.
 
@@ -180,7 +180,7 @@ crew carries method: who decides, with what procedure, what counts as evidence. 
 
 | What you declare | What it enables | What happens if you don't |
 |---|---|---|
-| `specs` — per area, a skill to load or a document to read | A role deciding or implementing in that area loads it first and names it in the evidence seal | The role works from its general craft, and the seal says *"no stack specification declared for <area>"* |
+| `specs` — per area, a skill to load or a document to read | A role deciding or implementing in that area loads it first and names it in the evidence seal (the line at the end of a reply that says what was verified) | The role works from its general craft, and the seal says *"no stack specification declared for <area>"* |
 
 ```json
 {
@@ -288,6 +288,8 @@ The question set it follows is fixed and versioned in the plugin (`standards/con
 | Pre-commit quality gate ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | always, once installed | always, once installed | always, once installed |
 | `/crew:metrics` report ([metrics.js](../../scripts/metrics.js)) | `factory` | runs | runs | runs |
 | Activity capture ([capture-activity](../../hooks/capture-activity.js)) | `factory` | only in factory mode, with a token | only in factory mode, with a token | off |
+
+Three more checks depend on `testing` and are not separate rows: `testing.receipts` makes a `passing` row need a receipt taken on the current code, and `testing.criteria` makes every numbered acceptance criterion need a row; see [Testing capabilities](#testing-capabilities). `stack` gates nothing: it is read by the roles, and the session start names an unusable declaration. The pre-commit row holds under a hook manager too, once its config runs the gate.
 
 The metrics row is the pattern to remember: **the report runs anywhere; only the discipline is gated** by `metrics: true`. Details in [metrics.md](metrics.md).
 

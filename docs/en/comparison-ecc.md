@@ -11,6 +11,8 @@ Crew 1.0 closed most of the gaps it had against ECC. ECC is still ahead in catal
 
 ## Comparison table
 
+The table is a snapshot at crew 1.0. What changed in 1.2 is in [Since 1.0](#since-10).
+
 | Dimension | ECC 2.2.3 | Crew 0.25 | Crew 1.0 | Better now |
 |---|---|---|---|---|
 | Focus | Code execution: plan, test, review | Team process, from business to governance | Same, with more mechanisms | Depends on the use |
@@ -42,11 +44,22 @@ Crew 1.0 closed most of the gaps it had against ECC. ECC is still ahead in catal
 - Per-module installation profiles.
 - The scale of its community.
 
+## Since 1.0
+
+Crew 1.2 adds what the table above does not show:
+
+- **Agent hours are estimated**, next to person-pace hours, in every milestone, and `/crew:metrics` reports the deviation of each.
+- **Receipts back the code they ran on**: a receipt taken before the code changed no longer closes a work item, and `testing.criteria` asks a verification row for every acceptance criterion.
+- **A procedure per kind of change** (`execution` craft): defect, feature, refactor and migration, scaled to risk.
+- **Plan execution**: the delivery coordinator runs a plan's ready items in parallel worktrees and integrates them behind a green gate.
+- **Verified learning**: repeated failures become proposals, and a change to crew is accepted only with an A/B run of the delivery evaluation. ECC promotes instincts automatically; crew keeps the human decision and adds the measurement.
+- **Delivery evaluation**: real tasks run with and without crew, scored by hidden acceptance tests. The first baseline (1.1.0) shows equal acceptance and a higher cost for crew on tasks the current model already solves; [results](../../evals/delivery/results/).
+
 ## Open gaps in crew
 
 - **Compaction in Codex:** no SessionStart runs after a compaction, so the work-in-progress block does not return to the model.
-- **Agent hours:** captured, not estimated yet.
-- **Evals:** the five sets need a human run that has not happened yet.
+- **Delivery evidence:** the delivery evaluation does not yet show crew improving acceptance; its tasks are too easy for the current model, and harder ones are next.
+- **Evals:** the five human-run sets still need a run.
 
 ## What was left out of ECC, and why
 

@@ -168,7 +168,7 @@ La misma regla que `design`, aplicada al otro lugar donde un agente suena seguro
 
 **`receipts: true` vuelve comprobable un pass.** Es opcional, porque un campo ausente mantiene el comportamiento anterior. Con él, una fila de verificación `passing` cierra solo si cita un recibo escrito por `/crew:check` (`scripts/verify.js` corre los `commands` declarados y registra código de salida, horarios, HEAD de git, una huella del código en disco y el final de la salida, con un hash para que no se pueda editar sin que se note). Sin `commands` no puede haber recibos, así que hay que declarar ambos.
 
-**Un recibo respalda el código sobre el que corrió.** La huella cubre todos los archivos que ve git, commiteados o no, salvo la documentación (`docs/`, `*.md`). Si el código cambió después de la corrida, el recibo ya no respalda una fila `passing` y el cierre pide un `/crew:check` nuevo. Commitear no cambia la huella. Los recibos escritos antes de esta versión no tienen huella y siguen cerrando con la regla anterior hasta la próxima versión menor.
+**Un recibo respalda el código sobre el que corrió.** La huella cubre todos los archivos que ve git, commiteados o no, salvo la documentación (`docs/`, `*.md`). Si el código cambió después de la corrida, el recibo ya no respalda una fila `passing` y el cierre pide un `/crew:check` nuevo. Commitear no cambia la huella. Los recibos escritos antes de la 1.2 no tienen huella y siguen cerrando con la regla anterior hasta la próxima versión menor.
 
 **`criteria: true` hace que cada criterio cuente.** Es opcional. Con él, cada criterio de aceptación numerado de una story tiene que estar citado por alguna fila de verificación como `AC<n>` (por ejemplo `AC2 descuento rechazado`) antes de cerrar. Un criterio que ninguna fila cita es una promesa que nada verifica. Los requirements, que declaran objetivos en lugar de criterios numerados, no se ven afectados.
 
@@ -180,7 +180,7 @@ crew aporta el método: quién decide, con qué procedimiento, qué cuenta como 
 
 | Qué declaras | Qué habilita | Qué pasa si no |
 |---|---|---|
-| `specs` — por área, una skill a cargar o un documento a leer | Un rol que decide o implementa en esa área la carga primero y la nombra en el sello de evidencia | El rol trabaja con su oficio general y el sello dice *"no hay especificación de stack declarada para <área>"* |
+| `specs` — por área, una skill a cargar o un documento a leer | Un rol que decide o implementa en esa área la carga primero y la nombra en el sello de evidencia (la línea al final de una respuesta que dice qué se verificó) | El rol trabaja con su oficio general y el sello dice *"no hay especificación de stack declarada para <área>"* |
 
 ```json
 {
@@ -288,6 +288,8 @@ El set de preguntas que sigue está fijo y versionado en el plugin (`standards/c
 | Puerta de calidad pre-commit ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | siempre, una vez instalada | siempre, una vez instalada | siempre, una vez instalada |
 | Reporte `/crew:metrics` ([metrics.js](../../scripts/metrics.js)) | `factory` | corre | corre | corre |
 | Captura de actividad ([capture-activity](../../hooks/capture-activity.js)) | `factory` | solo en modo factory, con token | solo en modo factory, con token | apagada |
+
+Otras tres reglas dependen de `testing` y no tienen fila propia: `testing.receipts` hace que una fila `passing` necesite un recibo tomado sobre el código actual, y `testing.criteria` hace que cada criterio de aceptación numerado necesite una fila; ver [Capacidades de testing](#capacidades-de-testing). `stack` no bloquea nada: lo leen los roles, y el inicio de sesión nombra una declaración inutilizable. La fila de pre-commit vale también con un gestor de hooks, una vez que su configuración corre la puerta.
 
 La fila de métricas es el patrón a recordar: **el reporte corre en cualquier lado; lo que `metrics: true` habilita es la disciplina**. Detalles en [metrics.md](metrics.md).
 
