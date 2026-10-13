@@ -49,6 +49,18 @@ Tres razones para correrlo:
 
 Completá también `docs/design/` — una referencia, un patrón aprobado y un patrón rechazado ya alcanzan para cambiar lo que producen los roles. Esa carpeta es el gusto de tu producto; el plugin nunca escribe adentro. Referencia completa: [configuration.md](configuration.md#capacidades-de-diseño).
 
+## Qué aporta crew y qué aporta tu proyecto
+
+crew aporta el método, igual en todos los proyectos: quién es dueño de cada decisión, el procedimiento para cada tipo de trabajo, qué cuenta como evidencia de que algo está terminado y los guards que sostienen todo eso en el momento de actuar.
+
+Tu proyecto aporta todo lo que le es propio, y lo declara para que los roles lo carguen:
+
+- **Su stack.** Convenciones, herramientas y diagnósticos de los frameworks que usa, como una skill o un documento por área, bajo `stack` en `crew.json`. El plugin no trae conocimiento de frameworks y nunca propone ninguno. Ver [Especificaciones de stack](configuration.md#especificaciones-de-stack).
+- **Su gusto.** Referencias, patrones aprobados y rechazados en `docs/design/`.
+- **Lo que puede verificar.** La estrategia de testing, el arnés y los comandos que corren las suites, bajo `testing`.
+
+Donde tu proyecto no declara nada, el rol trabaja con su oficio general y lo dice al final de su respuesta. Esa línea te indica qué declarar después.
+
 ## Elegir el modo del proyecto
 
 No todo repo quiere el proceso completo. El modo se declara por repo en un archivo `crew.json` en la raíz del proyecto, que el scaffold escribe con valores explícitos ([configuration.md](configuration.md#cómo-lo-escribe-init-projectsh)):

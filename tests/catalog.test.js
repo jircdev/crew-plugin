@@ -104,3 +104,38 @@ test('the hygiene scan catches bidi controls and personal paths, and spares docu
   assert.match(findings[0], /U\+202E/);
   assert.match(findings[1], /personal path/);
 });
+
+// Stack knowledge belongs to each project (crew.json `stack`); the plugin ships
+// method only. Two checks keep it that way: the set of crafts is closed and
+// written in the CREW role, and the files that shape every project carry no
+// framework, library or tool names.
+const STACK_TERMS = /\b(react|vue|angular|svelte|solid\.?js|next\.?js|nuxt|django|flask|fastapi|laravel|nestjs|tailwind|bootstrap|prisma|sequelize|typeorm|drizzle|zod|redux|zustand|mobx|playwright|cypress|jest|vitest|mocha|storybook|postgres(ql)?|mysql|mongodb|redis|kubernetes|terraform|docker)\b/i;
+
+function stackScope() {
+  const files = [...roles.map(r => `agents/${r}.md`), 'standards/session-context.md'];
+  const crafts = list('skills').filter(s => !commands.includes(`${s}.md`));
+  files.push(...crafts.map(c => `skills/${c}/SKILL.md`));
+  const walk = rel => fs.statSync(path.join(root, rel)).isDirectory()
+    ? list(rel).flatMap(f => walk(`${rel}/${f}`)) : [rel];
+  files.push(...walk('templates').filter(f => f.endsWith('.md')));
+  return files;
+}
+
+test('crafts: every skill that is not a role alias is a craft named in the CREW role', () => {
+  const rule = read('agents/crew.md').match(/Today the crafts are exactly ([^.]+)\./);
+  assert.ok(rule, 'agents/crew.md must name the crafts');
+  const named = [...rule[1].matchAll(/`([a-z-]+)`/g)].map(m => m[1]).sort();
+  const actual = list('skills').filter(s => !commands.includes(`${s}.md`)).sort();
+  assert.deepEqual(actual, named);
+});
+
+test('stack knowledge: roles, crafts, the baseline and the templates name no framework', () => {
+  const hits = [];
+  for (const file of stackScope()) {
+    read(file).split('\n').forEach((line, i) => {
+      const m = line.match(STACK_TERMS);
+      if (m) hits.push(`${file}:${i + 1} ${m[0]}`);
+    });
+  }
+  assert.deepEqual(hits, [], 'declare stack knowledge in the project (crew.json stack), not in the plugin');
+});

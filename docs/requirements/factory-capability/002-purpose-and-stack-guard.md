@@ -1,6 +1,6 @@
 # 002 — Propósito declarado y límite del stack protegido
 
-- **Status:** Ready
+- **Status:** Delivered
 - **Plan:** factory-capability ([README](README.md))
 - **Date:** 2026-10-13
 - **Author role:** CREW
@@ -36,11 +36,11 @@ El README presenta a crew como un proceso para el agente: un dueño por decisió
 
 | Milestone | Est. hours | Started | Finished | Actual hours | Notes |
 |-----------|-----------|---------|----------|--------------|-------|
-| Propósito en README EN y ES | 2 | | | | |
-| Sección en using-crew y roles, EN y ES | 2 | | | | |
-| Lista cerrada de oficios en CREW | 1 | | | | |
-| Test de conocimiento de stack en el catálogo | 3 | | | | |
-| Changelog | 0.5 | | | | |
+| Propósito en README EN y ES | 2 | 2026-10-13 13:22 -03:00 | 2026-10-13 13:22 -03:00 | 0.01 | |
+| Sección en using-crew y roles, EN y ES | 2 | 2026-10-13 13:22 -03:00 | 2026-10-13 13:22 -03:00 | 0.01 | |
+| Lista cerrada de oficios en CREW | 1 | 2026-10-13 13:23 -03:00 | 2026-10-13 13:23 -03:00 | 0.01 | |
+| Test de conocimiento de stack en el catálogo | 3 | 2026-10-13 13:23 -03:00 | 2026-10-13 13:25 -03:00 | 0.03 | El test encontró React y Zod en las plantillas del scaffold; quedaron neutrales al stack |
+| Changelog | 0.5 | 2026-10-13 13:25 -03:00 | 2026-10-13 13:25 -03:00 | 0.01 | |
 | Revisión del maintainer | 1 | | | | |
 | **Total** | **9.5** | — | — | | |
 
@@ -48,10 +48,10 @@ El README presenta a crew como un proceso para el agente: un dueño por decisió
 
 | Scenario | Level | Harness | Artifact | Status |
 |----------|-------|---------|----------|--------|
-| Una skill nueva que no es alias ni oficio declarado hace fallar el catálogo | unit | node:test | tests/catalog.test.js | planned |
-| Un identificador de framework en un oficio o en el baseline hace fallar el catálogo | unit | node:test | tests/catalog.test.js | planned |
-| Los ejemplos de configuración exceptuados no disparan la regla | unit | node:test | tests/catalog.test.js | planned |
-| El README abre con el propósito en ambos idiomas | manual | none | revisión del maintainer | planned |
+| Una skill nueva que no es alias ni oficio declarado hace fallar el catálogo | unit | node:test | tests/catalog.test.js | passing |
+| Un identificador de framework en un oficio o en el baseline hace fallar el catálogo | unit | node:test | tests/catalog.test.js | passing |
+| Los ejemplos de configuración exceptuados no disparan la regla | unit | node:test | tests/catalog.test.js | passing — la regla no alcanza a docs/ ni a configuration-interview.md |
+| El README abre con el propósito en ambos idiomas | manual | none | revisión del maintainer | not verified — espera la revisión del maintainer |
 
 ## Changes
 

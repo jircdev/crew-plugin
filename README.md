@@ -4,15 +4,15 @@
 
 > Read this in **English** (below) · ¿Prefieres español? → **[Léelo en español](docs/es/README.md)**
 
-Coding agents are generalists. Point one at your repo and it starts writing code right away: nobody owns each decision, the reasoning behind the architecture gets lost between sessions, and every new chat reopens what was already settled.
+Coding agents are generalists. Point one at your repo and it starts writing code right away: nobody owns each decision, the reasoning behind the architecture gets lost between sessions, and every new chat reopens what was already settled. "Done" means the agent said so.
 
-crew gives that agent a process. It is a plugin for Claude Code and Codex that adds:
+crew turns that agent into a software factory. Its purpose is to deliver correct software with less human intervention, less rework and deliveries anyone can verify. It is a plugin for Claude Code and Codex, and its means are:
 
 - a catalog of specialized roles, with one owner per decision;
 - a spec-driven flow from idea to production;
 - conventions that live in the repo and that Claude Code, Cursor, Copilot and Codex read natively, so each decision is written once and read many times.
 
-It works with any stack. crew carries the method; the knowledge of your stack (conventions, tools, diagnostics) stays in your project, which declares it in `crew.json` for the roles to load. See [Stack specifications](docs/en/configuration.md#stack-specifications).
+The roles, the flow and the guards are the means; working software is the measure. It works with any stack. crew carries the method; the knowledge of your stack (conventions, tools, diagnostics) stays in your project, which declares it in `crew.json` for the roles to load. See [Stack specifications](docs/en/configuration.md#stack-specifications).
 
 ## How the work flows
 

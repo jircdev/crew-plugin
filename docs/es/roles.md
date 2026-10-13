@@ -62,7 +62,7 @@ No forma parte de la crew core — actívalo solo cuando el proyecto lo necesita
 
 ## Skills — oficios
 
-Un oficio que necesitan todos los roles es una **skill**. Una skill se carga dentro del trabajo de un rol, sin invocarse aparte, y es dueña de un *cómo*; las decisiones siguen siendo de los roles.
+Un oficio que necesitan todos los roles es una **skill**. Una skill se carga dentro del trabajo de un rol, sin invocarse aparte, y es dueña de un *cómo*; las decisiones siguen siendo de los roles. Cada oficio lleva un método que vale para cualquier stack; el conocimiento de un stack concreto lo declara cada proyecto ([qué aporta crew y qué aporta tu proyecto](using-crew.md#qué-aporta-crew-y-qué-aporta-tu-proyecto)).
 
 - **`planning`** — la artesanía del work item, cargada siempre que se planifica o dimensiona trabajo. Resuelve el estándar efectivo del proyecto antes de escribir, mantiene los planes como work items en el repo (un doc publicado es una vista que los enlaza) y gobierna los dos niveles de estimación. Es dueña de la forma, nunca de las decisiones de dominio del plan.
 - **`writing`** — la artesanía de la comunicación, cargada cuando un rol redacta una pieza (brief, deck, one-pager, ensayo, doc técnico, discurso, guion). Posee idea-fuerza, arco narrativo, segmentación por público, principios de impacto — nunca el contenido de dominio.

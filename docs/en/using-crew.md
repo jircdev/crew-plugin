@@ -49,6 +49,18 @@ Three reasons to run it:
 
 Fill in `docs/design/` too — one reference, one approved pattern, one rejected pattern is already enough to change what the roles produce. That folder is your product's taste; the plugin never writes into it. Full reference: [configuration.md](configuration.md#design-capabilities).
 
+## What crew brings and what your project brings
+
+crew brings the method, the same in every project: who owns each decision, the procedure for each kind of work, what counts as evidence that something is done, and the guards that hold all of it at the point of action.
+
+Your project brings everything specific to it, and declares it so the roles can load it:
+
+- **Its stack.** Conventions, tools and diagnostics of the frameworks it uses, as a skill or a document per area, under `stack` in `crew.json`. The plugin ships no framework knowledge and never proposes any. See [Stack specifications](configuration.md#stack-specifications).
+- **Its taste.** References, approved and rejected patterns in `docs/design/`.
+- **What it can verify.** The test strategy, the harness and the commands that run the suites, under `testing`.
+
+Where your project declares nothing, a role works from its general craft and says so at the end of its reply. That line tells you what to declare next.
+
 ## Choose the project mode
 
 Not every repo wants the full process. The mode is declared per repo in a `crew.json` file at the project root, which the scaffold writes with explicit values ([configuration.md](configuration.md#how-init-projectsh-writes-it)):

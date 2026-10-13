@@ -26,14 +26,16 @@ Full specification: [`docs/spec.md`](docs/spec.md).
 |-------|------|
 | {layer} | {tech} |
 
-Locked decisions (no re-discuss): {list — e.g. "no Electron, no Redux, no GraphQL"}.
+How each area is built here (conventions, tools, diagnostics) is declared under `stack` in `crew.json`, as a skill or a document per area; the roles load it before deciding or implementing there.
+
+Locked decisions (no re-discuss): {list — e.g. "no desktop shell, no global state library, no second API style"}.
 
 ## Architecture rules
 
 - **{Layer A} layers**: {flow, e.g. Pages → Hooks → Services → Components}.
 - **No business logic in views.** Components render props/state and dispatch events.
 - **Reactive OO models**: domain entities are classes with private state; views subscribe via the store, never mutate directly.
-- **Single source of truth for types**: `{path}` for shared types; Zod schemas at every boundary.
+- **Single source of truth for types**: `{path}` for shared types; runtime schema validation at every boundary.
 - {project-specific rules}
 
 ## Code quality rules (MANDATORY)

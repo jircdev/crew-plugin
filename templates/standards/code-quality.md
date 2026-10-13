@@ -4,15 +4,15 @@ Stack-agnostic baseline, owned by the `crew` plugin. **Precedence: these rules a
 
 ## One symbol per file
 
-- One class, one React component, one hook, one store/slice, one service per file.
+- One class, one UI component, one hook (or composable), one store/slice, one service per file.
 - Never more than one component in a file — extract even the small ones.
 - Tiny pure helpers used only by that symbol may live in the same file. Used elsewhere → extract.
 - Barrels (`index.ts`) only at folder boundaries; re-exports only, no logic.
 
-## React hooks and lambdas
+## Reactive primitives and lambdas
 
-- **Any function passed as an argument to any React hook — built-in, library, or custom, current or future — longer than 3 lines must be extracted as a named function in its own file.** The rule is about the pattern (inline logic inside a hook call), not about a list of hook names; do not treat an unlisted hook as exempt. The hook call stays a one-liner that names the behavior; the logic gets a testable, findable home.
-- A custom hook is the only place that talks to services, stores, or transport. Components never do.
+- **Any function passed as an argument to a reactive primitive of the UI framework (a hook, a composable, an effect) — built-in, library, or custom, current or future — longer than 3 lines must be extracted as a named function in its own file.** The rule is about the pattern (inline logic inside a hook call), not about a list of hook names; do not treat an unlisted hook as exempt. The hook call stays a one-liner that names the behavior; the logic gets a testable, findable home.
+- A custom hook (or the framework's equivalent) is the only place that talks to services, stores, or transport. Components never do.
 
 ## File size ceilings (lines, hard)
 

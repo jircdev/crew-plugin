@@ -62,7 +62,7 @@ Not part of the core crew — activate only when the project needs it.
 
 ## Skills — crafts
 
-A craft that every role needs is a **skill**. A skill is loaded inside a role's work, without being invoked separately, and owns a *how*; decisions stay with the roles.
+A craft that every role needs is a **skill**. A skill is loaded inside a role's work, without being invoked separately, and owns a *how*; decisions stay with the roles. Every craft carries method that holds for any stack; the knowledge of a specific stack is declared by each project ([what crew brings and what your project brings](using-crew.md#what-crew-brings-and-what-your-project-brings)).
 
 - **`planning`** — the work-item craft, loaded whenever work is planned or sized. Resolves the project's effective standard before writing, keeps plans as repo work items (a published doc is a view that links to them), and governs the two estimation levels. Owns the form, never the domain decisions inside the plan.
 - **`writing`** — the communication craft, loaded when a role authors a piece (brief, deck, one-pager, essay, technical doc, speech, script). Owns idea-force, narrative arc, audience segmentation, impact principles — never the domain content.

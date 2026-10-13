@@ -4,15 +4,15 @@
 
 > Léelo en **español** (abajo) · Prefer English? → **[Read it in English](../../README.md)**
 
-Los agentes de código son generalistas. Si apuntas uno a tu repo, empieza a escribir código enseguida: nadie es dueño de cada decisión, el porqué de la arquitectura se pierde entre sesiones y cada chat nuevo vuelve a discutir lo que ya estaba resuelto.
+Los agentes de código son generalistas. Si apuntas uno a tu repo, empieza a escribir código enseguida: nadie es dueño de cada decisión, el porqué de la arquitectura se pierde entre sesiones y cada chat nuevo vuelve a discutir lo que ya estaba resuelto. "Terminado" significa que el agente lo dijo.
 
-crew le da un proceso a ese agente. Es un plugin para Claude Code y Codex que aporta:
+crew convierte a ese agente en una factory de software. Su propósito es entregar software correcto con menos intervención humana, menos retrabajo y entregas que cualquiera puede verificar. Es un plugin para Claude Code y Codex, y sus medios son:
 
 - un catálogo de roles especializados, con un solo dueño por decisión;
 - un flujo guiado por especificaciones (spec-driven), de la idea a producción;
 - convenciones que viven en el repo y que Claude Code, Cursor, Copilot y Codex leen de forma nativa, así cada decisión se escribe una vez y se lee muchas.
 
-Funciona con cualquier stack. crew aporta el método; el conocimiento de tu stack (convenciones, herramientas, diagnósticos) queda en tu proyecto, que lo declara en `crew.json` para que los roles lo carguen. Ver [Especificaciones de stack](configuration.md#especificaciones-de-stack).
+Los roles, el flujo y los guards son los medios; la medida es el software que funciona. Funciona con cualquier stack. crew aporta el método; el conocimiento de tu stack (convenciones, herramientas, diagnósticos) queda en tu proyecto, que lo declara en `crew.json` para que los roles lo carguen. Ver [Especificaciones de stack](configuration.md#especificaciones-de-stack).
 
 ## Cómo fluye el trabajo
 
