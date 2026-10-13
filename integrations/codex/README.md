@@ -7,8 +7,8 @@ Before applying a Crew command, read `standards/session-context.md` from this
 plugin, the project's `AGENTS.md` and `crew.json`, then the linked command and
 role. Resolve plugin paths relative to this file (`../..` is the plugin root),
 never by guessing an installed cache location. Read shared crafts from
-`skills/design/SKILL.md`, `skills/writing/SKILL.md` and `skills/planning/SKILL.md`
-when relevant; any plan or estimate loads the planning craft first.
+`skills/design/SKILL.md`, `skills/writing/SKILL.md`, `skills/planning/SKILL.md` and `skills/execution/SKILL.md`
+when relevant; any plan or estimate loads the planning craft first, and any code change loads the execution craft first.
 
 Interpret canonical Claude transport syntax in Codex as follows:
 

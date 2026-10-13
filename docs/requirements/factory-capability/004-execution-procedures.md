@@ -1,6 +1,6 @@
 # 004 — Procedimientos de ejecución por tipo de trabajo
 
-- **Status:** Ready
+- **Status:** Delivered
 - **Plan:** factory-capability ([README](README.md))
 - **Date:** 2026-10-13
 - **Author role:** QA en la verificación, SYS en el diseño, CREW en el formato del oficio
@@ -40,12 +40,12 @@ La evaluación externa propuso procedimientos distintos por tipo de trabajo, ada
 
 | Milestone | Est. hours | Started | Finished | Actual hours | Notes |
 |-----------|-----------|---------|----------|--------------|-------|
-| Oficio con los cuatro procedimientos | 8 | | | | |
-| Escala por riesgo y consulta a SEC | 2 | | | | |
-| Disparador en el baseline y roles | 2 | | | | |
-| Paridad Codex | 1 | | | | |
-| Corrida de 003 antes y después | 4 | | | | Costo de API a cargo del maintainer |
-| Docs EN y ES y changelog | 3 | | | | |
+| Oficio con los cuatro procedimientos | 8 | 2026-10-13 13:35 -03:00 | 2026-10-13 13:36 -03:00 | 0.02 | Clasificación por una pregunta: ¿cambia algún comportamiento observable? |
+| Escala por riesgo y consulta a SEC | 2 | 2026-10-13 13:36 -03:00 | 2026-10-13 13:36 -03:00 | 0 | Dos pesos, estándar y elevado; el elevado usa los disparadores de seguridad del baseline |
+| Disparador en el baseline y roles | 2 | 2026-10-13 13:36 -03:00 | 2026-10-13 13:37 -03:00 | 0.02 | El baseline queda en 8897 de 9000 caracteres |
+| Paridad Codex | 1 | 2026-10-13 13:37 -03:00 | 2026-10-13 13:37 -03:00 | 0 | |
+| Corrida de 003 antes y después | 4 | | | | No corrida: sin credenciales del CLI en esta máquina. Queda para el maintainer |
+| Docs EN y ES y changelog | 3 | 2026-10-13 13:37 -03:00 | 2026-10-13 13:37 -03:00 | 0.01 | README y roles.md en ambos idiomas |
 | Revisión del maintainer | 2 | | | | |
 | **Total** | **22** | — | — | | |
 
@@ -53,10 +53,10 @@ La evaluación externa propuso procedimientos distintos por tipo de trabajo, ada
 
 | Scenario | Level | Harness | Artifact | Status |
 |----------|-------|---------|----------|--------|
-| El oficio queda registrado y su entrada Codex sincronizada | unit | node:test | tests/catalog.test.js | planned |
-| El oficio no contiene identificadores de framework | unit | node:test | tests/catalog.test.js (regla de 002) | planned |
-| La tarea de defecto de 003 deja una prueba de regresión escrita antes de la corrección | e2e | runner de 003 | evals/delivery/results/ | planned |
-| La suite de 003 no empeora en ninguna de las cuatro tareas | e2e | runner de 003 | evals/delivery/results/ | planned |
+| El oficio queda registrado y su entrada Codex sincronizada | unit | node:test | tests/catalog.test.js, tests/baseline.test.js | passing |
+| El oficio no contiene identificadores de framework | unit | node:test | tests/catalog.test.js (regla de 002) | passing |
+| La tarea de defecto de 003 deja una prueba de regresión escrita antes de la corrección | e2e | runner de 003 | evals/delivery/results/ | not verified — necesita una corrida con modelo real |
+| La suite de 003 no empeora en ninguna de las cuatro tareas | e2e | runner de 003 | evals/delivery/results/ | not verified — necesita una corrida con modelo real |
 
 ## Changes
 

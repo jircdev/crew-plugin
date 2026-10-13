@@ -26,3 +26,10 @@ test('the baseline stays within its context budget', () => {
   // Injected into every session of every project: growth here is paid everywhere.
   assert.ok(read('standards/session-context.md').length <= 9000, 'session baseline above 9000 characters');
 });
+
+test('the baseline routes code changes to the execution craft, and the craft carries no stack', () => {
+  assert.match(read('standards/session-context.md'), /Code changes load the `execution` skill first/);
+  const craft = read('skills/execution/SKILL.md');
+  for (const kind of ['### Defect', '### Feature', '### Refactor', '### Migration']) assert.ok(craft.includes(kind), kind);
+  assert.match(craft, /Elevated/);
+});
