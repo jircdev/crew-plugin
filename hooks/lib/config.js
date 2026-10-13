@@ -153,7 +153,9 @@ function normalizeTesting(raw) {
 
   // receipts: opt-in, so absent equals the pre-0.28 behavior (invariant 4).
   // When true, a `passing` verification row must cite a run of scripts/verify.js.
-  return { guide: str(raw.guide), e2e, commands, receipts: raw.receipts === true, unknown };
+  // criteria: opt-in too. When true, every numbered acceptance criterion of a
+  // story must be cited (`AC<n>`) by some verification row before closing.
+  return { guide: str(raw.guide), e2e, commands, receipts: raw.receipts === true, criteria: raw.criteria === true, unknown };
 }
 
 function normalize(raw) {

@@ -7,7 +7,8 @@
 //
 // A receipt is docs/verification/receipts/<date>-<id>.json: the command, its
 // exit code, start and finish times, the git HEAD and whether the tree was
-// dirty, and the last lines of output. The id is a hash of that content, so a
+// dirty, a fingerprint of the code on disk (hooks/lib/code-state.js), and the
+// last lines of output. The id is a hash of that content, so a
 // receipt cannot be renamed into a different run. Only declared commands run —
 // this script never decides what the project's tests are.
 // Exit 0 when every command passed (READY), 1 otherwise, 2 when nothing is declared.
@@ -17,6 +18,7 @@ const { mkdirSync, writeFileSync } = require("node:fs");
 const { join, resolve } = require("node:path");
 const { loadConfig } = require("../hooks/lib/config");
 const { findRoot } = require("../hooks/lib/ceilings");
+const { fingerprint } = require("../hooks/lib/code-state");
 
 const TAIL = 40;
 
@@ -35,6 +37,7 @@ function receiptOf(root, entry, run, startedAt, finishedAt) {
     finishedAt,
     head: git(root, ["rev-parse", "HEAD"]),
     dirty: (git(root, ["status", "--porcelain"]) || "") !== "",
+    code: fingerprint(root),
     outputTail: output.slice(-TAIL).join("\n"),
   };
   const id = createHash("sha256").update(JSON.stringify(body)).digest("hex").slice(0, 12);

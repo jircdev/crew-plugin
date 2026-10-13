@@ -28,7 +28,7 @@ Two consequences. First, the plugin has **no hidden defaults**: the friendlier v
 | `ceilings` | object `{ kind: lines }` | `{}` | Per-kind overrides of the file-size line ceilings. Non-object values fall back to `{}`. |
 | `configuredWith` | version string | `null` | State data: which plugin version last configured this project. No behavior uses it to decide; see [The marker](#the-marker-configuredwith). |
 | `design` | object | `null` | What this project *can do* for interface work. Nothing is granted by default; see [Design capabilities](#design-capabilities). |
-| `testing` | object (`guide`, `e2e`, `commands`, `receipts`) | `null` | What this project can verify, and with what. Declaring it turns the verification table into a closure gate; see [Testing capabilities](#testing-capabilities). |
+| `testing` | object (`guide`, `e2e`, `commands`, `receipts`, `criteria`) | `null` | What this project can verify, and with what. Declaring it turns the verification table into a closure gate; see [Testing capabilities](#testing-capabilities). |
 | `stack` | object (`specs`) | `null` | Where the knowledge of this project's stack lives, per area. The plugin ships none; see [Stack specifications](#stack-specifications). |
 | `audit` | `true` \| `false` | `false` | Log of guard decisions in `.crew/audit.log`, team mode only; see [Audit trail](#audit-trail-audit). |
 | `telemetry` | `false` | no effect | Can only forbid catalog usage recording for the whole team. Each person turns it on locally; see [Catalog usage](#catalog-usage-telemetry). |
@@ -166,7 +166,11 @@ The same rule as `design`, applied to the other place an agent sounds confident 
 
 **Declaring turns the verification table into a gate.** With `testing` present in any form, a story or requirement cannot reach `Closed` without a `## Verification` table — one row per behavior: scenario, level, harness, artifact, status. This holds in **both** modes, including solo, and it is independent of `metrics`: the estimation gate is the metrics discipline, this one is your own declaration. `not verified — no harness` is a perfectly valid row; an absent table is not, because silence reads exactly like coverage.
 
-**`receipts: true` makes a pass checkable.** Opt-in, because an absent field keeps the previous behavior. With it, a `passing` verification row closes only when it cites a receipt written by `/crew:check` (`scripts/verify.js` runs the declared `commands` and records exit code, times, git HEAD and output tail, hashed so it cannot be edited unnoticed). Without `commands`, receipts cannot exist, so declare both.
+**`receipts: true` makes a pass checkable.** Opt-in, because an absent field keeps the previous behavior. With it, a `passing` verification row closes only when it cites a receipt written by `/crew:check` (`scripts/verify.js` runs the declared `commands` and records exit code, times, git HEAD, a fingerprint of the code on disk and the output tail, hashed so it cannot be edited unnoticed). Without `commands`, receipts cannot exist, so declare both.
+
+**A receipt backs the code it ran on.** The fingerprint covers every file git sees, committed or not, except documentation (`docs/`, `*.md`). When the code changed after the run, the receipt no longer backs a `passing` row and closure asks for a new `/crew:check`. Committing does not change the fingerprint. Receipts written before this version carry no fingerprint and keep closing on the old rule until the next minor version.
+
+**`criteria: true` makes every criterion count.** Opt-in. With it, a story's numbered acceptance criteria must each be cited by some verification row as `AC<n>` (for example `AC2 rejected discount`) before the story closes. A criterion no row cites is a promise nothing checks. Requirements, which state goals instead of numbered criteria, are not affected.
 
 **What the standard never mandates.** A specific tool. A plan that requires Playwright in a repo that never adopted it produces specs that never run and a table that reads covered while nothing executes. Declare the harness once, here, and every role derives from it.
 

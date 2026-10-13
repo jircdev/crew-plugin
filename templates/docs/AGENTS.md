@@ -72,11 +72,12 @@ Timestamps are timezone-stamped: `YYYY-MM-DD HH:MM -ZZ:ZZ`, taken from the clock
 
 Every work item states **how it was verified**, in a `## Verification` table written at planning by whoever executes — the same moment and the same hand as the estimation. One row per behavior: scenario, level (unit / integration / contract / e2e / manual), harness, artifact, status.
 
-Three rules give it its shape:
+Four rules give it its shape:
 
 1. **It never restates the scenario.** The story owns what must be true and one concrete run of it; this table adds only the method, referencing the scenario by its human-readable name. Duplication here is drift tomorrow.
 2. **It names no tool of its own.** The harness comes from `crew.json` `testing.e2e`; if the project declares none, the row says `none` and the status says why. A plan that mandates a specific test tool the project never adopted produces tests that never run.
-3. **"Not verified" is a valid status; silence is not.** Missing infrastructure, a behavior only checkable by hand, a deliberate decision to skip — all legitimate, all written down with the reason. The cost of verification belongs in the estimate, and work that is not in the table is work nobody costed.
+3. **Each row names the criterion it proves.** Cite the story's numbered acceptance criteria as `AC<n>` in the scenario cell. With `testing.criteria: true` in `crew.json`, a criterion no row cites blocks closure.
+4. **"Not verified" is a valid status; silence is not.** Missing infrastructure, a behavior only checkable by hand, a deliberate decision to skip — all legitimate, all written down with the reason. The cost of verification belongs in the estimate, and work that is not in the table is work nobody costed.
 
 When `crew.json` declares `testing`, closure without this table is invalid and hook-enforced, in both team and solo mode. Undeclared, the table is still the standard and nothing blocks. What the project can verify, at what levels and with what harness, lives in [`guides/testing.md`](guides/testing.md).
 

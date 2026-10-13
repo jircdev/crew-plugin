@@ -17,6 +17,7 @@ const { dirname } = require("node:path");
 const { configFor } = require("./lib/config");
 const { findRoot } = require("./lib/ceilings");
 const { unbacked } = require("./lib/receipts");
+const { uncovered } = require("./lib/criteria");
 const { factoryMode } = require("./lib/factory");
 const { factoryTaskId } = require("./lib/activity-rules");
 
@@ -87,7 +88,7 @@ function estimationIncomplete(content) {
 // Only reachable when crew.json declares `testing`: the project said what it
 // can verify, so a work item closing without saying how it was verified is
 // incomplete by its own declaration. Undeclared ⇒ never checked.
-function verificationIncomplete(content, receiptsRoot) {
+function verificationIncomplete(content, receiptsRoot, criteria) {
   const rows = tableRows(content, "Verification|Verificación");
   if (rows === null) return "no Verification section found";
   if (rows.length === 0) return "the Verification table has no rows";
@@ -102,6 +103,8 @@ function verificationIncomplete(content, receiptsRoot) {
       if (gap) return `verification row "${cells[0]}" is passing but ${gap}`;
     }
   }
+  const missing = criteria ? uncovered(content, rows) : [];
+  if (missing.length) return `acceptance criteria ${missing.map((n) => `AC${n}`).join(", ")} are cited by no verification row`;
   return null;
 }
 
@@ -156,7 +159,7 @@ try {
 
   if (gateVerification) {
     const receiptsRoot = cfg.testing.receipts ? findRoot(dirname(path)) || dirname(path) : null;
-    const gap = verificationIncomplete(content, receiptsRoot);
+    const gap = verificationIncomplete(content, receiptsRoot, cfg.testing.criteria);
     if (gap) {
       deny(
         `Cannot close this work item: ${gap}. This project declares \`testing\` in ` +
