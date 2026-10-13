@@ -196,6 +196,14 @@ Before writing, the skill resolves the work item's **effective standard**, that 
 
 `/crew:doctor standard <work-item-path>` prints that standard, and `/crew:doctor standard` with no path lists the items that do not follow it. The shape guard enforces it on every write ([enforcement.md § Work-item shape](enforcement.md#work-item-shape)). Whoever executes adds the estimation table at planning, and it is measured as the next section explains.
 
+## Execute a plan
+
+```
+COORD: execute docs/requirements/<plan>
+```
+
+The delivery coordinator runs the plan to the end. It reads which items can start (`scripts/plan-graph.js` shows every item as done, in progress, ready, blocked or not ready, and why), hands each ready item to its owning role, and runs items that touch no common file in parallel, each in its own worktree. An item enters the main branch only when its declared suites pass there, one at a time. When an item needs a decision only you can make, its header gets `- **Blocked:** <owner> — <what is needed>`; that item and the ones depending on it wait, and everything else keeps moving.
+
 ## Measure your work (metrics)
 
 With `"metrics": true` in `crew.json`, the estimation discipline becomes measurable end to end:

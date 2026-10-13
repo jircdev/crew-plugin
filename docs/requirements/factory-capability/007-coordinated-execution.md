@@ -1,6 +1,6 @@
 # 007 — Ejecución coordinada de un plan completo
 
-- **Status:** Ready
+- **Status:** Delivered
 - **Plan:** factory-capability ([README](README.md))
 - **Date:** 2026-10-13
 - **Author role:** COORD, con SYS en el aislamiento y OPS en la integración
@@ -37,14 +37,14 @@ Una factory tiene que poder ejecutar un plan completo. Eso exige saber qué est�
 
 | Milestone | Est. hours | Started | Finished | Actual hours | Notes |
 |-----------|-----------|---------|----------|--------------|-------|
-| Grafo de dependencias de un plan | 5 | | | | |
-| Procedimiento de ejecución en COORD | 3 | | | | |
-| Ejecución paralela en worktrees | 8 | | | | |
-| Integración secuencial con verificación | 3 | | | | |
-| Bloqueos con dueño | 2 | | | | |
-| Paridad Codex | 1 | | | | |
-| Tests | 5 | | | | |
-| Docs EN y ES y changelog | 3 | | | | |
+| Grafo de dependencias de un plan | 5 | 2026-10-13 13:46 -03:00 | 2026-10-13 13:47 -03:00 | 0.02 | scripts/plan-graph.js; sigue dependencias entre planes por su link |
+| Procedimiento de ejecución en COORD | 3 | 2026-10-13 13:47 -03:00 | 2026-10-13 13:47 -03:00 | 0.01 | Sección "Executing a plan" del rol |
+| Ejecución paralela en worktrees | 8 | 2026-10-13 13:47 -03:00 | 2026-10-13 13:47 -03:00 | 0.01 | Lotes sin rutas compartidas; cada item en su worktree con el aislamiento del host. Tope de dos o tres por lote hasta medirlo |
+| Integración secuencial con verificación | 3 | 2026-10-13 13:47 -03:00 | 2026-10-13 13:47 -03:00 | 0.01 | plan-graph.js gate sobre verify.js |
+| Bloqueos con dueño | 2 | 2026-10-13 13:46 -03:00 | 2026-10-13 13:47 -03:00 | 0.01 | Línea opcional de cabecera Blocked; la forma estándar la tolera |
+| Paridad Codex | 1 | 2026-10-13 13:48 -03:00 | 2026-10-13 13:48 -03:00 | 0 | En Codex el lote corre en secuencia |
+| Tests | 5 | 2026-10-13 13:47 -03:00 | 2026-10-13 13:48 -03:00 | 0.01 | tests/plan-graph.test.js, 5 casos |
+| Docs EN y ES y changelog | 3 | 2026-10-13 13:48 -03:00 | 2026-10-13 13:48 -03:00 | 0.01 | using-crew en ambos idiomas |
 | Revisión del maintainer | 2 | | | | |
 | **Total** | **32** | — | — | | |
 
@@ -52,10 +52,10 @@ Una factory tiene que poder ejecutar un plan completo. Eso exige saber qué est�
 
 | Scenario | Level | Harness | Artifact | Status |
 |----------|-------|---------|----------|--------|
-| El grafo marca listo, bloqueado y el motivo de cada bloqueo | unit | node:test | tests/plan-graph.test.js | planned |
-| Dos requirements que tocan los mismos archivos no se paralelizan | unit | node:test | tests/plan-graph.test.js | planned |
-| Una integración con verificación en rojo no entra | integration | node:test | tests/plan-graph.test.js | planned |
-| Un plan de prueba se ejecuta completo con un bloqueo humano simulado | e2e | runner de 003 | evals/delivery/results/ | planned |
+| El grafo marca listo, bloqueado y el motivo de cada bloqueo | integration | node:test | tests/plan-graph.test.js | passing |
+| Dos requirements que tocan los mismos archivos no se paralelizan | integration | node:test | tests/plan-graph.test.js | passing |
+| Una integración con verificación en rojo no entra | integration | node:test | tests/plan-graph.test.js | passing |
+| Un plan de prueba se ejecuta completo con un bloqueo humano simulado | e2e | runner de 003 | evals/delivery/results/ | not verified — necesita una corrida con modelo real; la suite de 003 todavía no tiene una tarea de plan |
 
 ## Changes
 

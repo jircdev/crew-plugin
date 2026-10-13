@@ -196,6 +196,14 @@ Antes de escribir, la skill resuelve el **estándar efectivo** del work item, es
 
 `/crew:doctor standard <ruta-del-work-item>` imprime ese estándar, y `/crew:doctor standard` sin ruta lista los items que no lo siguen. El guard de forma lo exige en cada escritura ([enforcement.md § Forma de los work items](enforcement.md#forma-de-los-work-items)). La tabla de estimación la agrega quien ejecuta, en planning, y se mide como explica la sección siguiente.
 
+## Ejecutar un plan
+
+```
+COORD: ejecutá docs/requirements/<plan>
+```
+
+El coordinador de entrega lleva el plan hasta el final. Lee qué items pueden empezar (`scripts/plan-graph.js` muestra cada item como terminado, en curso, listo, bloqueado o no listo, y por qué), le pasa cada item listo a su rol dueño y corre en paralelo los que no tocan ningún archivo en común, cada uno en su propio worktree. Un item entra a la rama principal solo cuando sus suites declaradas pasan ahí, de a uno por vez. Cuando un item necesita una decisión que solo vos podés tomar, su cabecera recibe `- **Blocked:** <dueño> — <qué hace falta>`; ese item y los que dependen de él esperan, y todo lo demás sigue avanzando.
+
 ## Medir tu trabajo (métricas)
 
 Con `"metrics": true` en `crew.json`, la disciplina de estimación se vuelve medible de punta a punta:

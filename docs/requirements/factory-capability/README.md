@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-13
 - **Author role:** CREW
-- **Status del plan:** In progress — 001 entregado; 002 a 007 estimados y listos para la decisión del maintainer.
+- **Status del plan:** Delivered — los siete requirements implementados el 2026-10-13, sin push. Cada uno espera la revisión del maintainer, y las corridas con modelo real quedan pendientes (ver abajo).
 
 ## Contexto
 
@@ -36,7 +36,7 @@ La evaluación también mencionó hallazgos sobre hooks y recibos que vienen de 
 | 004 | [Procedimientos de ejecución por tipo de trabajo](004-execution-procedures.md) | Delivered | 22 | 001, 003 | Valen para cualquier stack y se miden con 003 |
 | 005 | [Evidencia atada al estado del código y a los criterios](005-evidence-bound-to-code.md) | Delivered | 28 | 004 | Respalda el "terminado" que producen los procedimientos |
 | 006 | [Aprendizaje que se prueba antes de incorporarse](006-verified-learning.md) | Delivered | 25 | 003, 004 | Necesita la suite para probar cada propuesta |
-| 007 | [Ejecución coordinada de un plan completo](007-coordinated-execution.md) | Ready | 32 | 004, 005 | Paralelizar exige procedimientos y evidencia previos |
-| | **Total pendiente (002 a 007)** | | **157.5** | | |
+| 007 | [Ejecución coordinada de un plan completo](007-coordinated-execution.md) | Delivered | 32 | 004, 005 | Paralelizar exige procedimientos y evidencia previos |
+| | **Total estimado (001 a 007)** | | **167.5** | | |
 
-002 y 003 no dependen entre sí y pueden avanzar juntos. Las corridas con modelo real de 003, 004 y 006 tienen costo de API, que no está incluido en las horas.
+Las corridas con modelo real quedaron sin hacer: el CLI de Claude no tiene sesión válida en la máquina donde se implementó. Son la línea base de 003, el antes y después de 004 y la tarea de plan de 007. Con una sesión válida, el primer paso es `node scripts/eval-delivery.js --runs 3`; su resultado es la línea base contra la que se comparan todos los cambios siguientes.
