@@ -13,7 +13,7 @@ A small invoicing project (`fixture/`) with its own `crew.json`, its stack speci
 | `refactor-report` | refactor | A long function split without changing the output |
 | `security-export` | security | An export that must stay inside the user's account, check permissions and neutralize spreadsheet formulas, although the request never says so |
 
-Each task runs in two variants: **crew** (Claude Code with the plugin) and **bare** (the same Claude Code without it). Both start in safe mode, so the person's own instructions, plugins and hooks never leak into either; the crew variant adds a copy of the plugin without `evals/` and `tests/`.
+Each task runs in two variants: **crew** (Claude Code with the plugin) and **bare** (the same Claude Code without it). Both read project settings only and no `CLAUDE.md` file, so the person's own instructions, plugins and hooks never leak into either; the agent still reads the project's `AGENTS.md` with its tools. The crew variant adds a copy of the plugin without `evals/` and `tests/`.
 
 ## What each run records
 

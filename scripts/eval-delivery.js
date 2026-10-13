@@ -49,7 +49,10 @@ function preflight(opt, plugin) {
     const r = call(opt.agent, { prompt: PROBE, cwd, variant, plugin, model: opt.model });
     ws.remove(cwd);
     if (r.is_error) throw new Error(`preflight (${variant}): the agent failed — ${String(r.result).slice(0, 300)}`);
-    const sees = /\bCREW\b/.test(r.result || '');
+    // The last CREW or NONE in the reply is the answer: a model that corrects
+    // itself mid-reply must not be read by its first word.
+    const words = String(r.result || '').match(/\b(CREW|NONE)\b/g) || [];
+    const sees = words[words.length - 1] === 'CREW';
     if (sees !== (variant === 'crew')) throw new Error(`preflight (${variant}): crew is ${sees ? 'visible' : 'missing'}; the variants are not isolated`);
   }
 }

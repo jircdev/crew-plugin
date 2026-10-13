@@ -4,9 +4,11 @@
 // on stdin { prompt, cwd, variant, plugin, model, resume } and Claude Code's
 // `--output-format json` result on stdout.
 //
-// Both variants start in safe mode, so neither reads the person's own
-// CLAUDE.md, plugins or hooks; the crew variant adds the plugin copy with
-// --plugin-dir. The workspace is a throwaway temp copy, which is why
+// Both variants read project settings only (no user plugins or hooks) and no
+// CLAUDE.md at all, so the person's own instructions never leak in; the crew
+// variant adds the plugin copy with --plugin-dir. Safe mode would also switch
+// off a plugin passed with --plugin-dir, which is why it is not used. The
+// agent still reads the fixture's AGENTS.md through its tools. The workspace is a throwaway temp copy, which is why
 // permissions are skipped: the agent edits files without a human to approve.
 const { readFileSync } = require('node:fs');
 const { spawnSync } = require('node:child_process');
@@ -23,7 +25,7 @@ if ((req.model && !SAFE_MODEL.test(req.model)) || (req.resume && !SAFE_SESSION.t
 }
 // The prompt goes on stdin: on Windows `claude` is a .cmd shim that needs a
 // shell, and a free-text argument through cmd.exe cannot be quoted safely.
-const args = ['-p', '--output-format', 'json', '--safe-mode', '--dangerously-skip-permissions'];
+const args = ['-p', '--output-format', 'json', '--setting-sources', 'project', '--dangerously-skip-permissions'];
 if (req.variant === 'crew') args.push('--plugin-dir', req.plugin);
 if (req.model) args.push('--model', req.model);
 if (req.resume) args.push('--resume', req.resume);
@@ -31,7 +33,8 @@ if (req.resume) args.push('--resume', req.resume);
 const shell = process.platform === 'win32';
 const quoted = shell ? args.map((a) => (/[\s"]/.test(a) ? `"${a.replace(/"/g, '')}"` : a)) : args;
 const run = spawnSync(process.env.CREW_EVAL_CLAUDE || 'claude', quoted, {
-  cwd: req.cwd, input: req.prompt, encoding: 'utf8', windowsHide: true, timeout: 30 * 60 * 1000, maxBuffer: 64 * 1024 * 1024,
+  cwd: req.cwd, input: req.prompt, encoding: 'utf8',
+  env: { ...process.env, CLAUDE_CODE_DISABLE_CLAUDE_MDS: '1', CLAUDE_CODE_DISABLE_AUTO_MEMORY: '1' }, windowsHide: true, timeout: 30 * 60 * 1000, maxBuffer: 64 * 1024 * 1024,
   shell,
 });
 const out = (run.stdout || '').trim();
