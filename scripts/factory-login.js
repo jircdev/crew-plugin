@@ -71,8 +71,10 @@ const sameSecret = (a, b) => {
 function waitForCallback(state, onListen, web) {
   return new Promise((resolve, reject) => {
     let consumed = false;
+    // Read once at listen: after close() the address is null, and a second
+    // request on a connection accepted before the close must be refused, not crash.
+    let port;
     const server = http.createServer((req, res) => {
-      const port = server.address().port;
       const url = new URL(req.url, `http://127.0.0.1:${port}`);
       if (url.pathname !== "/callback" || req.headers.host !== `127.0.0.1:${port}`) {
         return res.writeHead(404, NO_STORE).end();
@@ -100,7 +102,7 @@ function waitForCallback(state, onListen, web) {
       });
     });
     const timer = setTimeout(() => { server.close(); reject(new Error("timed out waiting for the approval")); }, TIMEOUT_MS);
-    server.listen(0, "127.0.0.1", () => onListen(server.address().port));
+    server.listen(0, "127.0.0.1", () => { port = server.address().port; onListen(port); });
   });
 }
 

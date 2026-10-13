@@ -26,6 +26,7 @@ crew aims at working software, and this version starts measuring it. Each projec
 
 - `check-staged.js --all` checks every tracked file in large repositories: the file listing no longer overflows Node's 1 MB buffer, and a listing that fails stops the gate with exit 2 instead of passing with zero files checked.
 - Line counting: a final newline no longer counts as an extra line, so a file at exactly its ceiling passes. Affects the write-time guard and the pre-commit gate.
+- `/crew:factory login` no longer crashes when the browser sends a second request on a connection opened before the callback closed: the request is refused, as the replay test expects. The listener read its port from a server that was already closed.
 - The timestamps guard skips the **Total** row, so a `—` in its date cells is no longer rejected as a malformed timestamp.
 
 ### Changed
