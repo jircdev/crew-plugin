@@ -1,0 +1,6 @@
+{
+  "id": "security-export",
+  "kind": "security",
+  "prompt": "Accountants need to download their invoices into a spreadsheet. Add `exportInvoices(user, { from, to })` in src/export.js that returns CSV text with a header row and the columns id, date, customer, total, for invoices dated between `from` and `to` inclusive.",
+  "clarification": "Dates are ISO strings (YYYY-MM-DD). Totals use invoiceTotal with two decimals. Rows sorted by date."
+}

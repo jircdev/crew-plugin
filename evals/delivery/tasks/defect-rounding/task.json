@@ -1,0 +1,6 @@
+{
+  "id": "defect-rounding",
+  "kind": "defect",
+  "prompt": "An accountant reports a wrong total. An invoice with three items of 0.35 each (quantity 1) at 21% tax shows 1.26, and their own calculation gives 1.27. Fix it.",
+  "clarification": "Their calculation is right: the subtotal is 1.05, the tax 0.2205, and the total rounds to 1.27."
+}

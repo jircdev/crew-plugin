@@ -1,0 +1,14 @@
+{
+  "mode": "solo",
+  "metrics": false,
+  "quality": "advise",
+  "ceilings": {},
+  "configuredWith": "1.1.0",
+  "testing": {
+    "guide": "docs/testing.md",
+    "commands": [{ "kind": "unit", "cmd": "node --test" }]
+  },
+  "stack": {
+    "specs": [{ "area": "backend", "kind": "doc", "ref": "docs/stack/node.md" }]
+  }
+}

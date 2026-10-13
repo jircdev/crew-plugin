@@ -1,0 +1,6 @@
+{
+  "id": "feature-discount",
+  "kind": "feature",
+  "prompt": "Firms want to give customers a discount on an invoice. Add an optional `discount` to `createInvoice`: a percentage from 0 to 100, applied to the invoice subtotal before tax. A discount outside that range must be rejected. `invoiceTotal` has to reflect it.",
+  "clarification": "The discount is a whole-invoice percentage, never per item. Reject with a ValidationError. An invoice without discount behaves exactly as today."
+}

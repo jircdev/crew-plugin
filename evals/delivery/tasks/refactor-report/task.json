@@ -1,0 +1,6 @@
+{
+  "id": "refactor-report",
+  "kind": "refactor",
+  "prompt": "`buildReport` in src/report.js has grown into one long function that is hard to change. Split it so each section of the report is built by its own function, with no function longer than 25 lines. The report text must stay exactly the same.",
+  "clarification": "Keep `buildReport(account, invoices, today)` as the exported entry point with the same signature. Helpers may live in the same file or in new files under src/."
+}

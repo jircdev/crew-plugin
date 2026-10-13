@@ -32,7 +32,7 @@ La evaluación también mencionó hallazgos sobre hooks y recibos que vienen de 
 |---|---|---|---|---|---|
 | 001 | [Especificaciones de stack declaradas por el proyecto](001-stack-specifications.md) | Delivered | 10 | — | Fija el límite antes de construir encima |
 | 002 | [Propósito declarado y límite del stack protegido](002-purpose-and-stack-guard.md) | Delivered | 9.5 | 001 | Corto, y deja el propósito claro para todo lo que sigue |
-| 003 | [Evaluación de punta a punta con modelos reales](003-end-to-end-evaluation.md) | Ready | 41 | 001 | Sin medición, cada mejora se valida a ojo |
+| 003 | [Evaluación de punta a punta con modelos reales](003-end-to-end-evaluation.md) | Delivered | 41 | 001 | Sin medición, cada mejora se valida a ojo |
 | 004 | [Procedimientos de ejecución por tipo de trabajo](004-execution-procedures.md) | Ready | 22 | 001, 003 | Valen para cualquier stack y se miden con 003 |
 | 005 | [Evidencia atada al estado del código y a los criterios](005-evidence-bound-to-code.md) | Ready | 28 | 004 | Respalda el "terminado" que producen los procedimientos |
 | 006 | [Aprendizaje que se prueba antes de incorporarse](006-verified-learning.md) | Ready | 25 | 003, 004 | Necesita la suite para probar cada propuesta |

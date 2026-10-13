@@ -1,0 +1,9 @@
+{
+  "name": "ledger",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Invoicing core used by the crew delivery evaluation.",
+  "scripts": {
+    "test": "node --test"
+  }
+}

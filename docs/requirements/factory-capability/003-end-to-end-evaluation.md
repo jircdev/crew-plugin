@@ -1,6 +1,6 @@
 # 003 — Evaluación de punta a punta con modelos reales
 
-- **Status:** Ready
+- **Status:** Delivered
 - **Plan:** factory-capability ([README](README.md))
 - **Date:** 2026-10-13
 - **Author role:** QA, con CREW en el formato del catálogo
@@ -38,13 +38,13 @@ Sin esa medición, cada mejora de este plan se valida a ojo, y el aprendizaje de
 
 | Milestone | Est. hours | Started | Finished | Actual hours | Notes |
 |-----------|-----------|---------|----------|--------------|-------|
-| Repositorio de prueba con stack, spec de stack y tests | 6 | | | | |
-| Cuatro tareas con tests de aceptación ocultos | 8 | | | | |
-| Runner con modelo real, con y sin crew | 10 | | | | |
-| Medición de intervenciones, tiempo, tokens y costo | 4 | | | | |
-| Reporte comparativo y archivo por versión | 4 | | | | |
-| Corrida de línea base | 4 | | | | Costo de API a cargo del maintainer |
-| Docs EN y ES y changelog | 3 | | | | |
+| Repositorio de prueba con stack, spec de stack y tests | 6 | 2026-10-13 13:27 -03:00 | 2026-10-13 13:28 -03:00 | 0.02 | Proyecto Node sin dependencias, con crew.json en modo solo y spec de stack declarada |
+| Cuatro tareas con tests de aceptación ocultos | 8 | 2026-10-13 13:28 -03:00 | 2026-10-13 13:30 -03:00 | 0.05 | Cada tarea validada contra una solución de referencia (pasa) y contra el código original (falla) |
+| Runner con modelo real, con y sin crew | 10 | 2026-10-13 13:30 -03:00 | 2026-10-13 13:32 -03:00 | 0.03 | Ambas variantes en safe mode; la de crew carga una copia del plugin sin evals/ ni tests/. Preflight que aborta si las variantes no están aisladas |
+| Medición de intervenciones, tiempo, tokens y costo | 4 | 2026-10-13 13:31 -03:00 | 2026-10-13 13:32 -03:00 | 0.02 | Decisión: cada respuesta que el runner tiene que dar cuenta como una intervención; la primera es la aclaración de la tarea |
+| Reporte comparativo y archivo por versión | 4 | 2026-10-13 13:31 -03:00 | 2026-10-13 13:32 -03:00 | 0.02 | |
+| Corrida de línea base | 4 | | | | No corrida: el CLI no tiene sesión válida en esta máquina (OAuth vencido, sin ANTHROPIC_API_KEY). Queda para el maintainer |
+| Docs EN y ES y changelog | 3 | 2026-10-13 13:32 -03:00 | 2026-10-13 13:34 -03:00 | 0.03 | evals/delivery/README.md y contributing EN y ES |
 | Revisión del maintainer | 2 | | | | |
 | **Total** | **41** | — | — | | |
 
@@ -52,12 +52,12 @@ Sin esa medición, cada mejora de este plan se valida a ojo, y el aprendizaje de
 
 | Scenario | Level | Harness | Artifact | Status |
 |----------|-------|---------|----------|--------|
-| El runner corre una tarea completa y registra las cinco medidas | integration | node:test con proveedor determinístico | tests/delivery-eval.test.js | planned |
-| Los tests de aceptación quedan fuera del alcance del agente durante la corrida | integration | node:test | tests/delivery-eval.test.js | planned |
-| Una pregunta fuera de guion se cuenta como intervención | unit | node:test | tests/delivery-eval.test.js | planned |
-| La corrida no modifica la configuración ni las credenciales del usuario | integration | node:test | tests/delivery-eval.test.js | planned |
-| La línea base con modelo real queda archivada | manual | none | evals/delivery/results/ | planned |
+| El runner corre una tarea completa y registra las cinco medidas | integration | node:test con agente determinístico | tests/delivery-eval.test.js | passing |
+| Los tests de aceptación quedan fuera del alcance del agente durante la corrida | integration | node:test | tests/delivery-eval.test.js | passing |
+| Una pregunta del agente se cuenta como intervención | integration | node:test | tests/delivery-eval.test.js | passing |
+| La corrida no modifica la configuración ni las credenciales del usuario | integration | node:test | tests/delivery-eval.test.js | passing |
+| La línea base con modelo real queda archivada | manual | none | evals/delivery/results/ | not verified — sin credenciales del CLI en esta máquina; correr `node scripts/eval-delivery.js --runs 3` |
 
 ## Changes
 
-- (Solo si el objetivo cambia después de In progress.)
+- 2026-10-13: el conteo de intervenciones se simplificó. Cada respuesta que da el runner cuenta como una intervención, sin distinguir preguntas esperadas de preguntas fuera de guion, porque en modo no interactivo no hay forma confiable de clasificarlas.

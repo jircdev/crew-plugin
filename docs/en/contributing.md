@@ -49,6 +49,7 @@ crew-plugin/
 │   ├── session-context.md    # always-on session baseline (suggestive defaults)
 │   └── configuration-interview.md  # the fixed question set /crew:setup follows
 ├── evals/                    # human-run sets: design, planning, security, review, brownfield, routing
+│   ├── delivery/             # end-to-end set run by scripts/eval-delivery.js: crew against no crew, hidden acceptance tests
 │   └── design/               # fixtures + rubric: scores agent behavior, never taste
 ├── templates/
 │   ├── AGENTS.md             # canonical agent context (precedence, ownership map, interop)
@@ -110,9 +111,10 @@ Two consequences. A role reading `crew.json` directly would create a second inte
 ## Maintenance
 
 - **Adding a new role**: drop a new `agents/<name>.md` (with frontmatter), a new `commands/<alias>.md`, and add a row to the matching **area** in the `templates/AGENTS.md` alias table — then list it under that same area in [`roles.md`](roles.md) (and its Spanish counterpart in `../es/roles.md`). The grouped alias table in `templates/AGENTS.md` is the source of truth for area assignment; the `roles.md` catalog is its index. Name and alias must follow the [naming and alias rules](#naming-and-alias-rules) below. Pick its model by the rule in `agents/crew.md` (decisions on `opus`, reading and structuring on `sonnet`) and update that list if it changes. `tests/catalog.test.js` fails until every surface is registered: a red catalog test means the role is not added yet.
-- **Adding a skill**: a craft every role needs is a skill: it is loaded inside a role's work and owns a *how*; decisions stay with the roles. Drop `skills/<name>/SKILL.md` with a `description` precise enough to fire on the real trigger (that description *is* the activation mechanism), then register it in the skills block of `templates/AGENTS.md` and in both `roles.md`. A skill must carry method only: a value, palette, scale, style name or library baked into a skill is the plugin deciding for every consumer project.
+- **Adding a skill**: a craft every role needs is a skill: it is loaded inside a role's work and owns a *how*; decisions stay with the roles. Drop `skills/<name>/SKILL.md` with a `description` precise enough to fire on the real trigger (that description *is* the activation mechanism), then register it in the skills block of `templates/AGENTS.md`, in both `roles.md` and in the crafts list of `agents/crew.md` (the catalog test reads it). A skill must carry method only: a value, palette, scale, style name or library baked into a skill is the plugin deciding for every consumer project.
 - **Renaming or retiring a role**: a catalog decision that goes through the `CREW` meta-role, never a casual edit. Aliases are a shared vocabulary; any alias change ships with a one-version redirect (see below).
-- **Stack-specific rule**: keep it in the consumer project's own `standards/` or `AGENTS.md`, never in the universal `templates/standards/code-quality.md` core.
+- **Stack-specific rule**: keep it in the consumer project's own `standards/` or `AGENTS.md`, or in the stack specification it declares in `crew.json`, never in the plugin. The catalog test rejects framework names in roles, crafts, the session baseline and the templates.
+- **Changing a role, a craft or a procedure**: run the delivery evaluation before the release (`node scripts/eval-delivery.js`, see [`evals/delivery/README.md`](../../evals/delivery/README.md)) and compare it with the last archived result. A change ships only if no task gets worse.
 - **Editing the docs**: every human doc is bilingual, with Spanish as the source of truth and English as the mirror (see [canonical language](#canonical-language) below); `templates/docs/guides/delivery-circuit.md` has a Spanish twin `delivery-circuit.es.md` that must move with it. The agent role files, the rest of `templates/`, and the session baseline stay English (the canonical machine layer).
 
 ## Naming and alias rules
