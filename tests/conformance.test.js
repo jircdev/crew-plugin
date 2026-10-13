@@ -36,7 +36,7 @@ test('resolver: crew template by default, project template wins, deviations appl
   const target = path.join(dir, 'docs/requirements/p/001-x.md');
   const crew = resolve(target, root);
   assert.equal(crew.source, 'crew');
-  assert.deepEqual(crew.tables.Estimation, ['Milestone', 'Est. hours', 'Started', 'Finished', 'Actual hours', 'Notes']);
+  assert.deepEqual(crew.tables.Estimation, ['Milestone', 'Est. hours', 'Est. AI hours', 'Started', 'Finished', 'Actual hours', 'Actual AI hours', 'Notes']);
   put(dir, 'docs/requirements/README.md', PROJECT_TEMPLATE);
   put(dir, 'docs/DEVIATIONS.md', '<!-- crew:standard\nrequirement omit section Contexto   # this team writes context in the plan README\nrequirement omit header Estado\n-->\n');
   const own = resolve(target, root);

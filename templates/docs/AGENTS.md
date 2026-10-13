@@ -60,13 +60,21 @@ When a documentation audit (`DOC` role) finds a divergence and the owner decides
 Estimation happens at two levels, and neither belongs to the authoring of a story:
 
 1. **Project level** — a rough magnitude in the brief/manifesto, before any story exists, to judge whether the initiative is worth doing. Coarse by design; never a milestone breakdown.
-2. **Planning level** — when a work item is taken for implementation, **whoever executes** adds the `## Estimation` table (milestones, estimated human-hours) to the story/requirement **before coding**, and records real start/finish per milestone during execution.
+2. **Planning level** — when a work item is taken for implementation, **whoever executes** adds the `## Estimation` table to the story/requirement **before coding**, and records real start/finish per milestone during execution.
 
 A story is written without estimation — hours are not the analyst's deliverable. By closure every implemented story/requirement carries its complete table: that is how the team measures the cost of each agentic iteration — do not skip it, do not estimate retroactively.
 
+**Every milestone is estimated twice, always, without waiting to be asked:**
+
+- **`Est. hours`** — person pace: what the milestone would take a person working without agents. It is fixed before deciding who executes, so nobody inflates it to show leverage.
+- **`Est. AI hours`** — the agents' processing time for the same milestone. `0` when the milestone carries no agent work (a meeting, a review). An empty cell means nobody estimated it.
+- **Human review is its own milestone** — the person's time reading, correcting and approving what the agents produced, with its own `Est. hours` and `Est. AI hours` of `0`.
+
+The actuals mirror them: **`Actual hours`** is the person's time, **`Actual AI hours`** the agents' time, taken from a capture (factory, the harness's session log), where a figure typed from memory would lose its value as evidence; `—` says no capture measured it. The two pairs exist so each can be contrasted with its real counterpart: the person estimate against human hours, the AI estimate against AI hours. Tables without the AI columns, including those that wrote "AI est." in Notes, stay valid until the next minor version.
+
 Timestamps are timezone-stamped: `YYYY-MM-DD HH:MM -ZZ:ZZ`, taken from the clock (`date "+%Y-%m-%d %H:%M %z"`), never reconstructed from memory. Closure with an incomplete table is invalid and hook-enforced.
 
-**The table closes with a `**Total**` row** — estimated and actual hours summed. A document whose reader has to add the column themselves is not reporting a number, it is storing one. The total is what makes a plan comparable to its outcome at a glance, and it is hook-enforced at closure like the rest of the table.
+**The table closes with a `**Total**` row** — estimated and actual hours summed, person and AI each in its own column. A document whose reader has to add the column themselves is not reporting a number, it is storing one. The total is what makes a plan comparable to its outcome at a glance, and it is hook-enforced at closure like the rest of the table.
 
 ## Verification discipline
 

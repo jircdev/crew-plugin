@@ -104,7 +104,7 @@ Estos elementos son estructurales: los roles, los hooks y el circuito de entrega
 - Carpeta = naturaleza, estado = campo; los archivos nunca se mueven; el kind vive en el slug.
 - El ciclo de vida de story/requirement (`Draft → … → Closed`) y el campo `Status:` en el encabezado.
 - La puerta de Ready: criterios completos y sin ambigüedad, sin preguntas abiertas, y **al menos un Test scenario**.
-- La tabla de estimación, agregada en planning por quien ejecuta y completa al cierre. Esta la hace cumplir un hook: exige el encabezado exacto `## Estimation` y las primeras cinco columnas (Milestone a Actual hours) llenas — renombrar la sección o dejar celdas vacías bloquea el cierre.
+- La tabla de estimación, agregada en planning por quien ejecuta y completa al cierre. Esta la hace cumplir un hook: exige el encabezado exacto `## Estimation` y cada celda de hito llena salvo Notes (Milestone, Est. hours, Est. AI hours, Started, Finished, Actual hours, Actual AI hours; `—` vale como Actual AI hours) — renombrar la sección o dejar celdas vacías bloquea el cierre. Una tabla con las seis columnas anteriores, sin las de IA, sigue cerrando hasta la próxima versión minor.
 - La inmutabilidad de los work items Closed y de las entradas de `work/`.
 - Fuente única de verdad: un tracker externo guarda solo estado + link; el archivo gana.
 
@@ -208,7 +208,7 @@ El coordinador de entrega lleva el plan hasta el final. Lee qué items pueden em
 
 Con `"metrics": true` en `crew.json`, la disciplina de estimación se vuelve medible de punta a punta:
 
-1. **Estima en planning.** La story se redacta sin estimación; quien la toma para implementar agrega la tabla `## Estimation` (hitos, horas estimadas) antes de codificar. La estimación gruesa de proyecto vive en el brief.
+1. **Estima en planning.** La story se redacta sin estimación; quien la toma para implementar agrega la tabla `## Estimation` antes de codificar: cada hito estimado a ritmo de persona y en horas IA, la revisión humana como hito propio ([metrics.md § La tabla](metrics.md#la-tabla)). La estimación gruesa de proyecto vive en el brief.
 2. **Timestamps en tiempo real.** Las celdas Started/Finished se escriben cuando el trabajo realmente empieza y termina — un guard verifica que cada timestamp recién escrito esté a menos de 15 minutos de ahora, lleve su offset de zona horaria (`YYYY-MM-DD HH:mm ±TZ`) y sea consistente (Finished ≥ Started, Actual hours ≤ tiempo de reloj). Si una sesión se interrumpe, Finished es la hora real de retomada y la pausa se anota en Notes — el tiempo de reloj incluye pausas por diseño; la métrica es el costo de punta a punta.
 3. **Lee los números.** `/crew:metrics [YYYY-MM]` reporta, por item cerrado, lead time, tiempo de ejecución y horas estimadas vs. reales con % de desviación, agregado (mediana/p90) por carpeta y mes; `--csv` escribe `docs/work/metrics.csv`.
 

@@ -7,13 +7,23 @@ Todo ítem implementado cierra con una tabla `## Estimation` — la agrega en pl
 ```markdown
 ## Estimation
 
-| Milestone | Est. hours | Started | Finished | Actual hours | Notes |
-|-----------|-----------|---------|----------|--------------|-------|
-| Contrato de API | 2 | 2026-07-14 09:12 -03:00 | 2026-07-14 11:05 -03:00 | 1.8 | |
-| Implementación | 4 | 2026-07-14 11:20 -03:00 | 2026-07-15 10:40 -03:00 | 4.5 | sesión interrumpida, hueco de ~18h |
+| Milestone | Est. hours | Est. AI hours | Started | Finished | Actual hours | Actual AI hours | Notes |
+|-----------|-----------|---------------|---------|----------|--------------|-----------------|-------|
+| Contrato de API | 2 | 0.3 | 2026-07-14 09:12 -03:00 | 2026-07-14 11:05 -03:00 | 1.8 | 0.2 | |
+| Implementación | 4 | 0.8 | 2026-07-14 11:20 -03:00 | 2026-07-15 10:40 -03:00 | 4.5 | 1.1 | sesión interrumpida, hueco de ~18h |
+| Human review | 1 | 0 | 2026-07-15 10:45 -03:00 | 2026-07-15 11:30 -03:00 | 0.7 | — | |
+| **Total** | 7 | 1.1 | — | — | 7 | 1.3 | |
 ```
 
-`Milestone` y `Est. hours` los llena **quien ejecuta**, en planning, antes de codificar. `Started`, `Finished` y `Actual hours` se registran durante la ejecución. Los timestamps llevan offset de zona horaria obligatorio: `YYYY-MM-DD HH:mm ±TZ` (`Z` aceptado). El heading es literalmente `## Estimation` — incluso en proyectos en español.
+`Milestone` y las dos estimaciones los llena **quien ejecuta**, en planning, antes de codificar, siempre las dos:
+
+- **`Est. hours`** es el ritmo de persona: lo que llevaría el hito a una persona sin agentes. Se fija antes de decidir quién lo ejecuta, así nadie la infla para mostrar más rendimiento.
+- **`Est. AI hours`** es el tiempo que los agentes procesan ese hito. `0` dice que el hito no lleva trabajo de agentes; vacía dice que nadie lo estimó.
+- **La revisión humana es un hito propio**: el tiempo de la persona leyendo, corrigiendo y aprobando lo que hicieron los agentes, con `Est. AI hours` en `0`.
+
+`Started`, `Finished`, `Actual hours` y `Actual AI hours` se registran durante la ejecución. `Actual hours` es el tiempo de la persona; `Actual AI hours` sale de una captura (factory, el registro de sesiones del harness); una cifra tipeada de memoria pierde su valor como evidencia, y `—` dice que nada lo midió. Cada estimación se contrasta con su real: persona contra horas humanas, IA contra horas IA. Los timestamps llevan offset de zona horaria obligatorio: `YYYY-MM-DD HH:mm ±TZ` (`Z` aceptado). El heading es literalmente `## Estimation` — incluso en proyectos en español.
+
+**Tablas anteriores.** Una tabla con las seis columnas previas (sin las de IA), o con la IA anotada como "AI est." en Notes, sigue cerrando y conformando hasta la próxima versión minor; `conformance.js --check` la marca como deprecada.
 
 ## La disciplina de tiempo real
 
@@ -46,8 +56,9 @@ El comando corre [`../../scripts/metrics.js`](../../scripts/metrics.js), que esc
 | Est (h) | Suma de `Est. hours` de todos los hitos. |
 | Actual (h) | Suma de `Actual hours` de todos los hitos. |
 | Deviation | `(Actual − Est) / Est`, en porcentaje. Positivo = tardó más de lo estimado. |
+| Est AI (h), Actual AI (h), AI deviation | Aparecen cuando algún ítem tiene columnas de IA. Suman `Est. AI hours` y `Actual AI hours` (un `—` no suma), y la desviación IA es `(Actual AI − Est AI) / Est AI`, calculada solo donde existen las dos cifras. |
 
-Agregados: **mediana y p90 del tiempo de ejecución** entre ítems, **desviación promedio de la estimación**, más desgloses por carpeta y por mes (ítems, mediana de exec, total est → actual). `--csv` escribe las filas crudas en `docs/work/metrics.csv` para una planilla.
+Agregados: **mediana y p90 del tiempo de ejecución** entre ítems, **desviación promedio de la estimación**, la **desviación IA promedio** con cuántos ítems la sostienen, más desgloses por carpeta y por mes (ítems, mediana de exec, total est → actual). `--csv` escribe las filas crudas en `docs/work/metrics.csv` para una planilla.
 
 El reporte corre en **ambos modos, con o sin `crew.json`** — simplemente lee lo que las tablas contienen. Lo que `"metrics": true` habilita es la *disciplina*: sin los guards, nada certifica que los timestamps fueron reales, y el reporte es tan honesto como las tablas. Detalles de configuración en [configuration.md](configuration.md).
 

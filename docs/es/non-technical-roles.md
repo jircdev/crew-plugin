@@ -44,7 +44,7 @@ En ambos casos escribís en lenguaje natural. El rol también responde en lengua
 
 **El gate de Ready.** Una story no puede entrar en implementación hasta que sus criterios de aceptación estén completos y sin ambigüedad **y** tenga al menos un escenario de prueba. Satisfacer ese gate es tu responsabilidad; una story que no lo pasa, rebota.
 
-**La tabla de estimación.** La story se redacta sin ella — las horas no son entregable del analista. En planning, cuando la story se toma para implementar, **quien ejecuta** agrega la tabla `## Estimation` (hitos, horas estimadas) antes de codificar, y escribe los timestamps **en tiempo real** — en el momento en que el trabajo empieza y termina, nunca reconstruidos después. La estimación gruesa de proyecto vive en el brief.
+**La tabla de estimación.** La story se redacta sin ella — las horas no son entregable del analista. En planning, cuando la story se toma para implementar, **quien ejecuta** agrega la tabla `## Estimation` (cada hito estimado dos veces, a ritmo de persona y en horas IA, más un hito de revisión humana) antes de codificar, y escribe los timestamps **en tiempo real** — en el momento en que el trabajo empieza y termina, nunca reconstruidos después. La estimación gruesa de proyecto vive en el brief.
 
 **Revisar sin git.** Igual que arriba: la interfaz web de tu host (vista de archivos de GitHub/GitLab) renderiza cada story y requirement como texto formateado legible.
 

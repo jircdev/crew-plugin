@@ -15,6 +15,7 @@ const { execSync } = require("node:child_process");
 const { join, relative, dirname, sep } = require("node:path");
 const { loadConfig } = require("../hooks/lib/config");
 const { factoryMode } = require("../hooks/lib/factory");
+const { estimationTable, hours } = require("../hooks/lib/estimation");
 
 const args = process.argv.slice(2);
 if (args[0] === "catalog") process.exit(require("./catalog-usage").main(args.slice(1)));
@@ -55,18 +56,19 @@ function parseStamp(cell) {
 function analyze(file) {
   const content = readFileSync(file, "utf8");
   if (!/\*\*(Status|Estado):\*\*\s*(Closed|Cerrada)\b/i.test(content.slice(0, 600))) return null;
-  const section = content.split(/^##\s+Estimation\s*$/im)[1];
-  if (!section) return null;
-  const rows = section.split(/^##\s/m)[0].split("\n").filter((l) => /^\s*\|/.test(l)).slice(2);
-  let est = 0, actual = 0, first = null, last = null;
-  for (const row of rows) {
-    const c = row.split("|").slice(1, -1).map((x) => x.trim());
-    if (c.length < 5 || c.every((x) => x.replace(/[-\s]/g, "") === "")) continue;
+  const table = estimationTable(content);
+  if (!table) return null;
+  let est = 0, actual = 0, estAi = null, actualAi = null, first = null, last = null;
+  for (const r of table.rows) {
+    if (r.cells.length < 5) continue;
     // The Total row sums the milestones; counting it would double every figure.
-    if (/^\**\s*totals?\s*\**$/i.test(c[0])) continue;
-    est += parseFloat(c[1].replace(",", ".")) || 0;
-    actual += parseFloat(c[4].replace(",", ".")) || 0;
-    const s = parseStamp(c[2]), f = parseStamp(c[3]);
+    if (r.total) continue;
+    est += hours(r.est) || 0;
+    actual += hours(r.actual) || 0;
+    // AI figures count only where written: "—" (not measured) adds nothing.
+    if (hours(r.estAi) !== null) estAi = (estAi || 0) + hours(r.estAi);
+    if (hours(r.actualAi) !== null) actualAi = (actualAi || 0) + hours(r.actualAi);
+    const s = parseStamp(r.started), f = parseStamp(r.finished);
     if (s !== null && (first === null || s < first)) first = s;
     if (f !== null && (last === null || f > last)) last = f;
   }
@@ -82,8 +84,10 @@ function analyze(file) {
     month: new Date(last).toISOString().slice(0, 7),
     leadDays: Math.max(0, (last - Date.parse(created)) / 86400000),
     execHours: (last - first) / 3600000,
-    est, actual,
+    est, actual, estAi, actualAi,
     deviation: est > 0 ? ((actual - est) / est) * 100 : null,
+    // Calibrates the AI estimate only where both sides exist.
+    aiDeviation: estAi > 0 && actualAi !== null ? ((actualAi - estAi) / estAi) * 100 : null,
   };
 }
 
@@ -104,16 +108,23 @@ function markdownReport() {
 
   const n = (x, d = 1) => (x === null ? "—" : x.toFixed(d));
   console.log(`Closed items${period ? ` (${period})` : ""}: ${items.length}\n`);
-  console.log("| Item | Lead (days) | Exec (h) | Est (h) | Actual (h) | Deviation |");
-  console.log("|---|---|---|---|---|---|");
+  // The AI columns appear only once some item carries an AI estimate or actual:
+  // a project on the legacy table sees the report it always saw.
+  const ai = items.some((i) => i.estAi !== null || i.actualAi !== null);
+  const pct = (x) => (x === null ? "—" : n(x, 0) + "%");
+  console.log(`| Item | Lead (days) | Exec (h) | Est (h) | Actual (h) | Deviation |${ai ? " Est AI (h) | Actual AI (h) | AI deviation |" : ""}`);
+  console.log(`|---|---|---|---|---|---|${ai ? "---|---|---|" : ""}`);
   for (const i of items.sort((a, b) => a.month.localeCompare(b.month))) {
-    console.log(`| ${i.item} | ${n(i.leadDays)} | ${n(i.execHours)} | ${n(i.est)} | ${n(i.actual)} | ${i.deviation === null ? "—" : n(i.deviation, 0) + "%"} |`);
+    const aiCells = ai ? ` ${n(i.estAi)} | ${n(i.actualAi)} | ${pct(i.aiDeviation)} |` : "";
+    console.log(`| ${i.item} | ${n(i.leadDays)} | ${n(i.execHours)} | ${n(i.est)} | ${n(i.actual)} | ${pct(i.deviation)} |${aiCells}`);
   }
 
   const exec = items.map((i) => i.execHours).sort((a, b) => a - b);
   const devs = items.filter((i) => i.deviation !== null).map((i) => i.deviation);
+  const aiDevs = items.filter((i) => i.aiDeviation !== null).map((i) => i.aiDeviation);
   console.log(`\nExecution time: median ${n(percentile(exec, 50))}h · p90 ${n(percentile(exec, 90))}h`);
   if (devs.length) console.log(`Estimate deviation: avg ${n(devs.reduce((a, b) => a + b, 0) / devs.length, 0)}%`);
+  if (aiDevs.length) console.log(`AI estimate deviation: avg ${n(aiDevs.reduce((a, b) => a + b, 0) / aiDevs.length, 0)}% (${aiDevs.length} of ${items.length} items carry both AI figures)`);
 
   for (const key of ["folder", "month", "size"]) {
     const groups = new Map();
@@ -129,9 +140,10 @@ function markdownReport() {
 
   if (csv) {
     const out = join(root, "docs", "work", "metrics.csv");
-    const lines = ["item,folder,month,size,lead_days,exec_hours,est_hours,actual_hours,deviation_pct"];
+    const lines = ["item,folder,month,size,lead_days,exec_hours,est_hours,actual_hours,deviation_pct,est_ai_hours,actual_ai_hours,ai_deviation_pct"];
+    const opt = (x, d) => (x === null ? "" : n(x, d));
     for (const i of items) {
-      lines.push([i.item, i.folder, i.month, i.size, n(i.leadDays, 2), n(i.execHours, 2), n(i.est, 2), n(i.actual, 2), i.deviation === null ? "" : n(i.deviation, 1)].join(","));
+      lines.push([i.item, i.folder, i.month, i.size, n(i.leadDays, 2), n(i.execHours, 2), n(i.est, 2), n(i.actual, 2), opt(i.deviation, 1), opt(i.estAi, 2), opt(i.actualAi, 2), opt(i.aiDeviation, 1)].join(","));
     }
     writeFileSync(out, lines.join("\n") + "\n");
     console.log(`\nCSV written: ${relative(process.cwd(), out)}`);

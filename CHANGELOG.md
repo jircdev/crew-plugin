@@ -18,6 +18,8 @@ Stack specifications belong to the project. crew carries method, and each projec
 - **Verified learning** (`/crew:metrics learning`): `record` writes where a correction started (kind of work, step of the execution craft, origin: method, a role or a declared stack area) to a local log with closed values only; `retro` groups repeated failures and routes stack ones to the project and method or role ones to crew; `compare` gives the A/B verdict of two delivery evaluations, incorporable only if no task got worse. The documentation steward's retro reads it, and `proposals/README.md` asks for the verdict on any change to a role, craft or procedure. Reviewed by security-compliance: local only, never versioned, 90 days.
 - **Plan execution** (`COORD: execute <plan>`, `scripts/plan-graph.js`): the delivery coordinator reads which items of a plan are done, in progress, ready, blocked by an item or by a person, or not ready; runs ready items that touch no common path in parallel, each in its own worktree; and integrates them one at a time only when `plan-graph.js gate` finds the declared suites green. A blocker is an optional header line, `- **Blocked:** <owner> — <what is needed>`, and stops only the items that depend on it. In Codex the batch runs sequentially.
 - **Delivery evaluation** (`evals/delivery/`, `scripts/eval-delivery.js`): four tasks (feature, defect, refactor, security) on a small project, each run with crew and without it, scored by hidden acceptance tests. Records acceptance, whether the project's own suite stays green, interventions, minutes, tokens and cost, and archives the result per plugin version. A preflight aborts when the variants are not isolated. Real runs spend API money; see `evals/delivery/README.md`.
+- **Two estimates per milestone.** The estimation table carries `Est. hours` at person pace and `Est. AI hours` for the agents' time, plus `Actual hours` (the person's) and `Actual AI hours` (from a capture, `—` when nothing measured it), so each estimate can be contrasted with its real counterpart the way factory separates human and AI hours. Human review is its own milestone, and the **Total** row sums all four. The requirement template, the stories and delivery-circuit rules, the scaffolded estimation discipline, every role and the `planning` craft carry it; the craft estimates both always, without waiting to be asked, and `conformance.js` prints how to fill them. Reference: [`docs/en/metrics.md#the-table`](docs/en/metrics.md#the-table) / [`docs/es/metrics.md#la-tabla`](docs/es/metrics.md#la-tabla).
+- `/crew:metrics` reports the AI estimate deviation, `(Actual AI − Est AI) / Est AI`, per item and on average, with how many items carry both AI figures; `--csv` adds `est_ai_hours`, `actual_ai_hours` and `ai_deviation_pct`. A project without AI columns sees the report it always saw.
 
 - The pre-commit gate works with hook managers. When Lefthook, husky or a `core.hooksPath` owns the hook, the scaffold prints the job to add to the manager's config instead of writing `.git/hooks/pre-commit`, and `/crew:doctor` checks that the config runs the gate and that the script it names exists. Crew never edits a manager's files.
 
@@ -25,6 +27,7 @@ Stack specifications belong to the project. crew carries method, and each projec
 
 - `check-staged.js --all` checks every tracked file in large repositories: the file listing no longer overflows Node's 1 MB buffer, and a listing that fails stops the gate with exit 2 instead of passing with zero files checked.
 - Line counting: a final newline no longer counts as an extra line, so a file at exactly its ceiling passes. Affects the write-time guard and the pre-commit gate.
+- The timestamps guard skips the **Total** row, so a `—` in its date cells is no longer rejected as a malformed timestamp.
 
 ### Changed
 
@@ -36,6 +39,7 @@ Stack specifications belong to the project. crew carries method, and each projec
 ### Compatibility
 
 - `required: false`. A project without `stack` behaves exactly as before.
+- Estimation tables are read by column name (`hooks/lib/estimation.js`), shared by the closure gate, the timestamps guard, `/crew:metrics` and the work-in-progress summary. A table on the previous six columns, or with the AI figure written as "AI est." in Notes, still closes and conforms until the next minor version: the shape check accepts either column set where the template carries the other, and `conformance.js --check` marks the old one as deprecated. A project template with a shape of its own keeps being read by position, as before. Once a table carries AI columns, the closure gate requires them filled.
 
 ## [1.1.0] — 2026-10-08
 

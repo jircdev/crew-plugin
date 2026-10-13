@@ -20,6 +20,7 @@ const { unbacked } = require("./lib/receipts");
 const { uncovered } = require("./lib/criteria");
 const { factoryMode } = require("./lib/factory");
 const { factoryTaskId } = require("./lib/activity-rules");
+const { estimationTable } = require("./lib/estimation");
 
 function deny(reason) {
   process.stdout.write(
@@ -60,27 +61,32 @@ function tableRows(content, heading) {
 }
 
 // The total row carries no timestamps by construction — it sums the milestones,
-// it is not one. Recognized by its first cell, with or without markdown emphasis.
-const TOTAL_ROW = /^\**\s*totals?\s*\**$/i;
-
+// it is not one. A table with the AI columns fills them too: "—" in Actual AI
+// hours is an answer (no capture measured it), an empty cell is not. A legacy
+// table (no AI columns, or "AI est." in Notes) is judged as before.
 function estimationIncomplete(content) {
-  const rows = tableRows(content, "Estimation");
-  if (rows === null) return "no Estimation section found";
-  const milestones = rows.filter((cells) => !TOTAL_ROW.test(cells[0] || ""));
-  const totals = rows.filter((cells) => TOTAL_ROW.test(cells[0] || ""));
+  const table = estimationTable(content);
+  if (table === null) return "no Estimation section found";
+  const milestones = table.rows.filter((r) => !r.total);
+  const totals = table.rows.filter((r) => r.total);
   if (milestones.length === 0) return "the estimation table has no milestone rows";
-  for (const cells of milestones) {
-    // cells: [Milestone, Est. hours, Started, Finished, Actual hours, Notes]
-    if (cells.slice(0, 5).some((c) => c === "")) {
-      return `milestone "${cells[0] || "?"}" is missing Est. hours, Started, Finished, or Actual hours`;
+  for (const r of milestones) {
+    if ([r.milestone, r.est, r.started, r.finished, r.actual].some((c) => !c)) {
+      return `milestone "${r.milestone || "?"}" is missing Est. hours, Started, Finished, or Actual hours`;
+    }
+    if (table.ai && (!r.estAi || !r.actualAi)) {
+      return `milestone "${r.milestone}" is missing Est. AI hours or Actual AI hours (0 when it has no agent work, "—" when no capture measured it)`;
     }
   }
   if (totals.length === 0) {
     return "the estimation table has no **Total** row (estimated and actual hours summed)";
   }
   const total = totals[0];
-  if (!total[1] || !total[4]) {
+  if (!total.est || !total.actual) {
     return "the **Total** row is missing estimated or actual hours";
+  }
+  if (table.ai && (!total.estAi || !total.actualAi)) {
+    return "the **Total** row is missing estimated or actual AI hours";
   }
   return null;
 }
@@ -151,9 +157,10 @@ try {
   if (problem) {
     deny(
       `Cannot close this work item: ${problem}. Complete the estimation table ` +
-        `(Milestone | Est. hours | Started | Finished | Actual hours, closed by a ` +
-        `**Total** row) with real timezone-stamped timestamps before setting ` +
-        `Status to Closed (crew standard).`,
+        `(Milestone | Est. hours | Est. AI hours | Started | Finished | Actual hours | ` +
+        `Actual AI hours, closed by a **Total** row) with real timezone-stamped ` +
+        `timestamps before setting Status to Closed (crew standard). A table ` +
+        `without the AI columns is still accepted.`,
     );
   }
 

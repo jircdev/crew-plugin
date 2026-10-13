@@ -24,7 +24,7 @@ Same semantics as stories, minus functional validation: a requirement is verifie
 ## Rules
 
 - A requirement describes work to do. The decision taken belongs elsewhere: if executing it produces a decision with trade-offs, that decision is an ADR in `decisions/` and the requirement links it.
-- The `## Estimation` table is filled at **planning**, by whoever executes: milestones and estimated hours before coding, real start/finish per milestone during execution. It closes with a **Total** row (estimated and actual). The empty section ships in this template because the author of a requirement is typically also its executor (an architect role); it stays empty until the work is taken. Closing with an incomplete table is invalid (see [`../AGENTS.md`](../AGENTS.md#estimation-discipline-mandatory)).
+- The `## Estimation` table is filled at **planning**, by whoever executes: milestones with both estimates (person pace and AI) before coding, a human-review milestone, and real start/finish per milestone during execution. It closes with a **Total** row (estimated and actual, person and AI). Tables written before the AI columns existed stay valid until the next minor version. The empty section ships in this template because the author of a requirement is typically also its executor (an architect role); it stays empty until the work is taken. Closing with an incomplete table is invalid (see [`../AGENTS.md`](../AGENTS.md#estimation-discipline-mandatory)).
 - The `## Verification` table is filled at the **same moment and by the same person**: writing the tests is work, and work that is not in the table is work that was not estimated. A requirement whose verification is `manual` or `not verified` is a legitimate outcome as long as the reason is written; silence is not (see [`../AGENTS.md`](../AGENTS.md#verification-discipline)).
 - Branch convention: `req/<plan>-NNN-slug`.
 
@@ -59,12 +59,13 @@ Same semantics as stories, minus functional validation: a requirement is verifie
 
 ## Estimation
 
-| Milestone | Est. hours | Started | Finished | Actual hours | Notes |
-|-----------|-----------|---------|----------|--------------|-------|
-| | | | | | |
-| **Total** | | — | — | | |
+| Milestone | Est. hours | Est. AI hours | Started | Finished | Actual hours | Actual AI hours | Notes |
+|-----------|-----------|---------------|---------|----------|--------------|-----------------|-------|
+| | | | | | | | |
+| Human review | | 0 | | | | | |
+| **Total** | | | — | — | | | |
 
-(Filled by the evaluating agent BEFORE implementation; Started/Finished recorded during execution as `YYYY-MM-DD HH:MM -ZZ:ZZ` — format and discipline in [`../AGENTS.md`](../AGENTS.md#estimation-discipline-mandatory). The **Total** row sums estimated and actual hours; a reader must never have to add the column themselves.)
+(Filled by the evaluating agent BEFORE implementation; Started/Finished recorded during execution as `YYYY-MM-DD HH:MM -ZZ:ZZ` — format and discipline in [`../AGENTS.md`](../AGENTS.md#estimation-discipline-mandatory). Every milestone is estimated twice: `Est. hours` at person pace, fixed before deciding who executes, and `Est. AI hours`, the agents' processing time (`0` when the milestone has no agent work). Human review of agent work is its own milestone. `Actual hours` are the person's time; `Actual AI hours` come from a capture, or `—` when nothing measured them. The **Total** row sums all four; a reader must never have to add a column themselves.)
 
 ## Verification
 

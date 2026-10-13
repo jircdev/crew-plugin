@@ -6,6 +6,7 @@
 const { readdirSync, readFileSync, statSync, existsSync } = require("node:fs");
 const { join, relative } = require("node:path");
 const { sections, firstTable, same } = require("./standards");
+const { estimationTable } = require("./estimation");
 
 const MAX_FILES = 600;
 
@@ -44,9 +45,9 @@ function state(root) {
     const rel = relative(root, file).replace(/\\/g, "/");
     const status = statusOf(text);
     if (/^closed|^cerrad/i.test(status)) continue;
-    for (const r of rowsOf(text, "Estimation")) {
-      if (/^\**\s*totals?\s*\**$/i.test(r[0])) continue;
-      if (r[2] && r[2] !== "—" && !r[3]) open.push({ file: rel, milestone: r[0], started: r[2] });
+    for (const r of (estimationTable(text) || { rows: [] }).rows) {
+      if (r.total || !r.milestone.replace(/[\s*-]/g, "")) continue;
+      if (r.started && r.started !== "—" && !r.finished) open.push({ file: rel, milestone: r.milestone, started: r.started });
     }
     if (same(status, "Delivered")) {
       awaiting.push({ file: rel });

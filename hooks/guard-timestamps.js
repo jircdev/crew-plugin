@@ -9,6 +9,7 @@
 const { readFileSync, existsSync } = require("node:fs");
 const { configFor } = require("./lib/config");
 const { factoryMode } = require("./lib/factory");
+const { estimationTable } = require("./lib/estimation");
 
 const TOLERANCE_MS = 15 * 60 * 1000; // decided with Julio: 15 minutes
 const ACTUAL_SLACK = 1.05; // Actual hours may be ≤ wall-clock × 1.05, never more
@@ -38,22 +39,17 @@ function resultingContent(input, path) {
     : current.replace(oldStr, newStr);
 }
 
-// Rows of the ## Estimation table keyed by milestone name.
-// Cells: [Milestone, Est. hours, Started, Finished, Actual hours, Notes]
+// Rows of the ## Estimation table keyed by milestone name, read by column name
+// (lib/estimation), so the current and the legacy shape both work. Only human
+// Actual hours are bounded by the wall clock: agents in parallel add up, so
+// Actual AI hours may exceed it.
 function estimationRows(content) {
   const map = new Map();
-  const section = content.split(/^##\s+Estimation\s*$/im)[1];
-  if (!section) return map;
-  const body = section.split(/^##\s/m)[0];
-  const rows = body
-    .split("\n")
-    .filter((l) => /^\s*\|/.test(l))
-    .slice(2); // drop header + separator
-  for (const row of rows) {
-    const cells = row.split("|").slice(1, -1).map((c) => c.trim());
-    if (cells.length < 5 || cells[0] === "") continue;
-    if (cells.every((c) => c.replace(/[-\s]/g, "") === "")) continue;
-    map.set(cells[0], { started: cells[2], finished: cells[3], actual: cells[4] });
+  const table = estimationTable(content);
+  if (!table) return map;
+  for (const r of table.rows) {
+    if (r.cells.length < 5 || r.milestone === "" || r.total) continue;
+    map.set(r.milestone, { started: r.started || "", finished: r.finished || "", actual: r.actual || "" });
   }
   return map;
 }

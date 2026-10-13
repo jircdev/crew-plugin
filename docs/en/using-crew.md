@@ -104,7 +104,7 @@ These elements are load-bearing: roles, hooks, and the delivery circuit assume t
 - Folder = nature, state = field; files never move; kind lives in the slug.
 - The story/requirement lifecycle (`Draft → … → Closed`) and the `Status:` header field.
 - The Ready gate: criteria complete and unambiguous, no open questions, and **at least one Test scenario**.
-- The estimation table, added at planning by whoever executes and complete at closure. This one is hook-enforced: the exact `## Estimation` heading and the first five columns (Milestone through Actual hours) filled — renaming the section or leaving cells empty blocks the close.
+- The estimation table, added at planning by whoever executes and complete at closure. This one is hook-enforced: the exact `## Estimation` heading and every milestone cell filled except Notes (Milestone, Est. hours, Est. AI hours, Started, Finished, Actual hours, Actual AI hours; `—` is a valid Actual AI hours) — renaming the section or leaving cells empty blocks the close. A table on the previous six columns, without the AI ones, still closes until the next minor version.
 - Immutability of Closed work items and `work/` entries.
 - Single source of truth: an external tracker holds only state + link; the file wins.
 
@@ -208,7 +208,7 @@ The delivery coordinator runs the plan to the end. It reads which items can star
 
 With `"metrics": true` in `crew.json`, the estimation discipline becomes measurable end to end:
 
-1. **Estimate at planning.** A story is authored without estimation; whoever takes it for implementation adds the `## Estimation` table (milestones, estimated hours) before coding. Project-level rough sizing lives in the brief.
+1. **Estimate at planning.** A story is authored without estimation; whoever takes it for implementation adds the `## Estimation` table before coding: every milestone estimated at person pace and in AI hours, human review as its own milestone ([metrics.md § The table](metrics.md#the-table)). Project-level rough sizing lives in the brief.
 2. **Timestamps in real time.** The Started/Finished cells are written when the work actually starts and finishes — a guard checks each newly-written timestamp is within 15 minutes of now, carries its timezone offset (`YYYY-MM-DD HH:mm ±TZ`), and stays consistent (Finished ≥ Started, Actual hours ≤ wall-clock). If a session is interrupted, Finished is the real resumption time and the gap goes in Notes — wall-clock includes pauses by design; the metric is end-to-end cost.
 3. **Read the numbers.** `/crew:metrics [YYYY-MM]` reports, per closed item, lead time, execution time, and estimated vs. actual hours with deviation %, aggregated (median/p90) by folder and month; `--csv` writes `docs/work/metrics.csv`.
 

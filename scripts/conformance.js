@@ -10,7 +10,8 @@
 const { resolve: resolvePath } = require("node:path");
 const { readFileSync, existsSync } = require("node:fs");
 const { resolve } = require("../hooks/lib/standards");
-const { problems } = require("../hooks/lib/shape");
+const { problems, deprecations } = require("../hooks/lib/shape");
+const { LEGACY_COLUMNS } = require("../hooks/lib/standards");
 
 function describe(std) {
   const lines = [
@@ -23,11 +24,33 @@ function describe(std) {
     lines.push(`Table "${name}" (added at planning, when present): ${cols.join(" | ")}`);
   }
   if (std.total) lines.push("The estimation table closes with a **Total** row.");
+  lines.push(...estimationNotes(std));
   for (const d of std.deviations) {
     lines.push(`Deviation applied: ${d.action} ${d.scope || ""} ${d.target} — ${d.reason}`.replace(/\s+/g, " "));
   }
   for (const bad of std.invalid) lines.push(`Deviation ignored (no rationale or unknown grammar): ${bad}`);
   return lines.join("\n");
+}
+
+// How to fill the two estimates, printed with the standard so a role never has
+// to guess; plus the legacy notice when the project's template predates them.
+function estimationNotes(std) {
+  const cols = std.tables.Estimation || Object.entries(std.optionalTables).find(([n]) => /^estimation$/i.test(n))?.[1];
+  if (!cols) return [];
+  const same = (a, b) => a.length === b.length && a.every((c, i) => c.toLowerCase() === b[i].toLowerCase());
+  if (same(cols, LEGACY_COLUMNS)) {
+    return [
+      "Notice: this Estimation table predates the AI estimate. Legacy shape, accepted until the next minor version; " +
+        "the crew table adds Est. AI hours and Actual AI hours (either shape conforms meanwhile).",
+    ];
+  }
+  if (!cols.some((c) => /\b(ai|ia)\b/i.test(c))) return [];
+  return [
+    "Every milestone carries two estimates: Est. hours at person pace (fixed before deciding who executes) and " +
+      "Est. AI hours for the agents' processing time (0 when the milestone has no agent work). Human review is its own " +
+      "milestone. Actual hours are the person's; Actual AI hours come from a capture, or \"—\" when none measured them. " +
+      "The **Total** row sums all four.",
+  ];
 }
 
 function main(argv) {
@@ -53,12 +76,14 @@ function main(argv) {
       failed++;
       continue;
     }
-    const found = problems(readFileSync(target, "utf8"), std);
+    const text = readFileSync(target, "utf8");
+    const found = problems(text, std);
     console.log(found.length ? `${target}: does not conform\n  - ${found.join("\n  - ")}` : `${target}: conforms (${std.source} template)`);
+    for (const note of deprecations(text, std)) console.log(`  · deprecated: ${note}`);
     if (found.length) failed++;
   }
   return failed ? 1 : 0;
 }
 
 if (require.main === module) process.exit(main(process.argv.slice(2)));
-module.exports = { describe, main };
+module.exports = { describe, estimationNotes, main };

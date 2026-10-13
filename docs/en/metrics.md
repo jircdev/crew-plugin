@@ -7,13 +7,23 @@ Every implemented item closes with an `## Estimation` table — added at plannin
 ```markdown
 ## Estimation
 
-| Milestone | Est. hours | Started | Finished | Actual hours | Notes |
-|-----------|-----------|---------|----------|--------------|-------|
-| API contract | 2 | 2026-07-14 09:12 -03:00 | 2026-07-14 11:05 -03:00 | 1.8 | |
-| Implementation | 4 | 2026-07-14 11:20 -03:00 | 2026-07-15 10:40 -03:00 | 4.5 | session interrupted, ~18h gap |
+| Milestone | Est. hours | Est. AI hours | Started | Finished | Actual hours | Actual AI hours | Notes |
+|-----------|-----------|---------------|---------|----------|--------------|-----------------|-------|
+| API contract | 2 | 0.3 | 2026-07-14 09:12 -03:00 | 2026-07-14 11:05 -03:00 | 1.8 | 0.2 | |
+| Implementation | 4 | 0.8 | 2026-07-14 11:20 -03:00 | 2026-07-15 10:40 -03:00 | 4.5 | 1.1 | session interrupted, ~18h gap |
+| Human review | 1 | 0 | 2026-07-15 10:45 -03:00 | 2026-07-15 11:30 -03:00 | 0.7 | — | |
+| **Total** | 7 | 1.1 | — | — | 7 | 1.3 | |
 ```
 
-`Milestone` and `Est. hours` are filled by **whoever executes**, at planning, before coding. `Started`, `Finished` and `Actual hours` are recorded during execution. Timestamps carry a mandatory timezone offset: `YYYY-MM-DD HH:mm ±TZ` (`Z` accepted).
+`Milestone` and both estimates are filled by **whoever executes**, at planning, before coding, always both:
+
+- **`Est. hours`** is person pace: what the milestone would take a person without agents. It is fixed before deciding who executes, so nobody inflates it to show leverage.
+- **`Est. AI hours`** is the agents' processing time for that milestone. `0` says the milestone has no agent work; an empty cell says nobody estimated it.
+- **Human review is its own milestone**: the person's time reading, correcting and approving what the agents produced, with `Est. AI hours` at `0`.
+
+`Started`, `Finished`, `Actual hours` and `Actual AI hours` are recorded during execution. `Actual hours` is the person's time; `Actual AI hours` comes from a capture (factory, the harness's session log); a figure typed from memory loses its value as evidence, and `—` says nothing measured it. Each estimate is contrasted with its real counterpart: person against human hours, AI against AI hours. Timestamps carry a mandatory timezone offset: `YYYY-MM-DD HH:mm ±TZ` (`Z` accepted).
+
+**Earlier tables.** A table with the six previous columns (no AI columns), or with the AI figure written as "AI est." in Notes, still closes and conforms until the next minor version; `conformance.js --check` flags it as deprecated.
 
 ## The real-time discipline
 
@@ -46,8 +56,9 @@ The command runs [`../../scripts/metrics.js`](../../scripts/metrics.js), which s
 | Est (h) | Sum of `Est. hours` across milestones. |
 | Actual (h) | Sum of `Actual hours` across milestones. |
 | Deviation | `(Actual − Est) / Est`, as a percentage. Positive = took longer than estimated. |
+| Est AI (h), Actual AI (h), AI deviation | Shown once some item carries AI columns. They sum `Est. AI hours` and `Actual AI hours` (a `—` adds nothing), and the AI deviation is `(Actual AI − Est AI) / Est AI`, computed only where both figures exist. |
 
-Aggregates: **median and p90 execution time** across items, **average estimate deviation**, plus per-folder and per-month breakdowns (items, median exec, total est → actual). `--csv` writes the raw rows to `docs/work/metrics.csv` for a spreadsheet.
+Aggregates: **median and p90 execution time** across items, **average estimate deviation**, the **average AI deviation** with how many items carry it, plus per-folder and per-month breakdowns (items, median exec, total est → actual). `--csv` writes the raw rows to `docs/work/metrics.csv` for a spreadsheet.
 
 The report runs in **both modes, with or without `crew.json`** — it just reads what the tables contain. What `"metrics": true` gates is the *discipline*: without the guards, nothing certifies the timestamps were real, and the report is only as honest as the tables. Configuration details in [configuration.md](configuration.md).
 

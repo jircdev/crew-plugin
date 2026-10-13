@@ -27,6 +27,9 @@ const KINDS = { requirement: "requirements", story: "stories" };
 // template.
 const SHARED_TABLES = ["Estimation", "Verification|Verificación"];
 const TOTAL_ROW = /^\**\s*totals?\s*\**$/i;
+// Estimation columns before the AI estimate, accepted until the next minor
+// version. Kept here because lib/estimation reads this module.
+const LEGACY_COLUMNS = ["Milestone", "Est. hours", "Started", "Finished", "Actual hours", "Notes"];
 
 function kindOfPath(path) {
   const p = String(path || "").replace(/\\/g, "/");
@@ -141,6 +144,9 @@ function resolve(path, pluginRoot) {
     total: base.total || !!canonical.total,
     deviations: [],
     invalid: [],
+    // Estimation shapes that stand for one another while the legacy table is
+    // accepted (lib/estimation): the current crew columns and the pre-AI ones.
+    estimationShapes: [canonical.tables.Estimation, LEGACY_COLUMNS].filter(Boolean),
   };
   for (const alt of SHARED_TABLES) {
     const known = Object.keys(std.tables).some((n) => new RegExp(`^(${alt})$`, "i").test(n));
@@ -168,4 +174,4 @@ function resolve(path, pluginRoot) {
   return std;
 }
 
-module.exports = { resolve, kindOfPath, parseTemplate, sections, firstTable, TOTAL_ROW, same };
+module.exports = { resolve, kindOfPath, parseTemplate, sections, firstTable, TOTAL_ROW, LEGACY_COLUMNS, same };

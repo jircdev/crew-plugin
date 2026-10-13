@@ -44,7 +44,7 @@ Either way, you write in plain language. The role answers in plain language too;
 
 **The Ready gate.** A story cannot enter implementation until its acceptance criteria are complete and unambiguous **and** it has at least one test scenario. That gate is yours to satisfy; a story that fails it bounces back.
 
-**The estimation table.** A story is written without one — hours are not the analyst's deliverable. At planning, when the story is taken for implementation, **whoever executes** adds the `## Estimation` table (milestones, estimated hours) before coding, and writes the timestamps **in real time** — at the moment work starts and finishes, never reconstructed later. Project-level rough sizing lives in the brief.
+**The estimation table.** A story is written without one — hours are not the analyst's deliverable. At planning, when the story is taken for implementation, **whoever executes** adds the `## Estimation` table (each milestone estimated twice, at person pace and in AI hours, plus a human-review milestone) before coding, and writes the timestamps **in real time** — at the moment work starts and finishes, never reconstructed later. Project-level rough sizing lives in the brief.
 
 **Reviewing without git.** Same as above: your host's web UI (GitHub/GitLab file view) renders every story and requirement as readable formatted text.
 

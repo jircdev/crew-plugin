@@ -34,9 +34,12 @@ The output names the source (project or crew), the header fields, the sections, 
 ## 3. Estimation happens at two levels — respect which one you are at
 
 - **Project level** (a brief, a proposal awaiting go/no-go): rough magnitude only. No milestone breakdown.
-- **Planning level** (a work item taken for execution): whoever executes adds the `## Estimation` table — milestones, estimated hours, closed by a **Total** row — and the `## Verification` table at the same moment. Stories are authored without estimation; an analyst never estimates.
-- During execution, `Started` and `Finished` are written **in real time**, with a timezone offset, when the milestone begins and the moment it closes. Never reconstructed.
-- Review time by a human is a milestone row, never a line outside the table.
+- **Planning level** (a work item taken for execution): whoever executes adds the `## Estimation` table — milestones, both estimates, closed by a **Total** row — and the `## Verification` table at the same moment. Stories are authored without estimation; an analyst never estimates.
+- **Every estimate is double, always, without waiting to be asked.** Each milestone carries `Est. hours` at person pace (what it takes a person without agents, fixed before deciding who executes) and `Est. AI hours` (the agents' processing time; `0` when the milestone has no agent work). A plan with only person-pace hours is incomplete, and so is one that hides the AI figure in Notes.
+- **Human review is its own milestone row**, never a line outside the table and never folded into another milestone: the person's time reading, correcting and approving agent work, with `Est. AI hours` of `0`.
+- The **Total** row sums all four columns (`Est. hours`, `Est. AI hours`, `Actual hours`, `Actual AI hours`). A plan README that summarizes several work items reports both totals.
+- During execution, `Started` and `Finished` are written **in real time**, with a timezone offset, when the milestone begins and the moment it closes. Never reconstructed. `Actual hours` is the person's time; `Actual AI hours` comes from a capture (factory, the harness's session log) — write `—` when nothing measured it, since a figure typed from memory loses its value as evidence.
+- When the project's own template still carries the legacy crew columns, conformance prints a notice: write the current columns anyway (both shapes conform until the next minor version) and flag in the seal that the template needs updating. When the project's template is its own shape (translated, reshaped) without an AI column, the template wins: still estimate both, write the AI figure as `AI est. X h` in Notes, and name the gap in the seal.
 
 ## 4. Delegating to subagents
 

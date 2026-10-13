@@ -2,20 +2,28 @@
 // Returns human-readable problems; an empty list means the item conforms.
 // Content checks only — whether a problem blocks, warns or stays silent is the
 // caller's decision (guard-shape.js applies crew.json policy).
-const { sections, firstTable, TOTAL_ROW, same } = require("./standards");
+const { sections, firstTable, TOTAL_ROW, LEGACY_COLUMNS, same } = require("./standards");
 
 function headerFields(content) {
   const head = content.split(/^##\s/m)[0];
   return [...head.matchAll(/^\s*-\s+\*\*([^:*]+):\*\*/gm)].map((m) => m[1].trim());
 }
 
-function tableProblems(name, body, expected, total) {
+const sameColumns = (a, b) => a.length === b.length && a.every((c, i) => same(c, b[i]));
+
+// Estimation: while the legacy table is accepted, the current crew shape and the
+// pre-AI shape stand for one another — whichever the template carries.
+function interchangeable(name, got, expected, shapes) {
+  if (!/^estimation$/i.test(name) || !shapes) return false;
+  return shapes.some((s) => sameColumns(s, expected)) && shapes.some((s) => sameColumns(s, got));
+}
+
+function tableProblems(name, body, expected, total, shapes) {
   const out = [];
   const table = firstTable(body);
   if (!table) return [`section "${name}" has no table (expected columns: ${expected.join(" | ")})`];
   const got = table.columns;
-  const sameShape = got.length === expected.length && got.every((c, i) => same(c, expected[i]));
-  if (!sameShape) {
+  if (!sameColumns(got, expected) && !interchangeable(name, got, expected, shapes)) {
     out.push(`table "${name}" has columns ${got.join(" | ")}; the standard is ${expected.join(" | ")}`);
   }
   if (total && /^estimation$/i.test(name)) {
@@ -40,13 +48,26 @@ function problems(content, std) {
   }
   for (const [name, columns] of Object.entries(std.tables)) {
     const s = present.find((x) => same(x.name, name));
-    if (s) out.push(...tableProblems(s.name, s.body, columns, std.total));
+    if (s) out.push(...tableProblems(s.name, s.body, columns, std.total, std.estimationShapes));
   }
   for (const [pattern, columns] of Object.entries(std.optionalTables)) {
     const s = present.find((x) => new RegExp(`^(${pattern})$`, "i").test(x.name));
-    if (s) out.push(...tableProblems(s.name, s.body, columns, std.total));
+    if (s) out.push(...tableProblems(s.name, s.body, columns, std.total, std.estimationShapes));
   }
   return out;
 }
 
-module.exports = { problems, headerFields };
+// Accepted today, due to change: an estimation table on the legacy columns.
+// Never a problem — a notice for conformance.js to print.
+function deprecations(content, std) {
+  if (!content || !std) return [];
+  const s = sections(content.replace(/\r\n/g, "\n")).find((x) => /^estimation$/i.test(x.name));
+  const t = s && firstTable(s.body);
+  if (!t || !sameColumns(t.columns, LEGACY_COLUMNS)) return [];
+  return [
+    "the estimation table has no AI columns (legacy shape, accepted until the next minor version): " +
+      "add Est. AI hours and Actual AI hours — see scripts/conformance.js for the current columns",
+  ];
+}
+
+module.exports = { problems, deprecations, headerFields };
