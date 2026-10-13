@@ -58,7 +58,8 @@ function runIn(home, action, api, onLine = () => {}) {
 }
 
 // Plays the browser: reads the printed approval link and posts to the callback.
-function browser(fake, { state, code = 'one-time-code', deny = false, host } = {}) {
+// Every answer the listener gave lands in `answers` (status and Location).
+function browser(fake, { state, code = 'one-time-code', deny = false, host, replay = false, answers = [] } = {}) {
   let done = false;
   return (stdout) => {
     const link = stdout.match(/https:\/\/web\.example\/my-hours\/connect\?\S+/);
@@ -68,10 +69,15 @@ function browser(fake, { state, code = 'one-time-code', deny = false, host } = {
     fake.approve(code, params.get('challenge'));
     const form = new URLSearchParams(deny ? { state: params.get('state'), error: 'denied' }
       : { state: state || params.get('state'), code }).toString();
-    const req = http.request({ host: '127.0.0.1', port: params.get('port'), path: '/callback', method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded', Host: host || `127.0.0.1:${params.get('port')}` } });
-    req.on('error', () => {});
-    req.end(form);
+    const post = () => {
+      const req = http.request({ host: '127.0.0.1', port: params.get('port'), path: '/callback', method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Host: host || `127.0.0.1:${params.get('port')}` } },
+      (res) => { answers.push({ status: res.statusCode, location: res.headers.location, cache: res.headers['cache-control'] }); res.resume(); });
+      req.on('error', () => {});
+      req.end(form);
+    };
+    post();
+    if (replay) post();
   };
 }
 
@@ -127,4 +133,29 @@ test('status reports the person and expiry; logout revokes and deletes even when
   const offline = await runIn(home, 'logout', 'http://127.0.0.1:9/api/v1');
   assert.match(offline.stdout, /could not confirm the revocation/);
   assert.equal(fs.existsSync(path.join(home, 'factory-token')), false);
+});
+
+test('the browser ends on the factory result screen, named only by the outcome', async t => {
+  const fake = await factory(t);
+  const connected = [];
+  const ok = await run(t, 'login', fake.api, browser(fake, { answers: connected }));
+  assert.equal(ok.status, 0, ok.stdout);
+  assert.deepEqual(connected, [{ status: 303, location: 'https://web.example/my-hours/connect/done?result=connected', cache: 'no-store' }]);
+  const declined = [];
+  await run(t, 'login', fake.api, browser(fake, { deny: true, answers: declined }));
+  assert.equal(declined[0].location, 'https://web.example/my-hours/connect/done?result=denied');
+  const refused = [];
+  const failing = await factory(t);
+  failing.approve = () => {};
+  await run(t, 'login', failing.api, browser(failing, { answers: refused }));
+  assert.equal(refused[0].location, 'https://web.example/my-hours/connect/done?result=failed');
+});
+
+test('a replayed callback is refused and starts no second exchange', async t => {
+  const fake = await factory(t);
+  const answers = [];
+  const out = await run(t, 'login', fake.api, browser(fake, { replay: true, answers }));
+  assert.equal(out.status, 0, out.stdout);
+  assert.equal(fake.seen.exchange.length, 1);
+  assert.ok(answers.length <= 2 && answers.filter((a) => a.status === 303).length === 1);
 });

@@ -18,6 +18,8 @@ const { factoryToken, saveToken, forgetToken, request, crewHome } = require("../
 
 const TIMEOUT_MS = Number(process.env.CREW_LOGIN_TIMEOUT_MS) || 5 * 60000;
 const HTTP_MS = 10000;
+// How long the browser waits on the callback while the code is exchanged.
+const FINISH_MS = HTTP_MS + 2000;
 const b64url = (buf) => buf.toString("base64url");
 // factory answers {success, data} on success and {status:false, error:{message}}
 // on failure; error messages carry no secrets, so they are relayed as-is.
@@ -27,9 +29,27 @@ const unwrap = (body) => {
 const errorOf = (body) => {
   try { return (JSON.parse(body).error || {}).message || ""; } catch { return ""; }
 };
-const DONE_PAGE = (ok) => `<!doctype html><meta charset="utf-8"><title>crew</title>` +
-  `<p style="font:16px system-ui;margin:3em">${ok ? "Listo. Ya podés volver a Claude." :
-    "No se conectó. Podés cerrar esta pestaña."}</p>`;
+// The browser ends on factory's own result screen: once the outcome is known,
+// the listener answers 303 to <web>/my-hours/connect/done?result=<outcome>.
+// The address comes from this machine's resolved config and the outcome is a
+// fixed word, so nothing taken from the request reaches the redirect.
+const RESULTS = new Set(["connected", "denied", "failed"]);
+const NO_STORE = { "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" };
+const FALLBACK_PAGE = (result) => `<!doctype html><meta charset="utf-8"><title>crew</title>` +
+  `<p style="font:16px system-ui;margin:3em">${result === "connected" ? "Listo. Ya podés volver a Claude." :
+    "No se conectó. Volvé a la terminal."}</p>`;
+
+function resultUrl(web, result) {
+  try {
+    const url = new URL("/my-hours/connect/done", web);
+    const local = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+    if (url.protocol !== "https:" && !(local && url.protocol === "http:")) return null;
+    url.searchParams.set("result", RESULTS.has(result) ? result : "failed");
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
 
 function openBrowser(url) {
   if (process.env.CREW_LOGIN_NO_BROWSER) return;
@@ -45,25 +65,38 @@ const sameSecret = (a, b) => {
 };
 
 // One callback, then close. Accepts the form POST and, as fallback, a GET
-// with the same fields in the query. onListen receives the port.
-function waitForCallback(state, onListen) {
+// with the same fields in the query. onListen receives the port. Resolves
+// with the code (null when declined) and finish(result), which answers the
+// browser once the outcome is known; past FINISH_MS it answers failed.
+function waitForCallback(state, onListen, web) {
   return new Promise((resolve, reject) => {
+    let consumed = false;
     const server = http.createServer((req, res) => {
       const port = server.address().port;
       const url = new URL(req.url, `http://127.0.0.1:${port}`);
       if (url.pathname !== "/callback" || req.headers.host !== `127.0.0.1:${port}`) {
-        return res.writeHead(404).end();
+        return res.writeHead(404, NO_STORE).end();
       }
       let body = "";
       req.on("data", (d) => { body += d; if (body.length > 4096) req.destroy(); });
       req.on("end", () => {
         const fields = req.method === "POST" ? new URLSearchParams(body) : url.searchParams;
-        if (!sameSecret(fields.get("state"), state)) return res.writeHead(400).end();
-        const denied = fields.get("error") === "denied" || !fields.get("code");
-        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }).end(DONE_PAGE(!denied));
+        if (consumed || !sameSecret(fields.get("state"), state)) return res.writeHead(400, NO_STORE).end();
+        consumed = true;
         server.close();
         clearTimeout(timer);
-        resolve(denied ? null : fields.get("code"));
+        let answered = false;
+        const finish = (result) => {
+          if (answered) return;
+          answered = true;
+          clearTimeout(fallback);
+          const location = resultUrl(web, result);
+          if (location) return res.writeHead(303, { ...NO_STORE, Location: location }).end();
+          res.writeHead(200, { ...NO_STORE, "Content-Type": "text/html; charset=utf-8" }).end(FALLBACK_PAGE(result));
+        };
+        const fallback = setTimeout(() => finish("failed"), FINISH_MS);
+        const denied = fields.get("error") === "denied" || !fields.get("code");
+        resolve({ code: denied ? null : fields.get("code"), finish });
       });
     });
     const timer = setTimeout(() => { server.close(); reject(new Error("timed out waiting for the approval")); }, TIMEOUT_MS);
@@ -77,23 +110,33 @@ async function login(target) {
   const state = b64url(randomBytes(32));
   const device = `${os.hostname()} (${process.platform})`.slice(0, 80);
   let callback;
-  const port = await new Promise((resolve) => { callback = waitForCallback(state, resolve); });
+  const port = await new Promise((resolve) => { callback = waitForCallback(state, resolve, target.web); });
   const page = `${target.web}/my-hours/connect?` +
     new URLSearchParams({ port: String(port), state, challenge, device }).toString();
   console.log(`Opening factory (${target.name}) to approve this machine. If the browser does not open, use:\n${page}\n`);
   openBrowser(page);
-  const code = await callback;
+  const { code, finish } = await callback;
   if (!code) {
+    finish("denied");
     return fail("the connection was declined in factory. If the page said capture is blocked, the formal notice " +
       "is missing: pedile a Gestión el aviso formal");
   }
-  const res = await request("POST", `${target.api}/access-tokens/loopback/exchange`, null, { code, verifier }, HTTP_MS);
-  const data = unwrap(res.body);
-  if (res.status < 200 || res.status >= 300 || !data.token) {
-    const why = res.status === 429 ? "too many attempts, wait a minute" : errorOf(res.body) || `HTTP ${res.status}`;
-    return fail(`factory did not complete the connection (${why}). Run the login again`);
+  let file;
+  let data;
+  try {
+    const res = await request("POST", `${target.api}/access-tokens/loopback/exchange`, null, { code, verifier }, HTTP_MS);
+    data = unwrap(res.body);
+    if (res.status < 200 || res.status >= 300 || !data.token) {
+      finish("failed");
+      const why = res.status === 429 ? "too many attempts, wait a minute" : errorOf(res.body) || `HTTP ${res.status}`;
+      return fail(`factory did not complete the connection (${why}). Run the login again`);
+    }
+    file = saveToken(data.token);
+  } catch (error) {
+    finish("failed");
+    throw error;
   }
-  const file = saveToken(data.token);
+  finish("connected");
   console.log(`Connected to factory ${target.name}. Token stored owner-only in ${file}` +
     (data.expiresAt ? `; it expires on ${String(data.expiresAt).slice(0, 10)}.` : "."));
   if (process.env.FACTORY_TOKEN) console.log("Note: FACTORY_TOKEN is set in this environment and takes precedence over the stored token.");
