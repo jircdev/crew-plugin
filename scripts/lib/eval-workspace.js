@@ -55,7 +55,8 @@ function nodeTest(cwd, files) {
   delete env.NODE_TEST_CONTEXT;
   const r = spawnSync(process.execPath, ['--test', ...files], { cwd, env, encoding: 'utf8', windowsHide: true, timeout: 120000 });
   const count = (name) => Number(((r.stdout || '').match(new RegExp(`^# ${name} (\\d+)`, 'm')) || [])[1] || 0);
-  return { status: r.status, pass: count('pass'), fail: count('fail') };
+  const failed = [...(r.stdout || '').matchAll(/^not ok \d+ - (.+)$/gm)].map((m) => m[1].trim());
+  return { status: r.status, pass: count('pass'), fail: count('fail'), failed };
 }
 
 // The project's own suite, run before the acceptance tests are copied in.
@@ -72,7 +73,7 @@ function acceptance(task, dir) {
   const files = fs.readdirSync(target).filter((f) => f.endsWith('.test.js'));
   const total = files.reduce((n, f) => n + (fs.readFileSync(path.join(target, f), 'utf8').match(/^test\(/gm) || []).length, 0);
   const run = nodeTest(dir, files.map((f) => path.join('.acceptance', f)));
-  return { passed: Math.min(run.pass, total), total };
+  return { passed: Math.min(run.pass, total), total, failed: run.failed };
 }
 
 const remove = (dir) => fs.rmSync(dir, { recursive: true, force: true });

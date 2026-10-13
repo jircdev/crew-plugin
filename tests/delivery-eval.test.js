@@ -38,6 +38,7 @@ test('an agent that changes nothing fails acceptance and keeps the own suite gre
   const { result } = evaluate(t, ['--tasks', 'defect-rounding', '--variants', 'bare', '--runs', '1'], { FAKE_AGENT: 'nothing' });
   const [r] = result.runs;
   assert.ok(r.acceptance.passed < r.acceptance.total);
+  assert.ok(r.acceptance.failed.some((n) => /1.27/.test(n)), r.acceptance.failed.join('; '));
   assert.equal(r.regression, true);
 });
 
