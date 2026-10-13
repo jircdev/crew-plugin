@@ -21,6 +21,7 @@ const { problems } = require("../hooks/lib/shape");
 const { workItems } = require("../hooks/lib/work-state");
 const install = require("./lib/install-state");
 const extra = require("./lib/doctor-checks");
+const managers = require("./lib/hook-manager");
 require("./lib/as-is-freshness");
 require("./lib/sec-doctor");
 
@@ -46,11 +47,12 @@ function diagnose(root) {
       out.push(f("blocking", `required migration pending since ${m.version}`, m.title, `read ${m.doc}, then run /crew:setup`));
     }
     if (!cfg.configuredWith) out.push(f("important", "no configuredWith marker", "crew.json", "run /crew:setup once; accepting the current state closes it"));
-    for (const [section, c] of [["design", cfg.design], ["testing", cfg.testing]]) {
+    for (const [section, c] of [["design", cfg.design], ["testing", cfg.testing], ["stack", cfg.stack]]) {
       for (const u of (c && c.unknown) || []) out.push(f("important", `crew.json ${section}.${u} is not usable`, "crew.json", "fix or remove it; the roles treat it as undeclared"));
     }
     const declared = [["design.memory", cfg.design && cfg.design.memory], ["testing.guide", cfg.testing && cfg.testing.guide],
-      ["testing.e2e.specs", cfg.testing && cfg.testing.e2e && cfg.testing.e2e.specs]];
+      ["testing.e2e.specs", cfg.testing && cfg.testing.e2e && cfg.testing.e2e.specs],
+      ...((cfg.stack && cfg.stack.specs) || []).filter((sp) => sp.kind === "doc").map((sp) => [`stack.specs (${sp.area})`, sp.ref])];
     for (const [key, p] of declared) {
       if (p && !fs.existsSync(path.join(root, p))) out.push(f("important", `${key} points at a missing path`, p, "create it or correct the declaration"));
     }
@@ -59,7 +61,11 @@ function diagnose(root) {
     }
   }
   const hook = path.join(root, ".git", "hooks", "pre-commit");
-  if (fs.existsSync(path.join(root, ".git"))) {
+  const manager = fs.existsSync(path.join(root, ".git")) ? managers.detect(root, PLUGIN) : null;
+  if (manager) {
+    if (!manager.wired) out.push(f("important", `the pre-commit quality gate is not wired into ${manager.name}`, manager.files.join(", "), managers.instructions(manager)));
+    else if (manager.script && !fs.existsSync(manager.script)) out.push(f("blocking", "the pre-commit gate points at a missing script", `${manager.wired}: ${manager.script}`, managers.instructions(manager)));
+  } else if (fs.existsSync(path.join(root, ".git"))) {
     const text = fs.existsSync(hook) ? fs.readFileSync(hook, "utf8") : "";
     const gate = text.match(/bash\s+"([^"]*check-quality\.sh)"/);
     if (!gate) out.push(f("important", "the pre-commit quality gate is not installed", ".git/hooks/pre-commit", "run node scripts/doctor.js repair"));
@@ -74,7 +80,7 @@ function diagnose(root) {
       out.push(f("important", `crew:${name} entry expired on ${e.expires}`, e.raw, "renew it with the owner or remove it — it no longer applies"));
     }
   }
-  const tracked = spawnSync("git", ["ls-files", "--", ".crew/usage.jsonl", ".crew/local.json", ".crew/audit.log"], { cwd: root, encoding: "utf8", windowsHide: true });
+  const tracked = spawnSync("git", ["ls-files", "--", ".crew/usage.jsonl", ".crew/local.json", ".crew/audit.log", ".crew/learning.jsonl"], { cwd: root, encoding: "utf8", windowsHide: true });
   for (const t of (tracked.status === 0 ? tracked.stdout : "").split("\n").filter(Boolean)) {
     out.push(f("blocking", "a personal crew log is under version control", t, `git rm --cached ${t}; .crew/.gitignore keeps it out from now on`));
   }
@@ -98,8 +104,9 @@ function repair(root, dry) {
     if (!dry) { fs.mkdirSync(path.dirname(path.join(root, file.path)), { recursive: true }); fs.copyFileSync(src, path.join(root, file.path)); }
     actions.push(`restore ${file.path}`);
   }
-  if (!dry) require("./init-project").scaffold({ target: root, mode: (st && st.mode) || "team", dry: false });
-  actions.push("ensure the pre-commit quality gate");
+  const report = require("./init-project").scaffold({ target: root, mode: (st && st.mode) || "team", dry });
+  const gate = report.actions[report.actions.length - 1];
+  actions.push(`pre-commit gate: ${gate.action} ${gate.path}${gate.why ? ` — ${gate.why}` : ""}`);
   return actions;
 }
 
@@ -111,8 +118,11 @@ function uninstall(root, dry) {
     else if (file.status === "modified") actions.push(`keep ${file.path} (edited by the project — yours now)`);
   }
   const hook = path.join(root, ".git", "hooks", "pre-commit");
-  if (fs.existsSync(hook)) {
-    const kept = fs.readFileSync(hook, "utf8").split("\n").filter((l) => !/# crew quality gate$/.test(l));
+  const manager = fs.existsSync(path.join(root, ".git")) ? managers.detect(root, PLUGIN) : null;
+  if (manager && manager.wired) actions.push(`keep the crew gate in ${manager.wired} (the project wired it into ${manager.name}; remove it by hand)`);
+  const lines = fs.existsSync(hook) ? fs.readFileSync(hook, "utf8").split("\n") : [];
+  const kept = lines.filter((l) => !/# crew quality gate$/.test(l));
+  if (kept.length < lines.length) {
     if (!dry) fs.writeFileSync(hook, kept.join("\n"));
     actions.push("remove the crew line from .git/hooks/pre-commit");
   }

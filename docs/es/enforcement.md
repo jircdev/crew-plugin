@@ -297,3 +297,7 @@ Hook: [`../../hooks/check-work-log.js`](../../hooks/check-work-log.js) (Stop hoo
 **Los guards de estimación ignoran mi tabla.** El heading de la sección debe ser literalmente `## Estimation`, y la línea de estado (`**Status:** Closed` / `**Estado:** Cerrada`) debe aparecer dentro de los primeros ~600 caracteres del archivo — mantenela en el bloque de cabecera donde la ponen las plantillas.
 
 **La puerta pre-commit nunca corre.** Solo existe una vez instalada — `init-project.sh` escribe (o agrega a) `.git/hooks/pre-commit`; si el proyecto se scaffoldeó antes de `git init`, volvé a correr el script. La puerta necesita `node` y `bash` en el PATH.
+
+**El proyecto usa un gestor de hooks (Lefthook, husky o cualquier `core.hooksPath`).** El gestor regenera el hook que corre git, así que una línea en `.git/hooks/pre-commit` se perdería. El scaffold detecta el gestor, deja sus archivos como están e imprime el job que hay que agregar a su configuración; `/crew:doctor` informa si esa configuración ya corre `check-quality.sh` y si existe el script al que apunta.
+
+**Cómo se cuentan las líneas.** La cuenta de un archivo es la que muestra un editor: el salto de línea final cierra la última línea y no suma otra.

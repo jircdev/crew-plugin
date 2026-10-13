@@ -7,29 +7,34 @@
 // Respects crew.json ceiling overrides and crew:exempt globs in
 // docs/DEVIATIONS.md. Also usable in CI: node check-staged.js [--all]
 const { readFileSync, existsSync } = require("node:fs");
-const { execSync } = require("node:child_process");
+const { spawnSync } = require("node:child_process");
 const { join } = require("node:path");
 const { violation, isExempt } = require("../hooks/lib/ceilings");
 const { loadConfig } = require("../hooks/lib/config");
 
-function git(cmd, cwd) {
-  try {
-    return execSync(`git ${cmd}`, { cwd, stdio: ["ignore", "pipe", "ignore"] })
-      .toString()
-      .trim();
-  } catch {
-    return "";
-  }
+// A whole-repo listing outgrows Node's 1 MB default buffer in large repos.
+const MAX_BUFFER = 1024 * 1024 * 1024;
+
+function git(args, cwd) {
+  return spawnSync("git", args, { cwd, encoding: "utf8", maxBuffer: MAX_BUFFER, windowsHide: true });
 }
 
-const root = git("rev-parse --show-toplevel", process.cwd());
-if (!root) process.exit(0); // not a git repo — nothing to gate
+const top = git(["rev-parse", "--show-toplevel"], process.cwd());
+if (top.status !== 0) process.exit(0); // not a git repo — nothing to gate
+const root = top.stdout.trim();
 
 const all = process.argv.includes("--all");
-const listCmd = all
-  ? "ls-files"
-  : "diff --cached --name-only --diff-filter=ACMR";
-const files = git(listCmd, root).split("\n").filter(Boolean);
+const listArgs = all
+  ? ["ls-files", "-z"]
+  : ["diff", "--cached", "--name-only", "-z", "--diff-filter=ACMR"];
+const listing = git(listArgs, root);
+// A listing that failed is never an empty pass: zero files checked is not a verdict.
+if (listing.error || listing.status !== 0) {
+  const why = listing.error ? listing.error.message : (listing.stderr || "").trim() || `exit ${listing.status}`;
+  console.error(`crew code-quality gate: could not list the files to check (git ${listArgs.join(" ")}): ${why}`);
+  process.exit(2);
+}
+const files = listing.stdout.split("\0").filter(Boolean);
 if (!files.length) process.exit(0);
 
 const cfg = loadConfig(root);

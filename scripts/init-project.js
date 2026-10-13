@@ -10,6 +10,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const state = require("./lib/install-state");
+const managers = require("./lib/hook-manager");
 
 const PLUGIN = path.resolve(__dirname, "..");
 const T = (rel) => path.join(PLUGIN, "templates", rel);
@@ -42,6 +43,10 @@ function crewJson(mode) {
 function preCommit(target, dry) {
   const hook = path.join(target, ".git", "hooks", "pre-commit");
   if (!fs.existsSync(path.join(target, ".git"))) return { action: "skip", path: ".git/hooks/pre-commit", why: "no .git — run git init and re-run" };
+  // A hook manager regenerates .git/hooks/pre-commit: the gate goes in its config, by hand.
+  const manager = managers.detect(target, PLUGIN);
+  if (manager && manager.wired) return { action: "skip", path: manager.wired, why: `already runs the crew quality gate through ${manager.name}` };
+  if (manager) return { action: "manual", path: manager.files[0], why: managers.instructions(manager) };
   const line = HOOK_LINE(PLUGIN);
   if (fs.existsSync(hook)) {
     const text = fs.readFileSync(hook, "utf8");

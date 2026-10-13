@@ -295,3 +295,7 @@ Hook: [`../../hooks/check-work-log.js`](../../hooks/check-work-log.js) (Stop hoo
 **The estimation guards ignore my table.** The section heading must be literally `## Estimation`, and the status line (`**Status:** Closed` / `**Estado:** Cerrada`) must appear within the first ~600 characters of the file — keep it in the header block where the templates put it.
 
 **The pre-commit gate never runs.** It only exists once installed — `init-project.sh` writes (or appends to) `.git/hooks/pre-commit`; if the project was scaffolded before `git init`, re-run the script. The gate needs `node` and `bash` on PATH.
+
+**The project uses a hook manager (Lefthook, husky, or any `core.hooksPath`).** The manager regenerates the hook git runs, so a line in `.git/hooks/pre-commit` would be lost. The scaffold detects the manager, leaves its files untouched and prints the job to add to its config; `/crew:doctor` reports whether that config already runs `check-quality.sh` and whether the script path it names exists.
+
+**How lines are counted.** A file's line count is the number of lines an editor shows: a final newline closes the last line and does not add one.
