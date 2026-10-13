@@ -2,9 +2,9 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
-## [Unreleased]
+## [1.2.0] — 2026-10-13
 
-Stack specifications belong to the project. crew carries method, and each project declares where the knowledge of its stack lives. The pre-commit gate also works under hook managers and counts lines the way an editor does.
+crew aims at working software, and this version starts measuring it. Each project declares where the knowledge of its stack lives and crew carries the method: a procedure per kind of code change, receipts tied to the code they ran on, every milestone estimated in person and agent hours, plan execution in parallel batches, and a learning loop that accepts a change to crew only with an A/B run of a new end-to-end evaluation. The first baseline of that evaluation is archived: equal acceptance with and without crew, higher cost for crew, on tasks the current model already solves.
 
 ### Added
 
@@ -20,7 +20,6 @@ Stack specifications belong to the project. crew carries method, and each projec
 - **Delivery evaluation** (`evals/delivery/`, `scripts/eval-delivery.js`): four tasks (feature, defect, refactor, security) on a small project, each run with crew and without it, scored by hidden acceptance tests. Records acceptance, whether the project's own suite stays green, interventions, minutes, tokens and cost, and archives the result per plugin version. A preflight aborts when the variants are not isolated. Real runs spend API money; see `evals/delivery/README.md`.
 - **Two estimates per milestone.** The estimation table carries `Est. hours` at person pace and `Est. AI hours` for the agents' time, plus `Actual hours` (the person's) and `Actual AI hours` (from a capture, `—` when nothing measured it), so each estimate can be contrasted with its real counterpart the way factory separates human and AI hours. Human review is its own milestone, and the **Total** row sums all four. The requirement template, the stories and delivery-circuit rules, the scaffolded estimation discipline, every role and the `planning` craft carry it; the craft estimates both always, without waiting to be asked, and `conformance.js` prints how to fill them. Reference: [`docs/en/metrics.md#the-table`](docs/en/metrics.md#the-table) / [`docs/es/metrics.md#la-tabla`](docs/es/metrics.md#la-tabla).
 - `/crew:metrics` reports the AI estimate deviation, `(Actual AI − Est AI) / Est AI`, per item and on average, with how many items carry both AI figures; `--csv` adds `est_ai_hours`, `actual_ai_hours` and `ai_deviation_pct`. A project without AI columns sees the report it always saw.
-
 - The pre-commit gate works with hook managers. When Lefthook, husky or a `core.hooksPath` owns the hook, the scaffold prints the job to add to the manager's config instead of writing `.git/hooks/pre-commit`, and `/crew:doctor` checks that the config runs the gate and that the script it names exists. Crew never edits a manager's files.
 
 ### Fixed
@@ -35,10 +34,12 @@ Stack specifications belong to the project. crew carries method, and each projec
 - Both READMEs open with crew's purpose: deliver correct software with less intervention, less rework and verifiable deliveries; roles, flow and guards are the means. `using-crew.md` explains what crew brings and what each project brings.
 - The crafts are a closed list in the `crew` role, and the catalog test rejects a skill that is neither a role alias nor a listed craft, and framework names in roles, crafts, the session baseline and the scaffold templates.
 - The scaffold templates are stack-neutral: the reactive-primitive rule of `standards/code-quality.md` now covers hooks, composables and effects of any UI framework, and `AGENTS.md` points to `crew.json` `stack` for how each area is built. Existing projects keep their own copies untouched.
+- Documentation reviewed by the documentation steward before release: the READMEs route to every new capability, `using-crew.md` explains how code changes are made and how a plan is executed, `enforcement.md` covers the AI columns, stale receipts and uncovered criteria, `compatibility.md` lists the four crafts and plan execution per host, `comparison-ecc.md` adds what changed since 1.0, and the delivery circuit and work-item templates carry the execution craft, `AC<n>` citations and the optional `Blocked:` header.
 
 ### Compatibility
 
-- `required: false`. A project without `stack` behaves exactly as before.
+- `required: false`. A project without `stack`, `testing.criteria` or `testing.receipts` behaves exactly as before.
+- Retired in 1.3.0: receipts without a code fingerprint and estimation tables without the AI columns. Both keep working in 1.2.
 - Estimation tables are read by column name (`hooks/lib/estimation.js`), shared by the closure gate, the timestamps guard, `/crew:metrics` and the work-in-progress summary. A table on the previous six columns, or with the AI figure written as "AI est." in Notes, still closes and conforms until the next minor version: the shape check accepts either column set where the template carries the other, and `conformance.js --check` marks the old one as deprecated. A project template with a shape of its own keeps being read by position, as before. Once a table carries AI columns, the closure gate requires them filled.
 
 ## [1.1.0] — 2026-10-08

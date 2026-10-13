@@ -84,6 +84,13 @@
       "title": "Doctor subcommands and factory development environment",
       "summary": "Additive: /crew:doctor standard and /crew:doctor security replace the script paths in the upgrade guide; factory projects point to the development environment until production is ready.",
       "doc": "docs/en/upgrade-1.0.md"
+    },
+    {
+      "version": "1.2.0",
+      "required": false,
+      "title": "Stack specifications, execution craft, delivery evaluation",
+      "summary": "Additive: crew.json stack and testing.criteria, the execution craft, code-bound receipts, /crew:metrics learning, plan execution, two estimates per milestone, and hook managers for the pre-commit gate. Nothing to do: legacy estimation tables and receipts keep working until the next minor version.",
+      "doc": "CHANGELOG.md"
     }
   ]
 }
