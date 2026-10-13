@@ -4,7 +4,7 @@ All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepa
 
 ## [Unreleased]
 
-Stack specifications belong to the project. crew carries method, and each project declares where the knowledge of its stack lives.
+Stack specifications belong to the project. crew carries method, and each project declares where the knowledge of its stack lives. The pre-commit gate also works under hook managers and counts lines the way an editor does.
 
 ### Added
 
@@ -12,10 +12,26 @@ Stack specifications belong to the project. crew carries method, and each projec
 - The session baseline states the principle for every role: before deciding or implementing in an area, load what the project declared for it; with nothing declared, work from the role's general craft and name the gap in the evidence seal.
 - `/crew:setup` asks for the stack specifications in a new block 10, and never proposes or writes one. Factory and audit move to blocks 11 and 12.
 - The session start names an unusable `stack` declaration, and `/crew:doctor` reports it together with a declared document that does not exist.
+- **`execution` craft** (`skills/execution/SKILL.md`): a procedure per kind of change (defect, feature, refactor, migration), chosen by whether observable behavior changes, scaled to risk (security triggers, money, persisted data, shared contracts and deletions make it elevated), and closed with evidence that names which test proves which criterion. Test-first is the defect procedure. The session baseline loads it before the first code edit; QA, SYS and FE reference it, and Codex reads it like the other crafts.
+- **Receipts back the code they ran on.** `scripts/verify.js` records a fingerprint of the code on disk (every file git sees except `docs/` and `*.md`), and with `testing.receipts` the closure gate refuses a receipt taken before the code changed. Receipts without a fingerprint keep the old rule until the next minor version.
+- **`testing.criteria: true`** (opt-in): every numbered acceptance criterion of a story must be cited by a verification row as `AC<n>` before the story closes. `/crew:setup` asks it, and the scaffold's verification rules explain the citation.
+- **Verified learning** (`/crew:metrics learning`): `record` writes where a correction started (kind of work, step of the execution craft, origin: method, a role or a declared stack area) to a local log with closed values only; `retro` groups repeated failures and routes stack ones to the project and method or role ones to crew; `compare` gives the A/B verdict of two delivery evaluations, incorporable only if no task got worse. The documentation steward's retro reads it, and `proposals/README.md` asks for the verdict on any change to a role, craft or procedure. Reviewed by security-compliance: local only, never versioned, 90 days.
+- **Plan execution** (`COORD: execute <plan>`, `scripts/plan-graph.js`): the delivery coordinator reads which items of a plan are done, in progress, ready, blocked by an item or by a person, or not ready; runs ready items that touch no common path in parallel, each in its own worktree; and integrates them one at a time only when `plan-graph.js gate` finds the declared suites green. A blocker is an optional header line, `- **Blocked:** <owner> — <what is needed>`, and stops only the items that depend on it. In Codex the batch runs sequentially.
+- **Delivery evaluation** (`evals/delivery/`, `scripts/eval-delivery.js`): four tasks (feature, defect, refactor, security) on a small project, each run with crew and without it, scored by hidden acceptance tests. Records acceptance, whether the project's own suite stays green, interventions, minutes, tokens and cost, and archives the result per plugin version. A preflight aborts when the variants are not isolated. Real runs spend API money; see `evals/delivery/README.md`.
+
+- The pre-commit gate works with hook managers. When Lefthook, husky or a `core.hooksPath` owns the hook, the scaffold prints the job to add to the manager's config instead of writing `.git/hooks/pre-commit`, and `/crew:doctor` checks that the config runs the gate and that the script it names exists. Crew never edits a manager's files.
+
+### Fixed
+
+- `check-staged.js --all` checks every tracked file in large repositories: the file listing no longer overflows Node's 1 MB buffer, and a listing that fails stops the gate with exit 2 instead of passing with zero files checked.
+- Line counting: a final newline no longer counts as an extra line, so a file at exactly its ceiling passes. Affects the write-time guard and the pre-commit gate.
 
 ### Changed
 
 - The `crew` role carries the principle as an operating rule and refuses to ship stack knowledge inside the plugin.
+- Both READMEs open with crew's purpose: deliver correct software with less intervention, less rework and verifiable deliveries; roles, flow and guards are the means. `using-crew.md` explains what crew brings and what each project brings.
+- The crafts are a closed list in the `crew` role, and the catalog test rejects a skill that is neither a role alias nor a listed craft, and framework names in roles, crafts, the session baseline and the scaffold templates.
+- The scaffold templates are stack-neutral: the reactive-primitive rule of `standards/code-quality.md` now covers hooks, composables and effects of any UI framework, and `AGENTS.md` points to `crew.json` `stack` for how each area is built. Existing projects keep their own copies untouched.
 
 ### Compatibility
 
