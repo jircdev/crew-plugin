@@ -1,0 +1,539 @@
+{
+  "meta": {
+    "pluginVersion": "1.1.0",
+    "model": null,
+    "runs": 3,
+    "date": "2026-10-13T18:20:02.449Z",
+    "agent": "claude"
+  },
+  "runs": [
+    {
+      "task": "defect-rounding",
+      "kind": "defect",
+      "variant": "crew",
+      "run": 1,
+      "acceptance": {
+        "passed": 4,
+        "total": 4
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 16,
+        "output": 6717,
+        "cacheRead": 371472,
+        "cacheWrite": 28128,
+        "cost": 0.635021,
+        "turns": 8
+      },
+      "durationMs": 149425,
+      "error": null
+    },
+    {
+      "task": "defect-rounding",
+      "kind": "defect",
+      "variant": "crew",
+      "run": 2,
+      "acceptance": {
+        "passed": 4,
+        "total": 4
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 23,
+        "output": 8979,
+        "cacheRead": 612793,
+        "cacheWrite": 31316,
+        "cost": 0.8441465000000002,
+        "turns": 12
+      },
+      "durationMs": 186966,
+      "error": null
+    },
+    {
+      "task": "defect-rounding",
+      "kind": "defect",
+      "variant": "crew",
+      "run": 3,
+      "acceptance": {
+        "passed": 4,
+        "total": 4
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 25,
+        "output": 15911,
+        "cacheRead": 695104,
+        "cacheWrite": 55405,
+        "cost": 1.2995020000000002,
+        "turns": 16
+      },
+      "durationMs": 288371,
+      "error": null
+    },
+    {
+      "task": "defect-rounding",
+      "kind": "defect",
+      "variant": "bare",
+      "run": 1,
+      "acceptance": {
+        "passed": 4,
+        "total": 4
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 25,
+        "output": 6371,
+        "cacheRead": 556428,
+        "cacheWrite": 29209,
+        "cost": 0.7297040000000001,
+        "turns": 13
+      },
+      "durationMs": 158159,
+      "error": null
+    },
+    {
+      "task": "defect-rounding",
+      "kind": "defect",
+      "variant": "bare",
+      "run": 2,
+      "acceptance": {
+        "passed": 4,
+        "total": 4
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 34,
+        "output": 11705,
+        "cacheRead": 835005,
+        "cacheWrite": 27247,
+        "cost": 0.9827674999999999,
+        "turns": 18
+      },
+      "durationMs": 244895,
+      "error": null
+    },
+    {
+      "task": "defect-rounding",
+      "kind": "defect",
+      "variant": "bare",
+      "run": 3,
+      "acceptance": {
+        "passed": 4,
+        "total": 4
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 27,
+        "output": 12223,
+        "cacheRead": 640479,
+        "cacheWrite": 34694,
+        "cost": 0.9728895000000002,
+        "turns": 14
+      },
+      "durationMs": 233204,
+      "error": null
+    },
+    {
+      "task": "feature-discount",
+      "kind": "feature",
+      "variant": "crew",
+      "run": 1,
+      "acceptance": {
+        "passed": 4,
+        "total": 4
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 21,
+        "output": 7064,
+        "cacheRead": 552469,
+        "cacheWrite": 29861,
+        "cost": 0.7515495,
+        "turns": 12
+      },
+      "durationMs": 143885,
+      "error": null
+    },
+    {
+      "task": "feature-discount",
+      "kind": "feature",
+      "variant": "crew",
+      "run": 2,
+      "acceptance": {
+        "passed": 4,
+        "total": 4
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 32,
+        "output": 10430,
+        "cacheRead": 921996,
+        "cacheWrite": 35289,
+        "cost": 1.074798,
+        "turns": 18
+      },
+      "durationMs": 218819,
+      "error": null
+    },
+    {
+      "task": "feature-discount",
+      "kind": "feature",
+      "variant": "crew",
+      "run": 3,
+      "acceptance": {
+        "passed": 4,
+        "total": 4
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 19,
+        "output": 8386,
+        "cacheRead": 503281,
+        "cacheWrite": 31094,
+        "cost": 0.7723255000000001,
+        "turns": 15
+      },
+      "durationMs": 159608,
+      "error": null
+    },
+    {
+      "task": "feature-discount",
+      "kind": "feature",
+      "variant": "bare",
+      "run": 1,
+      "acceptance": {
+        "passed": 4,
+        "total": 4
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 16,
+        "output": 4322,
+        "cacheRead": 320571,
+        "cacheWrite": 25260,
+        "cost": 0.5210155,
+        "turns": 8
+      },
+      "durationMs": 97376,
+      "error": null
+    },
+    {
+      "task": "feature-discount",
+      "kind": "feature",
+      "variant": "bare",
+      "run": 2,
+      "acceptance": {
+        "passed": 4,
+        "total": 4
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 14,
+        "output": 3914,
+        "cacheRead": 273821,
+        "cacheWrite": 15899,
+        "cost": 0.3938205,
+        "turns": 7
+      },
+      "durationMs": 86081,
+      "error": null
+    },
+    {
+      "task": "feature-discount",
+      "kind": "feature",
+      "variant": "bare",
+      "run": 3,
+      "acceptance": {
+        "passed": 4,
+        "total": 4
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 21,
+        "output": 6886,
+        "cacheRead": 463038,
+        "cacheWrite": 23330,
+        "cost": 0.637074,
+        "turns": 11
+      },
+      "durationMs": 172607,
+      "error": null
+    },
+    {
+      "task": "refactor-report",
+      "kind": "refactor",
+      "variant": "crew",
+      "run": 1,
+      "acceptance": {
+        "passed": 2,
+        "total": 2
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 27,
+        "output": 12534,
+        "cacheRead": 726338,
+        "cacheWrite": 50662,
+        "cost": 1.1832740000000002,
+        "turns": 15
+      },
+      "durationMs": 220082,
+      "error": null
+    },
+    {
+      "task": "refactor-report",
+      "kind": "refactor",
+      "variant": "crew",
+      "run": 2,
+      "acceptance": {
+        "passed": 2,
+        "total": 2
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 23,
+        "output": 8467,
+        "cacheRead": 599077,
+        "cacheWrite": 31573,
+        "cost": 0.8270585000000001,
+        "turns": 13
+      },
+      "durationMs": 154196,
+      "error": null
+    },
+    {
+      "task": "refactor-report",
+      "kind": "refactor",
+      "variant": "crew",
+      "run": 3,
+      "acceptance": {
+        "passed": 2,
+        "total": 2
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 15,
+        "output": 4750,
+        "cacheRead": 356388,
+        "cacheWrite": 37527,
+        "cost": 0.672289,
+        "turns": 8
+      },
+      "durationMs": 108563,
+      "error": null
+    },
+    {
+      "task": "refactor-report",
+      "kind": "refactor",
+      "variant": "bare",
+      "run": 1,
+      "acceptance": {
+        "passed": 2,
+        "total": 2
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 15,
+        "output": 7333,
+        "cacheRead": 320192,
+        "cacheWrite": 26047,
+        "cost": 0.603966,
+        "turns": 8
+      },
+      "durationMs": 124718,
+      "error": null
+    },
+    {
+      "task": "refactor-report",
+      "kind": "refactor",
+      "variant": "bare",
+      "run": 2,
+      "acceptance": {
+        "passed": 2,
+        "total": 2
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 15,
+        "output": 5814,
+        "cacheRead": 329168,
+        "cacheWrite": 19288,
+        "cost": 0.5028889999999999,
+        "turns": 10
+      },
+      "durationMs": 115919,
+      "error": null
+    },
+    {
+      "task": "refactor-report",
+      "kind": "refactor",
+      "variant": "bare",
+      "run": 3,
+      "acceptance": {
+        "passed": 2,
+        "total": 2
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 15,
+        "output": 7573,
+        "cacheRead": 320886,
+        "cacheWrite": 26529,
+        "cost": 0.615133,
+        "turns": 8
+      },
+      "durationMs": 134069,
+      "error": null
+    },
+    {
+      "task": "security-export",
+      "kind": "security",
+      "variant": "crew",
+      "run": 1,
+      "acceptance": {
+        "passed": 4,
+        "total": 5
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 14,
+        "output": 4575,
+        "cacheRead": 306370,
+        "cacheWrite": 38281,
+        "cost": 0.6504400000000001,
+        "turns": 7
+      },
+      "durationMs": 95050,
+      "error": null
+    },
+    {
+      "task": "security-export",
+      "kind": "security",
+      "variant": "crew",
+      "run": 2,
+      "acceptance": {
+        "passed": 4,
+        "total": 5
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 14,
+        "output": 4667,
+        "cacheRead": 311002,
+        "cacheWrite": 39335,
+        "cost": 0.665596,
+        "turns": 7
+      },
+      "durationMs": 107238,
+      "error": null
+    },
+    {
+      "task": "security-export",
+      "kind": "security",
+      "variant": "crew",
+      "run": 3,
+      "acceptance": {
+        "passed": 4,
+        "total": 5
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 8,
+        "output": 4827,
+        "cacheRead": 156599,
+        "cacheWrite": 38915,
+        "cost": 0.5881645,
+        "turns": 4
+      },
+      "durationMs": 90852,
+      "error": null
+    },
+    {
+      "task": "security-export",
+      "kind": "security",
+      "variant": "bare",
+      "run": 1,
+      "acceptance": {
+        "passed": 4,
+        "total": 5
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 12,
+        "output": 3977,
+        "cacheRead": 226646,
+        "cacheWrite": 23175,
+        "cost": 0.444558,
+        "turns": 8
+      },
+      "durationMs": 84564,
+      "error": null
+    },
+    {
+      "task": "security-export",
+      "kind": "security",
+      "variant": "bare",
+      "run": 2,
+      "acceptance": {
+        "passed": 4,
+        "total": 5
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 14,
+        "output": 4629,
+        "cacheRead": 268316,
+        "cacheWrite": 23622,
+        "cost": 0.486173,
+        "turns": 8
+      },
+      "durationMs": 105461,
+      "error": null
+    },
+    {
+      "task": "security-export",
+      "kind": "security",
+      "variant": "bare",
+      "run": 3,
+      "acceptance": {
+        "passed": 4,
+        "total": 5
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 14,
+        "output": 4199,
+        "cacheRead": 271066,
+        "cacheWrite": 23977,
+        "cost": 0.480348,
+        "turns": 7
+      },
+      "durationMs": 89630,
+      "error": null
+    }
+  ]
+}

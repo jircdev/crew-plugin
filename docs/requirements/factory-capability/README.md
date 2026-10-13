@@ -39,4 +39,13 @@ La evaluación también mencionó hallazgos sobre hooks y recibos que vienen de 
 | 007 | [Ejecución coordinada de un plan completo](007-coordinated-execution.md) | Delivered | 32 | 004, 005 | Paralelizar exige procedimientos y evidencia previos |
 | | **Total estimado (001 a 007)** | | **167.5** | | |
 
-Las corridas con modelo real quedaron sin hacer: el CLI de Claude no tiene sesión válida en la máquina donde se implementó. Son la línea base de 003, el antes y después de 004 y la tarea de plan de 007. Con una sesión válida, el primer paso es `node scripts/eval-delivery.js --runs 3`; su resultado es la línea base contra la que se comparan todos los cambios siguientes.
+## Primera medición (2026-10-13)
+
+Línea base: `evals/delivery/results/1.1.0-202610131820.md`, 24 sesiones con modelo real; más una repetición de la tarea de seguridad (`1.1.0-202610131831`).
+
+- **Aceptación igual con y sin crew** en las cuatro tareas: 100% en funcionalidad, defecto y refactor; 80% en seguridad.
+- **Crew cuesta más**: entre 0,03 y 0,35 USD más por tarea y hasta 0,9 minutos más, sin intervenciones en ninguna variante.
+- **La falla de seguridad es la misma en los 18 casos**: nadie neutraliza las celdas que una planilla ejecutaría como fórmula. La retro la clasificó como falla de método y quedó como propuesta en `proposals/execution-output-neutralization.md`, pendiente de su A/B.
+- **Las tareas son fáciles para el modelo actual**: tres de cuatro quedan en 100% en las dos variantes, así que la suite todavía no distingue a crew. Hace falta sumar tareas más largas y ambiguas, donde el método tenga margen para pesar.
+
+Pendiente de modelo real: el antes y después de 004, que ya no se puede medir porque la línea base incluye el oficio, y la tarea de plan de 007, que la suite todavía no tiene.

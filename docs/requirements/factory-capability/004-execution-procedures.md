@@ -56,7 +56,7 @@ La evaluación externa propuso procedimientos distintos por tipo de trabajo, ada
 | El oficio queda registrado y su entrada Codex sincronizada | unit | node:test | tests/catalog.test.js, tests/baseline.test.js | passing |
 | El oficio no contiene identificadores de framework | unit | node:test | tests/catalog.test.js (regla de 002) | passing |
 | La tarea de defecto de 003 deja una prueba de regresión escrita antes de la corrección | e2e | runner de 003 | evals/delivery/results/ | not verified — necesita una corrida con modelo real |
-| La suite de 003 no empeora en ninguna de las cuatro tareas | e2e | runner de 003 | evals/delivery/results/ | not verified — necesita una corrida con modelo real |
+| La suite de 003 no empeora en ninguna de las cuatro tareas | e2e | runner de 003 | evals/delivery/results/1.1.0-202610131820.md | not verified — no hay corrida previa a 004 para comparar; la línea base ya incluye el oficio |
 
 ## Changes
 

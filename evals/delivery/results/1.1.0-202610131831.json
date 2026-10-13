@@ -1,0 +1,161 @@
+{
+  "meta": {
+    "pluginVersion": "1.1.0",
+    "model": null,
+    "runs": 3,
+    "date": "2026-10-13T18:31:18.327Z",
+    "agent": "claude"
+  },
+  "runs": [
+    {
+      "task": "security-export",
+      "kind": "security",
+      "variant": "crew",
+      "run": 1,
+      "acceptance": {
+        "passed": 4,
+        "total": 5,
+        "failed": [
+          "cells that a spreadsheet would run as a formula are neutralized"
+        ]
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 8,
+        "output": 4653,
+        "cacheRead": 153463,
+        "cacheWrite": 37300,
+        "cost": 0.5660965,
+        "turns": 5
+      },
+      "durationMs": 84671,
+      "error": null
+    },
+    {
+      "task": "security-export",
+      "kind": "security",
+      "variant": "crew",
+      "run": 2,
+      "acceptance": {
+        "passed": 4,
+        "total": 5,
+        "failed": [
+          "cells that a spreadsheet would run as a formula are neutralized"
+        ]
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 10,
+        "output": 4197,
+        "cacheRead": 219299,
+        "cacheWrite": 24348,
+        "cost": 0.45810449999999997,
+        "turns": 5
+      },
+      "durationMs": 87582,
+      "error": null
+    },
+    {
+      "task": "security-export",
+      "kind": "security",
+      "variant": "crew",
+      "run": 3,
+      "acceptance": {
+        "passed": 4,
+        "total": 5,
+        "failed": [
+          "cells that a spreadsheet would run as a formula are neutralized"
+        ]
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 12,
+        "output": 5328,
+        "cacheRead": 255615,
+        "cacheWrite": 38049,
+        "cost": 0.6415575000000001,
+        "turns": 6
+      },
+      "durationMs": 105910,
+      "error": null
+    },
+    {
+      "task": "security-export",
+      "kind": "security",
+      "variant": "bare",
+      "run": 1,
+      "acceptance": {
+        "passed": 4,
+        "total": 5,
+        "failed": [
+          "cells that a spreadsheet would run as a formula are neutralized"
+        ]
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 27,
+        "output": 5880,
+        "cacheRead": 620978,
+        "cacheWrite": 27752,
+        "cost": 0.7351440000000001,
+        "turns": 15
+      },
+      "durationMs": 139610,
+      "error": null
+    },
+    {
+      "task": "security-export",
+      "kind": "security",
+      "variant": "bare",
+      "run": 2,
+      "acceptance": {
+        "passed": 4,
+        "total": 5,
+        "failed": [
+          "cells that a spreadsheet would run as a formula are neutralized"
+        ]
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 15,
+        "output": 4548,
+        "cacheRead": 327085,
+        "cacheWrite": 18182,
+        "cost": 0.45913750000000003,
+        "turns": 8
+      },
+      "durationMs": 98453,
+      "error": null
+    },
+    {
+      "task": "security-export",
+      "kind": "security",
+      "variant": "bare",
+      "run": 3,
+      "acceptance": {
+        "passed": 4,
+        "total": 5,
+        "failed": [
+          "cells that a spreadsheet would run as a formula are neutralized"
+        ]
+      },
+      "regression": true,
+      "interventions": 0,
+      "usage": {
+        "input": 16,
+        "output": 5421,
+        "cacheRead": 312306,
+        "cacheWrite": 24969,
+        "cost": 0.541448,
+        "turns": 8
+      },
+      "durationMs": 105370,
+      "error": null
+    }
+  ]
+}

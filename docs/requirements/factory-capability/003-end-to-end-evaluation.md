@@ -43,7 +43,7 @@ Sin esa medición, cada mejora de este plan se valida a ojo, y el aprendizaje de
 | Runner con modelo real, con y sin crew | 10 | 2026-10-13 13:30 -03:00 | 2026-10-13 13:32 -03:00 | 0.03 | Ambas variantes en safe mode; la de crew carga una copia del plugin sin evals/ ni tests/. Preflight que aborta si las variantes no están aisladas |
 | Medición de intervenciones, tiempo, tokens y costo | 4 | 2026-10-13 13:31 -03:00 | 2026-10-13 13:32 -03:00 | 0.02 | Decisión: cada respuesta que el runner tiene que dar cuenta como una intervención; la primera es la aclaración de la tarea |
 | Reporte comparativo y archivo por versión | 4 | 2026-10-13 13:31 -03:00 | 2026-10-13 13:32 -03:00 | 0.02 | |
-| Corrida de línea base | 4 | | | | No corrida: el CLI no tiene sesión válida en esta máquina (OAuth vencido, sin ANTHROPIC_API_KEY). Queda para el maintainer |
+| Corrida de línea base | 4 | 2026-10-13 14:19 -03:00 | 2026-10-13 15:20 -03:00 | 1.02 | Tras el login del maintainer. La primera corrida real mostró que safe mode apagaba el plugin; se corrigió el aislamiento antes de la línea base |
 | Docs EN y ES y changelog | 3 | 2026-10-13 13:32 -03:00 | 2026-10-13 13:34 -03:00 | 0.03 | evals/delivery/README.md y contributing EN y ES |
 | Revisión del maintainer | 2 | | | | |
 | **Total** | **41** | — | — | | |
@@ -56,7 +56,7 @@ Sin esa medición, cada mejora de este plan se valida a ojo, y el aprendizaje de
 | Los tests de aceptación quedan fuera del alcance del agente durante la corrida | integration | node:test | tests/delivery-eval.test.js | passing |
 | Una pregunta del agente se cuenta como intervención | integration | node:test | tests/delivery-eval.test.js | passing |
 | La corrida no modifica la configuración ni las credenciales del usuario | integration | node:test | tests/delivery-eval.test.js | passing |
-| La línea base con modelo real queda archivada | manual | none | evals/delivery/results/ | not verified — sin credenciales del CLI en esta máquina; correr `node scripts/eval-delivery.js --runs 3` |
+| La línea base con modelo real queda archivada | manual | eval-delivery.js | evals/delivery/results/1.1.0-202610131820.md | passing — 24 sesiones, 2026-10-13 |
 
 ## Changes
 
