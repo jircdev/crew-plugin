@@ -55,6 +55,26 @@ The report runs in **both modes, with or without `crew.json`** — it just reads
 
 `/crew:metrics catalog` reports how often each role, skill and command was used in the last 30 and 90 days, and which roles went unused, from the per-person opt-in log described in [configuration.md](configuration.md#catalog-usage-telemetry). It is evidence for the CREW role's routing cost test — low use alone never retires a role.
 
+## Verified learning
+
+When a change had to be corrected, record where the failure started:
+
+```
+/crew:metrics learning record --kind defect --stage cause --origin stack:backend
+```
+
+`kind` is the kind of work and `stage` the step of the `execution` craft where it went wrong. `origin` says what failed: `method` (a crew procedure), `role:<role>`, or `stack:<area>` (the project's stack specification for that area, as declared in `crew.json`). The line keeps the date and those three values; it stays in `.crew/learning.jsonl` on your machine, out of the repository, for 90 days.
+
+`/crew:metrics learning retro` groups the failures that repeat and says where each fix belongs. A stack failure goes to the project, as a proposal to change its stack specification. A method or role failure goes to crew, as a proposal in the plugin. Add `--eval <result.json>` to count the failing crew runs of a [delivery evaluation](../../evals/delivery/README.md) too. A failure seen once is a note, never a proposal.
+
+A proposal to change crew is accepted with evidence: run the delivery evaluation before and after the change, then
+
+```
+/crew:metrics learning compare <before.json> <after.json>
+```
+
+The verdict is *incorporable* only if no task got worse for the crew variant in acceptance, in the project's own suite or in interventions. Cost is shown and never decides. The maintainer decides with that output attached.
+
 ## By size
 
 Items that carry the optional `Size:` header (trivial, small, standard, large — the rubric lives in the delivery circuit) are also grouped by size, with the average estimate deviation per size, and `--csv` adds a `size` column. That is the evidence that sizing holds: if "small" items keep running 80% over, either the rubric is too generous or the estimates for small work are. Items without a size are grouped as `unsized`.

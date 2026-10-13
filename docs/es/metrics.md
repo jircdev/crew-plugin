@@ -55,6 +55,26 @@ El reporte corre en **ambos modos, con o sin `crew.json`** — simplemente lee l
 
 `/crew:metrics catalog` informa cuántas veces se usó cada rol, skill y comando en los últimos 30 y 90 días, y qué roles no se usaron, a partir del registro opcional por persona que describe [configuration.md](configuration.md#uso-del-catálogo-telemetry). Es evidencia para la prueba de costo de ruteo del rol CREW: un uso bajo, por sí solo, nunca retira un rol.
 
+## Aprendizaje verificado
+
+Cuando un cambio tuvo que corregirse, registrá dónde empezó la falla:
+
+```
+/crew:metrics learning record --kind defect --stage cause --origin stack:backend
+```
+
+`kind` es el tipo de trabajo y `stage` el paso del oficio `execution` donde salió mal. `origin` dice qué falló: `method` (un procedimiento de crew), `role:<rol>` o `stack:<área>` (la especificación de stack del proyecto para esa área, como la declara `crew.json`). La línea guarda la fecha y esos tres valores; queda en `.crew/learning.jsonl` en tu máquina, fuera del repositorio, durante 90 días.
+
+`/crew:metrics learning retro` agrupa las fallas que se repiten y dice dónde va cada arreglo. Una falla de stack va al proyecto, como propuesta para cambiar su especificación de stack. Una falla de método o de rol va a crew, como propuesta en el plugin. Con `--eval <result.json>` también cuenta las corridas de crew que fallaron en una [evaluación de entrega](../../evals/delivery/README.md). Una falla vista una vez es una nota, nunca una propuesta.
+
+Una propuesta para cambiar crew se acepta con evidencia: corré la evaluación de entrega antes y después del cambio, y después
+
+```
+/crew:metrics learning compare <antes.json> <después.json>
+```
+
+El veredicto es *incorporable* solo si ninguna tarea empeoró para la variante crew en aceptación, en la suite propia del proyecto o en intervenciones. El costo se muestra y nunca decide. Decide el maintainer, con esa salida adjunta.
+
 ## Por tamaño
 
 Los items que llevan el campo opcional `Size:` (trivial, small, standard, large; la rúbrica está en el circuito de entrega) también se agrupan por tamaño, con el desvío promedio de estimación por tamaño, y `--csv` agrega una columna `size`. Es la evidencia de que el dimensionamiento se sostiene: si los items "small" se pasan un 80% una y otra vez, o la rúbrica es generosa o lo son las estimaciones del trabajo chico. Los items sin tamaño se agrupan como `unsized`.

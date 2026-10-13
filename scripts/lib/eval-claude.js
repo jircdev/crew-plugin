@@ -12,6 +12,15 @@ const { readFileSync } = require('node:fs');
 const { spawnSync } = require('node:child_process');
 
 const req = JSON.parse(readFileSync(0, 'utf8'));
+// On Windows the arguments pass through cmd.exe, so the two values that are
+// not fixed flags are checked against a strict shape (security-compliance,
+// 2026-10-13) instead of being trusted for where they came from.
+const SAFE_MODEL = /^[A-Za-z0-9._[\]-]+$/;
+const SAFE_SESSION = /^[A-Za-z0-9-]+$/;
+if ((req.model && !SAFE_MODEL.test(req.model)) || (req.resume && !SAFE_SESSION.test(req.resume))) {
+  process.stdout.write(JSON.stringify({ is_error: true, result: 'refused: model or session id has characters outside the allowed set' }));
+  process.exit(0);
+}
 // The prompt goes on stdin: on Windows `claude` is a .cmd shim that needs a
 // shell, and a free-text argument through cmd.exe cannot be quoted safely.
 const args = ['-p', '--output-format', 'json', '--safe-mode', '--dangerously-skip-permissions'];

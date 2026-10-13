@@ -1,6 +1,6 @@
 ---
-description: Estimation metrics — lead time, execution time, estimate deviation; catalog usage
-argument-hint: [YYYY-MM | catalog]
+description: Estimation metrics — lead time, execution time, estimate deviation; catalog usage; verified learning
+argument-hint: [YYYY-MM | catalog | learning record|retro|compare]
 ---
 
 Run the estimation metrics report over this project's closed work items and present the result.
@@ -11,5 +11,11 @@ Run the estimation metrics report over this project's closed work items and pres
 4. Factory mode (`crew.json` declares `factory`): the script prints factory's live backlog instead, as a tree of activities with each one's original and current estimate, its own consumed hours and, on leaves, its deviation, then quoted / consumed / pending / forecast for the project. Present the forecast against the quoted hours first, then the activities that deviate most. When the script says the machine is not connected or factory could not answer, relay that line and present the local report it printed after it; for a missing connection, point to `/crew:factory login`.
 
 With `catalog` as the argument, run `node "${CLAUDE_PLUGIN_ROOT}/scripts/metrics.js" catalog` instead: it reports how often each role, skill and command was used in this project (last 30 and 90 days) and which roles went unused, from the local log `.crew/usage.jsonl`, which each person opts into (`{"telemetry": true}` in `.crew/local.json`, or `CREW_TELEMETRY=1`; `crew.json` can only forbid it). Present it as evidence for the CREW role's routing cost test, never as a verdict on a role.
+
+With `learning` as the first argument, run `node "${CLAUDE_PLUGIN_ROOT}/scripts/metrics.js" learning <record|retro|compare> ...` and present the result:
+
+- `record --kind <feature|defect|refactor|migration> --stage <step of the execution craft> --origin <method | role:<role> | stack:<declared area>>` writes one line to the local log `.crew/learning.jsonl`: date and those three values, nothing else. Use it when a change had to be corrected, naming where the failure started.
+- `retro [--eval <delivery result.json>]` groups the failures that repeat and says where each fix belongs: the project's stack specification for a `stack:` origin, a crew proposal for `method` or a role. A failure seen once is a note, never a proposal.
+- `compare <before.json> <after.json>` takes two delivery-evaluation results and gives the verdict for a proposed change to crew: incorporable only if no task got worse. Attach its output to the proposal; the maintainer decides.
 
 The metric is wall-clock, end-to-end: lead time (file creation via git → last Finished) and execution time (first Started → last Finished). It intentionally includes pauses — it measures the cost of the requirement, not keyboard time.

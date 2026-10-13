@@ -35,7 +35,7 @@ La evaluación también mencionó hallazgos sobre hooks y recibos que vienen de 
 | 003 | [Evaluación de punta a punta con modelos reales](003-end-to-end-evaluation.md) | Delivered | 41 | 001 | Sin medición, cada mejora se valida a ojo |
 | 004 | [Procedimientos de ejecución por tipo de trabajo](004-execution-procedures.md) | Delivered | 22 | 001, 003 | Valen para cualquier stack y se miden con 003 |
 | 005 | [Evidencia atada al estado del código y a los criterios](005-evidence-bound-to-code.md) | Delivered | 28 | 004 | Respalda el "terminado" que producen los procedimientos |
-| 006 | [Aprendizaje que se prueba antes de incorporarse](006-verified-learning.md) | Ready | 25 | 003, 004 | Necesita la suite para probar cada propuesta |
+| 006 | [Aprendizaje que se prueba antes de incorporarse](006-verified-learning.md) | Delivered | 25 | 003, 004 | Necesita la suite para probar cada propuesta |
 | 007 | [Ejecución coordinada de un plan completo](007-coordinated-execution.md) | Ready | 32 | 004, 005 | Paralelizar exige procedimientos y evidencia previos |
 | | **Total pendiente (002 a 007)** | | **157.5** | | |
 

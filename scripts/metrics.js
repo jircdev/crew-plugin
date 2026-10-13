@@ -18,6 +18,7 @@ const { factoryMode } = require("../hooks/lib/factory");
 
 const args = process.argv.slice(2);
 if (args[0] === "catalog") process.exit(require("./catalog-usage").main(args.slice(1)));
+if (args[0] === "learning") process.exit(require("./learning").main(args.slice(1)));
 const csv = args.includes("--csv");
 const period = args.find((a) => /^\d{4}-\d{2}$/.test(a)) || null;
 

@@ -26,6 +26,8 @@ Each task runs in two variants: **crew** (Claude Code with the plugin) and **bar
 
 It spends API money: four tasks × two variants × three runs is 24 agent sessions. Claude Code has to be signed in (or `ANTHROPIC_API_KEY` set).
 
+The agent runs with permissions skipped, with your user rights, your network access and your login. The temporary workspace sets where it starts and does not confine it. That is acceptable because the fixture and the prompts come from this repository: keep them trusted, and never point the fixture or `--agent` at third-party material.
+
 ```bash
 node scripts/eval-delivery.js --runs 3
 ```

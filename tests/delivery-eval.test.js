@@ -85,3 +85,12 @@ test('the report compares crew against no crew per task', () => {
   const md = render({ meta: { pluginVersion: '9.9.9', model: null, runs: 1, date: 'now' }, runs: [run('crew', 4, 0.5), run('bare', 2, 0.3)] });
   assert.match(md, /\| x \| 50% \| 0\.0 \| 0\.0 \| 0\.20 \|/);
 });
+
+test('model and session values that a shell could run are refused', () => {
+  const claude = path.join(root, 'scripts', 'lib', 'eval-claude.js');
+  for (const req of [{ model: 'opus&calc' }, { resume: 'abc|calc' }]) {
+    const run = spawnSync(process.execPath, [claude], { input: JSON.stringify({ prompt: 'x', cwd: os.tmpdir(), ...req }), encoding: 'utf8', windowsHide: true,
+      env: { ...process.env, CREW_EVAL_CLAUDE: 'definitely-not-a-command' } });
+    assert.match(JSON.parse(run.stdout).result, /refused/);
+  }
+});

@@ -8,6 +8,9 @@
 //   node scripts/eval-delivery.js report <result.json> [<previous.json>]
 //
 // Real runs spend API money and need Claude Code signed in (or ANTHROPIC_API_KEY).
+// The agent runs with permissions skipped and the person's full rights, network
+// and login; the temp workspace only sets where it starts. Keep the fixture
+// and any --agent trusted: never point them at third-party material.
 const fs = require('node:fs');
 const path = require('node:path');
 const ws = require('./lib/eval-workspace');
@@ -22,7 +25,10 @@ function parse(argv) {
     if (a === '--tasks') opt.tasks = val().split(',').filter(Boolean);
     else if (a === '--variants') opt.variants = val().split(',').filter(Boolean);
     else if (a === '--runs') opt.runs = Math.max(1, parseInt(val(), 10) || 1);
-    else if (a === '--model') opt.model = val();
+    else if (a === '--model') {
+      opt.model = val();
+      if (!/^[A-Za-z0-9._[\]-]+$/.test(opt.model)) throw new Error(`--model has characters outside the allowed set: ${opt.model}`);
+    }
     else if (a === '--agent') opt.agent = path.resolve(val());
     else if (a === '--out') opt.out = path.resolve(val());
     else if (a === '--keep') opt.keep = true;

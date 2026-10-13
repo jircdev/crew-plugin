@@ -5,8 +5,8 @@
 //     crew.json, which can only forbid it ("telemetry": false);
 //   · one line per event — the DATE (no time of day), the kind, and a catalog
 //     name; names outside the catalog become "other", so no free text lands;
-//   · .crew/ carries its own .gitignore for usage.jsonl, local.json and
-//     audit.log, so the log never reaches the repository by accident;
+//   · .crew/ carries its own .gitignore for usage.jsonl, local.json,
+//     audit.log and learning.jsonl, so the log never reaches the repository by accident;
 //   · retention: lines older than 90 days are pruned on write and ignored on read.
 // Any failure writes nothing.
 const { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } = require("node:fs");
@@ -14,7 +14,7 @@ const { join } = require("node:path");
 
 const RETENTION_DAYS = 90;
 const PLUGIN = join(__dirname, "..", "..");
-const IGNORED = ["usage.jsonl", "local.json", "audit.log"];
+const IGNORED = ["usage.jsonl", "local.json", "audit.log", "learning.jsonl"];
 
 function catalog() {
   const names = (dir, strip) => {
