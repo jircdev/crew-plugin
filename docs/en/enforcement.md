@@ -179,6 +179,20 @@ Guard: [`../../hooks/guard-shell.js`](../../hooks/guard-shell.js) (PreToolUse on
 
 Recursive forced deletes, hard resets, forced pushes, discarding all changes, DROP and TRUNCATE get a **notice** asking the agent to state the exact targets and how to undo it before running. Never a denial: a destructive command is often the right one.
 
+## Production confirmation
+
+Guard: [`../../hooks/guard-production.js`](../../hooks/guard-production.js) (PreToolUse on shell and MCP tools). Active in every project, with or without `crew.json`.
+
+### "Crew: this call names production …"
+
+**Cause.** The call names production and reaches data or infrastructure. For a shell command: the text carries `prod`, `production`, `producción` or `prd` as a whole word (a host like `db-prod-1`, a flag like `--project=acme-prod`, a file like `prod.db`) and runs a database client, a cloud or cluster CLI, a migration tool, a remote shell or a package runner; or an environment selector such as `RAILS_ENV=production` or `--env=prod` is set. For an MCP tool: its name says it queries data or executes something, and its input names production.
+
+**What happens.** The host asks the human to confirm that one call. Read-only queries ask too: a query copies production data into the conversation. The message names the signal and the tool and leaves the command text out, because it can hold credentials.
+
+**Fix.** Confirm only when you mean to act on production and know the exact target and effect. If the match is wrong (a staging host that happens to be called `prod-like`), refuse and rename the target or run the command without the word.
+
+**Limits.** A target hidden in a variable (`psql $DATABASE_URL`) is invisible to the guard; the session baseline covers that case by asking the agent to confirm whenever the context points at production. On an internal error the guard lets the call through and writes a line to stderr.
+
 ## Policy relaxations
 
 Guard: [`../../hooks/guard-policy.js`](../../hooks/guard-policy.js) (PreToolUse on Edit/Write of `crew.json`, `.claude/settings*.json` and Codex config).

@@ -179,6 +179,20 @@ Guard: [`../../hooks/guard-shell.js`](../../hooks/guard-shell.js) (PreToolUse so
 
 Borrados recursivos forzados, resets duros, pushes forzados, descartar todos los cambios, DROP y TRUNCATE reciben un **aviso** que pide nombrar los objetivos exactos y cómo deshacerlo antes de correrlo. Nunca una negación: un comando destructivo muchas veces es el correcto.
 
+## Confirmación ante producción
+
+Guard: [`../../hooks/guard-production.js`](../../hooks/guard-production.js) (PreToolUse sobre herramientas de shell y MCP). Activo en todo proyecto, tenga o no `crew.json`.
+
+### "Crew: this call names production …"
+
+**Causa.** La llamada nombra producción y llega a datos o infraestructura. En un comando de shell: el texto lleva `prod`, `production`, `producción` o `prd` como palabra completa (un host como `db-prod-1`, un flag como `--project=acme-prod`, un archivo como `prod.db`) y corre un cliente de base de datos, una CLI de nube o de clúster, una herramienta de migraciones, una shell remota o un ejecutor de paquetes; o hay un selector de entorno como `RAILS_ENV=production` o `--env=prod`. En una herramienta MCP: su nombre indica que consulta datos o ejecuta algo, y su entrada nombra producción.
+
+**Qué pasa.** El host le pide a la persona que confirme esa llamada. Las consultas de solo lectura también preguntan: una consulta copia datos de producción a la conversación. El mensaje nombra la señal y la herramienta y deja afuera el texto del comando, que puede llevar credenciales.
+
+**Cómo resolverlo.** Confirmar solo cuando la intención es actuar sobre producción y se conocen el objetivo y el efecto exactos. Si la coincidencia es errónea (un host de staging que se llama `prod-like`), rechazar y renombrar el objetivo o correr el comando sin esa palabra.
+
+**Límites.** Un objetivo escondido en una variable (`psql $DATABASE_URL`) es invisible para el guard; lo cubre la base de sesión, que le pide al agente confirmar cada vez que el contexto apunta a producción. Ante un error interno el guard deja pasar la llamada y escribe una línea en stderr.
+
 ## Relajación de políticas
 
 Guard: [`../../hooks/guard-policy.js`](../../hooks/guard-policy.js) (PreToolUse sobre Edit/Write de `crew.json`, `.claude/settings*.json` y la configuración de Codex).

@@ -2,6 +2,15 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [Unreleased]
+
+Work that names production waits for the human. The trigger was a real incident: an analyst's agent ran a query against a production database, and nothing in crew asked first. Reviewed by security-compliance.
+
+- **Production guard** ([`hooks/guard-production.js`](hooks/guard-production.js)): PreToolUse on shell and MCP tools, in every project. A shell command that names production and runs a database client, a cloud or cluster CLI, a migration tool, a remote shell or a package runner, or that sets an environment selector to production, and an MCP tool that queries or executes with production in its input, get `ask`: the host asks the human to confirm that call. Reads ask too. The reason names the signal and the tool, never the command text. Fails open with a line on stderr.
+- **Session baseline**: when the context points at production, the agent names the target and effect and waits for the human's explicit yes before any query or action on it, reads included. One yes covers one action; a subagent hands the target back to its caller. Five sentences elsewhere in the baseline were shortened to keep it within its budget.
+- **`execution` craft, migration**: a rehearsal copy is a database the human identified as one; applying to real data waits for the human's explicit yes.
+- Unverified: whether the host still prompts on `ask` under `bypassPermissions` or in a headless `-p` run, and how Codex treats `ask`.
+
 ## [1.2.0] — 2026-10-13
 
 crew aims at working software, and this version starts measuring it. Each project declares where the knowledge of its stack lives and crew carries the method: a procedure per kind of code change, receipts tied to the code they ran on, every milestone estimated in person and agent hours, plan execution in parallel batches, and a learning loop that accepts a change to crew only with an A/B run of a new end-to-end evaluation. The first baseline of that evaluation is archived: equal acceptance with and without crew, higher cost for crew, on tasks the current model already solves.

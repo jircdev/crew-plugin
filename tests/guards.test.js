@@ -61,6 +61,27 @@ test('destructive commands get a notice and are never denied; Codex argv command
   assert.equal(codex.permissionDecision, 'deny');
 });
 
+test('production guard asks before a data or infra call that names production, with or without crew.json', t => {
+  const prod = (cwd, tool_name, tool_input) => run('guard-production', { cwd, tool_name, tool_input });
+  for (const dir of [fixture(t, { mode: 'solo' }), fixture(t)]) {
+    for (const cmd of ['psql -h db-prod-1 -c "select * from users"', 'mysql -h production.internal -e "select 1"',
+      'gcloud sql connect main --project=acme-prod', 'kubectl --context prod exec api -- ls', 'sqlite3 prod.db "delete from t"',
+      'RAILS_ENV=production bin/rails runner x', 'npm run migrate -- --env=prod', 'psql "postgres://app:s3cret@prd.example.com/app"']) {
+      const out = prod(dir, 'Bash', { command: cmd });
+      assert.equal(out && out.permissionDecision, 'ask', cmd);
+      assert.doesNotMatch(out.permissionDecisionReason, /s3cret|example\.com/, cmd);
+    }
+    assert.equal(prod(dir, 'mcp__pg__execute_sql', { sql: 'select 1', database: 'prod' }).permissionDecision, 'ask');
+    assert.equal(prod(dir, 'shell', { command: ['bash', '-lc', 'psql -h prod-db -c "select 1"'] }).permissionDecision, 'ask');
+  }
+  const dir = fixture(t);
+  for (const cmd of ['psql -h localhost -c "select 1"', 'npm run build', 'git commit -m "fix production bug"', 'grep -r products src', 'cat docs/prod.md']) {
+    assert.equal(prod(dir, 'Bash', { command: cmd }), null, cmd);
+  }
+  assert.equal(prod(dir, 'mcp__trello__create-card', { name: 'production bug in checkout' }), null);
+  assert.equal(prod(dir, 'mcp__pg__execute_sql', { sql: 'select 1', database: 'staging' }), null);
+});
+
 test('policy guard: relaxing crew.json or host settings is denied under team enforce unless registered', t => {
   const dir = fixture(t, { mode: 'team', quality: 'enforce', metrics: true });
   const file = path.join(dir, 'crew.json');

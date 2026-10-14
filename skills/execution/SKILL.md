@@ -51,9 +51,10 @@ This is test-driven development applied where it pays most: the failing test com
 ### Migration
 
 1. **Plan the way back first**: a reverse step, a backup, or a forward fix that is written down. The schema decision belongs to `data-architect`.
-2. **Rehearse on a copy** with realistic rows, including the awkward ones: empty values, duplicates, legacy formats.
+2. **Rehearse on a copy** with realistic rows, including the awkward ones: empty values, duplicates, legacy formats. A copy is a database the human identified as one; when it is unclear which database a connection reaches, ask before running anything.
 3. **Verify the data**: counts and invariants before and after, and a second run that changes nothing.
 4. **Destructive steps go last**, after verification.
+5. **Real data waits for the human's yes.** Applying the migration to production, or to any data that is not the rehearsal copy, needs the human's explicit confirmation in the conversation, after you name the target and the effect.
 
 ## 3. Evidence of done
 
