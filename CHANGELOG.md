@@ -10,6 +10,7 @@ Work that names production waits for the human. The trigger was a real incident:
 - **Session baseline**: when the context points at production, the agent names the target and effect and waits for the human's explicit yes before any query or action on it, reads included. One yes covers one action; a subagent hands the target back to its caller. Five sentences elsewhere in the baseline were shortened to keep it within its budget.
 - **`execution` craft, migration**: a rehearsal copy is a database the human identified as one; applying to real data waits for the human's explicit yes.
 - Unverified: whether the host still prompts on `ask` under `bypassPermissions` or in a headless `-p` run, and how Codex treats `ask`.
+- **Fix, hook registration**: `hooks.json` declared `PostToolUse` and `UserPromptSubmit` twice since 0.30.0. Claude Code reads the file with `JSON.parse`, which keeps only the last block, so activity capture on edits and on prompts never ran. Each event is now one array holding every handler, and [`tests/hooks-json.test.js`](tests/hooks-json.test.js) fails on a repeated key at any depth.
 
 ## [1.2.0] — 2026-10-13
 
