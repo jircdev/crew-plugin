@@ -2,15 +2,29 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
-## [Unreleased]
+## [1.2.1] — 2026-10-14
 
-Work that names production waits for the human. The trigger was a real incident: an analyst's agent ran a query against a production database, and nothing in crew asked first. Reviewed by security-compliance.
+Work that names production waits for the human. The trigger was a real incident: an analyst's agent ran a query against a production database, and nothing in crew asked first. crew never grants permission to run a command; it now asks for confirmation where it had stayed silent. Reviewed by security-compliance.
 
-- **Production guard** ([`hooks/guard-production.js`](hooks/guard-production.js)): PreToolUse on shell and MCP tools, in every project. A shell command that names production and runs a database client, a cloud or cluster CLI, a migration tool, a remote shell or a package runner, or that sets an environment selector to production, and an MCP tool that queries or executes with production in its input, get `ask`: the host asks the human to confirm that call. Reads ask too. The reason names the signal and the tool, never the command text. Fails open with a line on stderr.
+### Added
+
+- **Production guard** ([`hooks/guard-production.js`](hooks/guard-production.js)): PreToolUse on shell and MCP tools, in every project, with or without `crew.json`. A shell command that names production and runs a database client, a cloud or cluster CLI, a migration tool, a remote shell or a package runner, or that sets an environment selector to production, and an MCP tool that queries or executes with production in its input, get `ask`: the host asks the human to confirm that call. Reads ask too. The reason names the signal and the tool, never the command text. Fails open with a line on stderr. Reference: [`docs/en/enforcement.md#production-confirmation`](docs/en/enforcement.md#production-confirmation) / [`docs/es/enforcement.md#confirmación-ante-producción`](docs/es/enforcement.md#confirmación-ante-producción).
 - **Session baseline**: when the context points at production, the agent names the target and effect and waits for the human's explicit yes before any query or action on it, reads included. One yes covers one action; a subagent hands the target back to its caller. Five sentences elsewhere in the baseline were shortened to keep it within its budget.
+
+### Changed
+
 - **`execution` craft, migration**: a rehearsal copy is a database the human identified as one; applying to real data waits for the human's explicit yes.
+
+### Fixed
+
+- **Hook registration**: `hooks.json` declared `PostToolUse` and `UserPromptSubmit` twice since 0.30.0. Claude Code reads the file with `JSON.parse`, which keeps only the last block, so activity capture on edits and on prompts never ran. Each event is now one array holding every handler, and [`tests/hooks-json.test.js`](tests/hooks-json.test.js) fails on a repeated key at any depth.
+
+### Compatibility
+
+- `required: false`. Nothing to configure. Every project starts seeing a confirmation prompt on calls that name production.
+- A target hidden in a variable (`psql $DATABASE_URL`) is invisible to the guard; only the baseline rule covers it.
 - Unverified: whether the host still prompts on `ask` under `bypassPermissions` or in a headless `-p` run, and how Codex treats `ask`.
-- **Fix, hook registration**: `hooks.json` declared `PostToolUse` and `UserPromptSubmit` twice since 0.30.0. Claude Code reads the file with `JSON.parse`, which keeps only the last block, so activity capture on edits and on prompts never ran. Each event is now one array holding every handler, and [`tests/hooks-json.test.js`](tests/hooks-json.test.js) fails on a repeated key at any depth.
+- The retirements announced for 1.3.0 (receipts without a code fingerprint, estimation tables without AI columns) do not happen in this patch.
 
 ## [1.2.0] — 2026-10-13
 

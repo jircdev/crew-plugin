@@ -91,6 +91,13 @@
       "title": "Stack specifications, execution craft, delivery evaluation",
       "summary": "Additive: crew.json stack and testing.criteria, the execution craft, code-bound receipts, /crew:metrics learning, plan execution, two estimates per milestone, and hook managers for the pre-commit gate. Nothing to do: legacy estimation tables and receipts keep working until the next minor version.",
       "doc": "CHANGELOG.md"
+    },
+    {
+      "version": "1.2.1",
+      "required": false,
+      "title": "Production confirmation",
+      "summary": "Calls that name production now ask the human to confirm, in every project; activity capture on edits and prompts runs again. Nothing to configure.",
+      "doc": "CHANGELOG.md"
     }
   ]
 }
