@@ -16,9 +16,10 @@ const PROJECTS = [
   { id: '22222222-3333-4444-8555-666666666666', name: 'Factory', slug: 'factory', color: '#fff', packages: [] },
 ];
 
-// options: { token, person, projects, ingest: status, noMcp: answer 403 on the MCP }
+// options: { token, person, projects, ingest: status, noMcp: answer 403 on the MCP,
+//   tools: { name: (args) => result } for MCP tools beyond whoami; any other name is "not found" }
 function factory(t, options = {}) {
-  const seen = { exchange: [], deleted: 0, mcp: [], intervals: [] };
+  const seen = { exchange: [], deleted: 0, mcp: [], calls: [], intervals: [] };
   const live = options.token || TOKEN;
   const person = options.person || PERSON;
   const challenges = new Map();
@@ -45,10 +46,18 @@ function factory(t, options = {}) {
       if (req.url === '/api/v1/mcp' && options.noMcp) return json(403, {});
       if (req.url === '/api/v1/mcp') {
         const call = JSON.parse(body);
-        seen.mcp.push({ name: call.params.name, accept: req.headers.accept });
-        const result = { person: { ...person, photoUrl: null }, timezone: 'UTC', defaultProjectId: null,
-          projects: options.projects || PROJECTS };
-        return json(200, { jsonrpc: '2.0', id: call.id, result: { content: [{ type: 'text', text: JSON.stringify(result) }] } });
+        if (call.method === 'tools/list') {
+          const names = ['whoami', ...Object.keys(options.tools || {})];
+          return json(200, { jsonrpc: '2.0', id: call.id, result: { tools: names.map((n) => ({ name: n })) } });
+        }
+        const { name, arguments: args } = call.params;
+        seen.mcp.push({ name, accept: req.headers.accept });
+        seen.calls.push({ name, args, raw: body });
+        const whoami = () => ({ person: { ...person, photoUrl: null }, timezone: 'UTC', defaultProjectId: null,
+          projects: options.projects || PROJECTS });
+        const handler = name === 'whoami' ? whoami : (options.tools || {})[name];
+        if (!handler) return json(200, { jsonrpc: '2.0', id: call.id, error: { code: -32602, message: `MCP error -32602: Tool ${name} not found` } });
+        return json(200, { jsonrpc: '2.0', id: call.id, result: { content: [{ type: 'text', text: JSON.stringify(handler(args)) }] } });
       }
       if (req.url === '/api/v1/activity/intervals') {
         seen.intervals.push(...JSON.parse(body).intervals);

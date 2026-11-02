@@ -40,4 +40,13 @@ async function callTool(url, token, name, args = {}, timeoutMs = TIMEOUT_MS) {
   return JSON.parse(text);
 }
 
-module.exports = { callTool, parseRpc, FactoryError };
+// The names of the tools this caller's profile gets. Factory registers a tool
+// only for holders of its ACL action, so absence means no permission.
+async function listTools(url, token, timeoutMs = TIMEOUT_MS) {
+  const res = await postJson(`${url}/mcp`, token, { jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }, timeoutMs, MCP_HEADERS);
+  const msg = res.status >= 200 && res.status < 300 ? parseRpc(res, 1) : null;
+  const tools = msg && msg.result && Array.isArray(msg.result.tools) ? msg.result.tools : [];
+  return new Set(tools.map((t) => t && t.name).filter(Boolean));
+}
+
+module.exports = { callTool, listTools, parseRpc, FactoryError };

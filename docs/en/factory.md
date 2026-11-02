@@ -28,7 +28,14 @@ Connecting is your choice, and it is what turns capture on for you. Without a to
 /crew:factory link
 ```
 
-The agent shows the factory projects you take part in, by name and id. Tell it which one this repository works for. It asks before writing, because `crew.json` is shared by the whole team, and then adds the project id to the file's `factory` block. Commit `crew.json` so everyone else skips this step. The repository needs a `crew.json` first; if it has none, run `/crew:setup`.
+Crew reads the repository's git remote and asks factory which project the repository belongs to. Only the provider and the repository name (`owner/name` on GitHub) leave your machine; a user name or token inside the remote is dropped first. What happens next depends on the answer:
+
+- **The repository is on one of your projects.** Crew adds the project id to the `factory` block of `crew.json` and tells you which project it picked. Nothing to choose.
+- **It is on a project you are not part of.** Crew says so without naming the project and offers to ask for access (`/crew:factory link --request-access`). The request reaches the project's lead or coordinator; once they approve it, run `link` again.
+- **No project has it yet.** The agent shows the projects you take part in and you tell it which one this repository works for. Factory then registers the repository on that project, if you may manage the project's technical assets, so the next person's `link` finds it on its own. If you have permission to create projects, the agent also offers to create a new one (`--create`): it asks for the client and confirms the name before creating it.
+- **The repository has no remote.** You pick from your projects by hand.
+
+The agent asks before writing, because `crew.json` is shared by the whole team. Commit `crew.json` so everyone else skips this step. The repository needs a `crew.json` first; if it has none, run `/crew:setup`.
 
 ```json
 { "factory": { "projectId": "3f0c9a52-…" } }

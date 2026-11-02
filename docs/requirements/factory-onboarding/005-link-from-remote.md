@@ -1,6 +1,6 @@
 # 005 — El vínculo se resuelve desde el repositorio
 
-- **Status:** Draft
+- **Status:** Delivered
 - **Plan:** factory-onboarding ([README](README.md))
 - **Date:** 2026-11-02
 - **Author role:** SYS, con SEC en el remoto, la búsqueda y la creación de proyectos
@@ -13,57 +13,76 @@ Hoy `/crew:factory link` muestra la lista de proyectos de la persona y espera qu
 
 Factory ya guarda los repositorios de cada proyecto como recursos técnicos del proyecto (`provider` y `owner/name` en GitHub), y su base de datos impide que un mismo repositorio pertenezca a dos proyectos.
 
+## Decisiones de Julio (2026-11-02)
+
+- **Cada persona ve solo los proyectos a los que tiene acceso.** La elección manual ofrece solo esos, así que el vínculo que escribe siempre apunta a un proyecto de la persona.
+- **Sin acceso, se pide acceso.** Cuando el repositorio pertenece a un proyecto del que la persona no forma parte, crew le ofrece pedir acceso. La solicitud le llega a quien está a cargo del proyecto: su líder o su coordinador, o el cargo superior de la persona.
+- **El MCP crea proyectos solo para quien tiene permiso para crearlos.** No hay solicitud de alta pendiente: sin permiso, crew dice que los proyectos los crea Gestión.
+
 ## Goal
 
-- `link` lee el remoto del repositorio (`origin`, o el único remoto si hay uno solo) y lo reduce a proveedor y `owner/name`, en minúsculas y sin `.git`. Usuario, token, puerto, parámetros y cualquier ruta extra se descartan antes de que algo salga de la máquina, llegue al chat, a `crew.json` o a un log. Un remoto que no se puede reducir a esa forma se informa como "remoto no reconocido", sin repetirlo.
+- `link` lee el remoto del repositorio (`origin`, o el único remoto si hay uno solo) y lo reduce a proveedor y repositorio: en GitHub, `owner/name`; en otro host, `host/ruta`. En minúsculas y sin `.git`. Usuario, token, puerto, parámetros y cualquier ruta extra se descartan antes de que algo salga de la máquina, llegue al chat, a `crew.json` o a un log. Un remoto que no se puede reducir se informa como "remoto no reconocido", sin repetirlo.
 - Con esa forma reducida pregunta a factory a qué proyecto pertenece el repositorio:
-  - **Un proyecto en el que la persona participa:** escribe el id en `crew.json`, avisa qué hizo y no pregunta nada.
-  - **Un proyecto en el que la persona no participa:** responde siempre lo mismo, sin nombre ni id: el repositorio pertenece a un proyecto de factory del que no forma parte, y puede pedirle a su líder que la sume.
-  - **Ningún proyecto:** muestra los proyectos de la persona y ofrece crear uno nuevo.
-- Cuando la persona elige un proyecto a mano, factory registra el repositorio en ese proyecto si la persona tiene permiso para gestionar sus recursos técnicos. Si no lo tiene, el vínculo queda solo en `crew.json` y `link` dice que el repositorio sigue sin registrar en factory.
-- Crear un proyecto pide el nombre (por defecto, el del repositorio), el cliente (entre los que la persona ve) y la moneda (por defecto, la de la organización). El agente muestra todo y pregunta antes de crearlo. El repositorio queda registrado en el mismo paso. Sin permiso para crear proyectos, `link` dice que los crea Gestión en la aplicación; cuando el proyecto existe, un nuevo `link` lo encuentra solo.
-- Sin remoto, queda la elección manual de hoy.
+  - **Un proyecto de la persona:** escribe el id en `crew.json`, avisa qué hizo y no pregunta nada.
+  - **Un proyecto del que la persona no forma parte:** responde siempre lo mismo, sin nombre ni id, y ofrece pedir acceso. La solicitud viaja con el repositorio reducido; factory sabe a quién mandarla y la persona no ve de qué proyecto se trata.
+  - **Ningún proyecto:** muestra los proyectos de la persona y, si tiene permiso para crearlos, ofrece crear uno nuevo.
+  - **Sin remoto:** la elección manual entre los proyectos de la persona.
+- Al elegir un proyecto a mano, factory registra el repositorio en ese proyecto si la persona puede gestionar sus recursos técnicos. Si no puede, el vínculo queda en `crew.json` y `link` dice que el repositorio sigue sin registrar en factory.
+- Crear un proyecto pide el nombre (por defecto, el del repositorio), el cliente (entre los que la persona ve) y la moneda (por defecto, la de la organización). El agente muestra todo y pregunta antes de crearlo. El repositorio queda registrado en el mismo paso.
 - Un repositorio que ya tiene `factory.projectId` no se toca sin `--replace`.
+
+## Contrato con factory
+
+Herramientas del MCP de factory que usa `link`, acordadas con la sesión que implementa el backend. Factory registra cada herramienta solo para quien tiene su permiso, y crew pregunta primero cuáles tiene la persona (`tools/list`): una herramienta ausente, o una que factory rechaza por permisos, se lee como "sin permiso".
+
+| Herramienta | Entrada | Respuesta |
+|---|---|---|
+| `find_project_by_repo` | `{ provider, repo }` | `{ match: "yours", project: { id, name } }`, `{ match: "other" }` o `{ match: "none" }` |
+| `register_project_repo` | `{ projectId, provider, repo }` | `{ registered: true }`, o `{ registered: false, reason: "forbidden" \| "taken" }` |
+| `list_clients` | `{}` | `{ clients: [{ id, name }], defaultCurrency }`, solo para quien puede crear proyectos |
+| `create_project` | `{ name, clientId, currency, provider, repo }` | `{ project: { id, name } }` |
+| `request_project_access` | `{ provider, repo }` | `{ requested: true }` |
+
+`provider` es `github` u `other`; `repo` es la forma reducida. Factory vuelve a reducir lo que recibe con la misma regla, para que los dos lados no se separen.
 
 ## Areas to investigate
 
-- **Decisión de Julio:** qué escribe la elección manual de alguien sin permiso de gestión. SYS propone escribir `crew.json` como hoy, sin registrar el repositorio en factory. SEC propone que, mientras nadie con permiso confirme el vínculo, solo el tiempo propio de esa persona vaya a ese proyecto, porque un `crew.json` commiteado manda ahí el tiempo de todo el equipo.
-- **Decisión de Julio:** una solicitud de alta pendiente para quien no puede crear proyectos. SYS la saca de este plan: factory no tiene un circuito de aprobación de proyectos, y sumarlo es una entidad nueva con su pantalla para Gestión. Si se quiere, va como requirement propio en factory.
 - Quién registró primero un repositorio ajeno: la base lo impide por unicidad, y la disputa la resuelve Gestión. Confirmar la propiedad del repositorio con la instalación de GitHub queda fuera de este plan.
-- Remotos fuera de GitHub: proveedor `other` con `host/ruta` como id.
+- Si Codex expone las herramientas del MCP igual que Claude Code: `link` llama al MCP directo con el token, así que no depende del agente.
 
 ## Expected deliverable
 
 - Lectura y reducción del remoto en una función pura con tests, incluido un remoto con token.
-- `link` con resolución automática y los cuatro casos.
-- Llamadas a las herramientas nuevas de factory por `hooks/lib/factory-mcp.js`.
+- `link` con resolución automática, pedido de acceso, registro en la elección manual y creación de proyecto.
+- Llamadas a las herramientas de factory por `hooks/lib/factory-mcp.js`.
 - Tests con el factory simulado, documentación EN y ES y paridad Codex.
 
 ## Estimation
 
 | Milestone | Est. hours | Est. AI hours | Started | Finished | Actual hours | Actual AI hours | Notes |
 |-----------|-----------|---------------|---------|----------|--------------|-----------------|-------|
-| Lectura y reducción del remoto | 2 | 0.25 | | | | | |
-| Resolución automática en link y sus cuatro casos | 3 | 0.5 | | | | | |
-| Registro del repositorio en la elección manual | 1.5 | 0.25 | | | | | |
-| Creación de proyecto desde el agente | 2 | 0.25 | | | | | |
-| Tests | 2.5 | 0.5 | | | | | |
-| Docs EN y ES y paridad Codex | 1.5 | 0.25 | | | | | |
-| Revisión de SEC sobre la implementación | 0.5 | 0.25 | | | | | |
+| Lectura y reducción del remoto | 2 | 0.25 | 2026-11-02 20:36 -03:00 | 2026-11-02 20:44 -03:00 | — | — | scripts/lib/repo-remote.js; corta también rutas de GitLab y segmentos de puntos |
+| Resolución automática en link y sus cuatro casos | 3 | 0.5 | — | 2026-11-02 20:44 -03:00 | — | — | scripts/factory-link.js; permisos leídos de tools/list y proyecto de la respuesta validado contra whoami. Inicio no registrado en el momento |
+| Pedido de acceso | 1 | 0.25 | — | 2026-11-02 20:44 -03:00 | — | — | --request-access. Inicio no registrado en el momento |
+| Registro del repositorio en la elección manual | 1.5 | 0.25 | — | 2026-11-02 20:44 -03:00 | — | — | register_project_repo después de escribir crew.json. Inicio no registrado en el momento |
+| Creación de proyecto desde el agente | 2 | 0.25 | — | 2026-11-02 20:44 -03:00 | — | — | Chequeos del vínculo antes de crear; moneda por defecto de list_clients. Inicio no registrado en el momento |
+| Tests | 2.5 | 0.5 | — | 2026-11-02 20:44 -03:00 | — | — | tests/factory-remote.test.js y tests/factory-link-remote.test.js, 13 casos. Inicio no registrado en el momento |
+| Docs EN y ES y paridad Codex | 1.5 | 0.25 | — | 2026-11-02 20:44 -03:00 | — | — | docs/en|es/factory.md, commands/factory.md, CHANGELOG. Inicio no registrado en el momento |
+| Revisión de SEC sobre la implementación | 0.5 | 0.25 | — | 2026-11-02 20:44 -03:00 | — | — | Aprobado con cinco correcciones, todas aplicadas. Inicio no registrado en el momento |
 | Revisión de Julio | 0.5 | 0 | | | | | |
-| **Total** | **13.5** | **2.25** | — | — | | | |
+| **Total** | **14.5** | **2.5** | — | — | | | |
 
 ## Verification
 
 | Scenario | Level | Harness | Artifact | Status |
 |----------|-------|---------|----------|--------|
-| Un remoto con token nunca aparece en la salida, crew.json ni lo que se envía | unit | node:test | tests/factory-link.test.js | not run |
-| Remotos https, ssh y con .git se reducen a la misma forma | unit | node:test | tests/factory-link.test.js | not run |
-| Un repositorio registrado en un proyecto de la persona se vincula sin preguntar | integration | node:test, factory simulado | tests/factory-link.test.js | not run |
-| Un repositorio de un proyecto ajeno devuelve la respuesta opaca, sin nombre ni id | integration | node:test, factory simulado | tests/factory-link.test.js | not run |
-| Sin coincidencia, link lista los proyectos y ofrece crear uno | integration | node:test, factory simulado | tests/factory-link.test.js | not run |
-| Sin permiso de gestión, la elección manual no registra el repositorio en factory | integration | node:test, factory simulado | tests/factory-link.test.js | not run |
-| Sin permiso de creación, link remite a Gestión | integration | node:test, factory simulado | tests/factory-link.test.js | not run |
-| La resolución funciona contra el factory real de dev | e2e | manual | — | not run |
+| Un remoto con token nunca aparece en la salida, crew.json ni lo que se envía | unit | node:test | tests/factory-remote.test.js | passing |
+| Remotos https, ssh y con .git se reducen a la misma forma | unit | node:test | tests/factory-remote.test.js | passing |
+| Un repositorio registrado en un proyecto de la persona se vincula sin preguntar | integration | node:test, factory simulado | tests/factory-link-remote.test.js | passing |
+| Un repositorio de un proyecto ajeno devuelve la respuesta opaca y permite pedir acceso | integration | node:test, factory simulado | tests/factory-link-remote.test.js | passing |
+| Sin coincidencia, link lista los proyectos y ofrece crear uno solo a quien puede | integration | node:test, factory simulado | tests/factory-link-remote.test.js | passing |
+| La elección manual registra el repositorio, o dice que quedó sin registrar | integration | node:test, factory simulado | tests/factory-link-remote.test.js | passing |
+| Crear un proyecto pide cliente y vincula el repositorio | integration | node:test, factory simulado | tests/factory-link-remote.test.js | passing |
+| La resolución funciona contra el factory real de dev | e2e | manual | — | not verified — las herramientas de factory todavía no existen; las implementa la sesión del backend |
 
 ## Changes

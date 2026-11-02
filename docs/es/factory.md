@@ -28,7 +28,14 @@ Conectarte es decisión tuya, y es lo que prende la captura para vos. Sin token,
 /crew:factory link
 ```
 
-El agente muestra los proyectos de factory en los que participás, con nombre e id. Decile para cuál trabaja este repositorio. Pregunta antes de escribir, porque `crew.json` es compartido por todo el equipo, y después agrega el id del proyecto al bloque `factory` del archivo. Commiteá `crew.json` para que el resto se saltee este paso. El repositorio necesita un `crew.json` antes; si no lo tiene, corré `/crew:setup`.
+Crew lee el remoto de git del repositorio y le pregunta a factory a qué proyecto pertenece. De tu máquina sale solo el proveedor y el nombre del repositorio (`owner/name` en GitHub); un usuario o token dentro del remoto se descarta antes. Lo que sigue depende de la respuesta:
+
+- **El repositorio está en uno de tus proyectos.** Crew agrega el id del proyecto al bloque `factory` de `crew.json` y te dice qué proyecto eligió. No tenés que elegir nada.
+- **Está en un proyecto del que no formás parte.** Crew lo dice sin nombrar el proyecto y te ofrece pedir acceso (`/crew:factory link --request-access`). La solicitud le llega al líder o coordinador del proyecto; cuando la aprueba, corré `link` de nuevo.
+- **Ningún proyecto lo tiene todavía.** El agente muestra los proyectos en los que participás y le decís para cuál trabaja este repositorio. Factory registra entonces el repositorio en ese proyecto, si podés gestionar sus recursos técnicos, para que el `link` de la próxima persona lo encuentre solo. Si tenés permiso para crear proyectos, el agente también te ofrece crear uno nuevo (`--create`): te pide el cliente y confirma el nombre antes de crearlo.
+- **El repositorio no tiene remoto.** Elegís a mano entre tus proyectos.
+
+El agente pregunta antes de escribir, porque `crew.json` es compartido por todo el equipo. Commiteá `crew.json` para que el resto se saltee este paso. El repositorio necesita un `crew.json` antes; si no lo tiene, corré `/crew:setup`.
 
 ```json
 { "factory": { "projectId": "3f0c9a52-…" } }

@@ -46,7 +46,8 @@ test('link with an id writes projectId, keeping the other keys, the indentation 
   assert.notEqual(text.charCodeAt(0), 0xfeff);
   assert.match(text, /\n {4}"mode": "team"/);
   assert.deepEqual(JSON.parse(text), { mode: 'team', quality: 'advise', factory: { capture: true, url: fake.api, projectId: FACTORY.id } });
-  assert.match((await link(s, fake, [])).stdout, /Factory — .* \(linked here\)/);
+  assert.match((await link(s, fake, [])).stdout, /already linked to the factory project Factory/);
+  assert.match((await link(s, fake, ['--replace'])).stdout, /Factory — .* \(linked here\)/);
 });
 
 test('link refuses without crew.json, for a project that is not the person\'s, and over another link without --replace', async t => {
@@ -91,5 +92,5 @@ test('a token factory refuses gets a sentence the person can act on', async t =>
   const fake = await factory(t, { token: 'fct_someone_else' });
   const out = await link(setup(t, fake), fake, []);
   assert.equal(out.status, 1);
-  assert.match(out.stdout, /Could not list your projects: factory rejected the token/);
+  assert.match(out.stdout, /Could not reach your projects: factory rejected the token/);
 });
