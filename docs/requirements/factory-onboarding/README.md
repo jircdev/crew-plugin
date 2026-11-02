@@ -27,7 +27,8 @@ El plan deja un camino de dos pasos para una persona nueva o un proyecto nuevo: 
 | 002 | [Vincular un repo a su proyecto de factory](002-link-repo.md) | Delivered | 8 | 1.5 | — | Es el segundo paso del camino feliz |
 | 003 | [Avisos que la persona ve](003-visible-alerts.md) | Delivered | 6.5 | 1 | 001, 002 | Lee el estado que dejan 001 y 002 |
 | 004 | [Recuperar tiempo desde las transcripciones](004-backfill.md) | Delivered | 14 | 2.5 | 001, 002 y los cambios en factory | Reusa las reglas de intervalos y necesita la deduplicación de factory antes de enviar |
-| | **Total estimado (001 a 004)** | | **37.5** | **6.5** | | |
+| 005 | [El vínculo se resuelve desde el repositorio](005-link-from-remote.md) | Draft | 13.5 | 2.25 | 002 y el vínculo automático en factory | Pedido de Julio el 2026-11-02, después de entregar 001 a 004 |
+| | **Total estimado (001 a 005)** | | **51** | **8.75** | | |
 
 ## Cambios en factory (fuera de este repo)
 
@@ -38,7 +39,16 @@ Estos cambios pertenecen al repo de factory. El plan los describe y se detiene a
 3. **Períodos de consentimiento.** La ingesta rechaza intervalos fuera de los períodos en que la persona tuvo un token vigente, según el historial de tokens de factory. Esta regla solo puede hacerse cumplir del lado del servidor.
 
 4. **Texto de consentimiento.** La página de aprobación del login dice que el tiempo registrado después de que el token vence se guarda en la máquina y se envía en el próximo login. SEC lo pidió como condición de esa decisión.
-5. **Identidad en `/access-tokens/self`.** Hoy devuelve solo el nombre de la persona. El login usa el id de persona de `whoami` para confirmar que la cola es de la misma persona, y cae al nombre cuando el perfil no tiene acceso al MCP. Devolver el id de persona en `/self` cierra ese hueco.
+5. **Identidad en `/access-tokens/self`.** Hoy devuelve solo el nombre de la persona. El login confirma que la cola es de la misma persona con el id de persona de `whoami`; un nombre nunca alcanza, porque dos personas pueden compartirlo. Cuando el MCP no responde, la cola queda aparte. Devolver el id de persona en `/self` permite confirmarlo sin el MCP.
+
+## Vínculo automático en factory
+
+La parte de factory del [requirement 005](005-link-from-remote.md), definida con SYS y SEC:
+
+6. **`find_project_by_repo` en el MCP**, con el permiso de listar proyectos. Recibe proveedor y `owner/name` (o una URL, que factory reduce con la misma regla) y busca entre los recursos técnicos de tipo repositorio de todos los proyectos, comparando en minúsculas. Devuelve nombre e id solo si la persona participa del proyecto; si no, una respuesta opaca igual para cualquier proyecto.
+7. **Registrar el repositorio en la elección manual**, por el mismo circuito y permisos que la ruta de recursos técnicos (ver y actualizar el proyecto). Si la unicidad lo rechaza, la respuesta es la misma respuesta opaca.
+8. **`create_project` en el MCP**, con el permiso de crear proyectos y verificado otra vez al ejecutarse. Recibe nombre, cliente y moneda, y registra el repositorio en la misma transacción. Quien lo crea queda como primer miembro. No recibe presupuesto, paquetes ni otras personas: eso se completa en la aplicación.
+9. **Registro de auditoría** de búsquedas sin resultado, vínculos, creaciones y rechazos por unicidad: quién, con qué token, qué repositorio reducido, qué proyecto, cuándo y con qué resultado. Nunca guarda el remoto crudo.
 
 ## Hallazgo durante la implementación
 
