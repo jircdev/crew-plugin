@@ -17,6 +17,11 @@ function crewHome() {
 
 const tokenFile = () => join(crewHome(), "factory-token");
 const rejectedFile = () => join(crewHome(), "factory-token.rejected");
+// What login learned about the token: when it expires, when the person
+// connected, who they are and which factory issued it. No secret here.
+const metaFile = () => join(crewHome(), "factory-token.json");
+// A 401 this close to the expiry is the expiry, not a revocation.
+const EXPIRY_SKEW_MS = 5 * 60000;
 const fingerprint = (token) => createHash("sha256").update(token).digest("hex");
 
 function factoryMode(cfg) {
@@ -37,32 +42,53 @@ function factoryToken() {
   }
 }
 
-// Owner-only file: 0600 on POSIX; on Windows the ACL drops inheritance and
-// grants the current user alone.
-function saveToken(token) {
-  fs.mkdirSync(crewHome(), { recursive: true });
-  const file = tokenFile();
-  fs.writeFileSync(file, `${token}\n`, { mode: 0o600 });
+// Owner-only: 0600 files and 0700 folders on POSIX; on Windows the ACL drops
+// inheritance and grants the current user alone (a folder passes it on).
+function restrictToOwner(path, folder = false) {
   if (process.platform === "win32") {
-    execFileSync("icacls", [file, "/inheritance:r", "/grant:r", `${os.userInfo().username}:F`],
-      { stdio: "ignore" });
+    const grant = `${os.userInfo().username}:${folder ? "(OI)(CI)F" : "F"}`;
+    execFileSync("icacls", [path, "/inheritance:r", "/grant:r", grant], { stdio: "ignore" });
   } else {
-    fs.chmodSync(file, 0o600);
+    fs.chmodSync(path, folder ? 0o700 : 0o600);
   }
+}
+
+function writeOwnerOnly(file, text) {
+  fs.mkdirSync(crewHome(), { recursive: true });
+  fs.writeFileSync(file, text, { mode: 0o600 });
+  restrictToOwner(file);
+}
+
+// meta: { expiresAt, connectedAt, person, api }, as login learned them.
+function saveToken(token, meta = {}) {
+  const file = tokenFile();
+  writeOwnerOnly(file, `${token}\n`);
+  writeOwnerOnly(metaFile(), JSON.stringify({ ...meta, fingerprint: fingerprint(token) }));
   fs.rmSync(rejectedFile(), { force: true });
   return file;
+}
+
+// The stored metadata, whichever token it describes (login compares owners).
+function storedMeta() {
+  try { return JSON.parse(fs.readFileSync(metaFile(), "utf8")); } catch { return null; }
+}
+
+// Metadata only counts for the token it was written with.
+function tokenMeta(token) {
+  const meta = storedMeta();
+  return meta && token && meta.fingerprint === fingerprint(token) ? meta : null;
 }
 
 function forgetToken() {
   fs.rmSync(tokenFile(), { force: true });
   fs.rmSync(rejectedFile(), { force: true });
+  fs.rmSync(metaFile(), { force: true });
 }
 
-// A 401 means the token was revoked or expired: revoking is how a person
-// pauses capture. Only its fingerprint is kept, so a new token resumes it.
+// A 401 means the token was revoked or expired. Only its fingerprint is
+// kept, so a new token resumes capture.
 function markRejected(token) {
-  fs.mkdirSync(crewHome(), { recursive: true });
-  fs.writeFileSync(rejectedFile(), fingerprint(token));
+  writeOwnerOnly(rejectedFile(), fingerprint(token));
 }
 
 function isRejected(token) {
@@ -73,14 +99,29 @@ function isRejected(token) {
   }
 }
 
+function expired(token, now) {
+  const at = Date.parse((tokenMeta(token) || {}).expiresAt);
+  return !Number.isNaN(at) && now >= at - EXPIRY_SKEW_MS;
+}
+
+// "live", "expired" or "revoked". Factory answers 401 to both an expired and
+// a revoked token; the expiry date login stored tells them apart. A token
+// with no stored date (pasted by hand) that factory rejects counts as revoked.
+function tokenState(token, now = Date.now()) {
+  if (expired(token, now)) return "expired";
+  return isRejected(token) ? "revoked" : "live";
+}
+
 // Capture is paused by the person (CREW_CAPTURE=off, no token, a revoked
-// token), or by the project (capture: false).
-function captureToken(cfg) {
+// token), or by the project (capture: false). An expired token keeps
+// recording locally, because the date it expires is one the person never
+// chose; the next login sends what was kept.
+function captureToken(cfg, now = Date.now()) {
   if (!factoryMode(cfg)) return null;
   if ((process.env.CREW_CAPTURE || "").toLowerCase() === "off") return null;
   if (cfg.factory.capture === false) return null;
   const token = factoryToken();
-  return token && !isRejected(token) ? token : null;
+  return token && tokenState(token, now) !== "revoked" ? token : null;
 }
 
 // One request with a hard timeout. Resolves { status, body, type, headers }
@@ -111,6 +152,6 @@ const postJson = (url, token, payload, timeoutMs, extraHeaders) =>
   request("POST", url, token, payload, timeoutMs, extraHeaders);
 
 module.exports = {
-  crewHome, factoryMode, factoryApi, factoryToken, saveToken, forgetToken,
-  markRejected, isRejected, captureToken, request, postJson,
+  crewHome, factoryMode, factoryApi, factoryToken, saveToken, forgetToken, storedMeta, tokenMeta,
+  restrictToOwner, markRejected, isRejected, tokenState, captureToken, request, postJson,
 };

@@ -226,11 +226,11 @@ A project whose activities and work time are managed in factory declares it with
 
 | Key | Required | Default | Meaning |
 |---|---|---|---|
-| `projectId` | yes | — | The factory project this repository works for. A block without it is incomplete: session start names it, and everything behaves as if the block were absent. |
+| `projectId` | yes | — | The factory project this repository works for; `/crew:factory link` writes it. A block without it is incomplete: session start names it, and everything behaves as if the block were absent. A block with only `"capture": false` is complete: it marks a repository that is never captured. |
 | `environment` | no | `prod` | Which factory: `prod` (`https://api.factory.balearesgroup.com/api/v1`) or `dev` (`https://api.dev.factory.balearesgroup.com/api/v1`). An unknown name falls back to `prod`, and session start says so. |
 | `url` | no | — | A full API base for any other host (a local factory, for instance). It takes the place of `environment`. |
 | `web` | no | — | The web base where people approve `/crew:factory login`, when `url` points somewhere without a known web address. |
-| `capture` | no | `true` | Whether the activity hooks record work time for this project. `false` pauses capture for everyone working in the repository. |
+| `capture` | no | `true` | Whether the activity hooks record work time for this project. `false` pauses capture for everyone working in the repository and silences the reminder to link it. |
 
 A person can point their own machine elsewhere without editing the shared file: `CREW_FACTORY_ENV` (`prod` or `dev`) or `CREW_FACTORY_URL` (a full API base), plus `CREW_FACTORY_WEB_URL` for the web. Machine variables win over `crew.json`.
 

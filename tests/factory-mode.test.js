@@ -46,6 +46,7 @@ test('crew.json factory block normalizes url, environment, capture and a missing
   assert.equal(bare.factory.capture, true);
   assert.deepEqual(loadConfig(fixture(t, { factory: { ...FACTORY, environment: 'qa' } })).factory.unknown, ['environment=qa']);
   assert.deepEqual(loadConfig(fixture(t, { factory: {} })).factory.unknown, ['projectId=missing']);
+  assert.deepEqual(loadConfig(fixture(t, { factory: { capture: false } })).factory.unknown, []);
   assert.equal(loadConfig(fixture(t, { mode: 'team' })).factory, null);
 });
 

@@ -226,11 +226,11 @@ Un proyecto cuyas actividades y tiempo de trabajo se gestionan en factory lo dec
 
 | Clave | Obligatoria | Default | Significado |
 |---|---|---|---|
-| `projectId` | sí | — | El proyecto de factory para el que trabaja este repositorio. Un bloque sin él está incompleto: el arranque de sesión lo nombra, y todo se comporta como si el bloque no existiera. |
+| `projectId` | sí | — | El proyecto de factory para el que trabaja este repositorio; lo escribe `/crew:factory link`. Un bloque sin él está incompleto: el arranque de sesión lo nombra, y todo se comporta como si el bloque no existiera. Un bloque con solo `"capture": false` está completo: marca un repositorio que nunca se captura. |
 | `environment` | no | `prod` | Qué factory: `prod` (`https://api.factory.balearesgroup.com/api/v1`) o `dev` (`https://api.dev.factory.balearesgroup.com/api/v1`). Un nombre desconocido cae en `prod` y el arranque de sesión lo avisa. |
 | `url` | no | — | Una base de API completa para cualquier otro host (un factory local, por ejemplo). Reemplaza a `environment`. |
 | `web` | no | — | La base web donde las personas aprueban `/crew:factory login`, cuando `url` apunta a un lugar sin dirección web conocida. |
-| `capture` | no | `true` | Si los hooks de actividad registran el tiempo de trabajo de este proyecto. `false` pausa la captura para todas las personas que trabajan en el repositorio. |
+| `capture` | no | `true` | Si los hooks de actividad registran el tiempo de trabajo de este proyecto. `false` pausa la captura para todas las personas que trabajan en el repositorio y calla el recordatorio de vincularlo. |
 
 Una persona puede apuntar su propia máquina a otro lado sin editar el archivo compartido: `CREW_FACTORY_ENV` (`prod` o `dev`) o `CREW_FACTORY_URL` (una base de API completa), más `CREW_FACTORY_WEB_URL` para la web. Lo de la máquina gana sobre `crew.json`.
 

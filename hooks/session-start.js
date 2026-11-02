@@ -63,27 +63,16 @@ function pendingRequired(from) {
   }
 }
 
-// Factory capture health, one line at most. A missing token is the person's
-// choice and stays silent; a rejected token, an unreachable factory or a
-// missing person record are worth one line per session.
+// Factory capture health, one line at most, in the same words the person
+// sees from the capture hook (hooks/lib/factory-alerts.js). A missing token
+// is the person's choice and stays silent.
 function factoryLines(config) {
-  const { factoryMode, factoryToken, isRejected } = require("./lib/factory");
-  if (!factoryMode(config)) return [];
   const { resolveFactory } = require("./lib/factory-env");
-  const { readStatus } = require("./lib/activity-queue");
-  const target = resolveFactory(config.factory);
+  const { factoryAlert } = require("./lib/factory-alerts");
+  const target = config.factory ? resolveFactory(config.factory) : {};
   const out = target.warning ? [`- Factory: ${target.warning}.`] : [];
-  const token = factoryToken();
-  if (!token) return out;
-  const problem = isRejected(token) ? "rejected" : readStatus().problem;
-  const text = {
-    rejected: "factory rejected this machine's token (revoked or expired), so capture is paused. " +
-      "Run `/crew:factory login` to resume it.",
-    unreachable: `factory (${target.api}) did not answer; captured time stays queued on this machine for up to 45 days.`,
-    unavailable: `factory (${target.api}) answered with an error; captured time stays queued on this machine for up to 45 days.`,
-    "no-person": "factory has no person record for this token's user; captured time stays queued until one is linked.",
-  }[problem];
-  if (text) out.push(`- Factory: ${text}`);
+  const alert = factoryAlert(config);
+  if (alert) out.push(`- Factory: ${alert.text}`);
   return out;
 }
 

@@ -6,26 +6,27 @@
 // login: opens factory in the browser, where the person reads what capture
 // records and approves. Factory hands a one-time code (never the token) to a
 // listener on 127.0.0.1; crew trades code + PKCE verifier for the token and
-// stores it owner-only. Everything printed here ends up in the chat, so the
-// token is never printed.
+// stores it owner-only, with its expiry and whose it is. Time queued while an
+// earlier token was expired is sent right away when it is the same person on
+// the same factory. Everything printed here ends up in the chat, so the token
+// is never printed.
 const http = require("node:http");
 const os = require("node:os");
 const { randomBytes, createHash, timingSafeEqual } = require("node:crypto");
 const { execFile } = require("node:child_process");
 const { loadConfig } = require("../hooks/lib/config");
 const { resolveFactory } = require("../hooks/lib/factory-env");
-const { factoryToken, saveToken, forgetToken, request, crewHome } = require("../hooks/lib/factory");
+const { saveToken, request, crewHome } = require("../hooks/lib/factory");
+const { identify, adoptQueue, metaFor, previousMeta, unwrap } = require("./lib/factory-connect");
+const { status, logout } = require("./lib/factory-account");
 
 const TIMEOUT_MS = Number(process.env.CREW_LOGIN_TIMEOUT_MS) || 5 * 60000;
 const HTTP_MS = 10000;
 // How long the browser waits on the callback while the code is exchanged.
 const FINISH_MS = HTTP_MS + 2000;
 const b64url = (buf) => buf.toString("base64url");
-// factory answers {success, data} on success and {status:false, error:{message}}
-// on failure; error messages carry no secrets, so they are relayed as-is.
-const unwrap = (body) => {
-  try { const json = JSON.parse(body); return (json && json.data) || json || {}; } catch { return {}; }
-};
+// factory answers {status:false, error:{message}} on failure; error messages
+// carry no secrets, so they are relayed as-is.
 const errorOf = (body) => {
   try { return (JSON.parse(body).error || {}).message || ""; } catch { return ""; }
 };
@@ -107,6 +108,7 @@ function waitForCallback(state, onListen, web) {
 }
 
 async function login(target) {
+  const previous = previousMeta();
   const verifier = b64url(randomBytes(32));
   const challenge = b64url(createHash("sha256").update(verifier).digest());
   const state = b64url(randomBytes(32));
@@ -133,47 +135,20 @@ async function login(target) {
       const why = res.status === 429 ? "too many attempts, wait a minute" : errorOf(res.body) || `HTTP ${res.status}`;
       return fail(`factory did not complete the connection (${why}). Run the login again`);
     }
-    file = saveToken(data.token);
+    file = saveToken(data.token, metaFor(target, data, null, null));
   } catch (error) {
     finish("failed");
     throw error;
   }
   finish("connected");
+  // After the browser is answered: these calls may take a few seconds.
+  const who = await identify(target, data.token);
+  saveToken(data.token, metaFor(target, data, who.person, previous));
+  const queue = await adoptQueue(target, data.token, previous, who.person);
   console.log(`Connected to factory ${target.name}. Token stored owner-only in ${file}` +
     (data.expiresAt ? `; it expires on ${String(data.expiresAt).slice(0, 10)}.` : "."));
+  if (queue) console.log(queue);
   if (process.env.FACTORY_TOKEN) console.log("Note: FACTORY_TOKEN is set in this environment and takes precedence over the stored token.");
-  return 0;
-}
-
-async function status(target) {
-  const token = factoryToken();
-  if (!token) return say(`Not connected to factory ${target.name}. Run /crew:factory login.`);
-  try {
-    const res = await request("GET", `${target.api}/access-tokens/self`, token, undefined, HTTP_MS);
-    if (res.status === 401) return say(`The token on this machine was rejected by factory ${target.name} (revoked or expired). Run /crew:factory login.`);
-    const data = unwrap(res.body);
-    if (res.status >= 200 && res.status < 300) {
-      return say(`Connected to factory ${target.name} as ${data.personName || "this person"}` +
-        (data.expiresAt ? `, token expires on ${String(data.expiresAt).slice(0, 10)}.` : "."));
-    }
-    return say(`A token is stored, but factory ${target.name} answered HTTP ${res.status} when checking it.`);
-  } catch {
-    return say(`A token is stored, but factory ${target.name} (${target.api}) did not answer.`);
-  }
-}
-
-async function logout(target) {
-  const token = factoryToken();
-  if (!token) return say("This machine has no factory token.");
-  let revoked = false;
-  try {
-    const res = await request("DELETE", `${target.api}/access-tokens/self`, token, undefined, HTTP_MS);
-    revoked = (res.status >= 200 && res.status < 300) || res.status === 401;
-  } catch { /* offline: local copy still goes */ }
-  forgetToken();
-  console.log(revoked ? "Disconnected: the token was revoked in factory and removed from this machine."
-    : "Removed the token from this machine. Factory could not confirm the revocation; revoke it in factory: Mis horas → Conectar con la IA.");
-  if (process.env.FACTORY_TOKEN) console.log("FACTORY_TOKEN is still set in this environment; unset it to stop using it.");
   return 0;
 }
 
@@ -188,7 +163,7 @@ async function main() {
   const run = { login, status, logout }[action];
   if (!run) return say(`Usage: /crew:factory login | status | logout (state lives in ${crewHome()}).`);
   try {
-    return await run(target);
+    return await run(target, cfg);
   } catch (error) {
     return fail(error.message);
   }

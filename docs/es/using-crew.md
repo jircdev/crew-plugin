@@ -14,7 +14,7 @@ En Claude Code cada comando se escribe `/crew:<nombre>`. En Codex se elige la sk
 | `/crew:doctor` | Revisa la instalación del proyecto sin cambiar nada. `repair` restaura archivos faltantes del scaffold y la puerta pre-commit (con un gestor de hooks como Lefthook o husky revisa su configuración e imprime el job a agregar; crew nunca la edita); `uninstall` quita lo que escribió crew. Ambos aceptan `--dry-run` y nunca tocan un archivo que editaste. | [installation.md](installation.md#después-de-instalar--elige-el-modo-del-proyecto) |
 | `/crew:adopt [capacidad]` | Extrae en `docs/as-is/` lo que hace hoy un sistema existente. | [Onboarding de un proyecto existente](#onboarding-de-un-proyecto-existente) |
 | `/crew:metrics [AAAA-MM]` | Reporte de estimación: lead time, tiempo de ejecución y desvío; `--csv` lo exporta. `/crew:metrics catalog` informa el uso de roles, skills y comandos; `/crew:metrics learning record\|retro\|compare` registra dónde empezaron las correcciones y da el veredicto A/B de un cambio a crew. En modo factory muestra el backlog de factory. | [metrics.md](metrics.md), [aprendizaje verificado](metrics.md#aprendizaje-verificado) |
-| `/crew:factory [login\|status\|logout]` | Conecta esta máquina con factory, dice con qué factory habla y como quién, o la desconecta. Solo para proyectos cuyo `crew.json` declara un bloque `factory`. | [factory.md](factory.md) |
+| `/crew:factory [login\|link\|status\|backfill\|logout]` | Conecta esta máquina a factory, vincula el repositorio con su proyecto de factory, dice con qué factory habla y con qué persona, reconstruye tiempo perdido desde las transcripciones locales, o la desconecta. | [factory.md](factory.md) |
 
 ## Configurar un proyecto nuevo
 

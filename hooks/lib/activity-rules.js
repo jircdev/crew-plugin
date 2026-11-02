@@ -35,14 +35,18 @@ function taskHintFor(configRoot, filePath, cwd) {
   return taskId ? { taskId, ...hint } : hint;
 }
 
+// ctx.newId(kind, from, to): live capture draws a random id; a rebuild from
+// transcripts derives it from the session and the stretch, so a rerun
+// produces the same ids. ctx.source marks rebuilt intervals.
 function makeInterval(kind, from, to, state, ctx) {
   return {
-    id: ctx.newId(),
+    id: ctx.newId(kind, from, to),
     kind,
     startedAt: new Date(from).toISOString(),
     endedAt: new Date(to).toISOString(),
     sessionId: ctx.sessionId,
     projectId: ctx.projectId,
+    ...(ctx.source ? { source: ctx.source } : {}),
     ...(state.taskHint || {}),
   };
 }

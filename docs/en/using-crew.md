@@ -14,7 +14,7 @@ In Claude Code each command is typed `/crew:<name>`. In Codex you pick the skill
 | `/crew:doctor` | Checks the project's install without changing anything. `repair` restores missing scaffold files and the pre-commit gate (under a hook manager such as Lefthook or husky it checks the manager's config and prints the job to add; crew never edits it); `uninstall` removes what crew wrote. Both accept `--dry-run` and never touch a file you edited. | [installation.md](installation.md#after-installing--choose-the-project-mode) |
 | `/crew:adopt [capability]` | Extracts into `docs/as-is/` what an existing system does today. | [Onboard an existing project](#onboard-an-existing-project) |
 | `/crew:metrics [YYYY-MM]` | Estimation report: lead time, execution time and deviation; `--csv` exports it. `/crew:metrics catalog` reports how roles, skills and commands are used; `/crew:metrics learning record\|retro\|compare` records where corrections started and gives the A/B verdict of a change to crew. In factory mode it shows factory's backlog. | [metrics.md](metrics.md), [verified learning](metrics.md#verified-learning) |
-| `/crew:factory [login\|status\|logout]` | Connects this machine to factory, says which factory it talks to and as whom, or disconnects it. Only for projects whose `crew.json` declares a `factory` block. | [factory.md](factory.md) |
+| `/crew:factory [login\|link\|status\|backfill\|logout]` | Connects this machine to factory, links the repository to its factory project, says which factory it talks to and as whom, rebuilds lost work time from local transcripts, or disconnects it. | [factory.md](factory.md) |
 
 ## Set up a new project
 

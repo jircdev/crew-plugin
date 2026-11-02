@@ -10,24 +10,40 @@ Some projects keep their work and their work time in factory, Baleares' manageme
 
 ## Setting it up
 
-**1. The project declares it (once, whoever configures the repository).** `crew.json` gets a `factory` block with the factory project id. **Factory's production environment is not ready yet:** for now also declare `"environment": "dev"`, with the project's id in factory's development environment, which can differ from the production one. Reference: [configuration.md](configuration.md#factory-mode).
+Two steps, both typed in the chat. The first is once per machine; the second is once per repository, and whoever does it first commits the result for the team.
 
-```json
-{ "factory": { "projectId": "3f0c9a52-…" } }
-```
-
-**2. You connect your machine (once per person and machine).** In the chat, type:
+**1. Connect your machine.**
 
 ```
 /crew:factory login
 ```
 
-Factory opens in the browser. Read what capture records, approve, and go back to the chat. Crew receives your personal token and keeps it in `~/.crew/factory-token`, readable only by your user. The token never appears in the chat. Never paste it there: anything written in the conversation is stored with it.
-
-- `/crew:factory status` tells you which factory you are connected to, as whom, and when the token expires (after 90 days).
-- `/crew:factory logout` revokes the token in factory and removes it from your machine.
+Factory opens in the browser. Read what capture records, approve, and go back to the chat. Crew receives your personal token and keeps it in `~/.crew/factory-token`, readable only by your user, together with the date it expires and the date you connected. The token never appears in the chat. Never paste it there: anything written in the conversation is stored with it.
 
 Connecting is your choice, and it is what turns capture on for you. Without a token, the plugin records nothing about you, not even locally. Before a team turns capture on, its people must be formally notified (see factory's work-tracking guide). Until factory has that notice on record, the approval page shows capture as blocked and the login ends without connecting; ask Gestión for the formal notice.
+
+**2. Link the repository to its factory project.**
+
+```
+/crew:factory link
+```
+
+The agent shows the factory projects you take part in, by name and id. Tell it which one this repository works for. It asks before writing, because `crew.json` is shared by the whole team, and then adds the project id to the file's `factory` block. Commit `crew.json` so everyone else skips this step. The repository needs a `crew.json` first; if it has none, run `/crew:setup`.
+
+```json
+{ "factory": { "projectId": "3f0c9a52-…" } }
+```
+
+**Factory's production environment is not ready yet.** For now the team works against `dev`: set `CREW_FACTORY_ENV=dev` on your machine before the login, and the first person to link the repository adds `--set-environment` so `crew.json` gets `"environment": "dev"` along with the project id.
+
+Project ids differ between factory's environments. When your machine points at another environment than the one in `crew.json` (see [Which factory you talk to](#which-factory-you-talk-to)), `link` stops and says so; it writes the environment into `crew.json` only when you ask for it. A repository already linked to another project changes only on request, too.
+
+**Checking and disconnecting.**
+
+- `/crew:factory status` tells you which factory you are connected to, as whom, when the token expires (after 90 days), how much captured time is waiting on your machine, and which project the current repository is linked to.
+- `/crew:factory logout` revokes the token in factory and removes it from your machine, together with any time still waiting to be sent.
+
+A repository that should never be captured says so in its `crew.json` with `"factory": { "capture": false }`. That also silences the reminder to link it.
 
 **Manual fallback.** You can also create the token in factory (**Mis horas → Conectar con la IA**, shown once) and put it in the `FACTORY_TOKEN` environment variable or in `~/.crew/factory-token`, typing it in your own terminal.
 
@@ -67,16 +83,48 @@ In Codex the same hooks run on the events Codex emits. The work item comes from 
 
 ## When factory has a problem
 
-A factory problem never breaks or slows your session. The capture hooks always finish silently, and they only talk to factory when a session starts, when the agent finishes an answer and when the session ends, with a 2.5-second limit.
+A factory problem never breaks or slows your session. The capture hooks only talk to factory when a session starts, when the agent finishes an answer and when the session ends, with a 2.5-second limit.
 
 | Situation | What happens |
 |---|---|
 | Factory does not answer, or answers with a server error | Intervals stay in a local queue (`~/.crew/activity/queue.jsonl`) and go out on the next attempt. Anything older than 45 days is discarded, matching factory's own retention. |
-| Factory has no person record for your user | Intervals stay queued until an administrator links one. |
-| Your token was revoked or expired | Capture pauses and the local queue is deleted, because revoking is how a person pauses capture. It resumes when you connect again. |
+| Factory has no person record for your user | Intervals stay queued until Gestión links one. |
+| Your token expired | Capture keeps recording on your machine, because the expiry date is one you never chose. Nothing is sent until you run `/crew:factory login` again; that login sends the queue at once, as long as factory confirms it is the same person on the same factory. Time queued for another account or another factory is discarded. When factory cannot say who you are at that login, the time is kept aside until a login that can. |
+| Your token was revoked (by you or by an administrator) | Capture pauses and the local queue is deleted, because revoking is how a person pauses capture. It resumes when you connect again. |
 | Factory refuses an interval as invalid | That batch is discarded. |
 
-Each of these leaves one line in `~/.crew/activity/errors.log`, with the time, the HTTP code and the number of intervals. The log never holds interval contents or tokens. When something needs your attention, the next session start shows one short line about it.
+Crew tells an expired token from a revoked one by the expiry date the login stored. A token created by hand in factory has no stored date, so when factory refuses it, crew treats it as revoked.
+
+Each of these leaves one line in `~/.crew/activity/errors.log`, with the time, the HTTP code and the number of intervals. The log never holds interval contents or tokens. The whole `~/.crew/activity/` folder is readable by your user only, since it describes when you work.
+
+**What you see.** When capture needs you, a one-line message from crew appears in your session: at the start of a session, and at the end of an answer when sending meets a new problem. It shows up in five situations, each with the command that solves it:
+
+- **Token revoked**: factory refused the token before its expiry date. Run `/crew:factory login`.
+- **Token expired**: the token passed its expiry date. Your time is still being recorded; run `/crew:factory login` to send it.
+- **Token about to expire**: less than seven days remain. Logging in again before then keeps capture running without a gap.
+- **No person record**: factory has no person linked to your user. Ask Gestión to link one; the time waits in the queue meanwhile.
+- **Repository not linked**: you are connected and the repository has a `crew.json` without a factory project. Run `/crew:factory link`, or turn capture off for that repository.
+
+A factory that does not answer, or answers with an error, fixes itself and keeps the time queued, so it gets no message of its own. The agent receives the same sentences at session start, so it can help you act on them.
+
+## Recovering lost time
+
+When capture lost time (a token expired before this version kept it, a repository worked on before it was linked), it can be rebuilt from the transcripts Claude Code keeps on your machine. Run it from the linked repository:
+
+```
+/crew:factory backfill
+```
+
+The agent first shows a summary: for each day, your time, the agent's time and the number of intervals. Nothing is sent until you look at it and say yes. It applies the same rules as live capture, so the result is what capture would have recorded, with one refinement: a silence of more than 15 minutes inside an agent's answer (a tool waiting for you, a machine asleep) is left out. Only turns you started count; a turn opened by a notification or another session adds no agent time.
+
+What it reads and what it sends:
+
+- It reads only your own transcripts (`~/.claude/projects/`, or `$CLAUDE_CONFIG_DIR/projects/`), and from them only the sessions whose working folder is this repository, with the time of each record and the paths of the files the agent edited.
+- It sends the same fields live capture sends. The content of your prompts, the agent's answers and the tool results stays on your machine: the rebuild never copies it to another file or shows it in the chat.
+- It covers the time since you connected to factory, within factory's 45 days. When this machine does not know your connection date, the agent asks for the first day you agreed to capture (`--since YYYY-MM-DD`).
+- Running it twice adds nothing twice: each rebuilt interval gets the same id every time.
+
+**Sending is closed in this version.** Factory adds up agent time without merging stretches that overlap, so time live capture already sent would count twice. The summary works today; sending opens when factory counts agent time once per session. Codex transcripts are not read yet.
 
 ## Linking a story to its activity
 

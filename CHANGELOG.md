@@ -2,6 +2,34 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [Unreleased]
+
+Work time reaches factory without getting lost. The trigger was real: a token factory refused on 2026-10-30 emptied the local queue, the only warning went to the agent's context, and a repository without a project id was never captured. Designed with system-architect and reviewed by security-compliance. Plan: [`docs/requirements/factory-onboarding/`](docs/requirements/factory-onboarding/README.md).
+
+### Added
+
+- **`/crew:factory link`** ([`scripts/factory-link.js`](scripts/factory-link.js)): lists the factory projects the person takes part in (factory MCP `whoami`, with the machine token) and writes the chosen `factory.projectId` into `crew.json`, keeping every other key and the file's indentation, without a BOM. It writes only by project id, refuses without `crew.json`, changes an existing link only with `--replace`, and writes the environment only with `--set-environment` when the machine points elsewhere than the team.
+- **`/crew:factory backfill`** ([`scripts/factory-backfill.js`](scripts/factory-backfill.js)): rebuilds a linked repository's intervals from the person's local Claude Code transcripts with the rules of live capture, plus a cut at silences longer than 15 minutes inside an agent's answer. Ids derive from session and stretch, so a rerun adds nothing. Only record shape, timestamps, the working folder and edited paths are read; the dry run prints hours per day. Sending is closed in this version until factory counts agent time once per session.
+- **Messages the person sees**: the capture hook prints a `systemMessage` for a revoked or expired token, a token expiring within seven days, a missing person record, and a crew repository not linked to factory while the person is connected. At session start, and once when a send at the end of an answer meets a new problem. The agent's session-start line uses the same sentences ([`hooks/lib/factory-alerts.js`](hooks/lib/factory-alerts.js)).
+- **`/crew:factory status`** also reports how much captured time waits on the machine and which project the current repository is linked to.
+
+### Changed
+
+- **An expired token keeps the time.** Login stores the token's expiry, the connection date, the person and the factory it came from (`~/.crew/factory-token.json`, owner-only, no secret). A 401 at or after the expiry keeps the queue, and capture keeps recording locally; the next login sends it when factory confirms the same person on the same factory, discards it when factory confirms someone else, and holds it aside when factory cannot say. A 401 before the expiry, or for a token with no stored expiry, is a revocation and clears everything as before. `logout` now clears the queue too.
+- **`~/.crew/activity/`** is owner-only (0700, or an owner-only ACL on Windows).
+- A `factory` block with only `"capture": false` is complete: it marks a repository that is never captured.
+- The MCP call shared by metrics, link and login moved to [`hooks/lib/factory-mcp.js`](hooks/lib/factory-mcp.js); the test fake of factory moved to [`tests/fixtures/factory-fake.js`](tests/fixtures/factory-fake.js).
+
+### Fixed
+
+- The 48-hour cleanup of dead session state deleted `status.json`; the status now also keeps `since`, the moment a problem started.
+
+### Compatibility
+
+- `required: false`. A token obtained before this version has no stored expiry, so until the next login a 401 still counts as a revocation.
+- Unverified: whether Codex shows `systemMessage`; the MCP call against a real factory.
+- Needs factory (its own repository): counting agent time once per session before backfill can send, a `source` field shown apart in the weekly review, rejecting intervals outside the person's consent periods, and the approval page saying that time recorded after an expiry is sent at the next login.
+
 ## [1.2.1] — 2026-10-14
 
 Work that names production waits for the human. The trigger was a real incident: an analyst's agent ran a query against a production database, and nothing in crew asked first. crew never grants permission to run a command; it now asks for confirmation where it had stayed silent. Reviewed by security-compliance.

@@ -1,40 +1,48 @@
 // Local queue of captured intervals (~/.crew/activity/queue.jsonl) and its
-// flush to factory. The queue exists only while the person has a live token:
-// it covers transient trouble (offline, 5xx, a factory not ready yet). The
-// server is idempotent by interval id, so resending is always safe.
+// flush to factory. It covers transient trouble (offline, 5xx, a factory not
+// ready yet) and an expired token, whose time waits for the next login. A
+// revoked token clears it. The server is idempotent by interval id, so
+// resending is always safe.
 //
-// errors.log and status.json never hold interval contents, response bodies
-// or tokens: only time, HTTP code and counts.
+// The folder is owner-only: it describes when a person works. errors.log and
+// status.json never hold interval contents, response bodies or tokens: only
+// time, HTTP code and counts.
 const fs = require("node:fs");
 const { join } = require("node:path");
 const { randomUUID } = require("node:crypto");
-const { crewHome, postJson, markRejected } = require("./factory");
+const { crewHome, postJson, markRejected, restrictToOwner, tokenState } = require("./factory");
+const { sendable, batches, MAX_BATCH, MAX_BATCH_BYTES, RETENTION_MS } = require("./activity-batches");
 
-const MAX_BATCH = 200;
-// Factory parses JSON bodies with the default 100 kB limit.
-const MAX_BATCH_BYTES = 90 * 1024;
 const TIMEOUT_MS = 2500;
-const MAX_SPAN_MS = 16 * 3600000;
-// A little inside the server's 45 days, so a slow flush never crosses the edge.
-const RETENTION_MS = 45 * 86400000 - 3600000;
-const SKEW_MS = 5 * 60000;
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // The one 400 that is about the person, not the data: keep those intervals.
 const NO_PERSON = /person/i;
 
+// Locked down on first use, including a folder an earlier version left open;
+// the marker is written only once the lock succeeded, so a failure retries.
 function activityDir() {
   const dir = join(crewHome(), "activity");
-  fs.mkdirSync(dir, { recursive: true });
+  const marker = join(dir, ".owner-only");
+  if (fs.existsSync(marker)) return dir;
+  fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+  try {
+    restrictToOwner(dir, true);
+    fs.writeFileSync(marker, "");
+  } catch { /* retried on the next use */ }
   return dir;
 }
 
 function logError(line) {
-  fs.appendFileSync(join(activityDir(), "errors.log"), `${new Date().toISOString()} ${line}\n`);
+  fs.appendFileSync(join(activityDir(), "errors.log"), `${new Date().toISOString()} ${line}\n`, { mode: 0o600 });
 }
 
+// `since` survives flushes that meet the same problem, so the status says how
+// long it has lasted; `at` is the latest attempt.
 function writeStatus(problem, now) {
-  const status = problem ? { problem, at: new Date(now).toISOString() } : {};
-  fs.writeFileSync(join(activityDir(), "status.json"), JSON.stringify(status));
+  const at = new Date(now).toISOString();
+  const previous = readStatus();
+  const since = previous.problem === problem ? previous.since || at : at;
+  const status = problem ? { problem, since, at } : {};
+  fs.writeFileSync(join(activityDir(), "status.json"), JSON.stringify(status), { mode: 0o600 });
 }
 
 // Read-only: never creates ~/.crew for someone who has not connected.
@@ -45,10 +53,11 @@ function readStatus() {
 function enqueue(intervals) {
   if (!intervals.length) return;
   const lines = intervals.map((i) => JSON.stringify(i)).join("\n") + "\n";
-  fs.appendFileSync(join(activityDir(), "queue.jsonl"), lines);
+  fs.appendFileSync(join(activityDir(), "queue.jsonl"), lines, { mode: 0o600 });
 }
 
 // Everything captured locally goes: queue, flush leftovers and session state.
+// Used on a revocation or a logout, the person's own ways to pause capture.
 function clearActivity() {
   const dir = activityDir();
   for (const name of fs.readdirSync(dir)) {
@@ -78,35 +87,8 @@ function readIntervals(files) {
   return [...byId.values()];
 }
 
-// Mirrors the server's validation: one bad interval rejects a whole batch.
-function sendable(item, now) {
-  const start = Date.parse(item.startedAt);
-  const end = Date.parse(item.endedAt);
-  return UUID.test(String(item.id)) && (item.kind === "human" || item.kind === "agent") &&
-    end > start && end - start <= MAX_SPAN_MS && start >= now - RETENTION_MS && end <= now + SKEW_MS;
-}
-
-// Cut by count and by serialized size, whichever comes first.
-function batches(intervals) {
-  const out = [];
-  let current = [];
-  let bytes = 0;
-  for (const item of intervals) {
-    const size = Buffer.byteLength(JSON.stringify(item)) + 1;
-    if (current.length && (current.length >= MAX_BATCH || bytes + size > MAX_BATCH_BYTES)) {
-      out.push(current);
-      current = [];
-      bytes = 0;
-    }
-    current.push(item);
-    bytes += size;
-  }
-  if (current.length) out.push(current);
-  return out;
-}
-
 // One batch → { keep, stop, problem }. `stop` ends the flush (the rest stays
-// queued); `rejected` means the token is dead and everything local goes.
+// queued); `rejected` means factory refused the token.
 async function sendBatch(url, token, batch) {
   let res;
   try {
@@ -117,7 +99,6 @@ async function sendBatch(url, token, batch) {
   }
   if (res.status >= 200 && res.status < 300) return { keep: [] };
   if (res.status === 401) {
-    logError("HTTP 401: token revoked or expired, capture paused and local activity cleared");
     return { rejected: true };
   }
   if (res.status === 413 && batch.length > 1) {
@@ -147,7 +128,30 @@ async function sendAll(url, token, groups) {
   return { keep };
 }
 
+// Read-only count of what waits to be sent.
+function queuedCount() {
+  const dir = join(crewHome(), "activity");
+  if (!fs.existsSync(dir)) return 0;
+  return readIntervals(fs.readdirSync(dir).filter((f) => f === "queue.jsonl" || /^flush-.+\.jsonl$/.test(f))
+    .map((f) => join(dir, f))).length;
+}
+
+// While the token is expired nothing is sent, and factory's 45 days still
+// bound what is kept.
+function keepWithinRetention(now) {
+  const files = claimQueue(activityDir());
+  const all = readIntervals(files);
+  const kept = all.filter((item) => Date.parse(item.startedAt) >= now - RETENTION_MS);
+  for (const file of files) fs.rmSync(file, { force: true });
+  enqueue(kept);
+  if (kept.length < all.length) logError(`dropped ${all.length - kept.length} intervals older than 45 days`);
+}
+
 async function flush(url, token, now) {
+  if (tokenState(token, now) === "expired") {
+    keepWithinRetention(now);
+    return writeStatus("expired", now);
+  }
   const dir = activityDir();
   const files = claimQueue(dir);
   if (!files.length) return;
@@ -158,14 +162,19 @@ async function flush(url, token, now) {
   for (const file of files) fs.rmSync(file, { force: true });
   if (result.rejected) {
     markRejected(token);
+    if (tokenState(token, now) === "expired") {
+      logError(`HTTP 401 after the token expired: ${fresh.length} intervals kept for the next login`);
+      enqueue(fresh);
+      return writeStatus("expired", now);
+    }
+    logError("HTTP 401: token revoked, capture paused and local activity cleared");
     clearActivity();
-    writeStatus("rejected", now);
-    return;
+    return writeStatus("rejected", now);
   }
   enqueue(result.keep);
   writeStatus(result.problem || null, now);
 }
 
 module.exports = {
-  activityDir, enqueue, flush, sendable, batches, clearActivity, readStatus, MAX_BATCH, MAX_BATCH_BYTES,
+  activityDir, enqueue, flush, queuedCount, claimQueue, readIntervals, sendable, batches, clearActivity, readStatus, MAX_BATCH, MAX_BATCH_BYTES,
 };

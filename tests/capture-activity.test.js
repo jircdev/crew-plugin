@@ -170,11 +170,13 @@ test('a validation rejection drops the batch and logs one line; stale intervals 
   assert.equal(log.length, 2);
 });
 
-test('SessionStart prunes session state older than 48 h and never the queue', t => {
+test('SessionStart prunes session state older than 48 h and never the queue or the status', t => {
   const { dir, home } = project(t);
   const old = (Date.now() - 72 * 3600000) / 1000;
   const stale = put(home, 'activity/dead-session.json', '{}');
   const fresh = put(home, 'activity/live-session.json', '{}');
+  const status = put(home, 'activity/status.json', '{"problem":"no-person"}');
+  fs.utimesSync(status, old, old);
   const interval = { id: TASK, kind: 'human', startedAt: new Date(Date.now() - MIN).toISOString(), endedAt: new Date().toISOString() };
   const queue = put(home, 'activity/queue.jsonl', JSON.stringify(interval) + '\n');
   fs.utimesSync(stale, old, old);
@@ -182,6 +184,7 @@ test('SessionStart prunes session state older than 48 h and never the queue', t 
   runSync({ session_id: 's5', hook_event_name: 'SessionStart', cwd: dir }, home, { FACTORY_TOKEN: 'fct_x' });
   assert.equal(fs.existsSync(stale), false);
   assert.equal(fs.existsSync(fresh), true);
+  assert.equal(fs.existsSync(status), true);
   assert.deepEqual(queued(home).map((i) => i.id), [TASK]);
 });
 

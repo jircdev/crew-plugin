@@ -15,11 +15,13 @@ const str = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
 const trimSlash = (u) => u.replace(/\/+$/, "");
 
 // The crew.json block, normalized. Declaring it with a projectId is the
-// opt-in; the token never lives here (env or ~/.crew only).
+// opt-in; the token never lives here (env or ~/.crew only). A block with
+// `capture: false` alone says "this repository is not captured", which is
+// complete as it is.
 function normalizeFactory(raw) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const projectId = str(raw.projectId);
-  const unknown = projectId ? [] : ["projectId=missing"];
+  const unknown = projectId || raw.capture === false ? [] : ["projectId=missing"];
   const environment = str(raw.environment);
   if (environment && !ENVIRONMENTS[environment]) unknown.push(`environment=${environment}`);
   return {

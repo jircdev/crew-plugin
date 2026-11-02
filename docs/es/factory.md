@@ -10,24 +10,40 @@ Algunos proyectos llevan su trabajo y su tiempo en factory, el sistema de gesti�
 
 ## Cómo se configura
 
-**1. El proyecto lo declara (una vez, quien configura el repositorio).** `crew.json` lleva un bloque `factory` con el id del proyecto en factory. **El entorno de producción de factory todavía no está listo:** por ahora declará también `"environment": "dev"`, con el id del proyecto en factory de desarrollo, que puede ser distinto del de producción. Referencia: [configuration.md](configuration.md#modo-factory).
+Son dos pasos, los dos se escriben en el chat. El primero se hace una vez por máquina; el segundo, una vez por repositorio, y quien lo hace primero commitea el resultado para el equipo.
 
-```json
-{ "factory": { "projectId": "3f0c9a52-…" } }
-```
-
-**2. Conectás tu máquina (una vez por persona y máquina).** En el chat escribí:
+**1. Conectá tu máquina.**
 
 ```
 /crew:factory login
 ```
 
-Se abre factory en el navegador. Leés qué registra la captura, aprobás y volvés al chat. Crew recibe tu token personal y lo guarda en `~/.crew/factory-token`, que solo tu usuario puede leer. El token nunca aparece en el chat. Nunca lo pegues ahí: todo lo que se escribe en la conversación queda guardado con ella.
-
-- `/crew:factory status` te dice a qué factory estás conectado, con qué persona y cuándo vence el token (a los 90 días).
-- `/crew:factory logout` revoca el token en factory y lo borra de tu máquina.
+Se abre factory en el navegador. Leés qué registra la captura, aprobás y volvés al chat. Crew recibe tu token personal y lo guarda en `~/.crew/factory-token`, que solo tu usuario puede leer, junto con la fecha en que vence y la fecha en que te conectaste. El token nunca aparece en el chat. Nunca lo pegues ahí: todo lo que se escribe en la conversación queda guardado con ella.
 
 Conectarte es decisión tuya, y es lo que prende la captura para vos. Sin token, el plugin no registra nada sobre vos, ni siquiera localmente. Antes de prender la captura en un equipo hay que avisar formalmente a sus personas (ver la guía de seguimiento del trabajo de factory). Mientras factory no tenga registrado ese aviso, la página de aprobación muestra la captura como bloqueada y el login termina sin conectar; pedile a Gestión el aviso formal.
+
+**2. Vinculá el repositorio con su proyecto de factory.**
+
+```
+/crew:factory link
+```
+
+El agente muestra los proyectos de factory en los que participás, con nombre e id. Decile para cuál trabaja este repositorio. Pregunta antes de escribir, porque `crew.json` es compartido por todo el equipo, y después agrega el id del proyecto al bloque `factory` del archivo. Commiteá `crew.json` para que el resto se saltee este paso. El repositorio necesita un `crew.json` antes; si no lo tiene, corré `/crew:setup`.
+
+```json
+{ "factory": { "projectId": "3f0c9a52-…" } }
+```
+
+**El entorno de producción de factory todavía no está listo.** Por ahora el equipo trabaja contra `dev`: poné `CREW_FACTORY_ENV=dev` en tu máquina antes del login, y la primera persona que vincula el repositorio agrega `--set-environment` para que `crew.json` reciba `"environment": "dev"` junto con el id del proyecto.
+
+Los ids de proyecto cambian entre entornos de factory. Cuando tu máquina apunta a un entorno distinto del de `crew.json` (ver [Con qué factory hablás](#con-qué-factory-hablás)), `link` se detiene y lo dice; escribe el entorno en `crew.json` solo si se lo pedís. Un repositorio ya vinculado a otro proyecto también cambia solo a pedido.
+
+**Revisar y desconectar.**
+
+- `/crew:factory status` te dice a qué factory estás conectado, con qué persona, cuándo vence el token (a los 90 días), cuánto tiempo capturado espera en tu máquina y con qué proyecto está vinculado el repositorio actual.
+- `/crew:factory logout` revoca el token en factory y lo borra de tu máquina, junto con el tiempo que todavía esperaba para enviarse.
+
+Un repositorio que nunca debe capturarse lo dice en su `crew.json` con `"factory": { "capture": false }`. Eso también calla el recordatorio de vincularlo.
 
 **Alternativa manual.** También podés crear el token en factory (**Mis horas → Conectar con la IA**, se muestra una sola vez) y ponerlo en la variable de entorno `FACTORY_TOKEN` o en `~/.crew/factory-token`, escribiéndolo en tu propia terminal.
 
@@ -67,16 +83,48 @@ En Codex los mismos hooks corren sobre los eventos que emite Codex. El work item
 
 ## Cuando factory tiene un problema
 
-Un problema de factory nunca rompe ni demora tu sesión. Los hooks de captura siempre terminan en silencio, y solo hablan con factory cuando empieza una sesión, cuando el agente termina una respuesta y cuando la sesión termina, con un límite de 2,5 segundos.
+Un problema de factory nunca rompe ni demora tu sesión. Los hooks de captura solo hablan con factory cuando empieza una sesión, cuando el agente termina una respuesta y cuando la sesión termina, con un límite de 2,5 segundos.
 
 | Situación | Qué pasa |
 |---|---|
 | Factory no responde, o responde con un error de servidor | Los intervalos quedan en una cola local (`~/.crew/activity/queue.jsonl`) y salen en el próximo intento. Lo que tiene más de 45 días se descarta, igual que la retención de factory. |
-| Factory no tiene ficha de persona para tu usuario | Los intervalos quedan en la cola hasta que un administrador vincule una. |
-| Tu token fue revocado o venció | La captura se pausa y la cola local se borra, porque revocar es la forma en que una persona pausa la captura. Se reanuda cuando te volvés a conectar. |
+| Factory no tiene ficha de persona para tu usuario | Los intervalos quedan en la cola hasta que Gestión vincule una. |
+| Tu token venció | La captura sigue registrando en tu máquina, porque la fecha de vencimiento la fijó factory sin que la eligieras. No se envía nada hasta que volvés a correr `/crew:factory login`; ese login envía la cola enseguida, siempre que factory confirme que sos la misma persona en el mismo factory. El tiempo encolado para otra cuenta u otro factory se descarta. Si en ese login factory no puede decir quién sos, el tiempo queda aparte hasta un login que sí pueda. |
+| Tu token fue revocado (por vos o por un administrador) | La captura se pausa y la cola local se borra, porque revocar es la forma en que una persona pausa la captura. Se reanuda cuando te volvés a conectar. |
 | Factory rechaza un intervalo por inválido | Ese lote se descarta. |
 
-Cada caso deja una línea en `~/.crew/activity/errors.log`, con la hora, el código HTTP y la cantidad de intervalos. El log nunca guarda contenido de intervalos ni tokens. Cuando algo necesita tu atención, el próximo inicio de sesión lo muestra en una línea corta.
+Crew distingue un token vencido de uno revocado por la fecha de vencimiento que guardó el login. Un token creado a mano en factory no tiene esa fecha guardada, así que cuando factory lo rechaza, crew lo trata como revocado.
+
+Cada caso deja una línea en `~/.crew/activity/errors.log`, con la hora, el código HTTP y la cantidad de intervalos. El log nunca guarda contenido de intervalos ni tokens. Toda la carpeta `~/.crew/activity/` la puede leer solo tu usuario, porque describe cuándo trabajás.
+
+**Lo que ves.** Cuando la captura te necesita, aparece en tu sesión un mensaje de una línea de crew: al empezar la sesión, y al terminar una respuesta si el envío encuentra un problema nuevo. Aparece en cinco situaciones, cada una con el comando que la resuelve:
+
+- **Token revocado**: factory rechazó el token antes de su fecha de vencimiento. Corré `/crew:factory login`.
+- **Token vencido**: el token pasó su fecha de vencimiento. Tu tiempo se sigue registrando; corré `/crew:factory login` para enviarlo.
+- **Token por vencer**: le quedan menos de siete días. Volver a loguearte antes mantiene la captura sin cortes.
+- **Sin ficha de persona**: factory no tiene una persona vinculada a tu usuario. Pedile a Gestión que la vincule; mientras tanto el tiempo espera en la cola.
+- **Repositorio sin vincular**: estás conectado y el repositorio tiene un `crew.json` sin proyecto de factory. Corré `/crew:factory link`, o apagá la captura para ese repositorio.
+
+Un factory que no responde, o que responde con error, se resuelve solo y mantiene el tiempo en la cola, así que no tiene mensaje propio. El agente recibe las mismas frases al empezar la sesión, para ayudarte a resolverlas.
+
+## Recuperar tiempo perdido
+
+Cuando la captura perdió tiempo (un token que venció antes de que esta versión lo conservara, un repositorio en el que se trabajó antes de vincularlo), se puede reconstruir desde las transcripciones que Claude Code guarda en tu máquina. Se corre desde el repositorio vinculado:
+
+```
+/crew:factory backfill
+```
+
+El agente primero muestra un resumen: para cada día, tu tiempo, el del agente y la cantidad de intervalos. No se envía nada hasta que lo mirás y decís que sí. Aplica las mismas reglas que la captura en vivo, así que el resultado es lo que la captura habría registrado, con un ajuste: un silencio de más de 15 minutos dentro de una respuesta del agente (una herramienta esperando tu respuesta, una máquina suspendida) queda afuera. Cuentan solo los turnos que empezaste vos; un turno que abre una notificación u otra sesión no suma tiempo del agente.
+
+Qué lee y qué envía:
+
+- Lee solo tus propias transcripciones (`~/.claude/projects/`, o `$CLAUDE_CONFIG_DIR/projects/`), y de ellas solo las sesiones cuya carpeta de trabajo es este repositorio, con la hora de cada registro y las rutas de los archivos que editó el agente.
+- Envía los mismos campos que la captura en vivo. El contenido de tus prompts, las respuestas del agente y los resultados de las herramientas quedan en tu máquina: la reconstrucción nunca los copia a otro archivo ni los muestra en el chat.
+- Cubre el tiempo desde que te conectaste a factory, dentro de los 45 días de factory. Si esta máquina no conoce tu fecha de conexión, el agente te pide el primer día en que aceptaste la captura (`--since AAAA-MM-DD`).
+- Correrlo dos veces da el mismo resultado: cada intervalo reconstruido recibe siempre el mismo id.
+
+**El envío está cerrado en esta versión.** Factory suma el tiempo del agente sin unir tramos que se superponen, así que el tiempo que la captura en vivo ya envió contaría doble. El resumen funciona hoy; el envío se abre cuando factory cuente el tiempo del agente una vez por sesión. Las transcripciones de Codex todavía no se leen.
 
 ## Enlazar una historia con su actividad
 
