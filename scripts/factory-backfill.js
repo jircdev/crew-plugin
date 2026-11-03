@@ -36,7 +36,7 @@ function rebuild(root, projectId, since, now) {
   const intervals = [];
   const sessions = readSessions(transcriptFiles(since), root, since);
   for (const [sessionId, records] of sessions) {
-    const ctx = { sessionId, projectId, source: "backfill", newId: (kind, from, to) => derivedId(sessionId, kind, from, to) };
+    const ctx = { sessionId, projectId, source: "backfill", blocks: false, newId: (kind, from, to) => derivedId(sessionId, kind, from, to) };
     let state = {};
     for (const event of eventsOf(records, root)) {
       const step = applyEvent(state, event, event.at, ctx);

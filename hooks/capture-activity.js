@@ -1,9 +1,12 @@
 // Activity capture for factory mode (SessionStart, UserPromptSubmit, Stop,
-// SessionEnd, PostToolUse on edits). Records WHEN the person and the agent
-// were working — timestamps, session id, and which work item was being
-// edited. Prompt and response content is never read: only the hook's
-// envelope fields (session_id, hook_event_name, cwd, tool_input.file_path,
-// and the file headers of a Codex apply_patch).
+// SessionEnd, PostToolUse on edits and on two factory MCP tools). Records
+// WHEN the person and the agent were working — timestamps, session id, the
+// work block, which work item was being edited and which factory activity
+// the agent declared. Prompt and response content is never read: only the
+// hook's envelope fields (session_id, hook_event_name, cwd, tool_name,
+// tool_input.file_path, the file headers of a Codex apply_patch, and from
+// the factory tools tool_input.activityId, .action and .status). Tool
+// responses and shell commands are never read.
 //
 // Quiet by contract: the only output is a {"systemMessage"} the person sees
 // when capture needs them (hooks/lib/factory-alerts.js), at session start or
@@ -32,6 +35,8 @@ function readState(path) {
 
 const STALE_MS = 48 * 3600000;
 const PATCH_TARGET = /^\*\*\* (?:Add File|Update File|Move to): (.+)$/gm;
+const FACTORY_TOOL = /^mcp__.*factory.*__(declare_work|update_activity)$/i;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Sessions that died without SessionEnd leave their state behind; only the
 // per-session *.json files are pruned, never the queue or the status.
@@ -65,6 +70,24 @@ function editHint(input) {
   return null;
 }
 
+// The work event a factory tool call means, or null: declaring an activity,
+// or completing one. Only the activity id and the completion fields are read.
+function workEvent(input) {
+  const match = String(input.tool_name || "").match(FACTORY_TOOL);
+  const args = input.tool_input || {};
+  if (!match) return null;
+  if (match[1].toLowerCase() === "declare_work") {
+    return UUID.test(String(args.activityId)) ? { name: "Declare", taskId: String(args.activityId).toLowerCase() } : null;
+  }
+  return args.action === "complete" || args.status === "done" ? { name: "Complete" } : null;
+}
+
+function eventOf(input) {
+  const name = input.hook_event_name;
+  if (name !== "PostToolUse") return { name, hint: null };
+  return workEvent(input) || { name, hint: editHint(input) };
+}
+
 // The alert to show after this event, or null.
 function alertAfter(name, cfg, now, before) {
   const alert = factoryAlert(cfg, now);
@@ -85,7 +108,7 @@ async function capture(input) {
 
   if (name === "SessionStart") pruneStaleSessions(now);
   const path = statePath(sessionId);
-  const event = { name, hint: name === "PostToolUse" ? editHint(input) : null };
+  const event = eventOf(input);
   const ctx = { sessionId, projectId: cfg.factory.projectId, newId: () => randomUUID() };
   const { state, intervals } = applyEvent(readState(path), event, now, ctx);
   enqueue(intervals);

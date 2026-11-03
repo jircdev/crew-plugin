@@ -73,6 +73,14 @@ function factoryLines(config) {
   const out = target.warning ? [`- Factory: ${target.warning}.`] : [];
   const alert = factoryAlert(config);
   if (alert) out.push(`- Factory: ${alert.text}`);
+  const { captureToken } = require("./lib/factory");
+  if (config.factory && config.factory.projectId && captureToken(config)) {
+    // The protocol itself lives in the factory MCP server instructions; this
+    // only says it applies here.
+    out.push("- Factory: this session's time is captured in work blocks. When you start on a task, find or create " +
+      "its factory activity and call `declare_work`; declare again when the work moves to another task. " +
+      "The rules are in the factory MCP instructions.");
+  }
   return out;
 }
 
