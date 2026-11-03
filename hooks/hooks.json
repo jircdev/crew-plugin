@@ -108,6 +108,16 @@
         ]
       },
       {
+        "matcher": "^mcp__.*factory.*__(declare_work|update_activity)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/capture-activity.js\"",
+            "timeout": 15
+          }
+        ]
+      },
+      {
         "matcher": "Edit|Write",
         "hooks": [
           {

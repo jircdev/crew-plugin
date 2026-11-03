@@ -2,6 +2,17 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [Unreleased]
+
+### Added
+
+- **Work blocks** ([`hooks/lib/activity-rules.js`](hooks/lib/activity-rules.js)): every captured interval carries the id of its work block, the turns of a session factory reviews at once. A block opens at session start, after a pause over 15 minutes (keeping the declared task), when the agent declares another task and when it completes an activity; a cut inside an agent reply splits the reply. Plan in the factory repository: `docs/requirements/work-blocks/`.
+- **The agent declares its task**: after a factory MCP `declare_work` call, the capture hook stamps the open block with the activity id read from the call's input; `update_activity` completing an activity cuts the block. Only those fields are read: never a tool response, never a terminal command. At session start, with the repository linked and capture on, one line reminds the agent to declare; the rules live in the factory MCP instructions.
+
+### Changed
+
+- Time rebuilt by `/crew:factory backfill` carries no block: factory joins it to the block the live capture already sent for that session.
+
 ## [1.3.0] — 2026-11-03
 
 Work time reaches factory without getting lost. The trigger was real: a token factory refused on 2026-10-30 emptied the local queue, the only warning went to the agent's context, and a repository without a project id was never captured. Designed with system-architect and reviewed by security-compliance. Plan: [`docs/requirements/factory-onboarding/`](docs/requirements/factory-onboarding/README.md).

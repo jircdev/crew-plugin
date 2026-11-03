@@ -199,3 +199,66 @@ test('a Codex apply_patch edit to a story sets the same task hint', t => {
   assert.deepEqual(state.taskHint, { taskId: TASK,
     taskRef: { system: 'repo', externalKey: `${path.basename(dir)}:docs/stories/f/001-x.md` } });
 });
+
+test('work blocks: a declaration stamps the open block, another task or a completion cuts it, a pause keeps the task', () => {
+  let n = 0;
+  const ctx = { sessionId: 's1', projectId: PROJECT, newId: (kind) => `${kind}-${++n}` };
+  const OTHER = 'bbbbbbbb-cccc-4ddd-8eee-ffffffffffff';
+  let state = {};
+  const out = [];
+  for (const [name, at, taskId] of [['SessionStart', 0], ['UserPromptSubmit', 1], ['Declare', 2, TASK], ['Stop', 5],
+    ['UserPromptSubmit', 8], ['Declare', 9, OTHER], ['Stop', 12], ['UserPromptSubmit', 40], ['Stop', 41],
+    ['UserPromptSubmit', 43], ['Complete', 44], ['Stop', 45], ['SessionEnd', 46]]) {
+    const step = applyEvent(state, { name, taskId }, T0 + at * MIN, ctx);
+    state = step.state;
+    out.push(...step.intervals.map((i) => [i.kind, (Date.parse(i.startedAt) - T0) / MIN, (Date.parse(i.endedAt) - T0) / MIN,
+      i.blockId, i.declaredTaskId || null]));
+  }
+  const [b1, b2, b3, b4] = [...new Set(out.map((row) => row[3]))];
+  assert.deepEqual(out, [
+    // The first turn goes before the declaration; factory gives it the block's task.
+    ['human', 0, 1, b1, null], ['agent', 1, 5, b1, TASK], ['human', 5, 8, b1, TASK],
+    // Another task in the middle of a reply splits the reply.
+    ['agent', 8, 9, b1, TASK], ['agent', 9, 12, b2, OTHER],
+    // A pause opens a block that keeps the declared task.
+    ['agent', 40, 41, b3, OTHER], ['human', 41, 43, b3, OTHER], ['agent', 43, 44, b3, OTHER],
+    // A completed activity closes the block; the next one has no task.
+    ['agent', 44, 45, b4, null], ['human', 45, 46, b4, null],
+  ]);
+  assert.equal(new Set([b1, b2, b3, b4]).size, 4);
+  assert.equal(state.blockId, null);
+});
+
+test('a factory declare_work call stamps the block from its input alone; responses and commands never leave', t => {
+  const { dir, home } = project(t);
+  put(home, 'factory-token', 'fct_from_file\n');
+  const base = { session_id: 's3', cwd: dir };
+  runSync({ ...base, hook_event_name: 'UserPromptSubmit', prompt: 'SECRET PROMPT' }, home);
+  runSync({ ...base, hook_event_name: 'PostToolUse', tool_name: 'mcp__factory__declare_work',
+    tool_input: { activityId: TASK.toUpperCase(), note: 'SECRET INPUT' }, tool_response: 'SECRET RESPONSE' }, home);
+  runSync({ ...base, hook_event_name: 'PostToolUse', tool_name: 'Bash',
+    tool_input: { command: 'git commit -m "SECRET MESSAGE"' }, tool_response: 'SECRET OUTPUT' }, home);
+  runSync({ ...base, hook_event_name: 'Stop' }, home);
+  const [agent] = queued(home);
+  assert.equal(agent.kind, 'agent');
+  assert.equal(agent.declaredTaskId, TASK);
+  assert.match(agent.blockId, /^[0-9a-f-]{36}$/);
+  assert.ok(agent.declaredAt);
+  for (const file of ['queue.jsonl', 's3.json']) {
+    const raw = fs.readFileSync(path.join(home, 'activity', file), 'utf8');
+    assert.equal(raw.includes('SECRET'), false, file);
+  }
+});
+
+test('completing an activity through factory cuts the block; other factory calls and bad ids change nothing', () => {
+  const ctx = { sessionId: 's', projectId: PROJECT, newId: (kind) => `${kind}-${Math.random()}` };
+  const start = applyEvent({}, { name: 'SessionStart' }, T0, ctx).state;
+  const declared = applyEvent(start, { name: 'Declare', taskId: TASK }, T0 + MIN, ctx).state;
+  assert.equal(declared.blockId, start.blockId);
+  assert.equal(declared.blockTaskId, TASK);
+  const same = applyEvent(declared, { name: 'Declare', taskId: TASK }, T0 + 2 * MIN, ctx).state;
+  assert.equal(same.blockId, start.blockId);
+  const done = applyEvent(same, { name: 'Complete' }, T0 + 3 * MIN, ctx).state;
+  assert.notEqual(done.blockId, start.blockId);
+  assert.equal(done.blockTaskId, null);
+});

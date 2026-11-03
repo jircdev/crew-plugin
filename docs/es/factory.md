@@ -100,11 +100,23 @@ Solo **momentos**. El plugin anota la hora cuando empieza una sesión, cuando re
 - **Tu tiempo**: mientras tenés el turno, desde que empieza la sesión o el agente termina de responder hasta tu próximo prompt. Un turno de más de 15 minutos cuenta como pausa y no suma.
 - **El trabajo del agente**: desde que mandás un prompt hasta que el agente termina de responder, dure lo que dure. Los dos nunca se superponen.
 
-Cada intervalo lleva el id de sesión, el proyecto de factory y la actividad en la que estabas. La actividad sale de las historias y requerimientos que el agente edita durante la sesión. La ruta del archivo es su referencia en factory (`<carpeta de crew.json>:<ruta>`, enlazada con `add_task_reference` o `upsert_requirement`), y la línea de cabecera `**Factory activity:**`, cuando está, nombra la actividad directamente.
+Cada intervalo lleva el id de sesión, el proyecto de factory, su [bloque de trabajo](#bloques-de-trabajo-y-la-tarea-que-declara-el-agente) y la actividad en la que estabas. La actividad sale de las historias y requerimientos que el agente edita durante la sesión. La ruta del archivo es su referencia en factory (`<carpeta de crew.json>:<ruta>`, enlazada con `add_task_reference` o `upsert_requirement`), y la línea de cabecera `**Factory activity:**`, cuando está, nombra la actividad directamente.
 
 El plugin nunca lee ni envía el contenido de tus prompts, las respuestas del agente ni la transcripción de la conversación. De los archivos que editás mira solo la ruta, y en historias y requerimientos, la línea `**Factory activity:**` de la cabecera.
 
 En Codex los mismos hooks corren sobre los eventos que emite Codex. El work item sale de los nombres de archivo de cada `apply_patch` (`*** Add File:`, `*** Update File:`, `*** Move to:`).
+
+### Bloques de trabajo y la tarea que declara el agente
+
+Los turnos seguidos de una sesión forman un **bloque de trabajo**, que en factory se revisa de una vez: se acepta la tarea propuesta o se cambia. Cada intervalo lleva el identificador de su bloque.
+
+- **Cuándo se abre un bloque nuevo:** con el inicio de la sesión, después de una pausa de más de 15 minutos, cuando el agente declara otra tarea y cuando el agente completa una actividad en factory. La pausa conserva la tarea declarada, porque no es un cambio de tema. Si el corte cae en medio de una respuesta del agente, esa respuesta se parte en ese momento.
+- **La declaración:** al empezar algo, el agente busca o crea la actividad en factory y llama a la herramienta `declare_work` del MCP de factory con su identificador. El plugin lee ese identificador del pedido a la herramienta y lo pone en el bloque abierto; los turnos del bloque anteriores a la declaración también reciben la tarea en factory. Las reglas para el agente están en las instrucciones del propio servidor MCP de factory, así valen igual para Claude Code y para Codex.
+- **Qué lee el plugin de esas llamadas:** de `declare_work`, solo el identificador de la actividad; de `update_activity`, solo si la acción es completar. Nunca lee la respuesta de una herramienta ni los comandos de la terminal. Un commit no corta el bloque: el corte llega cuando el agente declara la tarea siguiente.
+- **Es una propuesta.** La persona la acepta o la corrige en factory. Lo que asignó la persona gana siempre sobre una declaración posterior.
+- **Al empezar la sesión**, si el repositorio está vinculado y la captura activa, el plugin agrega una línea que recuerda declarar la tarea.
+
+El tiempo recuperado de las transcripciones no lleva bloque: factory lo suma al bloque de la misma sesión que ya llegó en vivo, o arma uno por sesión y pausa.
 
 ## Cuando factory tiene un problema
 

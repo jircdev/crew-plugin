@@ -106,6 +106,18 @@ The plugin never reads or sends the content of your prompts, the agent's answers
 
 In Codex the same hooks run on the events Codex emits. The work item comes from the file names in each `apply_patch` (`*** Add File:`, `*** Update File:`, `*** Move to:`).
 
+### Work blocks and the task the agent declares
+
+Consecutive turns of a session form a **work block**, which factory reviews at once: the proposed task is accepted or changed. Every interval carries its block id.
+
+- **A new block opens** when the session starts, after a pause over 15 minutes, when the agent declares another task and when the agent completes an activity in factory. A pause keeps the declared task. A cut in the middle of an agent reply splits that reply at that moment.
+- **The declaration:** when work starts, the agent finds or creates the factory activity and calls the factory MCP tool `declare_work` with its id. The plugin reads that id from the tool call and stamps the open block; factory gives the block's earlier turns the task too. The agent's rules live in the factory MCP server instructions, so Claude Code and Codex read the same ones.
+- **What the plugin reads from those calls:** from `declare_work`, the activity id only; from `update_activity`, only whether the action completes it. It never reads a tool response or a terminal command. A commit does not cut the block: the cut comes when the agent declares the next task.
+- **It is a proposal.** The person accepts or corrects it in factory, and what the person assigned always wins over a later declaration.
+- **At session start**, with the repository linked and capture on, the plugin adds one line reminding the agent to declare.
+
+Time recovered from transcripts carries no block: factory joins it to the session's block that arrived live, or groups it by session and pause.
+
 ## When factory has a problem
 
 A factory problem never breaks or slows your session. The capture hooks only talk to factory when a session starts, when the agent finishes an answer and when the session ends, with a 2.5-second limit.

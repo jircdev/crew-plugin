@@ -2,6 +2,12 @@
 // event and the current time, return the next state and the intervals to
 // queue. No IO here except reading a work item's header for the task hint,
 // so a scripted event sequence with a fake clock exercises everything.
+//
+// Every interval belongs to a work block: the turns of a session the person
+// reviews at once in factory. A block opens with the first turn and closes on
+// a pause over IDLE_MS, at the end of the session, when the agent declares a
+// different task (MCP declare_work) or completes one (update_activity). A cut
+// in the middle of an agent reply splits that reply at the moment of the cut.
 const { readFileSync } = require("node:fs");
 const { relative, basename, isAbsolute, resolve, sep } = require("node:path");
 
@@ -48,38 +54,83 @@ function makeInterval(kind, from, to, state, ctx) {
     projectId: ctx.projectId,
     ...(ctx.source ? { source: ctx.source } : {}),
     ...(state.taskHint || {}),
+    ...(state.blockId ? { blockId: state.blockId } : {}),
+    ...(state.blockTaskId ? { declaredTaskId: state.blockTaskId, declaredAt: state.declaredAt } : {}),
   };
 }
 
-// event: { name, hint? } — hint is only present for PostToolUse edits.
+function openBlock(state, now, ctx, taskId = null) {
+  state.blockId = ctx.newId("block", now, now);
+  if (taskId !== state.blockTaskId) state.declaredAt = taskId ? new Date(now).toISOString() : null;
+  state.blockTaskId = taskId;
+}
+
+// A cut while the agent is replying: the reply so far stays in the old
+// block, the rest of it starts the new one.
+function cut(state, now, ctx, intervals, taskId) {
+  if (state.promptAt !== null && now > state.promptAt) {
+    intervals.push(makeInterval("agent", state.promptAt, now, state, ctx));
+    state.promptAt = now;
+  }
+  openBlock(state, now, ctx, taskId);
+}
+
+// event.name "Declare" carries taskId; "Complete" closes the declared work.
+function applyWorkEvent(state, event, now, ctx, intervals) {
+  if (!state.blockId) return openBlock(state, now, ctx, event.name === "Declare" ? event.taskId : null);
+  if (event.name === "Complete") return cut(state, now, ctx, intervals, null);
+  if (!event.taskId || event.taskId === state.blockTaskId) return;
+  if (!state.blockTaskId) {
+    state.blockTaskId = event.taskId;
+    state.declaredAt = new Date(now).toISOString();
+    return;
+  }
+  cut(state, now, ctx, intervals, event.taskId);
+}
+
+// event: { name, hint?, taskId? } — hint is only present for PostToolUse
+// edits, taskId for a "Declare".
 // Human time runs while the person has the turn: from the end of an agent
 // reply (or the session start) to the next prompt, cut at IDLE_MS. Agent time
 // runs from a prompt to the end of its reply, however long it takes, so the
 // two never overlap. A prompt that arrives with a reply still pending (an
 // interrupted turn, no Stop) closes that run, cut at IDLE_MS like human time.
 function applyEvent(prev, event, now, ctx) {
-  const state = { lastEventAt: null, promptAt: null, taskHint: null, ...prev };
+  const state = { lastEventAt: null, promptAt: null, taskHint: null, blockId: null, blockTaskId: null, declaredAt: null, ...prev };
   const intervals = [];
   if (event.name === "PostToolUse") {
     if (event.hint) state.taskHint = event.hint;
     return { state, intervals };
   }
+  if (event.name === "Declare" || event.name === "Complete") {
+    applyWorkEvent(state, event, now, ctx, intervals);
+    return { state, intervals };
+  }
   if (!PRESENCE.has(event.name)) return { state, intervals };
+  let paused = false;
   if (state.promptAt !== null) {
     const run = now - state.promptAt;
     const closes = event.name === "Stop" || event.name === "UserPromptSubmit";
     if (closes && run > 0 && (event.name === "Stop" || run <= IDLE_MS)) {
       intervals.push(makeInterval("agent", state.promptAt, now, state, ctx));
+    } else {
+      paused = true;
     }
     state.promptAt = null;
   } else {
     const gap = state.lastEventAt === null ? null : now - state.lastEventAt;
     if (gap !== null && gap > 0 && gap <= IDLE_MS) {
       intervals.push(makeInterval("human", state.lastEventAt, now, state, ctx));
+    } else if (gap !== null && gap > IDLE_MS) {
+      paused = true;
     }
   }
+  // A pause is no change of topic: the new block keeps the declared task.
+  if (!state.blockId || event.name === "SessionStart") openBlock(state, now, ctx);
+  else if (paused) openBlock(state, now, ctx, state.blockTaskId);
   state.lastEventAt = now;
   if (event.name === "UserPromptSubmit") state.promptAt = now;
+  if (event.name === "SessionEnd") state.blockId = null;
   return { state, intervals };
 }
 
