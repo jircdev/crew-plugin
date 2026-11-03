@@ -176,7 +176,8 @@ También se acepta `**Factory task:**`, para work items escritos antes de que fa
 |---|---|
 | `Draft` | Backlog |
 | `Ready` | Por hacer |
-| `In progress` | En curso; En pausa mientras la cabecera lleva `**Blocked:**` |
+| `In progress` | En curso |
+| `In progress` con `**Blocked:**` en la cabecera | En pausa, con esa línea como motivo |
 | `Delivered` | En revisión |
 | `Validated`, `Closed` | Hecha |
 

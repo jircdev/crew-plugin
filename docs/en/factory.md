@@ -176,7 +176,8 @@ Add one line to the header of the story or requirement:
 |---|---|
 | `Draft` | Backlog |
 | `Ready` | Por hacer |
-| `In progress` | En curso; En pausa while the header carries `**Blocked:**` |
+| `In progress` | En curso |
+| `In progress` with `**Blocked:**` in the header | En pausa, with that line as its reason |
 | `Delivered` | En revisión |
 | `Validated`, `Closed` | Hecha |
 
