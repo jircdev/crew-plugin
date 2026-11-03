@@ -105,6 +105,13 @@
       "title": "Factory capture that keeps the time",
       "summary": "An expired token keeps captured time until the next login; /crew:factory link ties a repository to its factory project from the git remote; problems with capture show to the person; /crew:factory backfill shows the time rebuilt from local transcripts (sending stays closed); login prints how to register factory's MCP reading the stored token. Run /crew:factory login again so the token's expiry is stored, then /crew:factory link in each repository.",
       "doc": "CHANGELOG.md"
+    },
+    {
+      "version": "1.4.0",
+      "required": false,
+      "title": "Factory sees the work as it happens",
+      "summary": "Stories reach factory from Ready and close on the block factory's story sync writes; /crew:factory repo-hours loads a repository's recorded hours through factory's MCP; captured time carries its work block and the task the agent declares with declare_work. Nothing to configure; repo-hours and declare_work need the factory versions that add those tools.",
+      "doc": "CHANGELOG.md"
     }
   ]
 }

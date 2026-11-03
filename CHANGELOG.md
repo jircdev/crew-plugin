@@ -2,7 +2,7 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
-## [Unreleased]
+## [1.4.0] — 2026-11-03
 
 Factory sees the work as it happens: stories reach it from Ready and close on its sync block, a repository's recorded hours load through its MCP, and captured time arrives grouped in work blocks with the task the agent declares. The story-sync trigger was real: a project that uploaded its stories with factory's `sync-stories` could not close any of them in crew (no `**Factory activity:**` line), got one module per folder instead of the areas it plans by, and saw every story in Backlog whatever its `Status`. Work blocks were reviewed by security-compliance.
 
