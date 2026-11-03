@@ -36,6 +36,7 @@ Until Closed, the story is editable. Any criteria change after In progress is lo
 - The tracker (if any) holds only: link to this file, state, assignee. On any discrepancy, **this file wins**.
 - **A story is authored without estimation** — hours are not the analyst's deliverable, and an estimation block in a functional artifact is a process antipattern. Estimation happens at **planning**: when the story is taken for implementation, whoever executes adds the `## Estimation` table (milestones estimated at person pace and in AI hours, a human-review milestone, closed by a **Total** row; columns in the requirement template) before coding and records real start/finish per milestone during execution. Closing a story without a complete table is still invalid (see [`../AGENTS.md`](../AGENTS.md#estimation-discipline-mandatory)).
 - **Factory mode** (when `crew.json` declares `factory`): the story keeps the spec and the criteria; the activity (estimate, state, time) lives in factory. Link it with a header line `- **Factory activity:** <uuid>`, or let factory's story sync write its `<!-- factory:start -->` block under the header; either replaces the `## Estimation` table as the closure requirement. The story goes to factory when it reaches Ready, under the folder's module unless the header names another with `**Module:**`; its milestone rows stay in this file. Each `Status` change is mirrored on the factory activity (equivalence in the plugin's `docs/en/factory.md`).
+- **Standard labels** (optional): the header line `- **Requires:**` says what the story needs outside development, from this closed list. `go-live`: it is built and tested without this, but the product cannot go to production until it is resolved; it does not hold development. `legal`: it waits for a legal opinion or text. `client`: the client has to validate, decide or deliver something before the story can close. Projects that write in Spanish use `producción`, `legal` and `cliente`. A label may name what it waits for: `go-live (P-33) · client (P-05)`. Whoever writes the story sets the labels and whoever resolves the need removes them; a project with its own register of pendings may generate the line from it. A label informs: it never changes a `Status` and no gate reads it. Where a story is built is not a label: that is `**Surfaces:**`.
 - **A story is authored without a verification table either** — for the same reason. The analyst owns *what* must be true (criteria) and *one concrete run of it* (test scenarios); the level, the harness and the artifact are decided at planning by whoever executes, in a `## Verification` table added next to the estimation. The two tables never restate the scenario: they reference it by its human-readable name.
 
 ## Story template
@@ -52,6 +53,10 @@ Until Closed, the story is editable. Any criteria change after In progress is lo
 - **Blocked:** (optional) owner — what is needed; only while waiting on a person's decision, removed when answered
 - **Factory activity:** (optional) factory mode only: the activity's uuid
 - **Module:** (optional) factory mode only: the factory module, when it is not this folder
+- **Surfaces:** (optional) where it is built, e.g. server · web · app
+- **Done on:** (optional) the surfaces where it is already built
+- **Covers:** (optional) the codes of the requirements it covers, e.g. RQ-02, RQ-18
+- **Requires:** (optional) standard labels: go-live · legal · client
 
 ## Narrative
 

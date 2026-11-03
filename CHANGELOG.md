@@ -10,6 +10,8 @@ Stories reach factory from the moment they are written, and crew stops fighting 
 
 - **The closure gate accepts factory's sync block.** In factory mode a work item also closes when its header carries the block the story sync writes (`<!-- factory:start -->` followed by `**Factory:** #<number>`), read within the first 40 lines like the header link ([`hooks/lib/activity-rules.js`](hooks/lib/activity-rules.js) `factoryLinked`).
 - **Factory mode, from the story to factory** ([`docs/en/factory.md`](docs/en/factory.md) / [`docs/es/factory.md`](docs/es/factory.md), stories template, delivery circuit, `functional-analyst`): a story goes to factory when it reaches Ready; its optional `**Module:**` line (or `**Módulo:**`) names the factory module when it is not the folder; the milestone rows stay in the file, never one activity per row; and each `Status` change is mirrored on the activity, with a published equivalence (Draft → Backlog, Ready → Por hacer, In progress → En curso or En pausa while `**Blocked:**`, Delivered → En revisión, Validated and Closed → Hecha).
+- **Standard story labels** (stories template, `functional-analyst`): an optional `**Requires:**` line says what a story needs outside development, from a closed list: `go-live` (needed for production, does not hold development), `legal` and `client`; `producción`, `legal` and `cliente` in Spanish. A label informs: no gate reads it.
+- **Stories declare where they are built and what they cover** (stories template, factory docs): optional `**Surfaces:**`, `**Done on:**` and `**Covers:**` lines, which factory's sync reads to show progress by surface and by requirement. The factory docs also cover tasks added by hand, status moved from the MCP and the `drift.mjs` report.
 
 ## [1.3.0] — 2026-11-03
 
