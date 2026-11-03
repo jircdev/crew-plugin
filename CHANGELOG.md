@@ -2,6 +2,12 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [Unreleased]
+
+### Added
+
+- `/crew:factory repo-hours`: loads into factory the hours a repository recorded (the Started/Finished of each `## Estimation` milestone and the Duration of each work log), each row attributed by the author email of the commit that wrote it. `scripts/factory-repo-hours.js` reads the repository deterministically and prepares the calls; the agent saves each work item with `upsert_requirement`, runs factory's `import_repo_hours` as a dry run, and applies it only after the person says yes. Nothing but timestamps, hours, milestone codes, paths, author emails and commits leaves the repository. Contract: factory's `packages/backend/docs/mcp-repo-hours-contract.md`.
+
 ## [1.3.0] — 2026-11-03
 
 Work time reaches factory without getting lost. The trigger was real: a token factory refused on 2026-10-30 emptied the local queue, the only warning went to the agent's context, and a repository without a project id was never captured. Designed with system-architect and reviewed by security-compliance. Plan: [`docs/requirements/factory-onboarding/`](docs/requirements/factory-onboarding/README.md).

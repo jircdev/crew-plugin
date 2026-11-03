@@ -151,6 +151,24 @@ Qué lee y qué envía:
 
 **El envío está cerrado en esta versión.** Factory suma el tiempo del agente sin unir tramos que se superponen, así que el tiempo que la captura en vivo ya envió contaría doble. El resumen funciona hoy; el envío se abre cuando factory cuente el tiempo del agente una vez por sesión. Las transcripciones de Codex todavía no se leen.
 
+## Cargar las horas que anotó un repositorio
+
+Los equipos anotan en sus repositorios cuándo empezó y terminó cada hito (la tabla `## Estimation` de cada historia y requerimiento) y llevan registros de trabajo con su duración. Factory puede convertir esa historia en horas de cada persona:
+
+```
+/crew:factory repo-hours
+```
+
+El agente lee el repositorio con un script, guarda en factory cada historia y requerimiento con sus hitos, y primero corre una prueba: horas por persona y por mes, y las filas que quedan afuera con su motivo. No se carga nada hasta que lo mirás y decís que sí.
+
+- **De quién es cada fila** sale del correo del autor del commit que escribió la fila (`git blame`), o del commit que agregó el registro de trabajo. Factory lo compara con el correo corporativo de cada persona y con los correos de git que cada una registró en Mis horas. El plugin nunca dice de quién es una fila.
+- **Qué sale del repositorio:** el inicio, el fin, las horas reales y las horas IA reales de cada fila, el código del hito, la ruta del archivo, el correo del autor y el commit. Nunca el texto de los archivos, la columna Notes, el texto de los registros de trabajo, los mensajes de commit ni la hora de los commits.
+- **Las filas sin commitear** no tienen autor y quedan afuera; commitealas antes.
+- **Tus propias filas cuentan enseguida. Las de otra persona esperan** a que esa persona las confirme en factory. Cargar para otros pide liderar el proyecto (o un equipo asignado) en factory.
+- **Cada minuto cuenta una vez:** lo que la captura en vivo ya mandó queda como estaba; el repositorio solo completa los huecos. Correrlo de nuevo no suma nada dos veces, y una fila que sacás de un archivo se retira.
+
+Las reglas que aplica factory están en su guía «Horas desde los repositorios».
+
 ## Enlazar una historia con su actividad
 
 Agregá una línea en la cabecera de la historia o el requerimiento:

@@ -151,6 +151,24 @@ What it reads and what it sends:
 
 **Sending is closed in this version.** Factory adds up agent time without merging stretches that overlap, so time live capture already sent would count twice. The summary works today; sending opens when factory counts agent time once per session. Codex transcripts are not read yet.
 
+## Loading the hours a repository recorded
+
+Teams write in their repositories when each milestone started and finished (the `## Estimation` table of each story and requirement) and keep work logs with a duration. Factory can turn that history into hours of each person:
+
+```
+/crew:factory repo-hours
+```
+
+The agent reads the repository with a script, saves each story and requirement in factory with its milestones, and runs a dry run first: hours per person and month, and the rows left out with the reason. Nothing is loaded until you look at it and say yes.
+
+- **Who each row belongs to** comes from the author email of the commit that wrote the row (`git blame`), or of the commit that added the work log. Factory matches it against each person's corporate email and the git emails they registered in Mis horas. The plugin never says whose a row is.
+- **What leaves the repository:** the start, finish, actual hours and actual AI hours of each row, the milestone code, the file path, the author email and the commit. Never the text of the files, the Notes column, the work-log prose, commit messages or commit times.
+- **Rows not committed yet** have no author and are left out; commit them first.
+- **Your own rows count at once. Someone else's rows wait for that person** to confirm them in factory. Loading for others needs leading the project (or a team on it) in factory.
+- **Each minute counts once:** time live capture already sent stays as it was; the repository only fills the gaps. Running it again adds nothing twice, and a row removed from a file is retired.
+
+The rules factory applies are in factory's guide "Horas desde los repositorios".
+
 ## Linking a story to its activity
 
 Add one line to the header of the story or requirement:
