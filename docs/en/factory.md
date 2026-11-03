@@ -56,13 +56,31 @@ A repository that should never be captured says so in its `crew.json` with `"fac
 
 **What you need in factory.** A person record linked to your user, the `my-hours.register` permission (every profile has it), and to take part in the project, as its lead or through an assigned squad. Hours are proposed only on activities that hang from an approved package.
 
-**3. Optional: the factory tools for the agent.** Factory also offers MCP tools so the agent can read the backlog, create activities or log time on your behalf. The tools you see depend on your profile: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, and the package tools (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`). Claude Code reads the token from the environment:
+**3. Optional: the factory tools for the agent.** Factory also offers MCP tools so the agent can read the backlog, create activities or log time on your behalf. The tools you see depend on your profile: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, and the package tools (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`).
 
-```
-claude mcp add --transport http factory https://api.factory.balearesgroup.com/api/v1/mcp --header "Authorization: Bearer ${FACTORY_TOKEN}"
+`/crew:factory login` stores the token in `~/.crew/factory-token`. It does **not** set `FACTORY_TOKEN` and does not register the MCP server: that is this step. When the login finishes it prints the exact command for your factory and your shell, reading the token from the file so it never shows on screen or in the chat. For prod, in PowerShell:
+
+```powershell
+claude mcp remove factory --scope user
+$t = (Get-Content -Raw "$HOME\.crew\factory-token").Trim(); if ($t) { claude mcp add --scope user --transport http factory https://api.factory.balearesgroup.com/api/v1/mcp --header "Authorization: Bearer $t" }; Remove-Variable t
 ```
 
-In Codex, add the server to `~/.codex/config.toml` with `url = "https://api.factory.balearesgroup.com/api/v1/mcp"` and `bearer_token_env_var = "FACTORY_TOKEN"`. For the development environment, use `api.dev.factory.balearesgroup.com`.
+In bash, zsh or Git Bash:
+
+```bash
+claude mcp remove factory --scope user
+[ -s ~/.crew/factory-token ] && claude mcp add --scope user --transport http factory https://api.factory.balearesgroup.com/api/v1/mcp --header "Authorization: Bearer $(tr -d '\r\n ' < ~/.crew/factory-token)"
+```
+
+For the development environment, use `api.dev.factory.balearesgroup.com`. `claude mcp list` should then show `factory: … ✔ Connected`; the tools appear in sessions started after that.
+
+- **Register again after every login.** The registration keeps a copy of the token in Claude Code's configuration, so a new login (or an expired token) leaves it stale.
+- **Do not register with `${FACTORY_TOKEN}`** unless that variable really holds the token in the shell you run the command from; the login never sets it. In PowerShell `${FACTORY_TOKEN}` is a PowerShell variable, not the environment one (`$env:FACTORY_TOKEN`). Either way the server is stored with an empty bearer and every call answers 401 "No personal access token provided".
+- A server registered earlier without `--scope user` stays in that project and wins over the user-scoped one: remove it there with `claude mcp remove factory`.
+- **On logout, remove the registration too** (`claude mcp remove factory --scope user`; `/crew:factory logout` reminds you). It holds its own copy of the token in `~/.claude.json`, so never paste that file or the output of `claude mcp get factory` anywhere.
+- When factory's address is not a plain `https` URL, the login prints no command and points here: register it by hand with the address from your `crew.json`.
+
+In Codex, add the server to `~/.codex/config.toml` with `url = "https://api.factory.balearesgroup.com/api/v1/mcp"` and `bearer_token_env_var = "FACTORY_TOKEN"`, and set `FACTORY_TOKEN` in the environment Codex starts from: Codex reads only the variable, not the file.
 
 ## Which factory you talk to
 

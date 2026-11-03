@@ -4,6 +4,7 @@
 const { factoryToken, forgetToken, request, tokenState, tokenMeta } = require("../../hooks/lib/factory");
 const { clearActivity, queuedCount } = require("../../hooks/lib/activity-queue");
 const { identify, bindingLine, unwrap } = require("./factory-connect");
+const { MCP_FORGET } = require("./factory-mcp-step");
 
 const HTTP_MS = 10000;
 const day = (iso) => String(iso).slice(0, 10);
@@ -53,8 +54,8 @@ async function logout(target) {
   } catch { /* offline: local copy still goes */ }
   forgetToken();
   clearActivity();
-  console.log(revoked ? "Disconnected: the token was revoked in factory and removed from this machine."
-    : "Removed the token from this machine. Factory could not confirm the revocation; revoke it in factory: Mis horas → Conectar con la IA.");
+  console.log(`${revoked ? "Disconnected: the token was revoked in factory and removed from this machine."
+    : "Removed the token from this machine. Factory could not confirm the revocation; revoke it in factory: Mis horas → Conectar con la IA."}\n${MCP_FORGET}`);
   if (process.env.FACTORY_TOKEN) console.log("FACTORY_TOKEN is still set in this environment; unset it to stop using it.");
   return 0;
 }

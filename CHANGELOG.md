@@ -23,6 +23,8 @@ Work time reaches factory without getting lost. The trigger was real: a token fa
 
 ### Fixed
 
+- **Factory MCP registration** ([`docs/en/factory.md`](docs/en/factory.md) / [`docs/es/factory.md`](docs/es/factory.md), step 3): the guide registered the server with `--header "Authorization: Bearer ${FACTORY_TOKEN}"` and said Claude Code reads the token from the environment, but `/crew:factory login` stores it in `~/.crew/factory-token` and never sets `FACTORY_TOKEN`. In PowerShell `${FACTORY_TOKEN}` is not even the environment variable. Either way the server was stored with an empty bearer and every call answered 401. The guide now registers it reading the file (PowerShell and bash), at user scope, and says to register again after every login.
+- **`/crew:factory login`** prints that registration as its next step, for the factory it connected to and the platform's shell, reading the token from the file so the token never reaches the output ([`scripts/lib/factory-mcp-step.js`](scripts/lib/factory-mcp-step.js)). The address and the path are quoted for that shell, and an address outside a strict `https` shape (it can come from a committed `crew.json`) prints no command, only a pointer to the guide. `logout` reminds to remove the registration, which keeps its own copy of the token. The command doc tells the agent to offer the step, wait for a yes, never use `${FACTORY_TOKEN}`, and never show `claude mcp get factory` or `~/.claude.json`. Reviewed by security-compliance.
 - The 48-hour cleanup of dead session state deleted `status.json`; the status now also keeps `since`, the moment a problem started.
 
 ### Compatibility
