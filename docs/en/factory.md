@@ -56,7 +56,7 @@ A repository that should never be captured says so in its `crew.json` with `"fac
 
 **What you need in factory.** A person record linked to your user, the `my-hours.register` permission (every profile has it), and to take part in the project, as its lead or through an assigned squad. Hours are proposed only on activities that hang from an approved package.
 
-**3. Optional: the factory tools for the agent.** Factory also offers MCP tools so the agent can read the backlog, create activities or log time on your behalf. The tools you see depend on your profile: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, and the package tools (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`).
+**3. Optional: the factory tools for the agent.** Factory also offers MCP tools so the agent can read the backlog, create activities or log time on your behalf. The tools you see depend on your profile: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, `import_repo_hours`, and the package tools (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`). If you lead a project or a team assigned to it, `log_time` also takes another person of the team: those hours wait for that person to confirm them in factory.
 
 `/crew:factory login` stores the token in `~/.crew/factory-token`. It does **not** set `FACTORY_TOKEN` and does not register the MCP server: that is this step. When the login finishes it prints the exact command for your factory and your shell, reading the token from the file so it never shows on screen or in the chat. For prod, in PowerShell:
 
@@ -74,6 +74,8 @@ claude mcp remove factory --scope user
 
 For the development environment, use `api.dev.factory.balearesgroup.com`. `claude mcp list` should then show `factory: … ✔ Connected`; the tools appear in sessions started after that.
 
+- **Open sessions do not see it.** Claude Code loads MCP servers when a session starts: if you registered factory with a session open, close it and start another.
+- **The environment comes from `crew.json`.** The plugin talks to prod by default; a repository with `"environment": "dev"` in its `factory` block makes the login and this command use dev (see [Which factory you talk to](#which-factory-you-talk-to)).
 - **Register again after every login.** The registration keeps a copy of the token in Claude Code's configuration, so a new login (or an expired token) leaves it stale.
 - **Do not register with `${FACTORY_TOKEN}`** unless that variable really holds the token in the shell you run the command from; the login never sets it. In PowerShell `${FACTORY_TOKEN}` is a PowerShell variable, not the environment one (`$env:FACTORY_TOKEN`). Either way the server is stored with an empty bearer and every call answers 401 "No personal access token provided".
 - A server registered earlier without `--scope user` stays in that project and wins over the user-scoped one: remove it there with `claude mcp remove factory`.
@@ -150,6 +152,24 @@ What it reads and what it sends:
 - Running it twice adds nothing twice: each rebuilt interval gets the same id every time.
 
 **Sending is closed in this version.** Factory adds up agent time without merging stretches that overlap, so time live capture already sent would count twice. The summary works today; sending opens when factory counts agent time once per session. Codex transcripts are not read yet.
+
+## Loading the hours a repository recorded
+
+Teams write in their repositories when each milestone started and finished (the `## Estimation` table of each story and requirement) and keep work logs with a duration. Factory can turn that history into hours of each person:
+
+```
+/crew:factory repo-hours
+```
+
+The agent reads the repository with a script, saves each story and requirement in factory with its milestones, and runs a dry run first: hours per person and month, and the rows left out with the reason. Nothing is loaded until you look at it and say yes.
+
+- **Who each row belongs to** comes from the author email of the commit that wrote the row (`git blame`), or of the commit that added the work log. Factory matches it against each person's corporate email and the git emails they registered in Mis horas. The plugin never says whose a row is.
+- **What leaves the repository:** the start, finish, actual hours and actual AI hours of each row, the milestone code, the file path, the author email and the commit. Never the text of the files, the Notes column, the work-log prose, commit messages or commit times.
+- **Rows not committed yet** have no author and are left out; commit them first.
+- **Your own rows count at once. Someone else's rows wait for that person** to confirm them in factory. Loading for others needs leading the project (or a team on it) in factory.
+- **Each minute counts once:** time live capture already sent stays as it was; the repository only fills the gaps. Running it again adds nothing twice, and a row removed from a file is retired.
+
+The rules factory applies are in factory's guide "Horas desde los repositorios".
 
 ## Linking a story to its activity
 

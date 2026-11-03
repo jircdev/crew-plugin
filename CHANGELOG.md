@@ -6,6 +6,10 @@ All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepa
 
 Stories reach factory from the moment they are written, and crew stops fighting factory's story sync. The trigger was real: a project that uploaded its stories with factory's `sync-stories` could not close any of them in crew (no `**Factory activity:**` line), got one module per folder instead of the areas it plans by, and saw every story in Backlog whatever its `Status`.
 
+### Added
+
+- `/crew:factory repo-hours`: loads into factory the hours a repository recorded (the Started/Finished of each `## Estimation` milestone and the Duration of each work log), each row attributed by the author email of the commit that wrote it. `scripts/factory-repo-hours.js` reads the repository deterministically and prepares the calls; the agent saves each work item with `upsert_requirement`, runs factory's `import_repo_hours` as a dry run, and applies it only after the person says yes. Nothing but timestamps, hours, milestone codes, paths, author emails and commits leaves the repository. Contract: factory's `packages/backend/docs/mcp-repo-hours-contract.md`.
+
 ### Changed
 
 - **The closure gate accepts factory's sync block.** In factory mode a work item also closes when its header carries the block the story sync writes (`<!-- factory:start -->` followed by `**Factory:** #<number>`), read within the first 40 lines like the header link ([`hooks/lib/activity-rules.js`](hooks/lib/activity-rules.js) `factoryLinked`).

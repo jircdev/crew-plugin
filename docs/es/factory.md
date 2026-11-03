@@ -56,7 +56,7 @@ Un repositorio que nunca debe capturarse lo dice en su `crew.json` con `"factory
 
 **Lo que necesitás en factory.** Una ficha de persona vinculada a tu usuario, el permiso `my-hours.register` (lo tienen todos los perfiles) y participar del proyecto, como líder o desde una burbuja asignada. Las horas se proponen solo sobre actividades que cuelgan de un paquete aprobado.
 
-**3. Opcional: las herramientas de factory para el agente.** Factory también ofrece herramientas MCP para que el agente lea el backlog, cree actividades o cargue tiempo en tu nombre. Las que ves dependen de tu perfil: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, y las de paquetes (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`).
+**3. Opcional: las herramientas de factory para el agente.** Factory también ofrece herramientas MCP para que el agente lea el backlog, cree actividades o cargue tiempo en tu nombre. Las que ves dependen de tu perfil: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, `import_repo_hours`, y las de paquetes (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`). Si liderás un proyecto o un equipo asignado a él, `log_time` también acepta otra persona del equipo: esas horas esperan a que la persona las confirme en factory.
 
 `/crew:factory login` guarda el token en `~/.crew/factory-token`. **No** crea la variable `FACTORY_TOKEN` ni registra el servidor MCP: eso es este paso. Al terminar, el login imprime el comando exacto para tu factory y tu terminal, que lee el token del archivo para que nunca aparezca en pantalla ni en el chat. Para prod, en PowerShell:
 
@@ -74,6 +74,8 @@ claude mcp remove factory --scope user
 
 Para el entorno de desarrollo, usá `api.dev.factory.balearesgroup.com`. Después `claude mcp list` tiene que mostrar `factory: … ✔ Connected`; las herramientas aparecen en las sesiones que abras desde ahí.
 
+- **Las sesiones abiertas no lo ven.** Claude Code carga los servidores MCP al abrir una sesión: si registraste factory con una sesión abierta, cerrala y abrí otra.
+- **El entorno sale de `crew.json`.** Por defecto el plugin habla con prod; un repositorio con `"environment": "dev"` en su bloque `factory` hace que el login y este comando usen dev (ver [Con qué factory hablás](#con-qué-factory-hablás)).
 - **Volvé a registrarlo después de cada login.** El registro guarda una copia del token en la configuración de Claude Code, así que un login nuevo (o un token vencido) lo deja desactualizado.
 - **No lo registres con `${FACTORY_TOKEN}`** salvo que esa variable tenga de verdad el token en la terminal donde corrés el comando; el login nunca la crea. En PowerShell, `${FACTORY_TOKEN}` es una variable de PowerShell y no la de entorno (`$env:FACTORY_TOKEN`). En cualquiera de los dos casos el servidor queda con un `Bearer` vacío y cada llamada responde 401 "No personal access token provided".
 - Un servidor registrado antes sin `--scope user` queda en ese proyecto y gana sobre el de usuario: borralo ahí con `claude mcp remove factory`.
@@ -150,6 +152,24 @@ Qué lee y qué envía:
 - Correrlo dos veces da el mismo resultado: cada intervalo reconstruido recibe siempre el mismo id.
 
 **El envío está cerrado en esta versión.** Factory suma el tiempo del agente sin unir tramos que se superponen, así que el tiempo que la captura en vivo ya envió contaría doble. El resumen funciona hoy; el envío se abre cuando factory cuente el tiempo del agente una vez por sesión. Las transcripciones de Codex todavía no se leen.
+
+## Cargar las horas que anotó un repositorio
+
+Los equipos anotan en sus repositorios cuándo empezó y terminó cada hito (la tabla `## Estimation` de cada historia y requerimiento) y llevan registros de trabajo con su duración. Factory puede convertir esa historia en horas de cada persona:
+
+```
+/crew:factory repo-hours
+```
+
+El agente lee el repositorio con un script, guarda en factory cada historia y requerimiento con sus hitos, y primero corre una prueba: horas por persona y por mes, y las filas que quedan afuera con su motivo. No se carga nada hasta que lo mirás y decís que sí.
+
+- **De quién es cada fila** sale del correo del autor del commit que escribió la fila (`git blame`), o del commit que agregó el registro de trabajo. Factory lo compara con el correo corporativo de cada persona y con los correos de git que cada una registró en Mis horas. El plugin nunca dice de quién es una fila.
+- **Qué sale del repositorio:** el inicio, el fin, las horas reales y las horas IA reales de cada fila, el código del hito, la ruta del archivo, el correo del autor y el commit. Nunca el texto de los archivos, la columna Notes, el texto de los registros de trabajo, los mensajes de commit ni la hora de los commits.
+- **Las filas sin commitear** no tienen autor y quedan afuera; commitealas antes.
+- **Tus propias filas cuentan enseguida. Las de otra persona esperan** a que esa persona las confirme en factory. Cargar para otros pide liderar el proyecto (o un equipo asignado) en factory.
+- **Cada minuto cuenta una vez:** lo que la captura en vivo ya mandó queda como estaba; el repositorio solo completa los huecos. Correrlo de nuevo no suma nada dos veces, y una fila que sacás de un archivo se retira.
+
+Las reglas que aplica factory están en su guía «Horas desde los repositorios».
 
 ## Enlazar una historia con su actividad
 
