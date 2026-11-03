@@ -56,7 +56,7 @@ Un repositorio que nunca debe capturarse lo dice en su `crew.json` con `"factory
 
 **Lo que necesitás en factory.** Una ficha de persona vinculada a tu usuario, el permiso `my-hours.register` (lo tienen todos los perfiles) y participar del proyecto, como líder o desde una burbuja asignada. Las horas se proponen solo sobre actividades que cuelgan de un paquete aprobado.
 
-**3. Opcional: las herramientas de factory para el agente.** Factory también ofrece herramientas MCP para que el agente lea el backlog, cree actividades o cargue tiempo en tu nombre. Las que ves dependen de tu perfil: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, y las de paquetes (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`).
+**3. Opcional: las herramientas de factory para el agente.** Factory también ofrece herramientas MCP para que el agente lea el backlog, cree actividades o cargue tiempo en tu nombre. Las que ves dependen de tu perfil: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, `import_repo_hours`, y las de paquetes (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`). Si liderás un proyecto o un equipo asignado a él, `log_time` también acepta otra persona del equipo: esas horas esperan a que la persona las confirme en factory.
 
 `/crew:factory login` guarda el token en `~/.crew/factory-token`. **No** crea la variable `FACTORY_TOKEN` ni registra el servidor MCP: eso es este paso. Al terminar, el login imprime el comando exacto para tu factory y tu terminal, que lee el token del archivo para que nunca aparezca en pantalla ni en el chat. Para prod, en PowerShell:
 
@@ -74,6 +74,8 @@ claude mcp remove factory --scope user
 
 Para el entorno de desarrollo, usá `api.dev.factory.balearesgroup.com`. Después `claude mcp list` tiene que mostrar `factory: … ✔ Connected`; las herramientas aparecen en las sesiones que abras desde ahí.
 
+- **Las sesiones abiertas no lo ven.** Claude Code carga los servidores MCP al abrir una sesión: si registraste factory con una sesión abierta, cerrala y abrí otra.
+- **El entorno sale de `crew.json`.** Por defecto el plugin habla con prod; un repositorio con `"environment": "dev"` en su bloque `factory` hace que el login y este comando usen dev (ver [Con qué factory hablás](#con-qué-factory-hablás)).
 - **Volvé a registrarlo después de cada login.** El registro guarda una copia del token en la configuración de Claude Code, así que un login nuevo (o un token vencido) lo deja desactualizado.
 - **No lo registres con `${FACTORY_TOKEN}`** salvo que esa variable tenga de verdad el token en la terminal donde corrés el comando; el login nunca la crea. En PowerShell, `${FACTORY_TOKEN}` es una variable de PowerShell y no la de entorno (`$env:FACTORY_TOKEN`). En cualquiera de los dos casos el servidor queda con un `Bearer` vacío y cada llamada responde 401 "No personal access token provided".
 - Un servidor registrado antes sin `--scope user` queda en ese proyecto y gana sobre el de usuario: borralo ahí con `claude mcp remove factory`.
