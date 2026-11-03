@@ -15,6 +15,7 @@ const { execFile } = require("node:child_process");
 const { loadConfig } = require("../hooks/lib/config");
 const { resolveFactory } = require("../hooks/lib/factory-env");
 const { factoryToken, saveToken, forgetToken, request, crewHome } = require("../hooks/lib/factory");
+const { mcpStep, MCP_FORGET } = require("./lib/factory-mcp-step");
 
 const TIMEOUT_MS = Number(process.env.CREW_LOGIN_TIMEOUT_MS) || 5 * 60000;
 const HTTP_MS = 10000;
@@ -141,6 +142,7 @@ async function login(target) {
   finish("connected");
   console.log(`Connected to factory ${target.name}. Token stored owner-only in ${file}` +
     (data.expiresAt ? `; it expires on ${String(data.expiresAt).slice(0, 10)}.` : "."));
+  console.log(mcpStep(target.api, file));
   if (process.env.FACTORY_TOKEN) console.log("Note: FACTORY_TOKEN is set in this environment and takes precedence over the stored token.");
   return 0;
 }
@@ -171,8 +173,8 @@ async function logout(target) {
     revoked = (res.status >= 200 && res.status < 300) || res.status === 401;
   } catch { /* offline: local copy still goes */ }
   forgetToken();
-  console.log(revoked ? "Disconnected: the token was revoked in factory and removed from this machine."
-    : "Removed the token from this machine. Factory could not confirm the revocation; revoke it in factory: Mis horas → Conectar con la IA.");
+  console.log(`${revoked ? "Disconnected: the token was revoked in factory and removed from this machine."
+    : "Removed the token from this machine. Factory could not confirm the revocation; revoke it in factory: Mis horas → Conectar con la IA."}\n${MCP_FORGET}`);
   if (process.env.FACTORY_TOKEN) console.log("FACTORY_TOKEN is still set in this environment; unset it to stop using it.");
   return 0;
 }

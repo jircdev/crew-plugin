@@ -7,7 +7,8 @@ Connect, check or disconnect this machine's factory token, the personal credenti
 
 Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/factory-login.js" $ARGUMENTS` from the project root (`status` when no argument was given). For `login`, run it in the background or with a timeout of at least six minutes: it waits until the person approves in the browser.
 
-- **login** opens factory in the browser. Tell the person to read what capture records and approve there, then come back to the chat. If the browser did not open, show them the printed link. The token goes straight from factory to a file only they can read.
+- **login** opens factory in the browser. Tell the person to read what capture records and approve there, then come back to the chat. If the browser did not open, show them the printed link. The token goes straight from factory to a file only they can read. The login does not set `FACTORY_TOKEN` nor register factory's MCP server: when it connects it prints the registration commands, which read the token from that file. Offer to run them and wait for an explicit yes (or let the person run them in their terminal); run exactly the printed lines, verify only with `claude mcp list`, and say the tools appear in sessions started afterwards. Never register the server with `${FACTORY_TOKEN}`, never read or print the token file, never run `claude mcp get factory` and never show `~/.claude.json`: the registration holds a copy of the token. When the login prints no command (an address it will not put in a shell line), point to step 3 of `docs/en/factory.md`.
+- **logout** also prints how to remove the registered MCP server, which keeps its own copy of the token.
 - **status** says which factory this machine talks to, as whom, and when the token expires.
 - **logout** revokes the token in factory and removes it from this machine.
 

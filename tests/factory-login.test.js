@@ -93,6 +93,38 @@ test('login trades the one-time code for the token, stores it owner-only and nev
   const link = new URL(out.stdout.match(/https:\/\/\S+/)[0]);
   assert.ok(Number(link.searchParams.get('port')) >= 1024);
   assert.equal(link.searchParams.get('challenge').length, 43);
+  // The next step registers the MCP of the same factory, reading the stored file.
+  assert.ok(out.stdout.includes(`factory '${fake.api}/mcp'`), out.stdout);
+  assert.ok(out.stdout.includes(path.join(out.home, 'factory-token')), out.stdout);
+});
+
+test('the MCP step reads the token file in the platform shell and never uses ${FACTORY_TOKEN}', () => {
+  const { mcpStep } = require('../scripts/lib/factory-mcp-step');
+  const api = 'https://api.example/api/v1';
+  const windows = mcpStep(api, 'C:\\Users\\ana\\.crew\\factory-token', 'win32');
+  assert.match(windows, /PowerShell/);
+  assert.match(windows, /Get-Content -Raw 'C:\\Users\\ana\\.crew\\factory-token'/);
+  assert.match(windows, /--scope user --transport http factory 'https:\/\/api\.example\/api\/v1\/mcp'/);
+  const unix = mcpStep(api, '/home/ana/.crew/factory-token', 'linux');
+  assert.match(unix, /^\[ -s '\/home\/ana\/\.crew\/factory-token' \] && /m);
+  assert.match(unix, /\$\(tr -d '\\r\\n ' < '\/home\/ana\/\.crew\/factory-token'\)/);
+  for (const text of [windows, unix]) assert.equal(text.includes('FACTORY_TOKEN'), false);
+});
+
+test('the MCP step escapes a quote in the path and prints no command for an unsafe address', () => {
+  const { mcpStep } = require('../scripts/lib/factory-mcp-step');
+  const api = 'https://api.example/api/v1';
+  assert.match(mcpStep(api, "C:\\Users\\O'Brien\\.crew\\factory-token", 'win32'), /'C:\\Users\\O''Brien\\.crew\\factory-token'/);
+  assert.match(mcpStep(api, "/home/o'brien/.crew/factory-token", 'linux'), /'\/home\/o'\\''brien\/\.crew\/factory-token'/);
+  const hostile = ['https://x/a;calc', 'https://x/$(id)', 'https://x/a`id`', 'https://user:pw@x/api', 'http://x.example/api',
+    'https://x/a --header X:1', 'not a url'];
+  for (const bad of hostile) {
+    for (const platform of ['win32', 'linux']) {
+      const text = mcpStep(bad, '/home/ana/.crew/factory-token', platform);
+      assert.equal(text.includes('claude mcp add'), false, `${bad} on ${platform}: ${text}`);
+      assert.match(text, /docs\/en\/factory\.md/);
+    }
+  }
 });
 
 test('a forged state, a foreign Host header or a denial never stores a token', async t => {
@@ -126,7 +158,9 @@ test('status reports the person and expiry; logout revokes and deletes even when
   assert.match((await runIn(home, 'status', fake.api)).stdout, /Not connected/);
   fs.writeFileSync(path.join(home, 'factory-token'), TOKEN);
   assert.match((await runIn(home, 'status', fake.api)).stdout, /as Ana, token expires on 2027-01-05/);
-  assert.match((await runIn(home, 'logout', fake.api)).stdout, /revoked in factory/);
+  const loggedOut = (await runIn(home, 'logout', fake.api)).stdout;
+  assert.match(loggedOut, /revoked in factory/);
+  assert.match(loggedOut, /claude mcp remove factory --scope user/);
   assert.equal(fake.seen.deleted, 1);
   assert.equal(fs.existsSync(path.join(home, 'factory-token')), false);
   fs.writeFileSync(path.join(home, 'factory-token'), TOKEN);
