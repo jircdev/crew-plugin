@@ -161,6 +161,30 @@ Add one line to the header of the story or requirement:
 
 `**Factory task:**` is accepted too, for work items written before factory called them activities. The agent can find the id with `project_backlog`, `agenda` or `get_activity`, or create the activity with `create_activity` (or `upsert_requirement` for a requirement) and add the line itself. From then on, time captured while that file is being edited is proposed for that activity, and the story can be closed.
 
+**With factory's story sync** (the `sync-stories` skill in the factory repository, which calls `sync_stories_push` and `sync_stories_pull`), the story is linked by its path and needs no line. When it pulls from factory, the skill writes a block under the header, between `<!-- factory:start -->` and `<!-- factory:end -->`, with the activity's number. That block counts as the link for closing the story, just like `**Factory activity:**`.
+
+### From the story to factory
+
+- **When it goes up.** A story goes to factory when it reaches `Ready`, not when it is finished: factory sees it in the backlog from the moment it can be taken. Whoever declares it ready (`FA`) sends it, with the sync or with `sync_stories_push` for that story.
+- **Module.** Factory makes one module per folder of `docs/stories/`. When the project groups differently (for example, several folders in one area of its board), the header says so with `- **Module:** <module name in factory>` (`**Módulo:**` is accepted too). Factory's sync sends the story to that module.
+- **Tasks.** The rows of the milestone table stay in the file. Factory receives the story, with the table's total as its first estimate; never one activity per row. If a task is needed in factory, add it there by hand.
+- **Surfaces and requirements.** These lines are optional. `- **Surfaces:** server · web · app` says where the story is built and `- **Done on:** server · web`, where it is already built (`**Superficie:**` and `**Hecho en:**` are accepted too). `- **Covers:** RQ-02, RQ-18` says which requirements it covers (`**Cubre:**` too). With them factory shows progress by surface and by requirement. A line that is absent leaves what factory has untouched.
+- **Labels.** `- **Requires:**` carries the story's standard labels (`go-live`, `legal`, `client`; in Spanish, `producción`, `legal`, `cliente`), defined in the stories template. They stay in the file: factory does not read them yet.
+- **Status.** The file keeps crew's circuit `Status`, because the gates read it. Whoever changes the `Status` in factory mode also updates the activity's status (`update_activity`), with this equivalence:
+
+| crew `Status` | factory status |
+|---|---|
+| `Draft` | Backlog |
+| `Ready` | Por hacer |
+| `In progress` | En curso |
+| `In progress` with `**Blocked:**` in the header | En pausa, with that line as its reason |
+| `Delivered` | En revisión |
+| `Validated`, `Closed` | Hecha |
+
+Factory still owns the management: assignee, sprint, priority and hours. What the sync brings goes into its block and its own `**Estado:**` line; it never replaces the `Status`.
+
+A developer can also move the status from factory's MCP. To see where the `Status` and factory disagree, the `sync-stories` skill has `drift.mjs`: it lists the differences, changes nothing, and a person decides.
+
 ## Pausing capture
 
 Any one of these is enough:

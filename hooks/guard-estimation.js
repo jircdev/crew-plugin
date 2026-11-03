@@ -10,8 +10,9 @@
 //     declaring what the project can verify is what makes the silence a defect.
 //
 // In factory mode (crew.json `factory` with a projectId) the estimate lives in
-// the factory activity, so the estimation gate asks for the `**Factory activity:**`
-// header link instead of the table, in either mode.
+// the factory activity, so the estimation gate asks for the link instead of the
+// table, in either mode: the `**Factory activity:**` header, or the block that
+// factory's story sync writes under the header.
 const { readFileSync, existsSync } = require("node:fs");
 const { dirname } = require("node:path");
 const { configFor } = require("./lib/config");
@@ -19,7 +20,7 @@ const { findRoot } = require("./lib/ceilings");
 const { unbacked } = require("./lib/receipts");
 const { uncovered } = require("./lib/criteria");
 const { factoryMode } = require("./lib/factory");
-const { factoryTaskId } = require("./lib/activity-rules");
+const { factoryLinked } = require("./lib/activity-rules");
 const { estimationTable } = require("./lib/estimation");
 
 function deny(reason) {
@@ -144,12 +145,13 @@ try {
     if (/\*\*(Status|Estado):\*\*\s*(Closed|Cerrada)\b/i.test(header)) process.exit(0);
   }
 
-  if (factory && !factoryTaskId(content)) {
+  if (factory && !factoryLinked(content)) {
     deny(
       `Cannot close this work item: no **Factory activity:** header. This project runs in ` +
         `factory mode (crew.json \`factory\`), where the estimate, state and time live in ` +
         `the factory activity. Add a header line \`- **Factory activity:** <activity uuid>\` ` +
-        `linking it (\`**Factory task:**\` is accepted too), then close.`,
+        `linking it (\`**Factory task:**\` is accepted too), or sync the story with factory ` +
+        `so its \`<!-- factory:start -->\` block is in the header, then close.`,
     );
   }
 

@@ -161,6 +161,30 @@ Agregá una línea en la cabecera de la historia o el requerimiento:
 
 También se acepta `**Factory task:**`, para work items escritos antes de que factory las llamara actividades. El agente puede buscar el id con `project_backlog`, `agenda` o `get_activity`, o crear la actividad con `create_activity` (o `upsert_requirement` si es un requerimiento) y agregar la línea él mismo. Desde ese momento, el tiempo capturado mientras se edita ese archivo se propone para esa actividad, y la historia se puede cerrar.
 
+**Con la sincronización de historias de factory** (el skill `sync-stories` del repositorio de factory, que llama a `sync_stories_push` y `sync_stories_pull`), la historia se enlaza por su ruta y no hace falta la línea. Al traer lo de factory, el skill escribe un bloque bajo la cabecera, entre `<!-- factory:start -->` y `<!-- factory:end -->`, con el número de la actividad. Ese bloque cuenta como enlace para cerrar la historia, igual que `**Factory activity:**`.
+
+### De la historia a factory
+
+- **Cuándo sube.** Una historia sube a factory cuando pasa a `Ready`, no al terminarla: así factory la ve en el backlog desde que se puede tomar. La sube quien la declara lista (`FA`), con la sincronización o con `sync_stories_push` para esa historia.
+- **Módulo.** Factory arma un módulo por carpeta de `docs/stories/`. Cuando el proyecto agrupa distinto (por ejemplo, varias carpetas en un área del tablero), la cabecera lo dice con `- **Module:** <nombre del módulo en factory>` (también se acepta `**Módulo:**`). La sincronización de factory manda la historia a ese módulo.
+- **Tareas.** Las filas de la tabla de hitos se quedan en el archivo. A factory va la historia, con el total de la tabla como primera estimación; nunca una actividad por fila. Si hace falta una tarea en factory, se agrega a mano ahí.
+- **Superficies y requerimientos.** Son líneas opcionales. `- **Surfaces:** servidor · web · app` dice dónde se construye la historia y `- **Done on:** servidor · web`, dónde ya está hecha (también se aceptan `**Superficie:**` y `**Hecho en:**`). `- **Covers:** RQ-02, RQ-18` dice qué requerimientos cubre (también `**Cubre:**`). Con ellas factory muestra el avance por superficie y por requerimiento. Si una línea no está, la sincronización no toca lo que factory ya tiene.
+- **Etiquetas.** `- **Requires:**` lleva las etiquetas estándar de la historia (`go-live`, `legal`, `client`; en español, `producción`, `legal`, `cliente`), definidas en la plantilla de historias. Quedan en el archivo: factory todavía no las lee.
+- **Estado.** El archivo conserva el `Status` del circuito de crew, porque las compuertas lo leen. Quien cambia el `Status` en modo factory actualiza también el estado de la actividad (`update_activity`), con esta equivalencia:
+
+| `Status` en crew | Estado en factory |
+|---|---|
+| `Draft` | Backlog |
+| `Ready` | Por hacer |
+| `In progress` | En curso |
+| `In progress` con `**Blocked:**` en la cabecera | En pausa, con esa línea como motivo |
+| `Delivered` | En revisión |
+| `Validated`, `Closed` | Hecha |
+
+Factory sigue siendo dueño de la gestión: responsable, sprint, prioridad y horas. Lo que trae la sincronización va en su bloque y en su propia línea `**Estado:**`; nunca reemplaza el `Status`.
+
+Quien desarrolla también puede mover el estado desde el MCP de factory. Para ver dónde el `Status` y factory dicen cosas distintas, el skill `sync-stories` trae `drift.mjs`: lista las diferencias, no cambia nada, y decide una persona.
+
 ## Pausar la captura
 
 Cualquiera de estas alcanza:
