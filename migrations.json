@@ -98,6 +98,13 @@
       "title": "Production confirmation",
       "summary": "Calls that name production now ask the human to confirm, in every project; activity capture on edits and prompts runs again. Nothing to configure.",
       "doc": "CHANGELOG.md"
+    },
+    {
+      "version": "1.3.0",
+      "required": false,
+      "title": "Factory capture that keeps the time",
+      "summary": "An expired token keeps captured time until the next login; /crew:factory link ties a repository to its factory project from the git remote; problems with capture show to the person; /crew:factory backfill shows the time rebuilt from local transcripts (sending stays closed); login prints how to register factory's MCP reading the stored token. Run /crew:factory login again so the token's expiry is stored, then /crew:factory link in each repository.",
+      "doc": "CHANGELOG.md"
     }
   ]
 }

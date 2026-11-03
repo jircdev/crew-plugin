@@ -2,7 +2,7 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
-## [Unreleased]
+## [1.3.0] — 2026-11-03
 
 Work time reaches factory without getting lost. The trigger was real: a token factory refused on 2026-10-30 emptied the local queue, the only warning went to the agent's context, and a repository without a project id was never captured. Designed with system-architect and reviewed by security-compliance. Plan: [`docs/requirements/factory-onboarding/`](docs/requirements/factory-onboarding/README.md).
 
@@ -31,7 +31,7 @@ Work time reaches factory without getting lost. The trigger was real: a token fa
 
 - `required: false`. A token obtained before this version has no stored expiry, so until the next login a 401 still counts as a revocation.
 - Unverified: whether Codex shows `systemMessage`; the MCP call against a real factory.
-- Needs factory (its own repository): counting agent time once per session before backfill can send, a `source` field shown apart in the weekly review, rejecting intervals outside the person's consent periods, and the approval page saying that time recorded after an expiry is sent at the next login.
+- Needs factory (its own repository): counting agent time once per session before backfill can send (written and tested in factory, not yet deployed to its dev or prod servers on 2026-11-03, so `backfill --send` stays closed in this version), a `source` field shown apart in the weekly review, rejecting intervals outside the person's consent periods, and the approval page saying that time recorded after an expiry is sent at the next login.
 
 ## [1.2.1] — 2026-10-14
 
