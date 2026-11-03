@@ -43,8 +43,11 @@ function taskHintFor(configRoot, filePath, cwd) {
 
 // ctx.newId(kind, from, to): live capture draws a random id; a rebuild from
 // transcripts derives it from the session and the stretch, so a rerun
-// produces the same ids. ctx.source marks rebuilt intervals.
+// produces the same ids. ctx.source marks rebuilt intervals. ctx.blocks false
+// leaves the block out: a rebuild lets factory place its turns in the block
+// the live capture already sent, so the same work is never two blocks.
 function makeInterval(kind, from, to, state, ctx) {
+  const blocks = ctx.blocks !== false;
   return {
     id: ctx.newId(kind, from, to),
     kind,
@@ -54,8 +57,8 @@ function makeInterval(kind, from, to, state, ctx) {
     projectId: ctx.projectId,
     ...(ctx.source ? { source: ctx.source } : {}),
     ...(state.taskHint || {}),
-    ...(state.blockId ? { blockId: state.blockId } : {}),
-    ...(state.blockTaskId ? { declaredTaskId: state.blockTaskId, declaredAt: state.declaredAt } : {}),
+    ...(blocks && state.blockId ? { blockId: state.blockId } : {}),
+    ...(blocks && state.blockTaskId ? { declaredTaskId: state.blockTaskId, declaredAt: state.declaredAt } : {}),
   };
 }
 

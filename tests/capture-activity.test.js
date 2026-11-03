@@ -262,3 +262,13 @@ test('completing an activity through factory cuts the block; other factory calls
   assert.notEqual(done.blockId, start.blockId);
   assert.equal(done.blockTaskId, null);
 });
+
+test('a rebuild from transcripts sends no work block: factory joins it to the live one', () => {
+  const ctx = { sessionId: 's', projectId: PROJECT, source: 'backfill', blocks: false, newId: (kind) => `${kind}-x` };
+  let state = applyEvent({}, { name: 'SessionStart' }, T0, ctx).state;
+  state = applyEvent(state, { name: 'Declare', taskId: TASK }, T0 + MIN, ctx).state;
+  const [human] = applyEvent(state, { name: 'UserPromptSubmit' }, T0 + 2 * MIN, ctx).intervals;
+  assert.equal(human.blockId, undefined);
+  assert.equal(human.declaredTaskId, undefined);
+  assert.equal(human.source, 'backfill');
+});
