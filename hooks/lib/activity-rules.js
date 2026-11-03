@@ -13,11 +13,24 @@ const HEADER_LINES = 40;
 const FACTORY_TASK =
   /\*\*Factory (?:task|activity):\*\*\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;
 const WORK_ITEM = /^docs\/(stories|requirements)\//i;
+// The block factory's story sync writes under the header (`sync-stories`
+// skill, ADR planning/001). It links the file by its path, never by a uuid
+// line, so it proves the work item exists in factory just as the header does.
+const FACTORY_BLOCK = /<!-- factory:start -->\s*\n\s*[-*]\s*\*\*Factory:\*\*\s*#\d+/;
+
+function headOf(text) {
+  return String(text || "").split("\n").slice(0, HEADER_LINES).join("\n");
+}
 
 function factoryTaskId(text) {
-  const head = String(text || "").split("\n").slice(0, HEADER_LINES).join("\n");
-  const match = head.match(FACTORY_TASK);
+  const match = headOf(text).match(FACTORY_TASK);
   return match ? match[1].toLowerCase() : null;
+}
+
+// Linked to factory: a `**Factory activity:**` header, or the block the story
+// sync writes. Both are header facts, read without calling factory.
+function factoryLinked(text) {
+  return factoryTaskId(text) !== null || FACTORY_BLOCK.test(headOf(text));
 }
 
 // The task an edit points at: the work item's repo reference, plus the factory
@@ -83,4 +96,4 @@ function applyEvent(prev, event, now, ctx) {
   return { state, intervals };
 }
 
-module.exports = { applyEvent, taskHintFor, factoryTaskId, IDLE_MS };
+module.exports = { applyEvent, taskHintFor, factoryTaskId, factoryLinked, IDLE_MS };

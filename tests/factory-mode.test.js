@@ -64,6 +64,18 @@ test('factory mode closes on the Factory activity header instead of the estimati
   }
 });
 
+test('factory mode also closes on the block the story sync writes, and only on a real one', t => {
+  const dir = fixture(t, { mode: 'team', quality: 'off', factory: FACTORY });
+  const synced = '# 001\n- **Status:** Closed\n\n<!-- factory:start -->\n' +
+    '- **Factory:** #518 · Hecha · Módulo: Cuentas y perfil\n<!-- factory:end -->\n';
+  assert.equal(write(dir, synced), null);
+  assert.equal(patch(dir, synced), null);
+  const bare = '# 001\n- **Status:** Closed\n\n<!-- factory:start -->\n<!-- factory:end -->\n';
+  assert.match(reason(write(dir, bare)), /no \*\*Factory activity:\*\* header/);
+  const late = '# 001\n- **Status:** Closed\n' + '\nfiller'.repeat(45) + '\n<!-- factory:start -->\n- **Factory:** #518\n';
+  assert.match(reason(write(dir, late)), /no \*\*Factory activity:\*\* header/);
+});
+
 test('declared testing still gates closure in factory mode', t => {
   const dir = fixture(t, { factory: FACTORY, testing: { guide: 'docs/testing.md' } });
   const out = write(dir, `# 001\n- **Status:** Closed\n- **Factory task:** ${TASK}\n`);

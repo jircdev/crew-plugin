@@ -2,6 +2,15 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [Unreleased]
+
+Stories reach factory from the moment they are written, and crew stops fighting factory's story sync. The trigger was real: a project that uploaded its stories with factory's `sync-stories` could not close any of them in crew (no `**Factory activity:**` line), got one module per folder instead of the areas it plans by, and saw every story in Backlog whatever its `Status`.
+
+### Changed
+
+- **The closure gate accepts factory's sync block.** In factory mode a work item also closes when its header carries the block the story sync writes (`<!-- factory:start -->` followed by `**Factory:** #<number>`), read within the first 40 lines like the header link ([`hooks/lib/activity-rules.js`](hooks/lib/activity-rules.js) `factoryLinked`).
+- **Factory mode, from the story to factory** ([`docs/en/factory.md`](docs/en/factory.md) / [`docs/es/factory.md`](docs/es/factory.md), stories template, delivery circuit, `functional-analyst`): a story goes to factory when it reaches Ready; its optional `**Module:**` line (or `**Módulo:**`) names the factory module when it is not the folder; the milestone rows stay in the file, never one activity per row; and each `Status` change is mirrored on the activity, with a published equivalence (Draft → Backlog, Ready → Por hacer, In progress → En curso or En pausa while `**Blocked:**`, Delivered → En revisión, Validated and Closed → Hecha).
+
 ## [1.3.0] — 2026-11-03
 
 Work time reaches factory without getting lost. The trigger was real: a token factory refused on 2026-10-30 emptied the local queue, the only warning went to the agent's context, and a repository without a project id was never captured. Designed with system-architect and reviewed by security-compliance. Plan: [`docs/requirements/factory-onboarding/`](docs/requirements/factory-onboarding/README.md).
