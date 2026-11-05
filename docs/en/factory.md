@@ -56,7 +56,7 @@ A repository that should never be captured says so in its `crew.json` with `"fac
 
 **What you need in factory.** A person record linked to your user, the `my-hours.register` permission (every profile has it), and to take part in the project, as its lead or through an assigned squad. Hours are proposed only on activities that hang from an approved package.
 
-**3. Optional: the factory tools for the agent.** Factory also offers MCP tools so the agent can read the backlog, create activities or log time on your behalf. The tools you see depend on your profile: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, and the package tools (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`).
+**3. Optional: the factory tools for the agent.** Factory also offers MCP tools so the agent can read the backlog, create activities or log time on your behalf. The tools you see depend on your profile: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `update_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, and the package tools (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`).
 
 `/crew:factory login` stores the token in `~/.crew/factory-token`. It does **not** set `FACTORY_TOKEN` and does not register the MCP server: that is this step. When the login finishes it prints the exact command for your factory and your shell, reading the token from the file so it never shows on screen or in the chat. For prod, in PowerShell:
 
@@ -170,6 +170,10 @@ Any one of these is enough:
 - `/crew:factory logout`, or revoking the token in factory, pauses it for you everywhere.
 
 While paused, the plugin writes nothing at all, not even locally.
+
+## Closing a task
+
+When the agent finishes a task it closes it, proposes your hours in quarters of an hour and loads the number you confirm or give. If you do not answer, nothing stops: the task stays closed and the hours wait as a proposal in **Mis horas**. Agent hours come from the capture and are never asked. If you ask for changes later, the agent reopens the task and asks only about the new time. A human review is optional and no longer keeps a task open. The agent follows this through the `task-closure` skill.
 
 ## Your weekly review
 

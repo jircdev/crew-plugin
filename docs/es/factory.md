@@ -56,7 +56,7 @@ Un repositorio que nunca debe capturarse lo dice en su `crew.json` con `"factory
 
 **Lo que necesitás en factory.** Una ficha de persona vinculada a tu usuario, el permiso `my-hours.register` (lo tienen todos los perfiles) y participar del proyecto, como líder o desde una burbuja asignada. Las horas se proponen solo sobre actividades que cuelgan de un paquete aprobado.
 
-**3. Opcional: las herramientas de factory para el agente.** Factory también ofrece herramientas MCP para que el agente lea el backlog, cree actividades o cargue tiempo en tu nombre. Las que ves dependen de tu perfil: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, y las de paquetes (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`).
+**3. Opcional: las herramientas de factory para el agente.** Factory también ofrece herramientas MCP para que el agente lea el backlog, cree actividades o cargue tiempo en tu nombre. Las que ves dependen de tu perfil: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `update_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, y las de paquetes (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`).
 
 `/crew:factory login` guarda el token en `~/.crew/factory-token`. **No** crea la variable `FACTORY_TOKEN` ni registra el servidor MCP: eso es este paso. Al terminar, el login imprime el comando exacto para tu factory y tu terminal, que lee el token del archivo para que nunca aparezca en pantalla ni en el chat. Para prod, en PowerShell:
 
@@ -170,6 +170,10 @@ Cualquiera de estas alcanza:
 - `/crew:factory logout`, o revocar el token en factory, la pausa para vos en todos lados.
 
 Mientras está pausada, el plugin no escribe nada, ni siquiera localmente.
+
+## Cierre de una tarea
+
+Cuando el agente termina una tarea, la cierra, propone tus horas en cuartos de hora y carga el número que confirmas u ofreces. Si no respondes, nada se frena: la tarea queda cerrada y las horas esperan como propuesta en **Mis horas**. Las horas de la IA salen de la captura y nunca se preguntan. Si después pides cambios, el agente reabre la tarea y pregunta solo por el tiempo nuevo. La revisión humana es opcional y ya no deja una tarea abierta. El agente sigue este circuito con la skill `task-closure`.
 
 ## Tu revisión semanal
 

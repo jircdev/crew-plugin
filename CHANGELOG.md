@@ -2,6 +2,16 @@
 
 All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepachangelog.com).
 
+## [Unreleased]
+
+### Added
+
+- **`task-closure` skill** ([`skills/task-closure/SKILL.md`](skills/task-closure/SKILL.md)): the closing circuit in a repository connected to factory. The agent closes the task, proposes the person hours and loads what the person confirms; with no answer the hours stay a proposal in Mis horas. Agent hours are shown as data and never asked. Later adjustments reopen the task and update the record of that day and topic. It needs factory's `update_time` tool.
+
+### Changed
+
+- **Human review stops being a step to finish a task** in a repository connected to factory: the row stays in the estimate and closes with the task ([`skills/planning/SKILL.md`](skills/planning/SKILL.md)).
+
 ## [1.3.0] — 2026-11-03
 
 Work time reaches factory without getting lost. The trigger was real: a token factory refused on 2026-10-30 emptied the local queue, the only warning went to the agent's context, and a repository without a project id was never captured. Designed with system-architect and reviewed by security-compliance. Plan: [`docs/requirements/factory-onboarding/`](docs/requirements/factory-onboarding/README.md).
