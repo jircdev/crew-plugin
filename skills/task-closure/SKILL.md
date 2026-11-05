@@ -12,7 +12,7 @@ Factory's own MCP instructions carry the same rule; this skill is the procedure.
 ## Closing
 
 1. **Close the task.** When you consider it finished: `update_activity` with `action: complete`, on the activity you declared with `declare_work`. Do not wait for a review. Human review stops being a step to finish a task: a human review milestone of that task closes with it, and its time is part of the person hours below. Then update the work item's status in the repository as the project's standard asks.
-2. **Read the time.** `my_week`, and find the record with that `taskId` and today's `workDate`. The capture built it from the work blocks of the session. Its `hours` are the person's time and its `agentHours` are the agent's.
+2. **Read the time.** `my_week` with `activityId`, and find the record of today's `workDate`. Without `activityId` a full week can exceed what you can read. For a week other than the current one, send `weekStart`. The capture built it from the work blocks of the session. Its `hours` are the person's time and its `agentHours` are the agent's.
 3. **Propose the person hours,** rounded to the nearest quarter of an hour, at least 0.25, in the person's language:
 
    > I calculated 1.5 h of your time on this task (agent: 0.4 h). Do you confirm them or adjust them?
@@ -28,7 +28,7 @@ Factory's own MCP instructions carry the same rule; this skill is the procedure.
 
 When the person asks for a change on work you closed:
 
-1. **Identify the task.** Look for its activity (the work item's `Factory activity` header, `find_activity_by_reference`, `project_backlog`) and check in `my_week` whether it already has time loaded.
+1. **Identify the task.** Look for its activity (the work item's `Factory activity` header, `find_activity_by_reference`, `project_backlog`) and check with `my_week` and its `activityId` whether it already has time loaded.
 2. **Reopen it:** `update_activity` with `status: in_progress`, `eventKind: reopened` and a `note` saying what was asked. Call `declare_work` again, because closing ended the block and the capture needs the task back.
 3. **Do the work and close it again,** then ask only about the new time: "How much of your time did this adjustment take? I calculated 0.5 h."
 4. **Update the hours:**
