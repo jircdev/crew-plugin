@@ -100,11 +100,22 @@ There is one token per machine (`~/.crew/factory-token`). If you switch environm
 Only **moments in time**. The plugin notes the time when a session starts, when it receives a prompt from you, when the agent finishes answering, and when the session ends. From those moments it builds two kinds of interval:
 
 - **Your time**: while you have the turn, from the start of the session or the end of the agent's answer until your next prompt. A turn longer than 15 minutes counts as a break and adds nothing.
-- **The agent's work**: from the moment you send a prompt until the agent finishes answering, however long that takes. The two never overlap.
+- **The agent's work**: from the moment you send a prompt until the agent finishes answering, counting only its active stretches. A silence of more than 15 minutes inside the answer (a tool waiting for you, a machine asleep) cuts it: one interval goes per active stretch, and the silence adds nothing. The two never overlap.
+
+To find those silences, when each turn ends the plugin looks at the timestamps of the turn's records in the local transcript, including those of subagents, which work in separate files while the main conversation stays quiet. From each record it uses only its time.
 
 Each interval carries the session id, the factory project and the activity you were working on. The activity comes from the stories and requirements the agent edits during the session. The file's path is its reference in factory (`<folder of crew.json>:<path>`, linked with `add_task_reference` or `upsert_requirement`), and its `**Factory activity:**` header line, when present, names the factory activity directly.
 
-The plugin never reads or sends the content of your prompts, the agent's answers or the conversation transcript. Of the files you edit, it looks only at the path, and for stories and requirements at the `**Factory activity:**` header line.
+From the conversation's content the plugin uses one thing besides those times: the number of words in the agent's last answer of each turn (see [Reading time](#reading-time)). Your prompts, tool results and the text of the answers stay on your machine. Of the files you edit, it looks only at the path, and for stories and requirements at the `**Factory activity:**` header line.
+
+### Reading time
+
+Reading what the agent answered is your time too. So when the agent finishes a turn, the plugin counts the words of its last answer and sends that number with the agent's interval. Factory adds the time it takes to read them to your time, at 200 words per minute.
+
+- **What it reads.** The local transcript Claude Code keeps of the session, and from it only the agent's last answer in the turn that just ended. Your prompt, tool results and earlier turns are skipped unread. The words are counted in memory and the text is dropped.
+- **What leaves your machine.** One integer, from 0 to 200,000. The text is never sent, stored, or written to a log or an error. When the transcript cannot be read or counting fails, the interval goes without a number and factory adds no reading time for that turn.
+- **How to turn it off.** `CREW_READING_TIME=off` in your environment turns it off for you, on this machine. Time capture stays the same; only the number stops being sent. It is on by default.
+- **In Codex** it is not counted yet: Codex intervals go without a number.
 
 In Codex the same hooks run on the events Codex emits. The work item comes from the file names in each `apply_patch` (`*** Add File:`, `*** Update File:`, `*** Move to:`).
 
@@ -146,24 +157,24 @@ Each of these leaves one line in `~/.crew/activity/errors.log`, with the time, t
 
 A factory that does not answer, or answers with an error, fixes itself and keeps the time queued, so it gets no message of its own. The agent receives the same sentences at session start, so it can help you act on them.
 
-## Recovering lost time
+## Recovering the time before a repository was linked
 
-When capture lost time (a token expired before this version kept it, a repository worked on before it was linked), it can be rebuilt from the transcripts Claude Code keeps on your machine. Run it from the linked repository:
+When you install the plugin in a repository you were already working in, the time before linking it never reached factory. It can be rebuilt from the transcripts Claude Code keeps on your machine, once, after `/crew:factory link`. Run it on request from the linked repository:
 
 ```
 /crew:factory backfill
 ```
 
-The agent first shows a summary: for each day, your time, the agent's time and the number of intervals. Nothing is sent until you look at it and say yes. It applies the same rules as live capture, so the result is what capture would have recorded, with one refinement: a silence of more than 15 minutes inside an agent's answer (a tool waiting for you, a machine asleep) is left out. Only turns you started count; a turn opened by a notification or another session adds no agent time.
+The agent first shows a summary: for each day, your time, the agent's time and the number of intervals. Nothing is sent until you look at it and say yes. It applies the same rules as live capture, so the result is what capture would have recorded, including the cut of an answer at silences of more than 15 minutes. Only turns you started count; a turn opened by a notification or another session adds no agent time.
 
 What it reads and what it sends:
 
 - It reads only your own transcripts (`~/.claude/projects/`, or `$CLAUDE_CONFIG_DIR/projects/`), and from them only the sessions whose working folder is this repository, with the time of each record and the paths of the files the agent edited.
-- It sends the same fields live capture sends. The content of your prompts, the agent's answers and the tool results stays on your machine: the rebuild never copies it to another file or shows it in the chat.
+- It sends the same fields live capture sends, including the word count of each turn's last answer, under the same [reading time](#reading-time) rules and switch (`CREW_READING_TIME=off`). The content of your prompts, the agent's answers and the tool results stays on your machine: the rebuild never copies it to another file or shows it in the chat.
 - It covers the time since you connected to factory, within factory's 45 days. When this machine does not know your connection date, the agent asks for the first day you agreed to capture (`--since YYYY-MM-DD`).
 - Running it twice adds nothing twice: each rebuilt interval gets the same id every time.
 
-**Sending is closed in this version.** Factory adds up agent time without merging stretches that overlap, so time live capture already sent would count twice. The summary works today; sending opens when factory counts agent time once per session. Codex transcripts are not read yet.
+**What sending does.** The rebuilt intervals reach factory as proposed time and show in your weekly review like any other. Where a stretch matches time live capture already sent for the same session, factory counts it once. Days live capture already sent stay as they are: correcting them is factory's job. Codex transcripts are not read yet.
 
 ## Loading the hours a repository recorded
 
@@ -225,11 +236,11 @@ Any one of these is enough:
 - `"capture": false` in the project's `crew.json` pauses it for everyone in the repository.
 - `/crew:factory logout`, or revoking the token in factory, pauses it for you everywhere.
 
-While paused, the plugin writes nothing at all, not even locally.
+While paused, the plugin writes nothing at all, not even locally. To stop sending only the word count of the answers and keep capturing time, use `CREW_READING_TIME=off` (see [Reading time](#reading-time)).
 
 ## Closing a task
 
-When the agent finishes a task it closes it, proposes your hours in quarters of an hour and loads the number you confirm or give. If you do not answer, nothing stops: the task stays closed and the hours wait as a proposal in **Mis horas**. Agent hours come from the capture and are never asked. If you ask for changes later, the agent reopens the task and asks only about the new time. A human review is optional and no longer keeps a task open. The agent follows this through the `task-closure` skill.
+When the agent finishes a task it closes it, proposes your hours rounded up to the next 5 minutes, at least 10, and loads the number you confirm or give. If you do not answer, nothing stops: the task stays closed and the hours wait as a proposal in **Mis horas**. Agent hours come from the capture and are never asked. If you ask for changes later, the agent reopens the task and asks only about the new time. A human review is optional and no longer keeps a task open. The agent follows this through the `task-closure` skill.
 
 ## Your weekly review
 

@@ -2,11 +2,15 @@
 // SessionEnd, PostToolUse on edits and on two factory MCP tools). Records
 // WHEN the person and the agent were working — timestamps, session id, the
 // work block, which work item was being edited and which factory activity
-// the agent declared. Prompt and response content is never read: only the
-// hook's envelope fields (session_id, hook_event_name, cwd, tool_name,
+// the agent declared. Prompt content is never read: only the hook's
+// envelope fields (session_id, hook_event_name, cwd, tool_name,
 // tool_input.file_path, the file headers of a Codex apply_patch, and from
 // the factory tools tool_input.activityId, .action and .status). Tool
-// responses and shell commands are never read.
+// responses and shell commands are never read. On Stop, the last answer of
+// the turn is counted in memory from transcript_path and only its word count
+// is kept (hooks/lib/response-words.js; CREW_READING_TIME=off turns it off),
+// and the timestamps of the turn's records cut the agent's run at silences
+// over 15 minutes (hooks/lib/turn-activity.js).
 //
 // Quiet by contract: the only output is a {"systemMessage"} the person sees
 // when capture needs them (hooks/lib/factory-alerts.js), at session start or
@@ -20,6 +24,8 @@ const { captureToken, factoryApi } = require("./lib/factory");
 const { applyEvent, taskHintFor } = require("./lib/activity-rules");
 const { activityDir, enqueue, flush, readStatus } = require("./lib/activity-queue");
 const { factoryAlert } = require("./lib/factory-alerts");
+const { lastAnswerWords } = require("./lib/response-words");
+const { activeStretches } = require("./lib/turn-activity");
 
 const FLUSH_ON = new Set(["SessionStart", "Stop", "SessionEnd"]);
 // Problems a send can discover; each is shown once, when it first appears.
@@ -82,8 +88,21 @@ function workEvent(input) {
   return args.action === "complete" || args.status === "done" ? { name: "Complete" } : null;
 }
 
-function eventOf(input) {
+// A Stop carries what the transcript says about the turn that ends: the
+// active stretches since the prompt and the word count of the last answer.
+// Either one is left out when it cannot be read.
+function stopEvent(input, promptAt, now) {
+  const event = { name: "Stop", hint: null };
+  const stretches = Number.isFinite(promptAt) ? activeStretches(input.transcript_path, promptAt, now) : null;
+  if (stretches) event.stretches = stretches;
+  const words = lastAnswerWords(input.transcript_path);
+  if (words !== null) event.responseWords = words;
+  return event;
+}
+
+function eventOf(input, prev, now) {
   const name = input.hook_event_name;
+  if (name === "Stop") return stopEvent(input, prev.promptAt, now);
   if (name !== "PostToolUse") return { name, hint: null };
   return workEvent(input) || { name, hint: editHint(input) };
 }
@@ -108,9 +127,10 @@ async function capture(input) {
 
   if (name === "SessionStart") pruneStaleSessions(now);
   const path = statePath(sessionId);
-  const event = eventOf(input);
+  const prev = readState(path);
+  const event = eventOf(input, prev, now);
   const ctx = { sessionId, projectId: cfg.factory.projectId, newId: () => randomUUID() };
-  const { state, intervals } = applyEvent(readState(path), event, now, ctx);
+  const { state, intervals } = applyEvent(prev, event, now, ctx);
   enqueue(intervals);
   if (name === "SessionEnd") fs.rmSync(path, { force: true });
   else fs.writeFileSync(path, JSON.stringify(state));

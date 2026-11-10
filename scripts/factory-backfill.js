@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Rebuilds the work time of this repository from local Claude Code
-// transcripts, for the stretches live capture lost (an expired token, a repo
-// that was not linked yet).
+// transcripts, for the time before the repository was linked to factory: run
+// once, on request, after installing the plugin in a repository already in
+// use. Days live capture already sent are factory's to correct.
 //
 //   node factory-backfill.js [--since YYYY-MM-DD] [--send]
 //
@@ -21,10 +22,6 @@ const { enqueue, flush, sendable, queuedCount } = require("../hooks/lib/activity
 const { transcriptFiles, readSessions, eventsOf } = require("./lib/transcripts");
 
 const RETENTION_MS = 45 * 86400000 - 3600000;
-// Factory adds up agent time without merging overlaps, so a stretch that live
-// capture already sent would count twice. Sending opens when factory counts
-// agent time once per session (see docs/requirements/factory-onboarding).
-const SEND_READY = false;
 
 // A UUID-shaped id derived from what identifies the stretch.
 function derivedId(sessionId, kind, from, to) {
@@ -62,7 +59,9 @@ function summary(intervals) {
   return lines.join("\n");
 }
 
-// Queues the rebuilt intervals and sends them with the live queue.
+// Queues the rebuilt intervals and sends them with the live queue. Where a
+// stretch matches one live capture sent for the same session, factory counts
+// it once.
 async function send(intervals, api, token, now = Date.now()) {
   enqueue(intervals);
   await flush(api, token, now);
@@ -97,10 +96,6 @@ async function main() {
     `since ${new Date(since).toLocaleDateString("en-CA")}: ${intervals.length} intervals from ${sessions} sessions.`);
   if (intervals.length) console.log(`\n${summary(intervals)}\n`);
   if (!args.includes("--send")) return say("Nothing was sent. Review the days above; sending needs your explicit yes.", 0);
-  if (!SEND_READY) {
-    return say("Sending is closed in this version: factory still counts agent time twice where live capture already " +
-      "sent it. It opens once factory counts agent time once per session.", 1);
-  }
   const left = await send(intervals, target.api, token, now);
   return say(left ? `Queued ${intervals.length} intervals; ${left} are still waiting for factory.` : `Sent ${intervals.length} intervals.`, 0);
 }

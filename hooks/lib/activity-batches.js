@@ -8,13 +8,21 @@ const MAX_SPAN_MS = 16 * 3600000;
 const RETENTION_MS = 45 * 86400000 - 3600000;
 const SKEW_MS = 5 * 60000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MAX_RESPONSE_WORDS = 200000;
+
+// The word count of an answer: absent, or an integer on an agent turn.
+function wordsOk(item) {
+  const words = item.responseWords;
+  return words === undefined || words === null ||
+    (item.kind === "agent" && Number.isInteger(words) && words >= 0 && words <= MAX_RESPONSE_WORDS);
+}
 
 // Mirrors the server's validation: one bad interval rejects a whole batch.
 function sendable(item, now) {
   const start = Date.parse(item.startedAt);
   const end = Date.parse(item.endedAt);
   return UUID.test(String(item.id)) && (item.kind === "human" || item.kind === "agent") &&
-    end > start && end - start <= MAX_SPAN_MS && start >= now - RETENTION_MS && end <= now + SKEW_MS;
+    end > start && end - start <= MAX_SPAN_MS && start >= now - RETENTION_MS && end <= now + SKEW_MS && wordsOk(item);
 }
 
 // Cut by count and by serialized size, whichever comes first.

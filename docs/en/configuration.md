@@ -245,6 +245,8 @@ A person can point their own machine elsewhere without editing the shared file: 
 
 **Pausing capture.** Any one of three switches is enough: `CREW_CAPTURE=off` in your environment (you, on this machine), `"capture": false` (the whole project), or no token at all. Paused capture writes nothing, local state included.
 
+**Reading time.** When each turn ends, capture sends the word count of the agent's last answer so factory can add the time it takes to read it. `CREW_READING_TIME=off` in your environment turns it off for you, on this machine; the rest of capture stays the same. Details in [factory.md](factory.md#reading-time).
+
 **Capture and catalog usage are separate.** Capture records work time (start and end of each human or agent interval) in `~/.crew/activity/` on each machine and sends it to factory. Catalog usage (`telemetry`) stays in this repository's `.crew/usage.jsonl`, out of version control, and crew sends it nowhere. Each one has its own switch, and changing one leaves the other as it was.
 
 The circuit as the people using it see it (what is captured, how to create the token, how to connect the MCP server, the weekly review) is in [factory.md](factory.md).

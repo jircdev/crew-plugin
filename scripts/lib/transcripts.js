@@ -2,13 +2,16 @@
 // the events live capture would have seen: session start, a prompt the person
 // sent, the end of the agent's reply, and edits to work items. Only record
 // shape, timestamps, session ids, the working directory (to pick this
-// repository's sessions) and the paths of edited files are used. Message
-// content is parsed in memory to classify a record and never kept.
+// repository's sessions) and the paths of edited files are used, plus the
+// word count of each turn's last answer (an integer, the text is dropped;
+// CREW_READING_TIME=off leaves it out). Message content is parsed in memory
+// to classify a record and never kept.
 const fs = require("node:fs");
 const os = require("node:os");
 const { join, resolve, sep } = require("node:path");
 const { taskHintFor, IDLE_MS } = require("../../hooks/lib/activity-rules");
 const { configDir } = require("../../hooks/lib/config-dir");
+const { answerRecordWords, readingTimeOn, MAX_WORDS } = require("../../hooks/lib/response-words");
 
 const EDIT_TOOLS = new Set(["Edit", "Write", "MultiEdit", "NotebookEdit"]);
 // Text Claude Code itself puts in a user record: never a prompt the person wrote.
@@ -21,7 +24,18 @@ function projectsDir() {
   return join(process.env.CLAUDE_CONFIG_DIR || join(os.homedir(), ".claude"), "projects");
 }
 
-// Top-level transcripts touched since `since` (subagent folders are skipped).
+// A session's subagents write to <session>/subagents/*.jsonl while the main
+// transcript stays quiet; their records only mark that the agent was busy.
+function subagentFiles(file, since) {
+  const dir = join(file.slice(0, -".jsonl".length), "subagents");
+  let names = [];
+  try { names = fs.readdirSync(dir).filter((n) => n.endsWith(".jsonl")); } catch { return []; }
+  return names.map((n) => join(dir, n)).filter((f) => {
+    try { return fs.statSync(f).mtimeMs >= since; } catch { return false; }
+  });
+}
+
+// Transcripts touched since `since`: the top-level ones and their subagents'.
 function transcriptFiles(since) {
   const out = [];
   let dirs = [];
@@ -31,7 +45,7 @@ function transcriptFiles(since) {
     for (const name of fs.readdirSync(dir)) {
       const file = join(dir, name);
       try {
-        if (name.endsWith(".jsonl") && fs.statSync(file).mtimeMs >= since) out.push(file);
+        if (name.endsWith(".jsonl") && fs.statSync(file).mtimeMs >= since) out.push(file, ...subagentFiles(file, since));
       } catch { /* vanished */ }
     }
   }
@@ -80,10 +94,12 @@ function readSessions(files, root, since) {
       try { rec = JSON.parse(line); } catch { continue; }
       if (!rec || typeof rec !== "object") continue;
       const at = Date.parse(rec.timestamp);
-      if (!rec.sessionId || Number.isNaN(at) || at < since || !["user", "assistant"].includes(rec.type) || rec.isSidechain) continue;
+      if (!rec.sessionId || Number.isNaN(at) || at < since || !["user", "assistant"].includes(rec.type)) continue;
       const session = sessions.get(rec.sessionId) || sessions.set(rec.sessionId, { cwd: null, records: new Map() }).get(rec.sessionId);
-      if (!session.cwd && rec.cwd) session.cwd = rec.cwd;
-      session.records.set(rec.uuid || `${file}:${at}:${session.records.size}`, { at, rec });
+      if (!session.cwd && rec.cwd && !rec.isSidechain) session.cwd = rec.cwd;
+      // A subagent's record keeps only its time: it never opens a turn, edits or answers.
+      const kept = rec.isSidechain ? { type: "activity" } : rec;
+      session.records.set(rec.uuid || `${file}:${at}:${session.records.size}`, { at, rec: kept });
     }
   }
   const out = new Map();
@@ -98,27 +114,45 @@ function readSessions(files, root, since) {
 // idle cut inside a reply (a tool waiting for an answer, a machine asleep)
 // ends the run there, and the work after it opens a new run with no time of
 // the person's in between.
+// The last answer of the turn being read: its message id and word count.
+// The turn's closing Stop carries the count, as live capture does.
+function trackAnswer(answer, rec) {
+  const words = answerRecordWords(rec);
+  if (words === null) return answer;
+  const id = rec.message.id || null;
+  return id && answer && answer.id === id ? { id, words: answer.words + words } : { id, words };
+}
+
+function closingStop(at, answer) {
+  const count = answer ? answer.words : 0;
+  const words = readingTimeOn() && count <= MAX_WORDS ? { responseWords: count } : {};
+  return { name: "Stop", at, ...words };
+}
+
 function eventsOf(records, root) {
   const events = [{ name: "SessionStart", at: records[0].at }];
   let open = null;
+  let answer = null;
   for (const { at, rec } of records) {
     if (open !== null && at - open > IDLE_MS) {
       events.push({ name: "Stop", at: open }, { name: "UserPromptSubmit", at });
       open = at;
     }
     if (startsTurn(rec)) {
-      if (open !== null) events.push({ name: "Stop", at: open });
+      if (open !== null) events.push(closingStop(open, answer));
       open = null;
+      answer = null;
       if (isHumanPrompt(rec)) { events.push({ name: "UserPromptSubmit", at }); open = at; }
       continue;
     }
+    answer = trackAnswer(answer, rec);
     for (const path of editedPaths(rec)) {
       const hint = taskHintFor(root, path, rec.cwd || root);
       if (hint) events.push({ name: "PostToolUse", at, hint });
     }
     if (open !== null) open = at;
   }
-  if (open !== null) events.push({ name: "Stop", at: open });
+  if (open !== null) events.push(closingStop(open, answer));
   return events;
 }
 

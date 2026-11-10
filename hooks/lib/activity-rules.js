@@ -59,7 +59,7 @@ function taskHintFor(configRoot, filePath, cwd) {
 // produces the same ids. ctx.source marks rebuilt intervals. ctx.blocks false
 // leaves the block out: a rebuild lets factory place its turns in the block
 // the live capture already sent, so the same work is never two blocks.
-function makeInterval(kind, from, to, state, ctx) {
+function makeInterval(kind, from, to, state, ctx, extra = {}) {
   const blocks = ctx.blocks !== false;
   return {
     id: ctx.newId(kind, from, to),
@@ -72,7 +72,16 @@ function makeInterval(kind, from, to, state, ctx) {
     ...(state.taskHint || {}),
     ...(blocks && state.blockId ? { blockId: state.blockId } : {}),
     ...(blocks && state.blockTaskId ? { declaredTaskId: state.blockTaskId, declaredAt: state.declaredAt } : {}),
+    ...extra,
   };
+}
+
+// A Stop may carry the word count of the turn's last answer (an integer the
+// hook read from the transcript, never the text). It goes only on the agent
+// interval that Stop closes; factory adds the reading time from it.
+function answerWords(event) {
+  return event.name === "Stop" && Number.isInteger(event.responseWords) && event.responseWords >= 0
+    ? { responseWords: event.responseWords } : {};
 }
 
 function openBlock(state, now, ctx, taskId = null) {
@@ -104,8 +113,30 @@ function applyWorkEvent(state, event, now, ctx, intervals) {
   cut(state, now, ctx, intervals, event.taskId);
 }
 
-// event: { name, hint?, taskId? } — hint is only present for PostToolUse
-// edits, taskId for a "Declare".
+// A Stop may carry the active stretches of the turn (hooks/lib/turn-activity.js):
+// one agent interval goes per stretch, and each stretch after a silence opens
+// a new block that keeps the declared task, as any pause does. The word count
+// rides on the last one. Without stretches the run is one interval.
+function pushAgentRun(state, event, now, ctx, intervals) {
+  const from = state.promptAt;
+  const pieces = event.name === "Stop" && Array.isArray(event.stretches)
+    ? event.stretches.map((s) => ({ start: Math.max(s.start, from), end: Math.min(s.end, now) }))
+      .filter((s) => Number.isFinite(s.start) && Number.isFinite(s.end) && s.end > s.start)
+    : [];
+  if (!pieces.length) {
+    intervals.push(makeInterval("agent", from, now, state, ctx, answerWords(event)));
+    return;
+  }
+  pieces.forEach((piece, i) => {
+    if (i > 0) openBlock(state, piece.start, ctx, state.blockTaskId);
+    const last = i === pieces.length - 1;
+    intervals.push(makeInterval("agent", piece.start, piece.end, state, ctx, last ? answerWords(event) : {}));
+  });
+}
+
+// event: { name, hint?, taskId?, responseWords?, stretches? } — hint is only
+// present for PostToolUse edits, taskId for a "Declare", responseWords and
+// stretches for a "Stop".
 // Human time runs while the person has the turn: from the end of an agent
 // reply (or the session start) to the next prompt, cut at IDLE_MS. Agent time
 // runs from a prompt to the end of its reply, however long it takes, so the
@@ -128,7 +159,7 @@ function applyEvent(prev, event, now, ctx) {
     const run = now - state.promptAt;
     const closes = event.name === "Stop" || event.name === "UserPromptSubmit";
     if (closes && run > 0 && (event.name === "Stop" || run <= IDLE_MS)) {
-      intervals.push(makeInterval("agent", state.promptAt, now, state, ctx));
+      pushAgentRun(state, event, now, ctx, intervals);
     } else {
       paused = true;
     }

@@ -59,3 +59,5 @@ Cuando la captura falla, el tiempo trabajado queda igual registrado en las trans
 | La captura en vivo sigue usando ids aleatorios | unit | node:test | tests/capture-activity.test.js | passing |
 
 ## Changes
+
+- 2026-11-10 — El envío se abre. Factory une los tramos de agente de una misma sesión que se superponen, así que el tiempo que llega en vivo y reconstruido cuenta una vez; `SEND_READY` desaparece y `--send` envía tras el sí de la persona. Por decisión de Julio, el backfill queda como herramienta a pedido para recuperar el tiempo anterior a vincular un repositorio; la corrección de días ya capturados la hace factory. La reconstrucción suma la actividad de los subagentes (`<sesión>/subagents/*.jsonl`) y la cantidad de palabras de la última respuesta de cada turno. La sección de la guía pasa a llamarse "Recovering the time before a repository was linked" / "Recuperar el tiempo anterior a vincular un repositorio". Tests: `tests/factory-backfill.test.js`, `tests/capture-turn-stretches.test.js`.

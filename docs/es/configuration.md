@@ -245,6 +245,8 @@ Una persona puede apuntar su propia máquina a otro lado sin editar el archivo c
 
 **Pausar la captura.** Alcanza con cualquiera de tres interruptores: `CREW_CAPTURE=off` en tu entorno (vos, en esta máquina), `"capture": false` (todo el proyecto), o no tener token. Con la captura en pausa no se escribe nada, tampoco estado local.
 
+**Tiempo de lectura.** Al terminar cada turno, la captura manda la cantidad de palabras de la última respuesta del agente, para que factory sume el tiempo de leerla. `CREW_READING_TIME=off` en tu entorno lo apaga para vos, en esta máquina; el resto de la captura sigue igual. Detalle en [factory.md](factory.md#tiempo-de-lectura).
+
 **La captura y el uso del catálogo son registros separados.** La captura registra tiempo de trabajo (inicio y fin de cada intervalo humano o de agente) en `~/.crew/activity/` de cada máquina y lo envía a factory. El uso del catálogo (`telemetry`) queda en `.crew/usage.jsonl` de este repositorio, fuera del control de versiones, y crew no lo envía a ningún lado. Cada uno tiene su propio interruptor, y cambiar uno deja al otro como estaba.
 
 El circuito tal como lo ven quienes lo usan (qué se captura, cómo crear el token, cómo conectar el servidor MCP, la revisión semanal) está en [factory.md](factory.md).

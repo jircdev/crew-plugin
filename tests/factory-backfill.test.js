@@ -87,7 +87,7 @@ test('two rebuilds produce the same ids, and live capture keeps random ones', t 
   assert.match(rebuilt(w)[0].id, /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-8[0-9a-f]{3}-[0-9a-f]{12}$/);
 });
 
-test('the dry run shows hours per day only and sends nothing; sending stays closed in this version', async t => {
+test('the dry run shows hours per day only and sends nothing; --send sends the rebuilt intervals', async t => {
   const fake = await factory(t);
   const w = world(t, [SESSION]);
   const out = await run(w, fake);
@@ -97,9 +97,10 @@ test('the dry run shows hours per day only and sends nothing; sending stays clos
   assert.match(out.stdout, /Nothing was sent/);
   assert.equal(/SECRET|C--repo|001-x/.test(out.stdout), false, out.stdout);
   const send = await run(w, fake, ['--send']);
-  assert.equal(send.status, 1);
-  assert.match(send.stdout, /Sending is closed in this version/);
-  assert.equal(fake.seen.intervals.length, 0);
+  assert.equal(send.status, 0, send.stdout);
+  assert.match(send.stdout, /Sent 4 intervals/);
+  assert.equal(fake.seen.intervals.length, 4);
+  assert.ok(fake.seen.intervals.every((i) => i.source === 'backfill' && i.sessionId === 'sess-a'));
 });
 
 test('sending goes through the live queue to factory', async t => {
@@ -125,4 +126,30 @@ test('a silence longer than the idle cut inside a reply is never counted as agen
   const waiting = { id: 'sess-w', records: [prompt(0), reply(1, [{ type: 'tool_use', name: 'AskUserQuestion', input: {} }]),
     toolResult(40), reply(42)] };
   assert.deepEqual(spans(rebuilt(world(t, [waiting]))), [['agent', 0, 1], ['agent', 40, 42]]);
+});
+
+test('a rebuilt turn carries the word count of its last answer only, never its text', t => {
+  const answer = (m, id, text, extra = {}) => ({ type: 'assistant', timestamp: at(m), message: { id, role: 'assistant', content: [{ type: 'text', text }] }, ...extra });
+  const turn = { id: 'sess-r', records: [prompt(0, 'SECRET a b c d e f'), answer(1, 'm0', 'SECRET one two three four'),
+    reply(2, [{ type: 'tool_use', name: 'Bash', input: { command: 'SECRET x y' } }]), toolResult(3),
+    answer(4, 'm1', 'SECRET final'), answer(5, 'm1', 'and more'), prompt(8), reply(9, [{ type: 'tool_use', name: 'Bash', input: {} }])] };
+  const items = rebuilt(world(t, [turn]));
+  assert.deepEqual(items.map((i) => [i.kind, i.responseWords]), [['agent', 4], ['human', undefined], ['agent', 0]]);
+  assert.equal(JSON.stringify(items).includes('SECRET'), false);
+  process.env.CREW_READING_TIME = 'off';
+  try { assert.ok(rebuilt(world(t, [turn])).every((i) => !('responseWords' in i))); } finally { delete process.env.CREW_READING_TIME; }
+});
+
+test('a rebuild cuts a tool wait out of the reply, and a subagent at work keeps it whole', t => {
+  const waiting = { id: 'sess-wait', records: [prompt(0), reply(2, [{ type: 'tool_use', name: 'Bash', input: {} }]), toolResult(500), reply(505)] };
+  assert.deepEqual(spans(rebuilt(world(t, [waiting]))), [['agent', 0, 2], ['agent', 500, 505]]);
+  const delegated = { id: 'sess-task', records: [prompt(0), reply(1, [{ type: 'tool_use', name: 'Agent', input: {} }]), toolResult(45), reply(46)] };
+  const w = world(t, [delegated]);
+  const sub = path.join(w.config, 'projects', 'C--repo', 'sess-task', 'subagents');
+  fs.mkdirSync(sub, { recursive: true });
+  fs.writeFileSync(path.join(sub, 'agent-x.jsonl'), [10, 20, 30, 40].map((m, i) => JSON.stringify({ uuid: `sub-${i}`, sessionId: 'sess-task',
+    isSidechain: true, cwd: w.repo, ...reply(m, [{ type: 'text', text: 'SECRET SUBAGENT' }]) })).join('\n') + '\n');
+  const items = rebuilt(w);
+  assert.deepEqual(spans(items), [['agent', 0, 46]]);
+  assert.equal(items[0].responseWords, 2);
 });

@@ -100,11 +100,22 @@ El token es uno solo por máquina (`~/.crew/factory-token`). Si cambiás de ento
 Solo **momentos**. El plugin anota la hora cuando empieza una sesión, cuando recibe un prompt tuyo, cuando el agente termina de responder y cuando la sesión termina. Con esos momentos arma dos clases de intervalo:
 
 - **Tu tiempo**: mientras tenés el turno, desde que empieza la sesión o el agente termina de responder hasta tu próximo prompt. Un turno de más de 15 minutos cuenta como pausa y no suma.
-- **El trabajo del agente**: desde que mandás un prompt hasta que el agente termina de responder, dure lo que dure. Los dos nunca se superponen.
+- **El trabajo del agente**: desde que mandás un prompt hasta que el agente termina de responder, contando solo los tramos con actividad. Un silencio de más de 15 minutos dentro de la respuesta (una herramienta esperando tu respuesta, una máquina suspendida) la corta: sale un intervalo por cada tramo activo, y el silencio no suma. Los dos nunca se superponen.
+
+Para saber dónde están esos silencios, al terminar cada turno el plugin mira las marcas de tiempo de los registros del turno en la transcripción local, incluidas las de los subagentes, que trabajan en archivos aparte mientras la conversación principal queda quieta. De cada registro usa solo su hora.
 
 Cada intervalo lleva el id de sesión, el proyecto de factory, su [bloque de trabajo](#bloques-de-trabajo-y-la-tarea-que-declara-el-agente) y la actividad en la que estabas. La actividad sale de las historias y requerimientos que el agente edita durante la sesión. La ruta del archivo es su referencia en factory (`<carpeta de crew.json>:<ruta>`, enlazada con `add_task_reference` o `upsert_requirement`), y la línea de cabecera `**Factory activity:**`, cuando está, nombra la actividad directamente.
 
-El plugin nunca lee ni envía el contenido de tus prompts, las respuestas del agente ni la transcripción de la conversación. De los archivos que editás mira solo la ruta, y en historias y requerimientos, la línea `**Factory activity:**` de la cabecera.
+Del contenido de la conversación, el plugin usa una sola cosa además de esas horas: la cantidad de palabras de la última respuesta del agente en cada turno (ver [Tiempo de lectura](#tiempo-de-lectura)). Tus prompts, los resultados de las herramientas y el texto de las respuestas quedan en tu máquina. De los archivos que editás mira solo la ruta, y en historias y requerimientos, la línea `**Factory activity:**` de la cabecera.
+
+### Tiempo de lectura
+
+Leer lo que respondió el agente también es tu tiempo. Por eso, cuando el agente termina un turno, el plugin cuenta las palabras de su última respuesta y manda ese número junto con el intervalo del agente. Factory le suma a tu tiempo lo que lleva leerlas, a 200 palabras por minuto.
+
+- **Qué lee.** La transcripción local que Claude Code guarda de la sesión, y de ella solo la última respuesta del agente en el turno que acaba de terminar. Tu prompt, los resultados de las herramientas y los turnos anteriores se saltean sin leerse. Cuenta las palabras en memoria y descarta el texto.
+- **Qué sale de tu máquina.** Un número entero, entre 0 y 200.000. El texto nunca se envía, ni se guarda, ni se escribe en un log o en un error. Si la transcripción no se puede leer o el conteo falla, el intervalo sale sin número y factory no suma tiempo de lectura para ese turno.
+- **Cómo apagarlo.** `CREW_READING_TIME=off` en tu entorno lo apaga para vos, en esta máquina. La captura de tiempo sigue igual; solo deja de mandarse el número. Viene prendido.
+- **En Codex** todavía no se cuenta: los intervalos de Codex salen sin número.
 
 En Codex los mismos hooks corren sobre los eventos que emite Codex. El work item sale de los nombres de archivo de cada `apply_patch` (`*** Add File:`, `*** Update File:`, `*** Move to:`).
 
@@ -146,24 +157,24 @@ Cada caso deja una línea en `~/.crew/activity/errors.log`, con la hora, el cód
 
 Un factory que no responde, o que responde con error, se resuelve solo y mantiene el tiempo en la cola, así que no tiene mensaje propio. El agente recibe las mismas frases al empezar la sesión, para ayudarte a resolverlas.
 
-## Recuperar tiempo perdido
+## Recuperar el tiempo anterior a vincular un repositorio
 
-Cuando la captura perdió tiempo (un token que venció antes de que esta versión lo conservara, un repositorio en el que se trabajó antes de vincularlo), se puede reconstruir desde las transcripciones que Claude Code guarda en tu máquina. Se corre desde el repositorio vinculado:
+Cuando instalás el plugin en un repositorio en el que ya venías trabajando, el tiempo de antes de vincularlo no llegó a factory. Se puede reconstruir desde las transcripciones que Claude Code guarda en tu máquina, una vez, después de `/crew:factory link`. Se corre a pedido desde el repositorio vinculado:
 
 ```
 /crew:factory backfill
 ```
 
-El agente primero muestra un resumen: para cada día, tu tiempo, el del agente y la cantidad de intervalos. No se envía nada hasta que lo mirás y decís que sí. Aplica las mismas reglas que la captura en vivo, así que el resultado es lo que la captura habría registrado, con un ajuste: un silencio de más de 15 minutos dentro de una respuesta del agente (una herramienta esperando tu respuesta, una máquina suspendida) queda afuera. Cuentan solo los turnos que empezaste vos; un turno que abre una notificación u otra sesión no suma tiempo del agente.
+El agente primero muestra un resumen: para cada día, tu tiempo, el del agente y la cantidad de intervalos. No se envía nada hasta que lo mirás y decís que sí. Aplica las mismas reglas que la captura en vivo, así que el resultado es lo que la captura habría registrado, incluido el corte de una respuesta en los silencios de más de 15 minutos. Cuentan solo los turnos que empezaste vos; un turno que abre una notificación u otra sesión no suma tiempo del agente.
 
 Qué lee y qué envía:
 
 - Lee solo tus propias transcripciones (`~/.claude/projects/`, o `$CLAUDE_CONFIG_DIR/projects/`), y de ellas solo las sesiones cuya carpeta de trabajo es este repositorio, con la hora de cada registro y las rutas de los archivos que editó el agente.
-- Envía los mismos campos que la captura en vivo. El contenido de tus prompts, las respuestas del agente y los resultados de las herramientas quedan en tu máquina: la reconstrucción nunca los copia a otro archivo ni los muestra en el chat.
+- Envía los mismos campos que la captura en vivo, incluida la cantidad de palabras de la última respuesta de cada turno, con las mismas reglas del [tiempo de lectura](#tiempo-de-lectura) y el mismo interruptor (`CREW_READING_TIME=off`). El contenido de tus prompts, las respuestas del agente y los resultados de las herramientas quedan en tu máquina: la reconstrucción nunca los copia a otro archivo ni los muestra en el chat.
 - Cubre el tiempo desde que te conectaste a factory, dentro de los 45 días de factory. Si esta máquina no conoce tu fecha de conexión, el agente te pide el primer día en que aceptaste la captura (`--since AAAA-MM-DD`).
 - Correrlo dos veces da el mismo resultado: cada intervalo reconstruido recibe siempre el mismo id.
 
-**El envío está cerrado en esta versión.** Factory suma el tiempo del agente sin unir tramos que se superponen, así que el tiempo que la captura en vivo ya envió contaría doble. El resumen funciona hoy; el envío se abre cuando factory cuente el tiempo del agente una vez por sesión. Las transcripciones de Codex todavía no se leen.
+**Qué pasa al enviar.** Los intervalos reconstruidos llegan a factory como tiempo propuesto y aparecen en tu revisión semanal como cualquier otro. Si un tramo coincide con tiempo que la captura en vivo ya envió de la misma sesión, factory lo cuenta una sola vez. Los días que la captura ya envió quedan como están: su corrección es de factory. Las transcripciones de Codex todavía no se leen.
 
 ## Cargar las horas que anotó un repositorio
 
@@ -225,11 +236,11 @@ Cualquiera de estas alcanza:
 - `"capture": false` en el `crew.json` del proyecto la pausa para todas las personas del repositorio.
 - `/crew:factory logout`, o revocar el token en factory, la pausa para vos en todos lados.
 
-Mientras está pausada, el plugin no escribe nada, ni siquiera localmente.
+Mientras está pausada, el plugin no escribe nada, ni siquiera localmente. Para dejar de mandar solo la cantidad de palabras de las respuestas y seguir capturando el tiempo, usá `CREW_READING_TIME=off` (ver [Tiempo de lectura](#tiempo-de-lectura)).
 
 ## Cierre de una tarea
 
-Cuando el agente termina una tarea, la cierra, propone tus horas en cuartos de hora y carga el número que confirmas u ofreces. Si no respondes, nada se frena: la tarea queda cerrada y las horas esperan como propuesta en **Mis horas**. Las horas de la IA salen de la captura y nunca se preguntan. Si después pides cambios, el agente reabre la tarea y pregunta solo por el tiempo nuevo. La revisión humana es opcional y ya no deja una tarea abierta. El agente sigue este circuito con la skill `task-closure`.
+Cuando el agente termina una tarea, la cierra, propone tus horas redondeadas hacia arriba a los 5 minutos, con un mínimo de 10, y carga el número que confirmas u ofreces. Si no respondes, nada se frena: la tarea queda cerrada y las horas esperan como propuesta en **Mis horas**. Las horas de la IA salen de la captura y nunca se preguntan. Si después pides cambios, el agente reabre la tarea y pregunta solo por el tiempo nuevo. La revisión humana es opcional y ya no deja una tarea abierta. El agente sigue este circuito con la skill `task-closure`.
 
 ## Tu revisión semanal
 
