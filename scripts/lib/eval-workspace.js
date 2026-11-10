@@ -53,7 +53,8 @@ function nodeTest(cwd, files) {
   // would report to the parent instead of printing its own summary.
   const env = { ...process.env };
   delete env.NODE_TEST_CONTEXT;
-  const r = spawnSync(process.execPath, ['--test', ...files], { cwd, env, encoding: 'utf8', windowsHide: true, timeout: 120000 });
+  // The summary is parsed from TAP; recent Node versions default to another reporter.
+  const r = spawnSync(process.execPath, ['--test', '--test-reporter=tap', ...files], { cwd, env, encoding: 'utf8', windowsHide: true, timeout: 120000 });
   const count = (name) => Number(((r.stdout || '').match(new RegExp(`^# ${name} (\\d+)`, 'm')) || [])[1] || 0);
   const failed = [...(r.stdout || '').matchAll(/^not ok \d+ - (.+)$/gm)].map((m) => m[1].trim());
   return { status: r.status, pass: count('pass'), fail: count('fail'), failed };
