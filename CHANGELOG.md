@@ -4,20 +4,30 @@ All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepa
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-11-10
+
+Captured time matches the work: an agent turn counts only its active stretches, each answer adds the time to read it, and a task closes with its hours proposed in factory's 5-minute rounding. Replies that close a turn are held to their shape, and an edit outside the session's area is announced before it lands. The capture trigger was agent turns of 9 to 11 hours with a night inside, from a tool waiting for the person or a machine asleep. The reading count was approved under factory's work-blocks security conditions (2026-11-09).
+
 ### Added
 
-- **`task-closure` skill** ([`skills/task-closure/SKILL.md`](skills/task-closure/SKILL.md)): the closing circuit in a repository connected to factory. The agent closes the task, proposes the person hours and loads what the person confirms; with no answer the hours stay a proposal in Mis horas. Agent hours are shown as data and never asked. Later adjustments reopen the task and update the record of that day and topic. It needs factory's `update_time` tool.
-
+- **Reading time** ([`hooks/lib/response-words.js`](hooks/lib/response-words.js)): when a turn ends, capture counts the words of the agent's last answer from the local transcript and sends only that integer as `responseWords` on the agent interval; factory adds the time to read it at 200 words per minute. Only the last answer of the current turn is read; the text is never sent, stored or logged, and a failed count sends nothing. `CREW_READING_TIME=off` turns it off per person. `/crew:factory backfill` adds the same count to rebuilt turns. Requires factory with the `responseWords` field (2026-11-09).
+- **`task-closure` skill** ([`skills/task-closure/SKILL.md`](skills/task-closure/SKILL.md)): the closing circuit in a repository connected to factory. The agent closes the task, proposes the person hours (rounded up to the next 5 minutes, at least 10, factory's rule since 2026-11-09) and loads what the person confirms; with no answer the hours stay a proposal in Mis horas. Agent hours are shown as data and never asked. Later adjustments reopen the task and update the record of that day and topic. It needs factory's `update_time` tool.
 - **Reply shape, enforced** ([`hooks/guard-reply.js`](hooks/guard-reply.js), Stop): the reply that closes a turn is measured from the transcript. Past 250 words, more than one table or more than two headings, with no report, plan or document asked, the stop is blocked once and the agent rewrites it short. Solo and team; `quality: "off"` silences it.
 - **Reach notice before editing** ([`hooks/nudge-reach.js`](hooks/nudge-reach.js), PreToolUse): an edit that leaves the area of the session's first code edit gets one notice per area, in solo mode too. A new optional `crew.json` field, `scope.protected` (globs), makes the first edit of those paths in a session ask the person.
 - **`evals/conversation`**: a human-run set of eight prompts that judges reply shape, including the two failures that motivated it. **`evals/delivery` task `scope-trap`**: a display change whose obvious edit lands in a formatter the bank ledger shares; the fixture gains `src/ledger.js`.
 
 ### Changed
 
+- **An agent turn counts only its active stretches** ([`hooks/lib/turn-activity.js`](hooks/lib/turn-activity.js)): when a turn ends, the timestamps of its records (main transcript and subagents) cut it at silences over 15 minutes, the same cut the person's time uses. One agent interval goes per stretch, each later stretch opens a new work block keeping the declared task, and the word count rides on the last one. A tool waiting for the person or a machine asleep no longer counts as agent work; the trigger was turns of 9 to 11 hours with a night inside. Only the time of each record is read. An unreadable transcript keeps the turn whole, as before.
+- **`/crew:factory backfill` sends on request** and is framed as recovering the time before a repository was linked, after installing the plugin in one already in use. Its rebuild now counts subagent activity, so a long delegated task is no silence. Correcting days live capture already sent belongs to factory.
 - **The baseline's "Conversation style" becomes "Reply shape"** ([`standards/session-context.md`](standards/session-context.md)): verdict first, one line per question asked, tables and headings only for a requested report, plan or document, technical choices decided by the agent with a one-line reason. Same length; the trigger was a reply that answered three yes/no questions with three tables and handed the person a technical choice.
 - **Execution craft** ([`skills/execution/SKILL.md`](skills/execution/SKILL.md)): "Map the reach" before the first edit (who calls the code, what it calls; a reach the request did not name stops the change until the person accepts it). The defect procedure reads the defined flow first, judges which side of an error is wrong before touching the rule, and consults the owner of every rule it crosses. Two new anti-patterns: changing a rule so a behavior passes, and growing the change in silence. The trigger: an agent widened a server validation so a tap that should never have called the server would pass.
 - **Review lenses** ([`standards/findings.md`](standards/findings.md)): "Relaxed rules" and "Unannounced reach" are blocking without the flow, the owner or the person's acceptance.
 - **Human review stops being a step to finish a task** in a repository connected to factory: the row stays in the estimate and closes with the task ([`skills/planning/SKILL.md`](skills/planning/SKILL.md)).
+
+### Fixed
+
+- **The delivery evaluation read every run as failed on recent Node versions** ([`scripts/lib/eval-workspace.js`](scripts/lib/eval-workspace.js)): it parses the TAP summary, and Node 26 no longer prints TAP by default. The runner now asks for it. The October baseline was measured on an earlier Node and stands.
 
 ## [1.4.0] — 2026-11-03
 

@@ -112,6 +112,13 @@
       "title": "Factory sees the work as it happens",
       "summary": "Stories reach factory from Ready and close on the block factory's story sync writes; /crew:factory repo-hours loads a repository's recorded hours through factory's MCP; captured time carries its work block and the task the agent declares with declare_work. Nothing to configure; repo-hours and declare_work need the factory versions that add those tools.",
       "doc": "CHANGELOG.md"
+    },
+    {
+      "version": "1.5.0",
+      "required": false,
+      "title": "Captured time matches the work",
+      "summary": "An agent turn counts only its active stretches: a silence over 15 minutes (a tool waiting for you, a machine asleep) is cut out. Each turn sends the word count of the agent's last answer so factory adds reading time; CREW_READING_TIME=off turns it off. /crew:factory backfill sends on request, to recover the time before a repository was linked. Task closure proposes person hours rounded up to 5 minutes. Replies are held to their shape and edits announce their reach. Reading time needs the factory version with responseWords.",
+      "doc": "CHANGELOG.md"
     }
   ]
 }
