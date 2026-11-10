@@ -39,6 +39,8 @@ crew-plugin/
 │   ├── guard-policy.js       # PreToolUse: relajaciones de crew.json y de los settings del host
 │   ├── nudge-offrepo-plan.js # PreToolUse: aviso de planes publicados fuera del repo
 │   ├── nudge-scope.js        # PostToolUse: aviso cuando el cambio supera su tamaño
+│   ├── nudge-reach.js        # PreToolUse: aviso cuando una edición sale del área de la sesión; pregunta en scope.protected
+│   ├── guard-reply.js        # Stop: una respuesta demasiado larga vuelve para reescribirse corta
 │   ├── record-usage.js       # uso del catálogo, opcional por persona
 │   ├── precompact-reminder.js # PreCompact: hitos abiertos antes de compactar
 │   ├── codex-pre-tool.js     # adaptador de apply_patch para Codex

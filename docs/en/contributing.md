@@ -39,6 +39,8 @@ crew-plugin/
 │   ├── guard-policy.js       # PreToolUse: relaxations of crew.json and host settings
 │   ├── nudge-offrepo-plan.js # PreToolUse: notice for plans published outside the repo
 │   ├── nudge-scope.js        # PostToolUse: notice when a change outgrows its size
+│   ├── nudge-reach.js        # PreToolUse: notice when an edit leaves the session's area; ask on scope.protected
+│   ├── guard-reply.js        # Stop: an over-long reply goes back for a short rewrite
 │   ├── record-usage.js       # catalog usage, opt-in per person
 │   ├── precompact-reminder.js # PreCompact: open milestones before compaction
 │   ├── codex-pre-tool.js     # apply_patch adapter for Codex
@@ -50,7 +52,7 @@ crew-plugin/
 ├── standards/
 │   ├── session-context.md    # always-on session baseline (suggestive defaults)
 │   └── configuration-interview.md  # the fixed question set /crew:setup follows
-├── evals/                    # human-run sets: design, planning, security, review, brownfield, routing
+├── evals/                    # human-run sets: design, planning, security, review, brownfield, routing, conversation
 │   ├── delivery/             # end-to-end set run by scripts/eval-delivery.js: crew against no crew, hidden acceptance tests
 │   └── design/               # fixtures + rubric: scores agent behavior, never taste
 ├── templates/

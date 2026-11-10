@@ -31,6 +31,7 @@ Two consequences. First, the plugin has **no hidden defaults**: the friendlier v
 | `testing` | object (`guide`, `e2e`, `commands`, `receipts`, `criteria`) | `null` | What this project can verify, and with what. Declaring it turns the verification table into a closure gate; see [Testing capabilities](#testing-capabilities). |
 | `stack` | object (`specs`) | `null` | Where the knowledge of this project's stack lives, per area. The plugin ships none; see [Stack specifications](#stack-specifications). |
 | `audit` | `true` \| `false` | `false` | Log of guard decisions in `.crew/audit.log`, team mode only; see [Audit trail](#audit-trail-audit). |
+| `scope` | `{ "protected": [globs] }` | none | Paths whose first edit in a session asks the person; see [Protected reach](#protected-reach-scope). |
 | `telemetry` | `false` | no effect | Can only forbid catalog usage recording for the whole team. Each person turns it on locally; see [Catalog usage](#catalog-usage-telemetry). |
 | `factory` | object (`projectId`, `environment`, `url`, `web`, `capture`) | `null` | Tasks, estimates and work time live in factory; see [Factory mode](#factory-mode). |
 
@@ -206,6 +207,10 @@ crew carries method: who decides, with what procedure, what counts as evidence. 
 
 `"audit": true` (team mode only, opt-in) makes the shell and policy guards append one JSON line per decision to `.crew/audit.log`: when, which guard, deny or notice, and which rule fired. It never records the command, the file content or any matched value. Keep `.crew/audit.log` out of version control unless the team decides otherwise.
 
+## Protected reach: `scope`
+
+`"scope": { "protected": ["packages/backend/src/auth/**", "src/validation/**"] }` lists globs, relative to the project root, for the rules a change must not cross unannounced. The first edit of a protected file in a session asks the person before it runs ([nudge-reach](../../hooks/nudge-reach.js)); later edits of that file go through. Absent means no protected paths; the area notice still runs.
+
 ## Catalog usage: `telemetry`
 
 Catalog usage — which roles, skills and commands get used — is recorded **only for a person who opts in**, in `.crew/local.json` (`{"telemetry": true}`, never versioned) or with `CREW_TELEMETRY=1`. The shared `crew.json` cannot switch it on for teammates; `"telemetry": false` there forbids it for everyone. Each event is one line in `.crew/usage.jsonl`: the date (no time of day), the kind, and a catalog name — anything else is stored as `other`, so no prompt text can land in it. Lines older than 90 days are dropped, `.crew/.gitignore` keeps the file out of the repository, and `/crew:doctor` blocks if it was committed anyway. `/crew:metrics catalog` reports it; `--purge` deletes it.
@@ -284,6 +289,8 @@ The question set it follows is fixed and versioned in the plugin (`standards/con
 | Hook bypass in shell commands ([guard-shell](../../hooks/guard-shell.js)) | presence of `crew.json` | deny (fails closed) | deny (fails closed) | notice |
 | Relaxing `crew.json` or host settings ([guard-policy](../../hooks/guard-policy.js)) | `quality`, `mode`, `crew:policy` block | deny under `enforce`, notice under `advise` | notice | notice |
 | Scope notice after writes ([nudge-scope](../../hooks/nudge-scope.js)) | `mode`, the active item's `Size:` | notice | off | notice |
+| Reach notice before writes ([nudge-reach](../../hooks/nudge-reach.js)) | `quality`, `scope.protected` | notice; asks on protected paths | notice; asks on protected paths | notice |
+| Reply shape on Stop ([guard-reply](../../hooks/guard-reply.js)) | `quality` | returns an over-long reply once | returns an over-long reply once | returns an over-long reply once |
 | Work-log reminder on Stop ([check-work-log](../../hooks/check-work-log.js)) | `mode` | active where `docs/work/` exists | off | active where `docs/work/` exists |
 | Pre-commit quality gate ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | always, once installed | always, once installed | always, once installed |
 | `/crew:metrics` report ([metrics.js](../../scripts/metrics.js)) | `factory` | runs | runs | runs |

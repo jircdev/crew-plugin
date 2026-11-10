@@ -182,6 +182,7 @@ function normalize(raw) {
       testing: normalizeTesting(parsed.testing),
       stack: normalizeStack(parsed.stack),
       factory: normalizeFactory(parsed.factory),
+      scope: require("./scope").normalizeScope(parsed.scope),
     };
   } catch {
     return null; // invalid JSON ⇒ legacy behavior, never block

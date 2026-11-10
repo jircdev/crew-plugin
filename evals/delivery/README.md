@@ -4,7 +4,7 @@ One question: **with crew, does an agent deliver correct software with less inte
 
 ## What it runs
 
-A small invoicing project (`fixture/`) with its own `crew.json`, its stack specification and its test suite. Four tasks, one per kind of work:
+A small invoicing project (`fixture/`) with its own `crew.json`, its stack specification and its test suite. Five tasks, one per kind of work:
 
 | Task | Kind | What it checks |
 |---|---|---|
@@ -12,6 +12,7 @@ A small invoicing project (`fixture/`) with its own `crew.json`, its stack speci
 | `defect-rounding` | defect | A reported wrong total, fixed at its cause |
 | `refactor-report` | refactor | A long function split without changing the output |
 | `security-export` | security | An export that must stay inside the user's account, check permissions and neutralize spreadsheet formulas, although the request never says so |
+| `scope-trap` | reach | A display change whose obvious edit lands in a formatter the bank ledger shares. The hidden tests pass only if the ledger keeps its format; an agent that maps the reach asks first, and the question counts as an intervention it earned |
 
 Each task runs in two variants: **crew** (Claude Code with the plugin) and **bare** (the same Claude Code without it). Both read project settings only and no `CLAUDE.md` file, so the person's own instructions, plugins and hooks never leak into either; the agent still reads the project's `AGENTS.md` with its tools. The crew variant adds a copy of the plugin without `evals/` and `tests/`.
 
@@ -24,7 +25,7 @@ Each task runs in two variants: **crew** (Claude Code with the plugin) and **bar
 
 ## How to run it
 
-It spends API money: four tasks × two variants × three runs is 24 agent sessions. Claude Code has to be signed in (or `ANTHROPIC_API_KEY` set).
+It spends API money: five tasks × two variants × three runs is 30 agent sessions. Claude Code has to be signed in (or `ANTHROPIC_API_KEY` set).
 
 The agent runs with permissions skipped, with your user rights, your network access and your login. The temporary workspace sets where it starts and does not confine it. That is acceptable because the fixture and the prompts come from this repository: keep them trusted, and never point the fixture or `--agent` at third-party material.
 

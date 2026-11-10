@@ -234,6 +234,18 @@ Pasada su fecha, la entrada deja de aplicar: la ruta exenta se vuelve a medir, l
 
 Hook: [`../../hooks/nudge-scope.js`](../../hooks/nudge-scope.js) (PostToolUse sobre Edit/Write). Cuando exactamente un work item tiene un hito abierto y lleva `Size:`, los archivos cambiados desde que arrancó ese hito se cuentan contra el tamaño (trivial 3, small 10, standard 30, large sin límite). Pasado el techo, un aviso por item pide re-dimensionar el trabajo en voz alta o dividirlo. Nunca niega; calla en modo `solo` y cuando no hay tamaño.
 
+## Aviso de alcance antes de editar
+
+Hook: [`../../hooks/nudge-reach.js`](../../hooks/nudge-reach.js) (PreToolUse sobre Edit/Write). El primer archivo de código que edita una sesión fija su área (`packages/<nombre>`, `apps/<nombre>` o la carpeta de arriba). Una edición en otra área recibe un aviso por área: avisarle a la persona el alcance extra antes de seguir (skill execution, "Map the reach"). Una ruta bajo `scope.protected` de `crew.json` le pregunta a la persona en su primera edición de la sesión. La documentación, los registros de trabajo y los tests nunca cuentan. Ve áreas y nunca grafos de llamadas: dentro de un área, mapear el alcance le toca al método. Corre en solo y en team; `quality: "off"` lo apaga.
+
+## Forma de la respuesta
+
+Hook: [`../../hooks/guard-reply.js`](../../hooks/guard-reply.js) (Stop). Lee del transcript la respuesta que cerró el turno. Si pasa de 250 palabras, trae más de una tabla o más de dos títulos, y el último pedido de la persona no pidió un informe, un plan o un documento, frena el cierre una vez y el agente reescribe la respuesta como pide la "Reply shape" del baseline. Los bloques de código no cuentan. La respuesta larga ya se mostró, así que la reescritura llega como un segundo mensaje; el set [`evals/conversation`](../../evals/conversation/README.md) mide cuántas veces pasa. `quality: "off"` lo apaga.
+
+### "Crew reply shape: the closing reply has N words …"
+
+Reescribila: el veredicto primero, una línea por pregunta, sin tablas ni títulos, las decisiones técnicas tomadas con su razón en una línea. Si la persona quería una pieza larga, lo dice con una palabra como informe, plan, documento o detalle, y el hook no dice nada.
+
 ## Modo factory
 
 Cuando `crew.json` declara un bloque `factory` con `projectId` ([configuration.md](configuration.md#modo-factory)), la estimación, el estado y el tiempo de trabajo de cada tarea viven en factory. Dos guards se adaptan, igual en team que en solo; el resto se comporta como se describe arriba.

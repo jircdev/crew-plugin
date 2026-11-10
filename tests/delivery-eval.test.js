@@ -25,7 +25,7 @@ function evaluate(t, args, env = {}) {
 test('a full run records acceptance, own suite, interventions, time, tokens and cost for every task and variant', t => {
   const { run, result } = evaluate(t, ['--runs', '1']);
   assert.equal(run.status, 0, run.stderr);
-  assert.equal(result.runs.length, 8);
+  assert.equal(result.runs.length, 10);
   for (const r of result.runs) {
     assert.equal(r.acceptance.passed, r.acceptance.total, `${r.task} ${r.variant}`);
     assert.ok(r.acceptance.total > 0 && r.regression === true);

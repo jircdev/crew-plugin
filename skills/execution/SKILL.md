@@ -20,17 +20,21 @@ A change is done when the behavior it promised is proven, the behavior it did no
 3. **Size the risk.** The procedure has two weights:
    - **Standard** — the default.
    - **Elevated** — the change touches a security trigger of the session baseline (authentication, authorization, untrusted input, personal data, external calls, secrets), money or any calculation people rely on, the shape of persisted data, a contract other code consumes, or deletes anything. Elevated adds four things: consult `security-compliance` when a security trigger is involved; write the tests for the rejections and abuse cases before the implementation; review the diff against every criterion before declaring done; state how the change is undone.
-4. **Run the suite once before changing anything.** Whatever is red before you started is reported as such, and never blamed on the change or hidden by it.
+4. **Map the reach.** Read who calls the code you are about to change and what it calls in turn. List every screen, caller and rule that shares the component, function or endpoint. When the reach includes something the request did not name (another module, another site, a server rule, a contract), stop before editing and tell the user in one line: "you asked for X; it implies Y in Z; I recommend A". The extra work starts only after that answer. A reach found halfway through the change stops it the same way.
+5. **Run the suite once before changing anything.** Whatever is red before you started is reported as such, and never blamed on the change or hidden by it.
 
 ## 2. Procedures
 
 ### Defect
 
-1. **Reproduce.** Turn the report into a test that fails at the lowest level that shows it, and watch it fail for the reported reason. A defect that cannot be reproduced is reported back with what was tried; it is never "fixed" blind.
-2. **Find the cause.** Follow the wrong value back to where it is produced and fix it there. Then look for the same pattern elsewhere: a defect is often a family.
-3. **Fix with the smallest change** that removes the cause.
-4. **Verify.** The new test passes, the whole suite is green.
-5. **Report** the cause, the fix and the name of the regression test.
+1. **Read the defined flow.** Before the code, read the work item, requirement or flow document that defines the behavior. With no written flow, the intended behavior is the owner's decision: ask, and never infer it from the code.
+2. **Reproduce.** Turn the report into a test that fails at the lowest level that shows it, and watch it fail for the reported reason. A defect that cannot be reproduced is reported back with what was tried; it is never "fixed" blind.
+3. **Judge the trigger.** An error has two sides: the rule that refused and the caller that asked. Decide which side is wrong against the defined flow and the known practice for that interaction (a choice in a group of options stays chosen when tapped again). When the trigger is a user gesture, read it through `ux-architect`. The error message is evidence of a conflict; the rule behind it stays until the behavior that hit it was judged correct.
+4. **Find the cause.** Follow the wrong value back to where it is produced and fix it there. Then look for the same pattern elsewhere: a defect is often a family.
+5. **Consult the owner** of every rule, ruling or contract the fix touches, before the fix is final.
+6. **Fix with the smallest change** that removes the cause.
+7. **Verify.** The new test passes, the whole suite is green.
+8. **Report** the flow read, the side judged wrong, the reach checked, the owners consulted, then the cause, the fix and the name of the regression test. In a trivial defect each of the first four fits in a few words.
 
 This is test-driven development applied where it pays most: the failing test comes first and stays as the guard.
 
@@ -65,7 +69,8 @@ This is test-driven development applied where it pays most: the failing test com
 ## 4. Anti-patterns
 
 - Fixing the symptom where it shows instead of the cause where it is produced.
-- Editing a test's expectation to make it pass when no criterion changed.
+- Changing a rule (validation, guard, assertion, test expectation, invariant) so a behavior passes, before that behavior was judged against its flow. The fix belongs to the caller that should not have asked.
+- Growing the change past the request in silence: a reach the user did not name is announced before it is edited.
 - A refactor and a behavior change in the same step.
 - Declaring done from reading the code, or saying "tests pass" for a suite that did not run.
 - Taking a convention from what is popular instead of from the project's stack specification.

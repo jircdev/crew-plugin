@@ -39,4 +39,6 @@ If the re-check cannot be done at all (the evidence is unreachable), the finding
 
 - **Silent failures** — empty or swallowing `catch`, errors logged and then ignored, fallbacks that turn a failure into plausible data (an empty list, a zero, a default user), missing timeouts on external calls, lost stack traces, retries without a cap.
 - **"Must not"** — every "Must not" line of the story or requirement is checked as a criterion of its own; a violated one is blocking and owned by `functional-analyst` (or the role that wrote it).
+- **Relaxed rules** — a validation, guard, assertion, test expectation or invariant that the diff removes or widens (an extra condition, an early return, a looser match) cites the flow that justifies it and the owner consulted. Without both it is blocking, owned by the role that owns the rule.
+- **Unannounced reach** — the diff touches a module, site, server rule or contract that the request did not name and the reply never announced. Blocking until the user accepts the extra work; owned by the implementing role.
 - **Claimed passes** — a `passing` verification row, or "tests pass" in prose, counts as observed only with a run you can point to (a receipt from `scripts/verify.js` where the project declares `testing.commands`). Otherwise it is `reasoned` and says so. Never report a pass you did not see.

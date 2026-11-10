@@ -31,6 +31,7 @@ Dos consecuencias. Primera, el plugin **no tiene defaults ocultos**: los valores
 | `testing` | objeto (`guide`, `e2e`, `commands`, `receipts`, `criteria`) | `null` | Qué puede verificar este proyecto y con qué. Declararlo convierte la tabla de verificación en compuerta de cierre; ver [Capacidades de testing](#capacidades-de-testing). |
 | `stack` | objeto (`specs`) | `null` | Dónde vive el conocimiento del stack de este proyecto, por área. El plugin no trae ninguno; ver [Especificaciones de stack](#especificaciones-de-stack). |
 | `audit` | `true` \| `false` | `false` | Registro de las decisiones de los guards en `.crew/audit.log`, solo en modo team; ver [Registro de auditoría](#registro-de-auditoría-audit). |
+| `scope` | `{ "protected": [globs] }` | ninguno | Rutas cuya primera edición en la sesión le pregunta a la persona; ver [Alcance protegido](#alcance-protegido-scope). |
 | `telemetry` | `false` | sin efecto | Solo puede prohibir el registro de uso del catálogo para todo el equipo. Cada persona lo activa en su máquina; ver [Uso del catálogo](#uso-del-catálogo-telemetry). |
 | `factory` | objeto (`projectId`, `environment`, `url`, `web`, `capture`) | `null` | Las tareas, las estimaciones y el tiempo de trabajo viven en factory; ver [Modo factory](#modo-factory). |
 
@@ -206,6 +207,10 @@ crew aporta el método: quién decide, con qué procedimiento, qué cuenta como 
 
 `"audit": true` (solo en modo team, opcional) hace que los guards de shell y de políticas agreguen una línea JSON por decisión a `.crew/audit.log`: cuándo, qué guard, si negó o avisó y qué regla saltó. Nunca registra el comando, el contenido del archivo ni ningún valor detectado. Conviene dejar `.crew/audit.log` fuera del control de versiones salvo que el equipo decida otra cosa.
 
+## Alcance protegido: `scope`
+
+`"scope": { "protected": ["packages/backend/src/auth/**", "src/validation/**"] }` lista globs, relativos a la raíz del proyecto, de las reglas que un cambio no puede cruzar sin avisar. La primera edición de un archivo protegido en una sesión le pregunta a la persona antes de correr ([nudge-reach](../../hooks/nudge-reach.js)); las siguientes de ese archivo pasan. Si falta, no hay rutas protegidas y el aviso de área sigue corriendo.
+
 ## Uso del catálogo: `telemetry`
 
 El uso del catálogo (qué roles, skills y comandos se usan) se registra **solo para la persona que lo activa**, en `.crew/local.json` (`{"telemetry": true}`, nunca versionado) o con `CREW_TELEMETRY=1`. El `crew.json` compartido no puede encenderlo para el resto del equipo; `"telemetry": false` ahí lo prohíbe para todos. Cada evento es una línea en `.crew/usage.jsonl`: la fecha (sin hora), el tipo y un nombre del catálogo; cualquier otra cosa se guarda como `other`, así que ningún texto de un prompt puede terminar ahí. Las líneas de más de 90 días se descartan, `.crew/.gitignore` deja el archivo fuera del repositorio y `/crew:doctor` bloquea si igual se commiteó. `/crew:metrics catalog` lo informa; `--purge` lo borra.
@@ -284,6 +289,8 @@ El set de preguntas que sigue está fijo y versionado en el plugin (`standards/c
 | Evasión de hooks en comandos de shell ([guard-shell](../../hooks/guard-shell.js)) | presencia de `crew.json` | niega (falla cerrado) | niega (falla cerrado) | aviso |
 | Relajar `crew.json` o los settings del host ([guard-policy](../../hooks/guard-policy.js)) | `quality`, `mode`, bloque `crew:policy` | niega con `enforce`, avisa con `advise` | aviso | aviso |
 | Aviso de alcance tras escribir ([nudge-scope](../../hooks/nudge-scope.js)) | `mode`, el `Size:` del item activo | aviso | apagado | aviso |
+| Aviso de alcance antes de escribir ([nudge-reach](../../hooks/nudge-reach.js)) | `quality`, `scope.protected` | aviso; pregunta en rutas protegidas | aviso; pregunta en rutas protegidas | aviso |
+| Forma de la respuesta al cerrar ([guard-reply](../../hooks/guard-reply.js)) | `quality` | devuelve una vez una respuesta demasiado larga | devuelve una vez una respuesta demasiado larga | devuelve una vez una respuesta demasiado larga |
 | Recordatorio de work-log al cerrar sesión ([check-work-log](../../hooks/check-work-log.js)) | `mode` | activo donde exista `docs/work/` | apagado | activo donde exista `docs/work/` |
 | Puerta de calidad pre-commit ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | siempre, una vez instalada | siempre, una vez instalada | siempre, una vez instalada |
 | Reporte `/crew:metrics` ([metrics.js](../../scripts/metrics.js)) | `factory` | corre | corre | corre |

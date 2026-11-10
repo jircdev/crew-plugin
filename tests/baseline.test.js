@@ -27,6 +27,24 @@ test('the baseline stays within its context budget', () => {
   assert.ok(read('standards/session-context.md').length <= 9000, 'session baseline above 9000 characters');
 });
 
+test('the baseline fixes the reply shape: verdict first, one line per question, technical choices decided', () => {
+  const baseline = read('standards/session-context.md');
+  assert.match(baseline, /\*\*Reply shape/);
+  assert.match(baseline, /verdict comes first/);
+  assert.match(baseline, /one line per question asked/);
+  assert.match(baseline, /Decide what is technical yourself/);
+});
+
+test('the execution craft maps the reach and judges the trigger before any rule changes', () => {
+  const craft = read('skills/execution/SKILL.md');
+  assert.match(craft, /\*\*Map the reach\.\*\*[^\n]*stop before editing/);
+  for (const step of ['Read the defined flow', 'Judge the trigger', 'Consult the owner']) assert.ok(craft.includes(step), step);
+  assert.match(craft, /Changing a rule \(validation, guard, assertion, test expectation, invariant\) so a behavior passes/);
+  const findings = read('standards/findings.md');
+  assert.match(findings, /\*\*Relaxed rules\*\*/);
+  assert.match(findings, /\*\*Unannounced reach\*\*/);
+});
+
 test('the baseline routes code changes to the execution craft, and the craft carries no stack', () => {
   assert.match(read('standards/session-context.md'), /Code changes load the `execution` skill first/);
   const craft = read('skills/execution/SKILL.md');

@@ -34,6 +34,14 @@
 
 ---
 
+### R6 — A rule widened so a gesture passes
+
+**State**: a reported error "a graded verdict must name a level". The diff adds `|| level == null` to the server validation so that tapping the chosen option again (which sends an empty level) is accepted. The flow document says the choice is a local draft saved once when the review closes.
+**Prompt**: "QA: veredicto del arreglo."
+**Under test**: is the widened validation a blocking "Relaxed rules" finding owned by the rule's owner, with the caller named as the place of the fix?
+
+---
+
 ### R5 — Nothing wrong
 
 **State**: a clean, well-tested change.

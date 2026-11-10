@@ -8,8 +8,15 @@ All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepa
 
 - **`task-closure` skill** ([`skills/task-closure/SKILL.md`](skills/task-closure/SKILL.md)): the closing circuit in a repository connected to factory. The agent closes the task, proposes the person hours and loads what the person confirms; with no answer the hours stay a proposal in Mis horas. Agent hours are shown as data and never asked. Later adjustments reopen the task and update the record of that day and topic. It needs factory's `update_time` tool.
 
+- **Reply shape, enforced** ([`hooks/guard-reply.js`](hooks/guard-reply.js), Stop): the reply that closes a turn is measured from the transcript. Past 250 words, more than one table or more than two headings, with no report, plan or document asked, the stop is blocked once and the agent rewrites it short. Solo and team; `quality: "off"` silences it.
+- **Reach notice before editing** ([`hooks/nudge-reach.js`](hooks/nudge-reach.js), PreToolUse): an edit that leaves the area of the session's first code edit gets one notice per area, in solo mode too. A new optional `crew.json` field, `scope.protected` (globs), makes the first edit of those paths in a session ask the person.
+- **`evals/conversation`**: a human-run set of eight prompts that judges reply shape, including the two failures that motivated it. **`evals/delivery` task `scope-trap`**: a display change whose obvious edit lands in a formatter the bank ledger shares; the fixture gains `src/ledger.js`.
+
 ### Changed
 
+- **The baseline's "Conversation style" becomes "Reply shape"** ([`standards/session-context.md`](standards/session-context.md)): verdict first, one line per question asked, tables and headings only for a requested report, plan or document, technical choices decided by the agent with a one-line reason. Same length; the trigger was a reply that answered three yes/no questions with three tables and handed the person a technical choice.
+- **Execution craft** ([`skills/execution/SKILL.md`](skills/execution/SKILL.md)): "Map the reach" before the first edit (who calls the code, what it calls; a reach the request did not name stops the change until the person accepts it). The defect procedure reads the defined flow first, judges which side of an error is wrong before touching the rule, and consults the owner of every rule it crosses. Two new anti-patterns: changing a rule so a behavior passes, and growing the change in silence. The trigger: an agent widened a server validation so a tap that should never have called the server would pass.
+- **Review lenses** ([`standards/findings.md`](standards/findings.md)): "Relaxed rules" and "Unannounced reach" are blocking without the flow, the owner or the person's acceptance.
 - **Human review stops being a step to finish a task** in a repository connected to factory: the row stays in the estimate and closes with the task ([`skills/planning/SKILL.md`](skills/planning/SKILL.md)).
 
 ## [1.4.0] — 2026-11-03
