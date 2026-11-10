@@ -12,6 +12,30 @@ All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepa
 
 - **Human review stops being a step to finish a task** in a repository connected to factory: the row stays in the estimate and closes with the task ([`skills/planning/SKILL.md`](skills/planning/SKILL.md)).
 
+## [1.4.0] — 2026-11-03
+
+Factory sees the work as it happens: stories reach it from Ready and close on its sync block, a repository's recorded hours load through its MCP, and captured time arrives grouped in work blocks with the task the agent declares. The story-sync trigger was real: a project that uploaded its stories with factory's `sync-stories` could not close any of them in crew (no `**Factory activity:**` line), got one module per folder instead of the areas it plans by, and saw every story in Backlog whatever its `Status`. Work blocks were reviewed by security-compliance.
+
+### Added
+
+- `/crew:factory repo-hours`: loads into factory the hours a repository recorded (the Started/Finished of each `## Estimation` milestone and the Duration of each work log), each row attributed by the author email of the commit that wrote it. `scripts/factory-repo-hours.js` reads the repository deterministically and prepares the calls; the agent saves each work item with `upsert_requirement`, runs factory's `import_repo_hours` as a dry run, and applies it only after the person says yes. Nothing but timestamps, hours, milestone codes, paths, author emails and commits leaves the repository. Contract: factory's `packages/backend/docs/mcp-repo-hours-contract.md`.
+- **Work blocks** ([`hooks/lib/activity-rules.js`](hooks/lib/activity-rules.js)): every captured interval carries the id of its work block, the turns of a session factory reviews at once. A block opens at session start, after a pause over 15 minutes (keeping the declared task), when the agent declares another task and when it completes an activity; a cut inside an agent reply splits the reply. Plan in the factory repository: `docs/requirements/work-blocks/`.
+- **The agent declares its task**: after a factory MCP `declare_work` call, the capture hook stamps the open block with the activity id read from the call's input; `update_activity` completing an activity cuts the block. Only those fields are read: never a tool response, never a terminal command. At session start, with the repository linked and capture on, one line reminds the agent to declare; the rules live in the factory MCP instructions.
+
+### Changed
+
+- **The closure gate accepts factory's sync block.** In factory mode a work item also closes when its header carries the block the story sync writes (`<!-- factory:start -->` followed by `**Factory:** #<number>`), read within the first 40 lines like the header link ([`hooks/lib/activity-rules.js`](hooks/lib/activity-rules.js) `factoryLinked`).
+- **Factory mode, from the story to factory** ([`docs/en/factory.md`](docs/en/factory.md) / [`docs/es/factory.md`](docs/es/factory.md), stories template, delivery circuit, `functional-analyst`): a story goes to factory when it reaches Ready; its optional `**Module:**` line (or `**Módulo:**`) names the factory module when it is not the folder; the milestone rows stay in the file, never one activity per row; and each `Status` change is mirrored on the activity, with a published equivalence (Draft → Backlog, Ready → Por hacer, In progress → En curso or En pausa while `**Blocked:**`, Delivered → En revisión, Validated and Closed → Hecha).
+- **Standard story labels** (stories template, `functional-analyst`): an optional `**Requires:**` line says what a story needs outside development, from a closed list: `go-live` (needed for production, does not hold development), `legal` and `client`; `producción`, `legal` and `cliente` in Spanish. A label informs: no gate reads it.
+- **Stories declare where they are built and what they cover** (stories template, factory docs): optional `**Surfaces:**`, `**Done on:**` and `**Covers:**` lines, which factory's sync reads to show progress by surface and by requirement. The factory docs also cover tasks added by hand, status moved from the MCP and the `drift.mjs` report.
+- Time rebuilt by `/crew:factory backfill` carries no block: factory joins it to the block the live capture already sent for that session.
+
+### Compatibility
+
+- `required: false`. Nothing to configure; every change is additive.
+- Needs factory (its own repository): `sync_stories_push` and `sync_stories_pull` are on factory's `dev`. `import_repo_hours`, which `/crew:factory repo-hours` calls, is in balearesg/factory#57, still open; until it is deployed the dry run answers with an unknown tool and nothing is written. `declare_work` is on factory's `feat/work-blocks` branch, still open; until it is deployed the call the session-start line suggests fails as an unknown tool and capture goes on as before. A factory without the work-blocks change ignores the new interval fields (`blockId`, `declaredTaskId`, `declaredAt`).
+- Known: 3 tests in `tests/delivery-eval.test.js` fail on Windows, the same 3 that fail on `main` since 1.3.0.
+
 ## [1.3.0] — 2026-11-03
 
 Work time reaches factory without getting lost. The trigger was real: a token factory refused on 2026-10-30 emptied the local queue, the only warning went to the agent's context, and a repository without a project id was never captured. Designed with system-architect and reviewed by security-compliance. Plan: [`docs/requirements/factory-onboarding/`](docs/requirements/factory-onboarding/README.md).

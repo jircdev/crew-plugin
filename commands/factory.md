@@ -1,6 +1,6 @@
 ---
-description: Connect this machine and this repository to factory — login, link, status, backfill, logout
-argument-hint: login | link [project id] | status | backfill | logout
+description: Connect this machine and this repository to factory — login, link, status, backfill, repo-hours, logout
+argument-hint: login | link [project id] | status | backfill | repo-hours | logout
 ---
 
 Connect this machine to factory, link the current repository to its factory project, and recover work time that capture lost. The token is the personal credential that lets crew send captured work time to factory and read its backlog.
@@ -15,6 +15,12 @@ Run each action from the project root. Relay the script's result in one or two p
   Add `--replace` only when the person agreed to change an existing link, and `--set-environment` only when they agreed to write this machine's environment into `crew.json`.
 - **status** (the default with no argument) — `node "${CLAUDE_PLUGIN_ROOT}/scripts/factory-login.js" status`. Says which factory this machine talks to, as whom, when the token expires, how much captured time waits on this machine, and which project the current repository is linked to.
 - **backfill** — `node "${CLAUDE_PLUGIN_ROOT}/scripts/factory-backfill.js"` rebuilds this repository's work time from the person's local Claude Code transcripts and shows a summary per day. Show the summary as printed. Add `--since YYYY-MM-DD` only with a date the person gave you. Add `--send` only after the person explicitly says yes to the summary in the chat, never on your own initiative.
+- **repo-hours** — loads into factory the hours this repository recorded: the Started/Finished of each milestone in the `## Estimation` tables and the Duration of each work log, each row with the author of the commit that wrote it. Factory decides whose each row is from that email; never name a person yourself. Steps, in order, never skipping the dry run:
+  1. `node "${CLAUDE_PLUGIN_ROOT}/scripts/factory-repo-hours.js"` reads the repository and writes a JSON file (the path is printed). Relay the summary. Never read the files yourself and never edit the JSON.
+  2. `find_project_by_repo` with the printed repository. Without `match: "yours"`, stop and offer `link`.
+  3. For each entry of `requirements` in the JSON: `upsert_requirement` with that project id, its `code`, `externalKey`, `title` and `milestones` (each `code`, `title`, `estimatedHours`). If factory asks for a package, ask the person which one.
+  4. For each entry of `batches`: `import_repo_hours` with it as is (a dry run by default). Show the person the result: hours per person and month, whether each person gets them as their own (`own`) or waiting for their confirmation (`pending`), and the counts of `outcomes`. Rows `no_person` mean emails factory does not know: each person registers theirs in factory, Mis horas → Correos de git.
+  5. Only after the person says yes in the chat: the same `import_repo_hours` calls with `dryRun: false` and a new `retryKey` per batch. Relay `derivedDays` and `retired`.
 - **logout** — `node "${CLAUDE_PLUGIN_ROOT}/scripts/factory-login.js" logout`. Revokes the token in factory and removes it, and any queued time, from this machine. It also prints how to remove the registered MCP server, which keeps its own copy of the token.
 
 Which factory is used: the project's `crew.json` `factory` block picks `environment` (`prod` by default, or `dev`) or a `url`. On a single machine, `CREW_FACTORY_ENV` or `CREW_FACTORY_URL` override it.

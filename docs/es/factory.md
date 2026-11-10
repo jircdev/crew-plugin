@@ -56,7 +56,7 @@ Un repositorio que nunca debe capturarse lo dice en su `crew.json` con `"factory
 
 **Lo que necesitás en factory.** Una ficha de persona vinculada a tu usuario, el permiso `my-hours.register` (lo tienen todos los perfiles) y participar del proyecto, como líder o desde una burbuja asignada. Las horas se proponen solo sobre actividades que cuelgan de un paquete aprobado.
 
-**3. Opcional: las herramientas de factory para el agente.** Factory también ofrece herramientas MCP para que el agente lea el backlog, cree actividades o cargue tiempo en tu nombre. Las que ves dependen de tu perfil: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `update_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, y las de paquetes (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`).
+**3. Opcional: las herramientas de factory para el agente.** Factory también ofrece herramientas MCP para que el agente lea el backlog, cree actividades o cargue tiempo en tu nombre. Las que ves dependen de tu perfil: `whoami`, `list_projects`, `agenda`, `get_activity`, `project_backlog`, `create_activity`, `update_activity`, `assign`, `add_task_reference`, `upsert_requirement`, `log_time`, `update_time`, `reclassify_time`, `my_week`, `unclassified_time`, `classify_time`, `find_people`, `import_repo_hours`, y las de paquetes (`list_cost_centers`, `upsert_cost_center`, `approve_cost_center`). Si liderás un proyecto o un equipo asignado a él, `log_time` también acepta otra persona del equipo: esas horas esperan a que la persona las confirme en factory.
 
 `/crew:factory login` guarda el token en `~/.crew/factory-token`. **No** crea la variable `FACTORY_TOKEN` ni registra el servidor MCP: eso es este paso. Al terminar, el login imprime el comando exacto para tu factory y tu terminal, que lee el token del archivo para que nunca aparezca en pantalla ni en el chat. Para prod, en PowerShell:
 
@@ -74,6 +74,8 @@ claude mcp remove factory --scope user
 
 Para el entorno de desarrollo, usá `api.dev.factory.balearesgroup.com`. Después `claude mcp list` tiene que mostrar `factory: … ✔ Connected`; las herramientas aparecen en las sesiones que abras desde ahí.
 
+- **Las sesiones abiertas no lo ven.** Claude Code carga los servidores MCP al abrir una sesión: si registraste factory con una sesión abierta, cerrala y abrí otra.
+- **El entorno sale de `crew.json`.** Por defecto el plugin habla con prod; un repositorio con `"environment": "dev"` en su bloque `factory` hace que el login y este comando usen dev (ver [Con qué factory hablás](#con-qué-factory-hablás)).
 - **Volvé a registrarlo después de cada login.** El registro guarda una copia del token en la configuración de Claude Code, así que un login nuevo (o un token vencido) lo deja desactualizado.
 - **No lo registres con `${FACTORY_TOKEN}`** salvo que esa variable tenga de verdad el token en la terminal donde corrés el comando; el login nunca la crea. En PowerShell, `${FACTORY_TOKEN}` es una variable de PowerShell y no la de entorno (`$env:FACTORY_TOKEN`). En cualquiera de los dos casos el servidor queda con un `Bearer` vacío y cada llamada responde 401 "No personal access token provided".
 - Un servidor registrado antes sin `--scope user` queda en ese proyecto y gana sobre el de usuario: borralo ahí con `claude mcp remove factory`.
@@ -100,11 +102,23 @@ Solo **momentos**. El plugin anota la hora cuando empieza una sesión, cuando re
 - **Tu tiempo**: mientras tenés el turno, desde que empieza la sesión o el agente termina de responder hasta tu próximo prompt. Un turno de más de 15 minutos cuenta como pausa y no suma.
 - **El trabajo del agente**: desde que mandás un prompt hasta que el agente termina de responder, dure lo que dure. Los dos nunca se superponen.
 
-Cada intervalo lleva el id de sesión, el proyecto de factory y la actividad en la que estabas. La actividad sale de las historias y requerimientos que el agente edita durante la sesión. La ruta del archivo es su referencia en factory (`<carpeta de crew.json>:<ruta>`, enlazada con `add_task_reference` o `upsert_requirement`), y la línea de cabecera `**Factory activity:**`, cuando está, nombra la actividad directamente.
+Cada intervalo lleva el id de sesión, el proyecto de factory, su [bloque de trabajo](#bloques-de-trabajo-y-la-tarea-que-declara-el-agente) y la actividad en la que estabas. La actividad sale de las historias y requerimientos que el agente edita durante la sesión. La ruta del archivo es su referencia en factory (`<carpeta de crew.json>:<ruta>`, enlazada con `add_task_reference` o `upsert_requirement`), y la línea de cabecera `**Factory activity:**`, cuando está, nombra la actividad directamente.
 
 El plugin nunca lee ni envía el contenido de tus prompts, las respuestas del agente ni la transcripción de la conversación. De los archivos que editás mira solo la ruta, y en historias y requerimientos, la línea `**Factory activity:**` de la cabecera.
 
 En Codex los mismos hooks corren sobre los eventos que emite Codex. El work item sale de los nombres de archivo de cada `apply_patch` (`*** Add File:`, `*** Update File:`, `*** Move to:`).
+
+### Bloques de trabajo y la tarea que declara el agente
+
+Los turnos seguidos de una sesión forman un **bloque de trabajo**, que en factory se revisa de una vez: se acepta la tarea propuesta o se cambia. Cada intervalo lleva el identificador de su bloque.
+
+- **Cuándo se abre un bloque nuevo:** con el inicio de la sesión, después de una pausa de más de 15 minutos, cuando el agente declara otra tarea y cuando el agente completa una actividad en factory. La pausa conserva la tarea declarada, porque no es un cambio de tema. Si el corte cae en medio de una respuesta del agente, esa respuesta se parte en ese momento.
+- **La declaración:** al empezar algo, el agente busca o crea la actividad en factory y llama a la herramienta `declare_work` del MCP de factory con su identificador. El plugin lee ese identificador del pedido a la herramienta y lo pone en el bloque abierto; los turnos del bloque anteriores a la declaración también reciben la tarea en factory. Las reglas para el agente están en las instrucciones del propio servidor MCP de factory, así valen igual para Claude Code y para Codex.
+- **Qué lee el plugin de esas llamadas:** de `declare_work`, solo el identificador de la actividad; de `update_activity`, solo si la acción es completar. Nunca lee la respuesta de una herramienta ni los comandos de la terminal. Un commit no corta el bloque: el corte llega cuando el agente declara la tarea siguiente.
+- **Es una propuesta.** La persona la acepta o la corrige en factory. Lo que asignó la persona gana siempre sobre una declaración posterior.
+- **Al empezar la sesión**, si el repositorio está vinculado y la captura activa, el plugin agrega una línea que recuerda declarar la tarea.
+
+El tiempo recuperado de las transcripciones no lleva bloque: factory lo suma al bloque de la misma sesión que ya llegó en vivo, o arma uno por sesión y pausa.
 
 ## Cuando factory tiene un problema
 
@@ -151,6 +165,24 @@ Qué lee y qué envía:
 
 **El envío está cerrado en esta versión.** Factory suma el tiempo del agente sin unir tramos que se superponen, así que el tiempo que la captura en vivo ya envió contaría doble. El resumen funciona hoy; el envío se abre cuando factory cuente el tiempo del agente una vez por sesión. Las transcripciones de Codex todavía no se leen.
 
+## Cargar las horas que anotó un repositorio
+
+Los equipos anotan en sus repositorios cuándo empezó y terminó cada hito (la tabla `## Estimation` de cada historia y requerimiento) y llevan registros de trabajo con su duración. Factory puede convertir esa historia en horas de cada persona:
+
+```
+/crew:factory repo-hours
+```
+
+El agente lee el repositorio con un script, guarda en factory cada historia y requerimiento con sus hitos, y primero corre una prueba: horas por persona y por mes, y las filas que quedan afuera con su motivo. No se carga nada hasta que lo mirás y decís que sí.
+
+- **De quién es cada fila** sale del correo del autor del commit que escribió la fila (`git blame`), o del commit que agregó el registro de trabajo. Factory lo compara con el correo corporativo de cada persona y con los correos de git que cada una registró en Mis horas. El plugin nunca dice de quién es una fila.
+- **Qué sale del repositorio:** el inicio, el fin, las horas reales y las horas IA reales de cada fila, el código del hito, la ruta del archivo, el correo del autor y el commit. Nunca el texto de los archivos, la columna Notes, el texto de los registros de trabajo, los mensajes de commit ni la hora de los commits.
+- **Las filas sin commitear** no tienen autor y quedan afuera; commitealas antes.
+- **Tus propias filas cuentan enseguida. Las de otra persona esperan** a que esa persona las confirme en factory. Cargar para otros pide liderar el proyecto (o un equipo asignado) en factory.
+- **Cada minuto cuenta una vez:** lo que la captura en vivo ya mandó queda como estaba; el repositorio solo completa los huecos. Correrlo de nuevo no suma nada dos veces, y una fila que sacás de un archivo se retira.
+
+Las reglas que aplica factory están en su guía «Horas desde los repositorios».
+
 ## Enlazar una historia con su actividad
 
 Agregá una línea en la cabecera de la historia o el requerimiento:
@@ -160,6 +192,30 @@ Agregá una línea en la cabecera de la historia o el requerimiento:
 ```
 
 También se acepta `**Factory task:**`, para work items escritos antes de que factory las llamara actividades. El agente puede buscar el id con `project_backlog`, `agenda` o `get_activity`, o crear la actividad con `create_activity` (o `upsert_requirement` si es un requerimiento) y agregar la línea él mismo. Desde ese momento, el tiempo capturado mientras se edita ese archivo se propone para esa actividad, y la historia se puede cerrar.
+
+**Con la sincronización de historias de factory** (el skill `sync-stories` del repositorio de factory, que llama a `sync_stories_push` y `sync_stories_pull`), la historia se enlaza por su ruta y no hace falta la línea. Al traer lo de factory, el skill escribe un bloque bajo la cabecera, entre `<!-- factory:start -->` y `<!-- factory:end -->`, con el número de la actividad. Ese bloque cuenta como enlace para cerrar la historia, igual que `**Factory activity:**`.
+
+### De la historia a factory
+
+- **Cuándo sube.** Una historia sube a factory cuando pasa a `Ready`, no al terminarla: así factory la ve en el backlog desde que se puede tomar. La sube quien la declara lista (`FA`), con la sincronización o con `sync_stories_push` para esa historia.
+- **Módulo.** Factory arma un módulo por carpeta de `docs/stories/`. Cuando el proyecto agrupa distinto (por ejemplo, varias carpetas en un área del tablero), la cabecera lo dice con `- **Module:** <nombre del módulo en factory>` (también se acepta `**Módulo:**`). La sincronización de factory manda la historia a ese módulo.
+- **Tareas.** Las filas de la tabla de hitos se quedan en el archivo. A factory va la historia, con el total de la tabla como primera estimación; nunca una actividad por fila. Si hace falta una tarea en factory, se agrega a mano ahí.
+- **Superficies y requerimientos.** Son líneas opcionales. `- **Surfaces:** servidor · web · app` dice dónde se construye la historia y `- **Done on:** servidor · web`, dónde ya está hecha (también se aceptan `**Superficie:**` y `**Hecho en:**`). `- **Covers:** RQ-02, RQ-18` dice qué requerimientos cubre (también `**Cubre:**`). Con ellas factory muestra el avance por superficie y por requerimiento. Si una línea no está, la sincronización no toca lo que factory ya tiene.
+- **Etiquetas.** `- **Requires:**` lleva las etiquetas estándar de la historia (`go-live`, `legal`, `client`; en español, `producción`, `legal`, `cliente`), definidas en la plantilla de historias. Quedan en el archivo: factory todavía no las lee.
+- **Estado.** El archivo conserva el `Status` del circuito de crew, porque las compuertas lo leen. Quien cambia el `Status` en modo factory actualiza también el estado de la actividad (`update_activity`), con esta equivalencia:
+
+| `Status` en crew | Estado en factory |
+|---|---|
+| `Draft` | Backlog |
+| `Ready` | Por hacer |
+| `In progress` | En curso |
+| `In progress` con `**Blocked:**` en la cabecera | En pausa, con esa línea como motivo |
+| `Delivered` | En revisión |
+| `Validated`, `Closed` | Hecha |
+
+Factory sigue siendo dueño de la gestión: responsable, sprint, prioridad y horas. Lo que trae la sincronización va en su bloque y en su propia línea `**Estado:**`; nunca reemplaza el `Status`.
+
+Quien desarrolla también puede mover el estado desde el MCP de factory. Para ver dónde el `Status` y factory dicen cosas distintas, el skill `sync-stories` trae `drift.mjs`: lista las diferencias, no cambia nada, y decide una persona.
 
 ## Pausar la captura
 
