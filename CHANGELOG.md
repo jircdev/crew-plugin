@@ -11,6 +11,10 @@ Every captured hour carries a task, without depending on the agent remembering (
 - **Declare the edited item's task** ([`hooks/nudge-declare.js`](hooks/nudge-declare.js), PostToolUse on edits): when the agent edits a story or requirement whose header carries `Factory activity`, and that activity is not the one the session declared, the agent is told to call `declare_work` with it. Once per activity and declared task; silent for an activity the session already completed, in `solo` mode and with capture paused.
 - **The closing question at a commit** ([`hooks/nudge-closure.js`](hooks/nudge-closure.js), PostToolUse on shell tools): after a successful `git commit` or `git-cut` commit in a factory-linked repository, the agent is told to ask the programmer whether the commit closes the task. On a yes it runs the `task-closure` circuit: close, propose task, package and person hours in one message, create a missing task only on the person's yes, without assignee. A commit is recognized by its command plus a HEAD under two minutes old; the message, files and diff are never read.
 
+### Removed
+
+- **The Stop hook on reply shape** (`hooks/guard-reply.js`, `hooks/lib/reply.js`). It blocked a closing reply past 250 words, one table or two headings, but a Stop hook runs after the person has read the reply, so the rewrite reached them as a second copy of the same answer. Reply shape stays in the baseline, which now asks for the minimum necessary, with length following what the question needs.
+
 ### Changed
 
 - **`task-closure` skill**: describes both notices, asks the person hours once at the commit that closes the task, proposes task, package and hours in one message, and covers creating a missing task ("No planificado" as the fallback package).

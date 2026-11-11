@@ -292,7 +292,6 @@ The question set it follows is fixed and versioned in the plugin (`standards/con
 | Relaxing `crew.json` or host settings ([guard-policy](../../hooks/guard-policy.js)) | `quality`, `mode`, `crew:policy` block | deny under `enforce`, notice under `advise` | notice | notice |
 | Scope notice after writes ([nudge-scope](../../hooks/nudge-scope.js)) | `mode`, the active item's `Size:` | notice | off | notice |
 | Reach notice before writes ([nudge-reach](../../hooks/nudge-reach.js)) | `quality`, `scope.protected` | notice; asks on protected paths | notice; asks on protected paths | notice |
-| Reply shape on Stop ([guard-reply](../../hooks/guard-reply.js)) | `quality` | returns an over-long reply once | returns an over-long reply once | returns an over-long reply once |
 | Work-log reminder on Stop ([check-work-log](../../hooks/check-work-log.js)) | `mode` | active where `docs/work/` exists | off | active where `docs/work/` exists |
 | Pre-commit quality gate ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | always, once installed | always, once installed | always, once installed |
 | `/crew:metrics` report ([metrics.js](../../scripts/metrics.js)) | `factory` | runs | runs | runs |

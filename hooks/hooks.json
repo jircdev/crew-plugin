@@ -162,10 +162,6 @@
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-reply.js\""
-          },
-          {
-            "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/capture-activity.js\"",
             "timeout": 15
           }

@@ -240,11 +240,7 @@ Hook: [`../../hooks/nudge-reach.js`](../../hooks/nudge-reach.js) (PreToolUse on 
 
 ## Reply shape
 
-Hook: [`../../hooks/guard-reply.js`](../../hooks/guard-reply.js) (Stop). Reads the reply that closed the turn from the transcript. Past 250 words, more than one table or more than two headings, and with no report, plan or document asked for in the person's last prompt, the stop is blocked once and the agent rewrites the reply as the baseline's "Reply shape" asks. Code fences do not count. The long reply has already been shown, so the rewrite arrives as a second message; the evaluation set [`evals/conversation`](../../evals/conversation/README.md) tracks how often that happens. `quality: "off"` silences it.
-
-### "Crew reply shape: the closing reply has N words …"
-
-Rewrite it: verdict first, one line per question asked, no tables or headings, technical choices decided with a one-line reason. If the person did want a long piece, they say so with a word like report, plan, document or detail, and the hook stays silent.
+No hook. Reply shape lives in the session baseline ([`standards/session-context.md`](../../standards/session-context.md), "Reply shape"): verdict first, one line per question, structure only for a requested report, plan or document, and the minimum necessary to answer. Any check of a reply runs after the person has read it, so a hook can only add a second copy of the same answer; the plugin removed the Stop hook that did that (`guard-reply.js`). The evaluation set [`evals/conversation`](../../evals/conversation/README.md) measures whether the baseline lands.
 
 ## Factory mode
 

@@ -42,7 +42,6 @@ crew-plugin/
 │   ├── nudge-declare.js      # PostToolUse: pide declarar la actividad factory del ítem editado
 │   ├── nudge-closure.js      # PostToolUse: tras un commit, pide preguntar si cierra la tarea
 │   ├── nudge-reach.js        # PreToolUse: aviso cuando una edición sale del área de la sesión; pregunta en scope.protected
-│   ├── guard-reply.js        # Stop: una respuesta demasiado larga vuelve para reescribirse corta
 │   ├── record-usage.js       # uso del catálogo, opcional por persona
 │   ├── precompact-reminder.js # PreCompact: hitos abiertos antes de compactar
 │   ├── codex-pre-tool.js     # adaptador de apply_patch para Codex

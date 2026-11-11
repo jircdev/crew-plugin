@@ -9,6 +9,6 @@ Per prompt, score 1 (yes) or 0 (no).
 | S3 | Every technical choice is decided in the reply with its reason; the person is asked only about intent, product or risk |
 | S4 | The position taken is correct for the project as it stands |
 | S5 | A reach the request did not name is announced in one line (C7) |
-| S6 | The reply that reached the person needed no rewrite from `guard-reply.js` |
+| S6 | The reply says the minimum necessary: every sentence answers what was asked or names a defect in one line |
 
-S1 to S3 and S6 can be read off the reply. S4 and S5 need someone who knows the project. A prompt that fails S6 while passing S1 to S3 after the rewrite means the baseline text is not landing and the hook is doing the work: report it as a baseline failure.
+S1 to S3 and S6 can be read off the reply. S4 and S5 need someone who knows the project. A failure on S1, S2 or S6 is a baseline failure: the text did not land, and the fix goes to the baseline's "Reply shape".

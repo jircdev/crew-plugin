@@ -292,7 +292,6 @@ El set de preguntas que sigue está fijo y versionado en el plugin (`standards/c
 | Relajar `crew.json` o los settings del host ([guard-policy](../../hooks/guard-policy.js)) | `quality`, `mode`, bloque `crew:policy` | niega con `enforce`, avisa con `advise` | aviso | aviso |
 | Aviso de alcance tras escribir ([nudge-scope](../../hooks/nudge-scope.js)) | `mode`, el `Size:` del item activo | aviso | apagado | aviso |
 | Aviso de alcance antes de escribir ([nudge-reach](../../hooks/nudge-reach.js)) | `quality`, `scope.protected` | aviso; pregunta en rutas protegidas | aviso; pregunta en rutas protegidas | aviso |
-| Forma de la respuesta al cerrar ([guard-reply](../../hooks/guard-reply.js)) | `quality` | devuelve una vez una respuesta demasiado larga | devuelve una vez una respuesta demasiado larga | devuelve una vez una respuesta demasiado larga |
 | Recordatorio de work-log al cerrar sesión ([check-work-log](../../hooks/check-work-log.js)) | `mode` | activo donde exista `docs/work/` | apagado | activo donde exista `docs/work/` |
 | Puerta de calidad pre-commit ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | siempre, una vez instalada | siempre, una vez instalada | siempre, una vez instalada |
 | Reporte `/crew:metrics` ([metrics.js](../../scripts/metrics.js)) | `factory` | corre | corre | corre |

@@ -240,11 +240,7 @@ Hook: [`../../hooks/nudge-reach.js`](../../hooks/nudge-reach.js) (PreToolUse sob
 
 ## Forma de la respuesta
 
-Hook: [`../../hooks/guard-reply.js`](../../hooks/guard-reply.js) (Stop). Lee del transcript la respuesta que cerró el turno. Si pasa de 250 palabras, trae más de una tabla o más de dos títulos, y el último pedido de la persona no pidió un informe, un plan o un documento, frena el cierre una vez y el agente reescribe la respuesta como pide la "Reply shape" del baseline. Los bloques de código no cuentan. La respuesta larga ya se mostró, así que la reescritura llega como un segundo mensaje; el set [`evals/conversation`](../../evals/conversation/README.md) mide cuántas veces pasa. `quality: "off"` lo apaga.
-
-### "Crew reply shape: the closing reply has N words …"
-
-Reescribila: el veredicto primero, una línea por pregunta, sin tablas ni títulos, las decisiones técnicas tomadas con su razón en una línea. Si la persona quería una pieza larga, lo dice con una palabra como informe, plan, documento o detalle, y el hook no dice nada.
+Sin hook. La forma de la respuesta vive en el baseline de la sesión ([`standards/session-context.md`](../../standards/session-context.md), "Reply shape"): el veredicto primero, una línea por pregunta, estructura solo para un informe, plan o documento pedido, y lo mínimo necesario para responder. Cualquier control sobre una respuesta corre cuando la persona ya la leyó, así que un hook solo puede sumar una segunda copia de la misma respuesta; por eso el plugin quitó el Stop hook que lo hacía (`guard-reply.js`). El set de evaluación [`evals/conversation`](../../evals/conversation/README.md) mide si el baseline se cumple.
 
 ## Modo factory
 
