@@ -4,7 +4,9 @@ All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepa
 
 ## [Unreleased]
 
-Every captured hour carries a task, without depending on the agent remembering (factory decision of 2026-11-10, requirement activity-entry/001 in factory).
+## [1.6.0] — 2026-11-10
+
+Every captured hour carries a task, without depending on the agent remembering (factory decision of 2026-11-10, requirement activity-entry/001 in factory). Replies stop arriving twice: the length check that rewrote them after the person had read them is gone, and the baseline asks for the minimum necessary.
 
 ### Added
 

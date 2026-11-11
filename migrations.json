@@ -119,6 +119,13 @@
       "title": "Captured time matches the work",
       "summary": "An agent turn counts only its active stretches: a silence over 15 minutes (a tool waiting for you, a machine asleep) is cut out. Each turn sends the word count of the agent's last answer so factory adds reading time; CREW_READING_TIME=off turns it off. /crew:factory backfill sends on request, to recover the time before a repository was linked. Task closure proposes person hours rounded up to 5 minutes. Replies are held to their shape and edits announce their reach. Reading time needs the factory version with responseWords.",
       "doc": "CHANGELOG.md"
+    },
+    {
+      "version": "1.6.0",
+      "required": false,
+      "title": "Every hour carries a task; replies arrive once",
+      "summary": "Editing a story or requirement linked to a factory activity asks the agent to declare that task, and after a commit the agent asks whether it closes the task, proposing task, package and person hours in one message. The Stop hook that rewrote long replies is gone, so a reply no longer shows twice; the baseline asks for the minimum necessary. Nothing to configure.",
+      "doc": "CHANGELOG.md"
     }
   ]
 }
