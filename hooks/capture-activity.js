@@ -24,6 +24,7 @@ const { captureToken, factoryApi } = require("./lib/factory");
 const { applyEvent, taskHintFor } = require("./lib/activity-rules");
 const { activityDir, enqueue, flush, readStatus } = require("./lib/activity-queue");
 const { factoryAlert } = require("./lib/factory-alerts");
+const { sessionStatePath: statePath, readStateFile: readState, editedPaths } = require("./lib/capture-state");
 const { lastAnswerWords } = require("./lib/response-words");
 const { activeStretches } = require("./lib/turn-activity");
 
@@ -31,16 +32,7 @@ const FLUSH_ON = new Set(["SessionStart", "Stop", "SessionEnd"]);
 // Problems a send can discover; each is shown once, when it first appears.
 const DISCOVERED = new Set(["rejected", "expired", "no-person"]);
 
-function statePath(sessionId) {
-  return join(activityDir(), `${String(sessionId).replace(/[^\w-]/g, "_")}.json`);
-}
-
-function readState(path) {
-  try { return JSON.parse(fs.readFileSync(path, "utf8")); } catch { return {}; }
-}
-
 const STALE_MS = 48 * 3600000;
-const PATCH_TARGET = /^\*\*\* (?:Add File|Update File|Move to): (.+)$/gm;
 const FACTORY_TOOL = /^mcp__.*factory.*__(declare_work|update_activity)$/i;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -55,15 +47,6 @@ function pruneStaleSessions(now) {
       if (now - fs.statSync(file).mtimeMs > STALE_MS) fs.rmSync(file, { force: true });
     } catch { /* another session got there first */ }
   }
-}
-
-// Claude edits carry file_path; a Codex apply_patch carries the patch text,
-// whose file headers name the touched paths.
-function editedPaths(toolInput) {
-  if (!toolInput) return [];
-  if (typeof toolInput.file_path === "string" && toolInput.file_path) return [toolInput.file_path];
-  if (typeof toolInput.command !== "string") return [];
-  return [...toolInput.command.matchAll(PATCH_TARGET)].map((m) => m[1].trim());
 }
 
 function editHint(input) {

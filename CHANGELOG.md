@@ -4,6 +4,18 @@ All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepa
 
 ## [Unreleased]
 
+Every captured hour carries a task, without depending on the agent remembering (factory decision of 2026-11-10, requirement activity-entry/001 in factory).
+
+### Added
+
+- **Declare the edited item's task** ([`hooks/nudge-declare.js`](hooks/nudge-declare.js), PostToolUse on edits): when the agent edits a story or requirement whose header carries `Factory activity`, and that activity is not the one the session declared, the agent is told to call `declare_work` with it. Once per activity and declared task; silent for an activity the session already completed, in `solo` mode and with capture paused.
+- **The closing question at a commit** ([`hooks/nudge-closure.js`](hooks/nudge-closure.js), PostToolUse on shell tools): after a successful `git commit` or `git-cut` commit in a factory-linked repository, the agent is told to ask the programmer whether the commit closes the task. On a yes it runs the `task-closure` circuit: close, propose task, package and person hours in one message, create a missing task only on the person's yes, without assignee. A commit is recognized by its command plus a HEAD under two minutes old; the message, files and diff are never read.
+
+### Changed
+
+- **`task-closure` skill**: describes both notices, asks the person hours once at the commit that closes the task, proposes task, package and hours in one message, and covers creating a missing task ("No planificado" as the fallback package).
+- **Capture state** keeps the activities a session completed (`completed`), so editing a closed item's status never asks to declare it again. The per-session state helpers moved to [`hooks/lib/capture-state.js`](hooks/lib/capture-state.js).
+
 ## [1.5.0] — 2026-11-10
 
 Captured time matches the work: an agent turn counts only its active stretches, each answer adds the time to read it, and a task closes with its hours proposed in factory's 5-minute rounding. Replies that close a turn are held to their shape, and an edit outside the session's area is announced before it lands. The capture trigger was agent turns of 9 to 11 hours with a night inside, from a tool waiting for the person or a machine asleep. The reading count was approved under factory's work-blocks security conditions (2026-11-09).

@@ -39,6 +39,8 @@ crew-plugin/
 │   ├── guard-policy.js       # PreToolUse: relaxations of crew.json and host settings
 │   ├── nudge-offrepo-plan.js # PreToolUse: notice for plans published outside the repo
 │   ├── nudge-scope.js        # PostToolUse: notice when a change outgrows its size
+│   ├── nudge-declare.js      # PostToolUse: asks to declare the edited item's factory activity
+│   ├── nudge-closure.js      # PostToolUse: after a commit, asks whether it closes the task
 │   ├── nudge-reach.js        # PreToolUse: notice when an edit leaves the session's area; ask on scope.protected
 │   ├── guard-reply.js        # Stop: an over-long reply goes back for a short rewrite
 │   ├── record-usage.js       # catalog usage, opt-in per person

@@ -125,9 +125,10 @@ Consecutive turns of a session form a **work block**, which factory reviews at o
 
 - **A new block opens** when the session starts, after a pause over 15 minutes, when the agent declares another task and when the agent completes an activity in factory. A pause keeps the declared task. A cut in the middle of an agent reply splits that reply at that moment.
 - **The declaration:** when work starts, the agent finds or creates the factory activity and calls the factory MCP tool `declare_work` with its id. The plugin reads that id from the tool call and stamps the open block; factory gives the block's earlier turns the task too. The agent's rules live in the factory MCP server instructions, so Claude Code and Codex read the same ones.
-- **What the plugin reads from those calls:** from `declare_work`, the activity id only; from `update_activity`, only whether the action completes it. It never reads a tool response or a terminal command. A commit does not cut the block: the cut comes when the agent declares the next task.
+- **What the plugin reads from those calls:** from `declare_work`, the activity id only; from `update_activity`, only whether the action completes it. The capture hook never reads a tool response or a terminal command. A commit does not cut the block: the cut comes when the agent declares the next task.
 - **It is a proposal.** The person accepts or corrects it in factory, and what the person assigned always wins over a later declaration.
 - **At session start**, with the repository linked and capture on, the plugin adds one line reminding the agent to declare.
+- **When a linked story or requirement is edited**, the plugin asks the agent to declare that task. What triggers it: the agent edits a file under `docs/requirements/` or `docs/stories/` whose header carries the `Factory activity` line with an activity id, and that activity differs from the one the session declared. What happens: the agent is told to call `declare_work` with that id before it continues, so the time captured from then on lands on that task. The notice comes once per activity and declared task. It stays silent when the session already completed that activity: editing the status of a closed item leaves its time as it was. To decide, the plugin reads the file header and what the capture recorded for the session, without asking factory. It runs in `team` mode with capture on and stays silent in `solo` mode.
 
 Time recovered from transcripts carries no block: factory joins it to the session's block that arrived live, or groups it by session and pause.
 
@@ -240,7 +241,15 @@ While paused, the plugin writes nothing at all, not even locally. To stop sendin
 
 ## Closing a task
 
-When the agent finishes a task it closes it, proposes your hours rounded up to the next 5 minutes, at least 10, and loads the number you confirm or give. If you do not answer, nothing stops: the task stays closed and the hours wait as a proposal in **Mis horas**. Agent hours come from the capture and are never asked. If you ask for changes later, the agent reopens the task and asks only about the new time. A human review is optional and no longer keeps a task open. The agent follows this through the `task-closure` skill.
+Your hours are asked once, at the commit that closes the task.
+
+- **What triggers it:** a successful commit, made with `git commit` or with the commit-cut skill's `git-cut` script, in a repository linked to factory. The plugin recognizes the commit by its command and checks that the repository's latest commit is under two minutes old. A failed commit or a dry run leaves that latest commit as it was, and then nothing happens.
+- **The question:** a hook hands the agent an instruction, and the agent asks you in chat whether that commit closes the task. If you say no, it asks nothing more: intermediate commits never ask about hours. If the agent already closed the task and proposed its hours in the session, it asks nothing either.
+- **If you say yes:** the agent closes the activity in factory, reads that task's record of the day and proposes in one message the task title, its package (the cost center) and your hours for the day, rounded up to the next 5 minutes, at least 10. It loads only the number you confirm or give.
+- **If there was no task:** in that same message it proposes one to create, with title and package, and creates it only on your yes. The task goes to the repository's factory project, under the story or requirement in progress and without assignee, so it stays out of everyone's own to-do list. The package is the story's or requirement's; when that has none, you pick one, and "No planificado" is the fallback.
+- **Agent hours** come from the capture: the agent shows them as data and never asks about them or changes them.
+
+If you do not answer, nothing stops: the task stays closed and the hours wait as a proposal in **Mis horas**. If you ask for changes later, the agent reopens the task and asks only about the new time. A human review is optional and no longer keeps a task open. The agent follows this through the `task-closure` skill. From the command, the plugin only looks at whether it is a commit; the message, the files and the diff stay unread. It runs in `team` mode and stays silent in `solo` mode, outside factory and without a token.
 
 ## Your weekly review
 

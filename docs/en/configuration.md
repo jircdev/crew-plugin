@@ -297,6 +297,8 @@ The question set it follows is fixed and versioned in the plugin (`standards/con
 | Pre-commit quality gate ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | always, once installed | always, once installed | always, once installed |
 | `/crew:metrics` report ([metrics.js](../../scripts/metrics.js)) | `factory` | runs | runs | runs |
 | Activity capture ([capture-activity](../../hooks/capture-activity.js)) | `factory` | only in factory mode, with a token | only in factory mode, with a token | off |
+| Declare-the-task notice on editing a linked item ([nudge-declare](../../hooks/nudge-declare.js)) | `mode`, `factory` | notice, with capture on | off | off |
+| Closing question after a commit ([nudge-closure](../../hooks/nudge-closure.js)) | `mode`, `factory` | notice, with a token | off | off |
 
 Three more checks depend on `testing` and are not separate rows: `testing.receipts` makes a `passing` row need a receipt taken on the current code, and `testing.criteria` makes every numbered acceptance criterion need a row; see [Testing capabilities](#testing-capabilities). `stack` gates nothing: it is read by the roles, and the session start names an unusable declaration. The pre-commit row holds under a hook manager too, once its config runs the gate.
 

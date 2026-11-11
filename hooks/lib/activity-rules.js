@@ -100,8 +100,19 @@ function cut(state, now, ctx, intervals, taskId) {
   openBlock(state, now, ctx, taskId);
 }
 
+// The activities this session completed and has not declared again, newest
+// last. The declare nudge reads it so editing a closed item (its status line)
+// never asks to declare that task again.
+const COMPLETED_KEPT = 20;
+function trackCompletion(state, event) {
+  const done = (state.completed || []).filter((id) => id !== event.taskId && id !== state.blockTaskId);
+  if (event.name === "Complete" && state.blockTaskId) done.push(state.blockTaskId);
+  state.completed = done.slice(-COMPLETED_KEPT);
+}
+
 // event.name "Declare" carries taskId; "Complete" closes the declared work.
 function applyWorkEvent(state, event, now, ctx, intervals) {
+  trackCompletion(state, event);
   if (!state.blockId) return openBlock(state, now, ctx, event.name === "Declare" ? event.taskId : null);
   if (event.name === "Complete") return cut(state, now, ctx, intervals, null);
   if (!event.taskId || event.taskId === state.blockTaskId) return;

@@ -108,6 +108,19 @@
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/capture-activity.js\"",
             "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/nudge-declare.js\""
+          }
+        ]
+      },
+      {
+        "matcher": "^(Bash|PowerShell|shell|local_shell|exec_command|container.exec)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/nudge-closure.js\""
           }
         ]
       },

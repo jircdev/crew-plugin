@@ -9,15 +9,26 @@ The agent closes and loads. If adjustments come later, it reopens and updates. N
 
 Factory's own MCP instructions carry the same rule; this skill is the procedure. It applies when the session has the factory tools (`whoami`, `update_activity`, `my_week`). Before the first close of a session, call `whoami` for the person's timezone and today.
 
+## What the plugin tells you
+
+Two plugin hooks hand you a notice in repositories linked to factory (outside `solo` mode). Neither one talks to the person: you act, and you ask in chat.
+
+- **Declare the task.** When you edit a story or requirement whose header carries `Factory activity`, and that activity is not the one this session declared, the notice asks you to call `declare_work` with it. Do it before you continue, so the captured time lands on that task. An activity you already completed in this session is left alone: editing its status after closing asks nothing.
+- **The commit that closes the task.** After a successful `git commit` (or a `git-cut` commit), the notice asks you to put one question to the programmer: does this commit close the task? On a no, ask nothing more: intermediate commits never ask about hours. On a yes, run *Closing* below. When you already closed the task and proposed its hours in this session, ask nothing.
+
+Person hours are asked once, at the commit that closes the task.
+
 ## Closing
 
-1. **Close the task.** When you consider it finished: `update_activity` with `action: complete`, on the activity you declared with `declare_work`. Do not wait for a review. Human review stops being a step to finish a task: a human review milestone of that task closes with it, and its time is part of the person hours below. Then update the work item's status in the repository as the project's standard asks.
+1. **Close the task.** When the programmer says the commit closes it, or you consider it finished: `update_activity` with `action: complete`, on the activity you declared with `declare_work`. Do not wait for a review. Human review stops being a step to finish a task: a human review milestone of that task closes with it, and its time is part of the person hours below. Then update the work item's status in the repository as the project's standard asks.
 2. **Read the time.** `my_week` with `activityId`, and find the record of today's `workDate`. Without `activityId` a full week can exceed what you can read. For a week other than the current one, send `weekStart`. The capture built it from the work blocks of the session. Its `hours` are the person's time and its `agentHours` are the agent's.
-3. **Propose the person hours,** rounded up to the next 5 minutes, at least 10 minutes, in the person's language:
+3. **Propose the task, its package and the person hours in one message,** the hours rounded up to the next 5 minutes, at least 10 minutes, in the person's language:
 
-   > I calculated 1 h 05 min of your time on this task (agent: 0.4 h). Do you confirm them or adjust them?
+   > I'm logging 1 h 05 min of your time on "Export Mis horas to CSV", package "Mis horas — phase 2" (agent: 0.4 h, from the capture). Do you confirm them or adjust them?
 
    Agent hours are shown as data. They come from the capture, so never ask about them and never try to change them.
+
+   **No task for the work?** Propose in that same message the task to create, with its title and package, and create it only on the person's yes: `create_activity` in the repository's factory project, under the story or requirement in progress, without assignee, so it never lands in anyone's own to-do list. The package is the parent item's; when it has none, the person picks one, and "No planificado" is the fallback. Time the capture left without a task goes to that task with `classify_time`, with the person's agreement, before you propose the hours.
 4. **Load what the person answered.**
    - A record exists for that task and day: `update_time` with its `recordId` and the hours.
    - No record: `log_time` with `activityId`, `workDate`, the hours and a one-sentence plain description of what was done.

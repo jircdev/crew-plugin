@@ -297,6 +297,8 @@ El set de preguntas que sigue está fijo y versionado en el plugin (`standards/c
 | Puerta de calidad pre-commit ([check-staged.js](../../scripts/check-staged.js)) | `ceilings` | siempre, una vez instalada | siempre, una vez instalada | siempre, una vez instalada |
 | Reporte `/crew:metrics` ([metrics.js](../../scripts/metrics.js)) | `factory` | corre | corre | corre |
 | Captura de actividad ([capture-activity](../../hooks/capture-activity.js)) | `factory` | solo en modo factory, con token | solo en modo factory, con token | apagada |
+| Aviso de declarar la tarea al editar un ítem vinculado ([nudge-declare](../../hooks/nudge-declare.js)) | `mode`, `factory` | aviso, con la captura activa | apagado | apagado |
+| Pregunta de cierre tras un commit ([nudge-closure](../../hooks/nudge-closure.js)) | `mode`, `factory` | aviso, con token | apagado | apagado |
 
 Otras tres reglas dependen de `testing` y no tienen fila propia: `testing.receipts` hace que una fila `passing` necesite un recibo tomado sobre el código actual, y `testing.criteria` hace que cada criterio de aceptación numerado necesite una fila; ver [Capacidades de testing](#capacidades-de-testing). `stack` no bloquea nada: lo leen los roles, y el inicio de sesión nombra una declaración inutilizable. La fila de pre-commit vale también con un gestor de hooks, una vez que su configuración corre la puerta.
 

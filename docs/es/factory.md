@@ -125,9 +125,10 @@ Los turnos seguidos de una sesión forman un **bloque de trabajo**, que en facto
 
 - **Cuándo se abre un bloque nuevo:** con el inicio de la sesión, después de una pausa de más de 15 minutos, cuando el agente declara otra tarea y cuando el agente completa una actividad en factory. La pausa conserva la tarea declarada, porque no es un cambio de tema. Si el corte cae en medio de una respuesta del agente, esa respuesta se parte en ese momento.
 - **La declaración:** al empezar algo, el agente busca o crea la actividad en factory y llama a la herramienta `declare_work` del MCP de factory con su identificador. El plugin lee ese identificador del pedido a la herramienta y lo pone en el bloque abierto; los turnos del bloque anteriores a la declaración también reciben la tarea en factory. Las reglas para el agente están en las instrucciones del propio servidor MCP de factory, así valen igual para Claude Code y para Codex.
-- **Qué lee el plugin de esas llamadas:** de `declare_work`, solo el identificador de la actividad; de `update_activity`, solo si la acción es completar. Nunca lee la respuesta de una herramienta ni los comandos de la terminal. Un commit no corta el bloque: el corte llega cuando el agente declara la tarea siguiente.
+- **Qué lee el plugin de esas llamadas:** de `declare_work`, solo el identificador de la actividad; de `update_activity`, solo si la acción es completar. El gancho de captura nunca lee la respuesta de una herramienta ni los comandos de la terminal. Un commit no corta el bloque: el corte llega cuando el agente declara la tarea siguiente.
 - **Es una propuesta.** La persona la acepta o la corrige en factory. Lo que asignó la persona gana siempre sobre una declaración posterior.
 - **Al empezar la sesión**, si el repositorio está vinculado y la captura activa, el plugin agrega una línea que recuerda declarar la tarea.
+- **Al editar una historia o un requerimiento vinculado**, el plugin le pide al agente que declare esa tarea. Qué lo dispara: el agente edita un archivo bajo `docs/requirements/` o `docs/stories/` cuyo encabezado tiene la línea `Factory activity` con el identificador de una actividad, y esa actividad es distinta de la que la sesión tiene declarada. Qué pasa: el agente recibe la instrucción de llamar a `declare_work` con ese identificador antes de seguir, así el tiempo capturado desde ahí cae en esa tarea. El aviso llega una vez por actividad y tarea declarada. Calla si la sesión ya completó esa actividad: editar el estado de un ítem cerrado deja su tiempo como estaba. Para decidir, el plugin lee el encabezado del archivo y lo que la captura anotó de la sesión, sin consultar a factory. Corre en modo `team` con la captura activa y calla en modo `solo`.
 
 El tiempo recuperado de las transcripciones no lleva bloque: factory lo suma al bloque de la misma sesión que ya llegó en vivo, o arma uno por sesión y pausa.
 
@@ -240,7 +241,15 @@ Mientras está pausada, el plugin no escribe nada, ni siquiera localmente. Para 
 
 ## Cierre de una tarea
 
-Cuando el agente termina una tarea, la cierra, propone tus horas redondeadas hacia arriba a los 5 minutos, con un mínimo de 10, y carga el número que confirmas u ofreces. Si no respondes, nada se frena: la tarea queda cerrada y las horas esperan como propuesta en **Mis horas**. Las horas de la IA salen de la captura y nunca se preguntan. Si después pides cambios, el agente reabre la tarea y pregunta solo por el tiempo nuevo. La revisión humana es opcional y ya no deja una tarea abierta. El agente sigue este circuito con la skill `task-closure`.
+Tus horas se preguntan una sola vez, en el commit que cierra la tarea.
+
+- **Qué lo dispara:** un commit que salió bien, hecho con `git commit` o con el script `git-cut` de la skill commit-cut, en un repositorio vinculado a factory. El plugin reconoce el commit por el comando y confirma que el último commit del repositorio tiene menos de dos minutos. Un commit que falló o una prueba en seco dejan ese último commit igual, y entonces no pasa nada.
+- **La pregunta:** un gancho le pasa una instrucción al agente, y el agente te pregunta en el chat si ese commit cierra la tarea. Si dices que no, no pregunta nada más: los commits intermedios no preguntan por horas. Si el agente ya cerró la tarea y te propuso sus horas en la sesión, tampoco pregunta.
+- **Si dices que sí:** el agente cierra la actividad en factory, lee el registro del día de esa tarea y te propone en un solo mensaje el título de la tarea, su paquete (el centro de costo) y tus horas del día, redondeadas hacia arriba a los 5 minutos, con un mínimo de 10. Carga solo el número que confirmas u ofreces.
+- **Si no había tarea:** en ese mismo mensaje te propone crear una, con título y paquete, y la crea solo si dices que sí. La tarea va al proyecto de factory del repositorio, debajo de la historia o el requerimiento en curso y sin responsable, así queda fuera de las listas de pendientes de cada persona. El paquete es el de la historia o el requerimiento; si ese no tiene, eliges uno, y "No planificado" es el de respaldo.
+- **Las horas de la IA** salen de la captura: el agente las muestra como dato y nunca las pregunta ni las cambia.
+
+Si no respondes, nada se frena: la tarea queda cerrada y las horas esperan como propuesta en **Mis horas**. Si después pides cambios, el agente reabre la tarea y pregunta solo por el tiempo nuevo. La revisión humana es opcional y ya no deja una tarea abierta. El agente sigue este circuito con la skill `task-closure`. Del comando, el plugin solo mira si es un commit; el mensaje, los archivos y el diff quedan sin leer. Corre en modo `team` y calla en modo `solo`, fuera de factory y sin token.
 
 ## Tu revisión semanal
 
