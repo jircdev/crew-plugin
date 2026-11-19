@@ -95,6 +95,8 @@ El proyecto elige el entorno en `crew.json` (`"environment": "dev"`, o un `url` 
 
 El token es uno solo por máquina (`~/.crew/factory-token`). Si cambiás de entorno, `/crew:factory login` contra el nuevo reemplaza el token anterior, y para volver hay que loguearse otra vez. `/crew:factory status` dice a qué entorno estás conectado.
 
+**Worktrees.** Un worktree de git del repositorio (en `.claude/worktrees/` o en cualquier otra carpeta) es el mismo repositorio: su tiempo va al factory y al proyecto que nombra el `crew.json` del checkout principal, aunque la copia del worktree, cortada de una rama más vieja, apunte a otro lado. La copia del worktree cuenta solo cuando el checkout principal no declara vínculo con factory.
+
 ## Qué se captura
 
 Solo **momentos**. El plugin anota la hora cuando empieza una sesión, cuando recibe un prompt tuyo, cuando el agente termina de responder y cuando la sesión termina. Con esos momentos arma dos clases de intervalo:
@@ -172,7 +174,7 @@ El agente primero muestra un resumen: para cada día, tu tiempo, el del agente y
 
 Qué lee y qué envía:
 
-- Lee solo tus propias transcripciones (`~/.claude/projects/`, o `$CLAUDE_CONFIG_DIR/projects/`), y de ellas solo las sesiones cuya carpeta de trabajo es este repositorio, con la hora de cada registro y las rutas de los archivos que editó el agente.
+- Lee solo tus propias transcripciones (`~/.claude/projects/`, o `$CLAUDE_CONFIG_DIR/projects/`), y de ellas solo las sesiones cuya carpeta de trabajo es este repositorio o uno de sus worktrees (también los ya borrados de `.claude/worktrees/`), con la hora de cada registro y las rutas de los archivos que editó el agente.
 - Envía los mismos campos que la captura en vivo, incluida la cantidad de palabras de la última respuesta de cada turno, con las mismas reglas del [tiempo de lectura](#tiempo-de-lectura) y el mismo interruptor (`CREW_READING_TIME=off`). El contenido de tus prompts, las respuestas del agente y los resultados de las herramientas quedan en tu máquina: la reconstrucción nunca los copia a otro archivo ni los muestra en el chat.
 - Cubre el tiempo desde que te conectaste a factory, dentro de los 45 días de factory. Si esta máquina no conoce tu fecha de conexión, el agente te pide el primer día en que aceptaste la captura (`--since AAAA-MM-DD`).
 - Correrlo dos veces da el mismo resultado: cada intervalo reconstruido recibe siempre el mismo id.

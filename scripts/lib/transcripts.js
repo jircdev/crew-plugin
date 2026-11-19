@@ -11,6 +11,7 @@ const os = require("node:os");
 const { join, resolve, sep } = require("node:path");
 const { taskHintFor, IDLE_MS } = require("../../hooks/lib/activity-rules");
 const { configDir } = require("../../hooks/lib/config-dir");
+const { counterpart } = require("../../hooks/lib/main-checkout");
 const { answerRecordWords, readingTimeOn, MAX_WORDS } = require("../../hooks/lib/response-words");
 
 const EDIT_TOOLS = new Set(["Edit", "Write", "MultiEdit", "NotebookEdit"]);
@@ -52,12 +53,27 @@ function transcriptFiles(since) {
   return out;
 }
 
+// Sessions started from Git Bash on Windows record their folder as
+// /c/w/repo; Node on Windows reads that as C:\c\w\repo.
+function nativePath(p) {
+  if (!p || process.platform !== "win32") return p;
+  const msys = /^\/([a-zA-Z])(\/.*)?$/.exec(p);
+  return msys ? `${msys[1].toUpperCase()}:${msys[2] || "/"}` : p;
+}
 const norm = (p) => (process.platform === "win32" ? resolve(p).toLowerCase() : resolve(p));
-// Inside this repository, and not inside a nested one with its own crew.json.
-function inside(root, cwd) {
-  if (!cwd || !(norm(cwd) === norm(root) || norm(cwd).startsWith(norm(root) + sep))) return false;
-  const governing = fs.existsSync(cwd) ? configDir(cwd) : null;
-  return !governing || norm(governing) === norm(root);
+const within = (root, cwd) => norm(cwd) === norm(root) || norm(cwd).startsWith(norm(root) + sep);
+// A session of this repository: its folder is governed by this crew.json,
+// directly or through a git worktree of this repository (wherever the
+// worktree lives), and never by a nested project with its own crew.json. A
+// folder that no longer exists (a removed worktree) counts when it was
+// inside the repository.
+function inside(root, recorded) {
+  const cwd = nativePath(recorded);
+  if (!cwd) return false;
+  if (!fs.existsSync(cwd)) return within(root, cwd);
+  const governing = configDir(cwd);
+  if (!governing) return false;
+  return norm(counterpart(governing) || governing) === norm(root);
 }
 
 const contentOf = (rec) => (rec.message ? rec.message.content : undefined);
@@ -156,4 +172,4 @@ function eventsOf(records, root) {
   return events;
 }
 
-module.exports = { transcriptFiles, readSessions, eventsOf, isHumanPrompt, projectsDir };
+module.exports = { transcriptFiles, readSessions, eventsOf, isHumanPrompt, projectsDir, nativePath };

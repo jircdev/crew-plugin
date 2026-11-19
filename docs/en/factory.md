@@ -95,6 +95,8 @@ The project picks the environment in `crew.json` (`"environment": "dev"`, or a `
 
 There is one token per machine (`~/.crew/factory-token`). If you switch environments, `/crew:factory login` against the new one replaces the previous token, and going back needs another login. `/crew:factory status` says which environment you are connected to.
 
+**Worktrees.** A git worktree of the repository (under `.claude/worktrees/` or in any other folder) is the same repository: its time goes to the factory and project the main checkout's `crew.json` names, even when the worktree's own copy, cut from an older branch, still points somewhere else. The worktree's copy counts only when the main checkout declares no factory link.
+
 ## What is captured
 
 Only **moments in time**. The plugin notes the time when a session starts, when it receives a prompt from you, when the agent finishes answering, and when the session ends. From those moments it builds two kinds of interval:
@@ -172,7 +174,7 @@ The agent first shows a summary: for each day, your time, the agent's time and t
 
 What it reads and what it sends:
 
-- It reads only your own transcripts (`~/.claude/projects/`, or `$CLAUDE_CONFIG_DIR/projects/`), and from them only the sessions whose working folder is this repository, with the time of each record and the paths of the files the agent edited.
+- It reads only your own transcripts (`~/.claude/projects/`, or `$CLAUDE_CONFIG_DIR/projects/`), and from them only the sessions whose working folder is this repository or one of its worktrees (also those already removed under `.claude/worktrees/`), with the time of each record and the paths of the files the agent edited.
 - It sends the same fields live capture sends, including the word count of each turn's last answer, under the same [reading time](#reading-time) rules and switch (`CREW_READING_TIME=off`). The content of your prompts, the agent's answers and the tool results stays on your machine: the rebuild never copies it to another file or shows it in the chat.
 - It covers the time since you connected to factory, within factory's 45 days. When this machine does not know your connection date, the agent asks for the first day you agreed to capture (`--since YYYY-MM-DD`).
 - Running it twice adds nothing twice: each rebuilt interval gets the same id every time.

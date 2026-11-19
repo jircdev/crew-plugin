@@ -27,6 +27,7 @@
 const { readFileSync } = require("node:fs");
 const { join, dirname } = require("node:path");
 const { configDir } = require("./config-dir");
+const { withMainFactory } = require("./main-checkout");
 const { normalizeFactory } = require("./factory-env");
 const { normalizeStack } = require("./stack");
 
@@ -42,19 +43,18 @@ const CAPTURE_KINDS = new Set(["browser", "playwright"]);
 // the plugin's — declaring nothing here means no fallback taste exists, which
 // is a declaration too.
 const BASELINE_KINDS = new Set(["skill", "doc"]);
-
 // testing.e2e.kind is deliberately a FREE label, unlike registry/capture/
 // baseline: whatever the harness is called, the action a role takes is the
 // same — write the scenario as a spec under `specs`. The plugin never
 // catalogues test tools; naming Playwright here would be the plugin choosing
 // the stack through the back door.
 
-// Walk up from startDir looking for crew.json (stops at filesystem root or
-// after 30 levels). Returns the parsed, normalized config object, or null.
+// Walk up from startDir looking for crew.json (at most 30 levels): the parsed,
+// normalized config, or null. In a git worktree the factory link is the main checkout's.
 function loadConfig(startDir) {
   try {
     const dir = configDir(startDir);
-    if (dir) return normalize(readFileSync(join(dir, "crew.json"), "utf8"));
+    if (dir) return withMainFactory(dir, normalize(readFileSync(join(dir, "crew.json"), "utf8")), normalize);
   } catch {
     // fall through — unreadable config behaves like no config
   }

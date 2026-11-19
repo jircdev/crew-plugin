@@ -15,6 +15,7 @@
 const { createHash } = require("node:crypto");
 const { basename } = require("node:path");
 const { loadConfig, configDir } = require("../hooks/lib/config");
+const { counterpart } = require("../hooks/lib/main-checkout");
 const { resolveFactory } = require("../hooks/lib/factory-env");
 const { factoryToken, tokenMeta, tokenState } = require("../hooks/lib/factory");
 const { applyEvent } = require("../hooks/lib/activity-rules");
@@ -78,8 +79,10 @@ function floorOf(args, token, now) {
 
 async function main() {
   const args = process.argv.slice(2);
-  const dir = configDir(process.cwd());
-  const cfg = dir && loadConfig(dir);
+  // From a worktree, the repository is its main checkout, and so is the link.
+  const here = configDir(process.cwd());
+  const dir = here && (counterpart(here) || here);
+  const cfg = here && loadConfig(here);
   if (!cfg || !cfg.factory || !cfg.factory.projectId) return say("This repository is not linked to factory. Run /crew:factory link first.", 1);
   if (cfg.factory.capture === false) return say("This repository has factory capture turned off (crew.json: capture false).", 1);
   const token = factoryToken();
