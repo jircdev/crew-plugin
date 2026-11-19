@@ -4,6 +4,24 @@ All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepa
 
 ## [Unreleased]
 
+A token factory stops accepting no longer loses time in silence. On 2026-11-15 a 401 deleted the local queue and paused capture; for four days nothing reached factory and the only sign was one line at session start. That night the factory and jad repositories moved from factory dev to prod, and a token sent to the factory that did not issue it gets the same 401 "unknown token" as a revoked one.
+
+### Fixed
+
+- **A 401 keeps the time** ([`hooks/lib/activity-queue.js`](hooks/lib/activity-queue.js)): the queue and session state stay, capture keeps recording locally (bounded by the 45 days), and the next login of the same person on the same factory sends it, the path an expired token already had. Only `logout`, or a login factory confirms is someone else, deletes it. The rejected token is tried again once an hour, so a refusal that was factory's own mistake heals without a login.
+- **A token goes only to the factory that issued it** ([`hooks/lib/factory.js`](hooks/lib/factory.js)): a repository pointing at another factory (dev against a prod token) captures nothing and says why at session start, and its sends never reach the other server.
+- **The 401 reason is logged**: `errors.log` records factory's own reason phrase (unknown or revoked, owner inactive, invalidated by a credential change), from a fixed list, so the next incident can be told apart.
+
+### Added
+
+- **The alert repeats on every prompt** ([`hooks/capture-activity.js`](hooks/capture-activity.js), UserPromptSubmit) while a refused or expired token holds time on the machine, saying how much work waits (clock time, overlaps counted once). It reaches the agent as context too, so it offers to run `/crew:factory login` for the person; the `factory` command describes that offer.
+- **One desktop notification per problem** ([`hooks/lib/desktop-notice.js`](hooks/lib/desktop-notice.js)): Windows toast, macOS notification or `notify-send`, detached and best effort; `CREW_NOTIFY=off` turns it off. It fires again only after the problem was fixed and came back.
+
+### Changed
+
+- A factory address from `crew.json` appears in an alert only when it is a plain web address, since the alert now reaches the agent.
+- The sending of batches moved to [`hooks/lib/activity-send.js`](hooks/lib/activity-send.js).
+
 ## [1.6.0] — 2026-11-10
 
 Every captured hour carries a task, without depending on the agent remembering (factory decision of 2026-11-10, requirement activity-entry/001 in factory). Replies stop arriving twice: the length check that rewrote them after the person had read them is gone, and the baseline asks for the minimum necessary.

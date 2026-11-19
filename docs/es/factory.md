@@ -141,22 +141,24 @@ Un problema de factory nunca rompe ni demora tu sesión. Los hooks de captura so
 | Factory no responde, o responde con un error de servidor | Los intervalos quedan en una cola local (`~/.crew/activity/queue.jsonl`) y salen en el próximo intento. Lo que tiene más de 45 días se descarta, igual que la retención de factory. |
 | Factory no tiene ficha de persona para tu usuario | Los intervalos quedan en la cola hasta que Gestión vincule una. |
 | Tu token venció | La captura sigue registrando en tu máquina, porque la fecha de vencimiento la fijó factory sin que la eligieras. No se envía nada hasta que volvés a correr `/crew:factory login`; ese login envía la cola enseguida, siempre que factory confirme que sos la misma persona en el mismo factory. El tiempo encolado para otra cuenta u otro factory se descarta. Si en ese login factory no puede decir quién sos, el tiempo queda aparte hasta un login que sí pueda. |
-| Tu token fue revocado (por vos o por un administrador) | La captura se pausa y la cola local se borra, porque revocar es la forma en que una persona pausa la captura. Se reanuda cuando te volvés a conectar. |
+| Factory deja de aceptar tu token antes de su vencimiento (revocado en el panel, invalidado por un cambio de credenciales o un dueño desactivado) | La captura sigue registrando en tu máquina y se conserva todo. Crew vuelve a probar el token una vez por hora, así que un rechazo que fue un error de factory se resuelve solo. Si persiste, `/crew:factory login` envía el tiempo guardado, con las mismas reglas que un token vencido. |
+| El repositorio apunta a un factory distinto del que emitió tu token (por ejemplo `dev` cuando te conectaste a `prod`) | El token nunca se envía ahí, y ese repositorio no captura hasta que los dos coincidan. Factory respondería que el token es desconocido, y una versión anterior tomaba esa respuesta como revocación. |
 | Factory rechaza un intervalo por inválido | Ese lote se descarta. |
 
-Crew distingue un token vencido de uno revocado por la fecha de vencimiento que guardó el login. Un token creado a mano en factory no tiene esa fecha guardada, así que cuando factory lo rechaza, crew lo trata como revocado.
+Crew distingue un token vencido de uno rechazado por la fecha de vencimiento que guardó el login. Un token creado a mano en factory no tiene esa fecha guardada, así que cuando factory lo rechaza, crew lo trata como rechazado.
 
-Cada caso deja una línea en `~/.crew/activity/errors.log`, con la hora, el código HTTP y la cantidad de intervalos. El log nunca guarda contenido de intervalos ni tokens. Toda la carpeta `~/.crew/activity/` la puede leer solo tu usuario, porque describe cuándo trabajás.
+Cada caso deja una línea en `~/.crew/activity/errors.log`, con la hora, el código HTTP y la cantidad de intervalos; un token rechazado también registra el motivo que dio factory, por ejemplo "invalidated by a credential change". El log nunca guarda contenido de intervalos ni tokens. Toda la carpeta `~/.crew/activity/` la puede leer solo tu usuario, porque describe cuándo trabajás.
 
-**Lo que ves.** Cuando la captura te necesita, aparece en tu sesión un mensaje de una línea de crew: al empezar la sesión, y al terminar una respuesta si el envío encuentra un problema nuevo. Aparece en cinco situaciones, cada una con el comando que la resuelve:
+**Lo que ves.** Cuando la captura te necesita, aparece en tu sesión un mensaje de una línea de crew: al empezar la sesión, y al terminar una respuesta si el envío encuentra un problema nuevo. Cuando tu tiempo se acumula en la máquina y solo un login lo envía (token rechazado o vencido), el mensaje se repite en cada prompt hasta que se resuelve, dice cuánto tiempo espera, y aparece una notificación de escritorio una vez. Aparece en estas situaciones, cada una con el comando que la resuelve:
 
-- **Token revocado**: factory rechazó el token antes de su fecha de vencimiento. Corré `/crew:factory login`.
+- **Token rechazado**: factory dejó de aceptar el token antes de su fecha de vencimiento. Tu tiempo se sigue registrando; corré `/crew:factory login` para enviarlo.
+- **Otro factory**: el repositorio envía a un factory y tu token es de otro. Alineá el `factory.environment` del repositorio con el factory al que te conectaste, o logueate en este.
 - **Token vencido**: el token pasó su fecha de vencimiento. Tu tiempo se sigue registrando; corré `/crew:factory login` para enviarlo.
 - **Token por vencer**: le quedan menos de siete días. Volver a loguearte antes mantiene la captura sin cortes.
 - **Sin ficha de persona**: factory no tiene una persona vinculada a tu usuario. Pedile a Gestión que la vincule; mientras tanto el tiempo espera en la cola.
 - **Repositorio sin vincular**: estás conectado y el repositorio tiene un `crew.json` sin proyecto de factory. Corré `/crew:factory link`, o apagá la captura para ese repositorio.
 
-Un factory que no responde, o que responde con error, se resuelve solo y mantiene el tiempo en la cola, así que no tiene mensaje propio. El agente recibe las mismas frases al empezar la sesión, para ayudarte a resolverlas.
+Un factory que no responde, o que responde con error, se resuelve solo y mantiene el tiempo en la cola, así que no tiene mensaje propio. El agente recibe las mismas frases al empezar la sesión, y en cada prompt mientras haga falta un login, así puede ofrecerte correr `/crew:factory login` por vos: el login abre factory en el navegador y espera tu aprobación ahí. `CREW_NOTIFY=off` apaga la notificación de escritorio.
 
 ## Recuperar el tiempo anterior a vincular un repositorio
 
@@ -235,7 +237,7 @@ Cualquiera de estas alcanza:
 
 - `CREW_CAPTURE=off` en tu entorno la pausa para vos, en esta máquina.
 - `"capture": false` en el `crew.json` del proyecto la pausa para todas las personas del repositorio.
-- `/crew:factory logout`, o revocar el token en factory, la pausa para vos en todos lados.
+- `/crew:factory logout` la pausa para vos en esta máquina y borra el tiempo que esperaba envío. Revocar el token en factory corta el envío; la máquina guarda su tiempo hasta que te vuelvas a loguear o hagas logout.
 
 Mientras está pausada, el plugin no escribe nada, ni siquiera localmente. Para dejar de mandar solo la cantidad de palabras de las respuestas y seguir capturando el tiempo, usá `CREW_READING_TIME=off` (ver [Tiempo de lectura](#tiempo-de-lectura)).
 

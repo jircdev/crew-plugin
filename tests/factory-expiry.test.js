@@ -60,7 +60,7 @@ test('an expired token keeps the queue and keeps capturing; nothing is sent unti
   assert.equal(factory().captureToken(cfg), OLD);
 });
 
-test('a 401 at the expiry keeps the queue; a 401 before it is a revocation and clears everything', async t => {
+test('a 401 keeps the queue for the next login, at the expiry and before it alike', async t => {
   const dir = home(t);
   const api = await refuse(t);
   meta(dir, OLD, { expiresAt: new Date(Date.now() + 60000).toISOString() });
@@ -70,8 +70,9 @@ test('a 401 at the expiry keeps the queue; a 401 before it is a revocation and c
   assert.equal(status(dir).problem, 'expired');
   meta(dir, OLD, { expiresAt: new Date(Date.now() + 86400000).toISOString() });
   fs.rmSync(path.join(dir, 'factory-token.rejected'), { force: true });
+  queue().enqueue([interval()]);
   await queue().flush(api.url, OLD, Date.now());
-  assert.deepEqual(items(dir), []);
+  assert.equal(items(dir).length, 2, 'a revocation deletes nothing');
   assert.equal(status(dir).problem, 'rejected');
   assert.equal(factory().tokenState(OLD), 'revoked');
 });
@@ -97,6 +98,21 @@ test('the activity folder is readable by its owner only', t => {
     assert.equal(fs.statSync(folder).mode & 0o777, 0o700);
   }
   assert.ok(fs.existsSync(path.join(dir, 'activity')));
+});
+
+test('a login of the same person sends the time kept while factory rejected the old token', async t => {
+  const fake = await fakeFactory(t);
+  const dir = tempHome(t);
+  fs.writeFileSync(path.join(dir, 'factory-token'), OLD);
+  fs.writeFileSync(path.join(dir, 'factory-token.rejected'), fingerprint(OLD));
+  meta(dir, OLD, { expiresAt: '2027-03-01T00:00:00Z', connectedAt: '2026-08-01T00:00:00Z', person: PERSON.personId, api: fake.api });
+  seedQueue(dir, 4);
+  const out = await runScript('factory-login', ['login'], { home: dir, api: fake.api, onLine: browser(fake) });
+  assert.equal(out.status, 0, out.stdout);
+  assert.match(out.stdout, /Sent 4 intervals of time captured while factory was not accepting/);
+  assert.equal(fake.seen.intervals.length, 4);
+  assert.equal(items(dir).length, 0);
+  assert.equal(fs.existsSync(path.join(dir, 'factory-token.rejected')), false);
 });
 
 function seedQueue(dir, n) {

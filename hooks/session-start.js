@@ -68,11 +68,11 @@ function pendingRequired(from) {
 // is the person's choice and stays silent.
 function factoryLines(config) {
   const { resolveFactory } = require("./lib/factory-env");
-  const { factoryAlert } = require("./lib/factory-alerts");
+  const { factoryAlert, agentHint } = require("./lib/factory-alerts");
   const target = config.factory ? resolveFactory(config.factory) : {};
   const out = target.warning ? [`- Factory: ${target.warning}.`] : [];
   const alert = factoryAlert(config);
-  if (alert) out.push(`- Factory: ${alert.text}`);
+  if (alert) out.push(`- Factory: ${alert.text}${agentHint(alert)}`);
   const { captureToken } = require("./lib/factory");
   if (config.factory && config.factory.projectId && captureToken(config)) {
     // The protocol itself lives in the factory MCP server instructions; this

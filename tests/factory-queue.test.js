@@ -104,7 +104,7 @@ test('a missing person record keeps the intervals; other validation errors drop 
   assert.equal(items(dir).length, 0);
 });
 
-test('a 401 pauses capture until the token changes and clears everything local', async t => {
+test('a 401 keeps everything local, logs the reason factory gave and keeps capture recording', async t => {
   const dir = home(t);
   const cfg = { factory: normalizeFactory({ projectId: PROJECT }) };
   process.env.FACTORY_TOKEN = 'fct_revoked_secret';
@@ -112,15 +112,52 @@ test('a 401 pauses capture until the token changes and clears everything local',
   fs.mkdirSync(path.join(dir, 'activity'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'activity', 'session-a.json'), '{}');
   queue().enqueue([interval(), interval()]);
-  const api = await server(t, () => [401, '{"message":"No personal access token provided"}']);
+  const api = await server(t, () => [401, '{"status":false,"error":{"message":"Personal access token was invalidated by a credential change"}}']);
   await queue().flush(api.url, 'fct_revoked_secret', Date.now());
-  assert.deepEqual(items(dir), []);
-  assert.equal(fs.existsSync(path.join(dir, 'activity', 'session-a.json')), false);
+  assert.equal(items(dir).length, 2);
+  assert.equal(fs.existsSync(path.join(dir, 'activity', 'session-a.json')), true);
   assert.equal(status(dir).problem, 'rejected');
-  assert.equal(factory().captureToken(cfg), null);
+  assert.match(log(dir), /HTTP 401 \(Personal access token was invalidated by a credential change\): 2 intervals kept for the next login/);
+  assert.equal(factory().tokenState('fct_revoked_secret'), 'revoked');
+  assert.equal(factory().captureToken(cfg), 'fct_revoked_secret', 'time keeps being recorded locally');
   const secretFree = log(dir) + fs.readFileSync(path.join(dir, 'factory-token.rejected'), 'utf8');
   assert.equal(secretFree.includes('fct_revoked_secret'), false);
   assert.equal(log(dir).includes(PROJECT), false);
-  process.env.FACTORY_TOKEN = 'fct_new_token';
-  assert.equal(factory().captureToken(cfg), 'fct_new_token');
+});
+
+test('a rejected token is retried once an hour, and an accepted retry clears the rejection', async t => {
+  const dir = home(t);
+  let answer = 401;
+  const api = await server(t, () => [answer, '{}']);
+  queue().enqueue([interval()]);
+  const now = Date.now();
+  await queue().flush(api.url, 'fct_flaky', now);
+  assert.equal(api.sizes.length, 1);
+  await queue().flush(api.url, 'fct_flaky', now + 60000);
+  assert.equal(api.sizes.length, 1, 'no retry within the hour');
+  assert.equal(items(dir).length, 1);
+  answer = 202;
+  await queue().flush(api.url, 'fct_flaky', now + queue().RETRY_REJECTED_MS + 1000);
+  assert.equal(api.sizes.length, 2);
+  assert.equal(items(dir).length, 0);
+  assert.equal(factory().tokenState('fct_flaky'), 'live');
+  assert.deepEqual(status(dir), {});
+});
+
+test('a token is never sent to a factory other than the one that issued it', async t => {
+  const dir = home(t);
+  const api = await server(t, () => [401, '{}']);
+  const token = 'fct_prod_token';
+  const fingerprint = require('node:crypto').createHash('sha256').update(token).digest('hex');
+  fs.writeFileSync(path.join(dir, 'factory-token.json'), JSON.stringify({ fingerprint, api: PROD }));
+  process.env.FACTORY_TOKEN = token;
+  t.after(() => { delete process.env.FACTORY_TOKEN; });
+  queue().enqueue([interval()]);
+  await queue().flush(api.url, token, Date.now());
+  assert.equal(api.sizes.length, 0);
+  assert.equal(items(dir).length, 1);
+  assert.equal(factory().tokenState(token), 'live');
+  const devRepo = { factory: normalizeFactory({ projectId: PROJECT, environment: 'dev' }) };
+  assert.equal(factory().captureToken(devRepo), null, 'a dev repository captures nothing with a prod token');
+  assert.equal(factory().captureToken({ factory: normalizeFactory({ projectId: PROJECT }) }), token);
 });

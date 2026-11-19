@@ -14,8 +14,12 @@
 //
 // Quiet by contract: the only output is a {"systemMessage"} the person sees
 // when capture needs them (hooks/lib/factory-alerts.js), at session start or
-// when a send meets a new problem. Nothing ever goes into the model's
-// context, and any failure exits 0 without effect.
+// when a send meets a new problem. While time piles up on this machine
+// waiting for a login (a rejected or expired token), the alert repeats on
+// every prompt, reaches the agent too (as context, so it can offer to run
+// the login) and raises one desktop notification (hooks/lib/desktop-notice.js).
+// That alert is the only thing that ever enters the model's context, and any
+// failure exits 0 without effect.
 const fs = require("node:fs");
 const { join, dirname, isAbsolute, resolve } = require("node:path");
 const { randomUUID } = require("node:crypto");
@@ -23,7 +27,8 @@ const { loadConfig, configDir } = require("./lib/config");
 const { captureToken, factoryApi } = require("./lib/factory");
 const { applyEvent, taskHintFor } = require("./lib/activity-rules");
 const { activityDir, enqueue, flush, readStatus } = require("./lib/activity-queue");
-const { factoryAlert } = require("./lib/factory-alerts");
+const { factoryAlert, agentHint } = require("./lib/factory-alerts");
+const { noticeOnce, NOTICE_FILE } = require("./lib/desktop-notice");
 const { sessionStatePath: statePath, readStateFile: readState, editedPaths } = require("./lib/capture-state");
 const { lastAnswerWords } = require("./lib/response-words");
 const { activeStretches } = require("./lib/turn-activity");
@@ -40,7 +45,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // per-session *.json files are pruned, never the queue or the status.
 function pruneStaleSessions(now) {
   const dir = activityDir();
-  const kept = new Set(["status.json", "held-owner.json"]);
+  const kept = new Set(["status.json", "held-owner.json", NOTICE_FILE]);
   for (const name of fs.readdirSync(dir).filter((f) => f.endsWith(".json") && !kept.has(f))) {
     try {
       const file = join(dir, name);
@@ -90,13 +95,17 @@ function eventOf(input, prev, now) {
   return workEvent(input) || { name, hint: editHint(input) };
 }
 
-// The alert to show after this event, or null.
+// The alert to show after this event, or null. A loud one also raises the
+// desktop notification the first time it is seen.
 function alertAfter(name, cfg, now, before) {
   const alert = factoryAlert(cfg, now);
+  if (alert && alert.loud) noticeOnce(alert, activityDir());
   if (!alert || !alert.human) return null;
-  if (name === "SessionStart") return alert;
+  if (name === "SessionStart" || (name === "UserPromptSubmit" && alert.loud)) return alert;
   return DISCOVERED.has(alert.key) && alert.key !== before ? alert : null;
 }
+
+const ALERT_ON = new Set([...FLUSH_ON, "UserPromptSubmit"]);
 
 async function capture(input) {
   const name = input.hook_event_name;
@@ -118,14 +127,23 @@ async function capture(input) {
   if (name === "SessionEnd") fs.rmSync(path, { force: true });
   else fs.writeFileSync(path, JSON.stringify(state));
   if (FLUSH_ON.has(name)) await flush(factoryApi(cfg), token, now);
-  return FLUSH_ON.has(name) ? alertAfter(name, cfg, now, before) : null;
+  return ALERT_ON.has(name) ? alertAfter(name, cfg, now, before) : null;
+}
+
+// The person sees the alert; on a prompt, a loud one also reaches the agent.
+function output(name, alert) {
+  const out = { systemMessage: `crew · factory: ${alert.text}` };
+  if (name === "UserPromptSubmit" && alert.loud) {
+    out.hookSpecificOutput = { hookEventName: name, additionalContext: `crew · factory: ${alert.text}${agentHint(alert)}` };
+  }
+  return out;
 }
 
 async function main() {
   try {
     const input = JSON.parse(fs.readFileSync(0, "utf8").replace(/^\uFEFF/, ""));
     const alert = await capture(input);
-    if (alert) process.stdout.write(JSON.stringify({ systemMessage: `crew · factory: ${alert.text}` }));
+    if (alert) process.stdout.write(JSON.stringify(output(input.hook_event_name, alert)));
   } catch {
     // Fail open and silent: capture must never disturb the session.
   }

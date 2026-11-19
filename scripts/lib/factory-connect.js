@@ -81,7 +81,7 @@ async function adoptQueue(target, token, previous, person) {
   await flush(target.api, token, Date.now());
   const left = queuedCount();
   return left ? `Sent the queued time; ${left} of ${pending} intervals are still waiting (factory did not take them yet).`
-    : `Sent ${pending} intervals of time captured while the token was expired.`;
+    : `Sent ${pending} intervals of time captured while factory was not accepting this machine's token.`;
 }
 
 // The metadata a new token is stored with. A reconnection of the same person

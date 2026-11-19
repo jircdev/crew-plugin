@@ -141,22 +141,24 @@ A factory problem never breaks or slows your session. The capture hooks only tal
 | Factory does not answer, or answers with a server error | Intervals stay in a local queue (`~/.crew/activity/queue.jsonl`) and go out on the next attempt. Anything older than 45 days is discarded, matching factory's own retention. |
 | Factory has no person record for your user | Intervals stay queued until Gestión links one. |
 | Your token expired | Capture keeps recording on your machine, because the expiry date is one you never chose. Nothing is sent until you run `/crew:factory login` again; that login sends the queue at once, as long as factory confirms it is the same person on the same factory. Time queued for another account or another factory is discarded. When factory cannot say who you are at that login, the time is kept aside until a login that can. |
-| Your token was revoked (by you or by an administrator) | Capture pauses and the local queue is deleted, because revoking is how a person pauses capture. It resumes when you connect again. |
+| Factory stops accepting your token before its expiry (revoked in the panel, invalidated by a credential change, or an owner made inactive) | Capture keeps recording on your machine and nothing is deleted. Crew tries the token again once an hour, so a refusal that was factory's own mistake heals by itself. Otherwise `/crew:factory login` sends the kept time, under the same rules as an expired token. |
+| The repository points at a factory other than the one your token came from (for example `dev` while you connected to `prod`) | The token is never sent there, and that repository captures nothing until both agree. Factory would answer that the token is unknown, and an earlier version took that answer as a revocation. |
 | Factory refuses an interval as invalid | That batch is discarded. |
 
-Crew tells an expired token from a revoked one by the expiry date the login stored. A token created by hand in factory has no stored date, so when factory refuses it, crew treats it as revoked.
+Crew tells an expired token from a rejected one by the expiry date the login stored. A token created by hand in factory has no stored date, so when factory refuses it, crew treats it as rejected.
 
-Each of these leaves one line in `~/.crew/activity/errors.log`, with the time, the HTTP code and the number of intervals. The log never holds interval contents or tokens. The whole `~/.crew/activity/` folder is readable by your user only, since it describes when you work.
+Each of these leaves one line in `~/.crew/activity/errors.log`, with the time, the HTTP code and the number of intervals; a refused token also logs the reason factory gave, such as "invalidated by a credential change". The log never holds interval contents or tokens. The whole `~/.crew/activity/` folder is readable by your user only, since it describes when you work.
 
-**What you see.** When capture needs you, a one-line message from crew appears in your session: at the start of a session, and at the end of an answer when sending meets a new problem. It shows up in five situations, each with the command that solves it:
+**What you see.** When capture needs you, a one-line message from crew appears in your session: at the start of a session, and at the end of an answer when sending meets a new problem. When your time is piling up on the machine and only a login sends it (a refused or expired token), the message repeats on every prompt until it is fixed, says how much time is waiting, and a desktop notification appears once. It shows up in these situations, each with the command that solves it:
 
-- **Token revoked**: factory refused the token before its expiry date. Run `/crew:factory login`.
+- **Token refused**: factory stopped accepting the token before its expiry date. Your time is still being recorded; run `/crew:factory login` to send it.
+- **Another factory**: the repository sends to one factory and your token belongs to another. Align the repository's `factory.environment` with the factory you connected to, or log in to this one.
 - **Token expired**: the token passed its expiry date. Your time is still being recorded; run `/crew:factory login` to send it.
 - **Token about to expire**: less than seven days remain. Logging in again before then keeps capture running without a gap.
 - **No person record**: factory has no person linked to your user. Ask Gestión to link one; the time waits in the queue meanwhile.
 - **Repository not linked**: you are connected and the repository has a `crew.json` without a factory project. Run `/crew:factory link`, or turn capture off for that repository.
 
-A factory that does not answer, or answers with an error, fixes itself and keeps the time queued, so it gets no message of its own. The agent receives the same sentences at session start, so it can help you act on them.
+A factory that does not answer, or answers with an error, fixes itself and keeps the time queued, so it gets no message of its own. The agent receives the same sentences at session start, and on every prompt while a login is needed, so it can offer to run `/crew:factory login` for you: the login opens factory in the browser and waits for your approval there. `CREW_NOTIFY=off` turns the desktop notification off.
 
 ## Recovering the time before a repository was linked
 
@@ -235,7 +237,7 @@ Any one of these is enough:
 
 - `CREW_CAPTURE=off` in your environment pauses it for you, on this machine.
 - `"capture": false` in the project's `crew.json` pauses it for everyone in the repository.
-- `/crew:factory logout`, or revoking the token in factory, pauses it for you everywhere.
+- `/crew:factory logout` pauses it for you on this machine and deletes the time still waiting. Revoking the token in factory stops the sending; the machine keeps its time until you log in again or log out.
 
 While paused, the plugin writes nothing at all, not even locally. To stop sending only the word count of the answers and keep capturing time, use `CREW_READING_TIME=off` (see [Reading time](#reading-time)).
 

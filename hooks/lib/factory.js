@@ -65,6 +65,8 @@ function saveToken(token, meta = {}) {
   writeOwnerOnly(file, `${token}\n`);
   writeOwnerOnly(metaFile(), JSON.stringify({ ...meta, fingerprint: fingerprint(token) }));
   fs.rmSync(rejectedFile(), { force: true });
+  // A new token is a fresh start for the desktop notice (desktop-notice.js).
+  fs.rmSync(join(crewHome(), "activity", "notice.json"), { force: true });
   return file;
 }
 
@@ -85,10 +87,15 @@ function forgetToken() {
   fs.rmSync(metaFile(), { force: true });
 }
 
-// A 401 means the token was revoked or expired. Only its fingerprint is
-// kept, so a new token resumes capture.
+// A 401 means factory no longer accepts the token (revoked, expired, or
+// invalidated). Only its fingerprint is kept, so a new token resumes sending.
 function markRejected(token) {
   writeOwnerOnly(rejectedFile(), fingerprint(token));
+}
+
+// Factory accepted the token again: the earlier 401 was not a revocation.
+function clearRejected(token) {
+  if (isRejected(token)) fs.rmSync(rejectedFile(), { force: true });
 }
 
 function isRejected(token) {
@@ -112,16 +119,25 @@ function tokenState(token, now = Date.now()) {
   return isRejected(token) ? "revoked" : "live";
 }
 
-// Capture is paused by the person (CREW_CAPTURE=off, no token, a revoked
-// token), or by the project (capture: false). An expired token keeps
-// recording locally, because the date it expires is one the person never
-// chose; the next login sends what was kept.
+// Capture is paused by the person (CREW_CAPTURE=off, no token, a logout) or
+// by the project (capture: false). A token factory stopped accepting keeps
+// recording locally, expired or rejected alike: the person may not have
+// chosen it, and the next login of the same person sends what was kept.
+// A repository that sends to a factory other than the one that issued the
+// token captures nothing: that token cannot deliver its time.
 function captureToken(cfg, now = Date.now()) {
   if (!factoryMode(cfg)) return null;
   if ((process.env.CREW_CAPTURE || "").toLowerCase() === "off") return null;
   if (cfg.factory.capture === false) return null;
   const token = factoryToken();
-  return token && tokenState(token, now) !== "revoked" ? token : null;
+  return token && !otherFactory(cfg, token) ? token : null;
+}
+
+// True when the token was issued by a factory other than the repository's.
+// A token pasted by hand has no recorded issuer and is never flagged.
+function otherFactory(cfg, token) {
+  const meta = tokenMeta(token);
+  return !!(meta && meta.api && meta.api !== factoryApi(cfg));
 }
 
 // One request with a hard timeout. Resolves { status, body, type, headers }
@@ -153,5 +169,5 @@ const postJson = (url, token, payload, timeoutMs, extraHeaders) =>
 
 module.exports = {
   crewHome, factoryMode, factoryApi, factoryToken, saveToken, forgetToken, storedMeta, tokenMeta,
-  restrictToOwner, markRejected, isRejected, tokenState, captureToken, request, postJson,
+  restrictToOwner, markRejected, clearRejected, isRejected, tokenState, captureToken, otherFactory, request, postJson,
 };

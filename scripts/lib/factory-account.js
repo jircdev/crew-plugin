@@ -30,7 +30,7 @@ async function tokenStatus(target) {
   }
   try {
     const res = await request("GET", `${target.api}/access-tokens/self`, token, undefined, HTTP_MS);
-    if (res.status === 401) return say(`The token on this machine was rejected by factory ${target.name} (revoked). Run /crew:factory login.`);
+    if (res.status === 401) return say(`Factory ${target.name} no longer accepts the token on this machine. Your time is still recorded here; run /crew:factory login to send it.`);
     const data = unwrap(res.body);
     if (res.status >= 200 && res.status < 300) {
       return say(`Connected to factory ${target.name} as ${data.personName || "this person"}` +
