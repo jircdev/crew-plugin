@@ -12,7 +12,7 @@ const { readFileSync } = require("node:fs");
 const { relative, basename, isAbsolute, resolve, sep } = require("node:path");
 
 const IDLE_MS = 15 * 60 * 1000;
-const PRESENCE = new Set(["SessionStart", "UserPromptSubmit", "Stop", "SessionEnd"]);
+const PRESENCE = new Set(["SessionStart", "UserPromptSubmit", "AgentTurn", "Stop", "SessionEnd"]);
 const HEADER_LINES = 40;
 // `Factory activity:` is factory's current word (ADR costing/003); `Factory
 // task:` stays valid for work items written before it.
@@ -153,6 +153,8 @@ function pushAgentRun(state, event, now, ctx, intervals) {
 // runs from a prompt to the end of its reply, however long it takes, so the
 // two never overlap. A prompt that arrives with a reply still pending (an
 // interrupted turn, no Stop) closes that run, cut at IDLE_MS like human time.
+// An AgentTurn is a turn the person did not type (a session brief from another
+// of their sessions, a task notification): agent time, and no person time before it.
 function applyEvent(prev, event, now, ctx) {
   const state = { lastEventAt: null, promptAt: null, taskHint: null, blockId: null, blockTaskId: null, declaredAt: null, ...prev };
   const intervals = [];
@@ -166,9 +168,10 @@ function applyEvent(prev, event, now, ctx) {
   }
   if (!PRESENCE.has(event.name)) return { state, intervals };
   let paused = false;
+  const opens = event.name === "UserPromptSubmit" || event.name === "AgentTurn";
   if (state.promptAt !== null) {
     const run = now - state.promptAt;
-    const closes = event.name === "Stop" || event.name === "UserPromptSubmit";
+    const closes = event.name === "Stop" || opens;
     if (closes && run > 0 && (event.name === "Stop" || run <= IDLE_MS)) {
       pushAgentRun(state, event, now, ctx, intervals);
     } else {
@@ -177,7 +180,7 @@ function applyEvent(prev, event, now, ctx) {
     state.promptAt = null;
   } else {
     const gap = state.lastEventAt === null ? null : now - state.lastEventAt;
-    if (gap !== null && gap > 0 && gap <= IDLE_MS) {
+    if (gap !== null && gap > 0 && gap <= IDLE_MS && event.name !== "AgentTurn") {
       intervals.push(makeInterval("human", state.lastEventAt, now, state, ctx));
     } else if (gap !== null && gap > IDLE_MS) {
       paused = true;
@@ -187,7 +190,7 @@ function applyEvent(prev, event, now, ctx) {
   if (!state.blockId || event.name === "SessionStart") openBlock(state, now, ctx);
   else if (paused) openBlock(state, now, ctx, state.blockTaskId);
   state.lastEventAt = now;
-  if (event.name === "UserPromptSubmit") state.promptAt = now;
+  if (opens) state.promptAt = now;
   if (event.name === "SessionEnd") state.blockId = null;
   return { state, intervals };
 }

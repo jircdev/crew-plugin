@@ -170,7 +170,7 @@ Cuando instalás el plugin en un repositorio en el que ya venías trabajando, el
 /crew:factory backfill
 ```
 
-El agente primero muestra un resumen: para cada día, tu tiempo, el del agente y la cantidad de intervalos. No se envía nada hasta que lo mirás y decís que sí. Aplica las mismas reglas que la captura en vivo, así que el resultado es lo que la captura habría registrado, incluido el corte de una respuesta en los silencios de más de 15 minutos. Cuentan solo los turnos que empezaste vos; un turno que abre una notificación u otra sesión no suma tiempo del agente.
+El agente primero muestra un resumen: para cada día, tu tiempo, el del agente y la cantidad de intervalos. No se envía nada hasta que lo mirás y decís que sí. Aplica las mismas reglas que la captura en vivo, así que el resultado es lo que la captura habría registrado, incluido el corte de una respuesta en los silencios de más de 15 minutos. Un turno que escribiste suma tu tiempo antes de él y el del agente durante él. Un turno que continúa tu trabajo sin que escribas suma solo el tiempo del agente: el encargo que abre una sesión iniciada por otra de tus sesiones, un mensaje de una de tus sesiones, o una tarea que lanzó el agente y avisa que terminó. Un turno que abre una programación, el SDK o el sistema no suma nada.
 
 Qué lee y qué envía:
 

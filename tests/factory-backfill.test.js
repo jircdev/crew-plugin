@@ -50,13 +50,13 @@ const SESSION = { id: 'sess-a', records: [
   prompt(15), toolResult(16), reply(20),
 ] };
 
-// A turn a notification opened adds no agent time: only turns the person started count.
+// A turn a notification opened is agent time, with no person time before it.
 test('a transcript rebuilds the intervals live capture would have built, with the edited work item', t => {
   const w = world(t, [SESSION]);
   fs.mkdirSync(path.join(w.repo, 'docs/stories/f'), { recursive: true });
   fs.writeFileSync(path.join(w.repo, 'docs/stories/f/001-x.md'), `# 001\n- **Factory activity:** ${TASK}\n`);
   const items = rebuilt(w);
-  assert.deepEqual(spans(items), [['human', 0, 2], ['agent', 2, 10], ['human', 10, 15], ['agent', 15, 20]]);
+  assert.deepEqual(spans(items), [['human', 0, 2], ['agent', 2, 10], ['agent', 11, 12], ['human', 12, 15], ['agent', 15, 20]]);
   assert.ok(items.every((i) => i.source === 'backfill' && i.projectId === PROJECT && i.sessionId === 'sess-a'));
   assert.equal(items[1].taskId, TASK);
   assert.equal(JSON.stringify(items).includes('SECRET'), false);
@@ -92,14 +92,14 @@ test('the dry run shows hours per day only and sends nothing; --send sends the r
   const w = world(t, [SESSION]);
   const out = await run(w, fake);
   assert.equal(out.status, 0, out.stdout);
-  assert.match(out.stdout, /4 intervals from 1 sessions/);
+  assert.match(out.stdout, /5 intervals from 1 sessions/);
   assert.match(out.stdout, /\| Day \| Your time \(h\) \| Agent time \(h\) \| Intervals \|/);
   assert.match(out.stdout, /Nothing was sent/);
   assert.equal(/SECRET|C--repo|001-x/.test(out.stdout), false, out.stdout);
   const send = await run(w, fake, ['--send']);
   assert.equal(send.status, 0, send.stdout);
-  assert.match(send.stdout, /Sent 4 intervals/);
-  assert.equal(fake.seen.intervals.length, 4);
+  assert.match(send.stdout, /Sent 5 intervals/);
+  assert.equal(fake.seen.intervals.length, 5);
   assert.ok(fake.seen.intervals.every((i) => i.source === 'backfill' && i.sessionId === 'sess-a'));
 });
 
@@ -119,7 +119,7 @@ test('without a link, or without a known connection date, it explains what to ru
   const w = world(t, [SESSION]);
   fs.rmSync(path.join(w.home, 'factory-token.json'));
   assert.match((await run(w, fake)).stdout, /Pass --since YYYY-MM-DD/);
-  assert.match((await run(w, fake, ['--since', at(-1).slice(0, 10)])).stdout, /intervals from 1 sessions/);
+  assert.match((await run(w, fake, ['--since', new Date(T0 - MIN).toLocaleDateString('en-CA')])).stdout, /intervals from 1 sessions/);
 });
 
 test('a silence longer than the idle cut inside a reply is never counted as agent time', t => {
@@ -152,4 +152,12 @@ test('a rebuild cuts a tool wait out of the reply, and a subagent at work keeps 
   const items = rebuilt(w);
   assert.deepEqual(spans(items), [['agent', 0, 46]]);
   assert.equal(items[0].responseWords, 2);
+});
+
+test('a session another session started counts its agent work, and no person time', t => {
+  const brief = prompt(0, 'Task from the parent session', { turnOrigin: 'host_synthetic', promptSource: 'system' });
+  const notice = prompt(30, '<task-notification>agent done</task-notification>', { turnOrigin: 'task_notification' });
+  const scheduled = prompt(50, 'nightly run', { turnOrigin: 'scheduled' });
+  const w = world(t, [{ id: 'side', records: [brief, reply(10), notice, reply(40), scheduled, reply(55)] }]);
+  assert.deepEqual(spans(rebuilt(w)), [['agent', 0, 10], ['agent', 30, 40]]);
 });

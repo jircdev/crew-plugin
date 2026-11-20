@@ -170,7 +170,7 @@ When you install the plugin in a repository you were already working in, the tim
 /crew:factory backfill
 ```
 
-The agent first shows a summary: for each day, your time, the agent's time and the number of intervals. Nothing is sent until you look at it and say yes. It applies the same rules as live capture, so the result is what capture would have recorded, including the cut of an answer at silences of more than 15 minutes. Only turns you started count; a turn opened by a notification or another session adds no agent time.
+The agent first shows a summary: for each day, your time, the agent's time and the number of intervals. Nothing is sent until you look at it and say yes. It applies the same rules as live capture, so the result is what capture would have recorded, including the cut of an answer at silences of more than 15 minutes. A turn you typed adds your time before it and the agent's time during it. A turn that carries on your work without you typing adds the agent's time only: the brief that opens a session another of your sessions started, a message from one of your sessions, or a task the agent launched reporting back. A turn a schedule, the SDK or the system opened adds nothing.
 
 What it reads and what it sends:
 

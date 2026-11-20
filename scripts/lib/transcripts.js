@@ -20,6 +20,12 @@ const SYNTHETIC = /^\s*(<task-notification|<local-command-|<system-reminder>|<ci
 // Turns that start from something other than the person: notifications,
 // another session, a schedule.
 const NOT_HUMAN_ORIGIN = new Set(["sdk", "task_notification", "peer", "scheduled", "system"]);
+// Of those, the turns that carry on the person's own work: the brief that
+// opens a session another of their sessions started, a message from one of
+// their sessions, a task the agent launched reporting back. They add agent
+// time; a schedule, the SDK or the system add none.
+const AGENT_ORIGIN = new Set(["host_synthetic", "peer", "task_notification"]);
+const NOTIFICATION = /^\s*<task-notification/;
 
 function projectsDir() {
   return join(process.env.CLAUDE_CONFIG_DIR || join(os.homedir(), ".claude"), "projects");
@@ -93,6 +99,12 @@ function isHumanPrompt(rec) {
   return !SYNTHETIC.test(text);
 }
 
+function isAgentTurn(rec) {
+  if (!startsTurn(rec) || isHumanPrompt(rec)) return false;
+  const content = contentOf(rec);
+  return AGENT_ORIGIN.has(rec.turnOrigin) || (typeof content === "string" && NOTIFICATION.test(content));
+}
+
 function editedPaths(rec) {
   const content = contentOf(rec);
   if (rec.type !== "assistant" || !Array.isArray(content)) return [];
@@ -159,6 +171,7 @@ function eventsOf(records, root) {
       open = null;
       answer = null;
       if (isHumanPrompt(rec)) { events.push({ name: "UserPromptSubmit", at }); open = at; }
+      else if (isAgentTurn(rec)) { events.push({ name: "AgentTurn", at }); open = at; }
       continue;
     }
     answer = trackAnswer(answer, rec);
