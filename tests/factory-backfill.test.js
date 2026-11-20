@@ -122,7 +122,7 @@ test('without a link, or without a known connection date, it explains what to ru
   assert.match((await run(w, fake, ['--since', new Date(T0 - MIN).toLocaleDateString('en-CA')])).stdout, /intervals from 1 sessions/);
 });
 
-test('a silence longer than the idle cut inside a reply is never counted as agent time', t => {
+test('a silence longer than the idle cut inside a reply is counted as neither agent nor person time', t => {
   const waiting = { id: 'sess-w', records: [prompt(0), reply(1, [{ type: 'tool_use', name: 'AskUserQuestion', input: {} }]),
     toolResult(40), reply(42)] };
   assert.deepEqual(spans(rebuilt(world(t, [waiting]))), [['agent', 0, 1], ['agent', 40, 42]]);

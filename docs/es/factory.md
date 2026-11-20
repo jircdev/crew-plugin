@@ -101,7 +101,7 @@ El token es uno solo por máquina (`~/.crew/factory-token`). Si cambiás de ento
 
 Solo **momentos**. El plugin anota la hora cuando empieza una sesión, cuando recibe un prompt tuyo, cuando el agente termina de responder y cuando la sesión termina. Con esos momentos arma dos clases de intervalo:
 
-- **Tu tiempo**: mientras tenés el turno, desde que empieza la sesión o el agente termina de responder hasta tu próximo prompt. Un turno de más de 15 minutos cuenta como pausa y no suma.
+- **Tu tiempo**: mientras tenés el turno, desde que empieza la sesión o el agente termina de responder hasta tu próximo prompt. Cuando tu turno dura más de 15 minutos y después escribís un prompt, sus primeros 15 minutos cuentan como tuyos (leer la respuesta, revisar el cambio) y el resto como pausa. Un turno que termina sin un prompt tuyo (la sesión se cierra) no suma más allá de 15 minutos.
 - **El trabajo del agente**: desde que mandás un prompt hasta que el agente termina de responder, contando solo los tramos con actividad. Un silencio de más de 15 minutos dentro de la respuesta (una herramienta esperando tu respuesta, una máquina suspendida) la corta: sale un intervalo por cada tramo activo, y el silencio no suma. Los dos nunca se superponen.
 
 Para saber dónde están esos silencios, al terminar cada turno el plugin mira las marcas de tiempo de los registros del turno en la transcripción local, incluidas las de los subagentes, que trabajan en archivos aparte mientras la conversación principal queda quieta. De cada registro usa solo su hora.

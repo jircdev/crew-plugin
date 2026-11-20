@@ -73,6 +73,8 @@ test('scripted events build human time on the person turn and agent time on the 
   }
   assert.deepEqual(out, [
     ['human', 0, 5], ['agent', 5, 10],
+    // Back to type after 30 minutes: the first 15 are the person's (reading, reviewing).
+    ['human', 10, 25],
     ['agent', 40, 41], ['human', 41, 42],
     // A 20-minute reply stays agent time and the person's turn after it still counts.
     ['human', 60, 62], ['agent', 62, 82], ['human', 82, 90],
@@ -220,6 +222,8 @@ test('work blocks: a declaration stamps the open block, another task or a comple
     ['human', 0, 1, b1, null], ['agent', 1, 5, b1, TASK], ['human', 5, 8, b1, TASK],
     // Another task in the middle of a reply splits the reply.
     ['agent', 8, 9, b1, TASK], ['agent', 9, 12, b2, OTHER],
+    // The first 15 minutes of a long gap stay in the block before the pause.
+    ['human', 12, 27, b2, OTHER],
     // A pause opens a block that keeps the declared task.
     ['agent', 40, 41, b3, OTHER], ['human', 41, 43, b3, OTHER], ['agent', 43, 44, b3, OTHER],
     // A completed activity closes the block; the next one has no task.

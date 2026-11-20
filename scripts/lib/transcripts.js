@@ -163,7 +163,7 @@ function eventsOf(records, root) {
   let answer = null;
   for (const { at, rec } of records) {
     if (open !== null && at - open > IDLE_MS) {
-      events.push({ name: "Stop", at: open }, { name: "UserPromptSubmit", at });
+      events.push({ name: "Stop", at: open }, { name: "AgentTurn", at });
       open = at;
     }
     if (startsTurn(rec)) {

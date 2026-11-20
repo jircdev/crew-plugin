@@ -149,7 +149,7 @@ function pushAgentRun(state, event, now, ctx, intervals) {
 // present for PostToolUse edits, taskId for a "Declare", responseWords and
 // stretches for a "Stop".
 // Human time runs while the person has the turn: from the end of an agent
-// reply (or the session start) to the next prompt, cut at IDLE_MS. Agent time
+// reply (or the session start) to the next prompt, its first IDLE_MS when longer. Agent time
 // runs from a prompt to the end of its reply, however long it takes, so the
 // two never overlap. A prompt that arrives with a reply still pending (an
 // interrupted turn, no Stop) closes that run, cut at IDLE_MS like human time.
@@ -183,6 +183,8 @@ function applyEvent(prev, event, now, ctx) {
     if (gap !== null && gap > 0 && gap <= IDLE_MS && event.name !== "AgentTurn") {
       intervals.push(makeInterval("human", state.lastEventAt, now, state, ctx));
     } else if (gap !== null && gap > IDLE_MS) {
+      // Back to type after a long gap: its first 15 minutes were the person's (reading, reviewing).
+      if (event.name === "UserPromptSubmit") intervals.push(makeInterval("human", state.lastEventAt, state.lastEventAt + IDLE_MS, state, ctx));
       paused = true;
     }
   }

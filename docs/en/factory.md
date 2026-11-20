@@ -101,7 +101,7 @@ There is one token per machine (`~/.crew/factory-token`). If you switch environm
 
 Only **moments in time**. The plugin notes the time when a session starts, when it receives a prompt from you, when the agent finishes answering, and when the session ends. From those moments it builds two kinds of interval:
 
-- **Your time**: while you have the turn, from the start of the session or the end of the agent's answer until your next prompt. A turn longer than 15 minutes counts as a break and adds nothing.
+- **Your time**: while you have the turn, from the start of the session or the end of the agent's answer until your next prompt. When your turn lasts longer than 15 minutes and you then type a prompt, its first 15 minutes count as yours (reading the answer, reviewing the change) and the rest as a break. A turn that ends without a prompt from you (the session closes) adds nothing past 15 minutes.
 - **The agent's work**: from the moment you send a prompt until the agent finishes answering, counting only its active stretches. A silence of more than 15 minutes inside the answer (a tool waiting for you, a machine asleep) cuts it: one interval goes per active stretch, and the silence adds nothing. The two never overlap.
 
 To find those silences, when each turn ends the plugin looks at the timestamps of the turn's records in the local transcript, including those of subagents, which work in separate files while the main conversation stays quiet. From each record it uses only its time.
