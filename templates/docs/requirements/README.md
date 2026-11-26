@@ -28,6 +28,12 @@ Same semantics as stories, minus functional validation: a requirement is verifie
 - The `## Verification` table is filled at the **same moment and by the same person**: writing the tests is work, and work that is not in the table is work that was not estimated. A requirement whose verification is `manual` or `not verified` is a legitimate outcome as long as the reason is written; silence is not (see [`../AGENTS.md`](../AGENTS.md#verification-discipline)).
 - Branch convention: `req/<plan>-NNN-slug`.
 
+## Planning and estimation principles
+
+Mandatory for every person or agent that writes a plan or sizes work in this repository; the `planning` skill reads this section before writing. It is the project's to fill: the reference sizes of its common pieces of work, what its framework and codebase already solve and where that inventory lives, and each criterion the owner defines while reviewing a plan. Write them as a numbered list, each with its date, and add every new one in the same change that corrects the plan.
+
+(No principle declared yet.)
+
 ## Requirement template
 
 ```markdown

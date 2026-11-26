@@ -209,6 +209,8 @@ Before writing, the skill resolves the work item's **effective standard**, that 
 
 `/crew:doctor standard <work-item-path>` prints that standard, and `/crew:doctor standard` with no path lists the items that do not follow it. The shape guard enforces it on every write ([enforcement.md § Work-item shape](enforcement.md#work-item-shape)). Whoever executes adds the estimation table at planning, and it is measured as the next section explains.
 
+Each project declares its **planning and estimation principles** in its `docs/requirements/README.md`: the reference sizes of its usual work, what its framework already solves, and each criterion the owner defines while reviewing a plan. The skill reads them before writing, and `/crew:doctor standard <path>` prints where they are. When the owner defines a new criterion in a review, the agent adds it to that section, dated, in the same change that corrects the plan. The skill brings the method common to every project: the data model of the whole plan as its first milestone, estimating on top of what already exists and naming the reused piece, one integrated estimate when several roles weigh in, tests and review sized once, a note on the milestone for whatever exceeds the reference sizes, and verifying in the repository before presenting.
+
 ## Execute a plan
 
 ```

@@ -209,6 +209,8 @@ Antes de escribir, la skill resuelve el **estándar efectivo** del work item, es
 
 `/crew:doctor standard <ruta-del-work-item>` imprime ese estándar, y `/crew:doctor standard` sin ruta lista los items que no lo siguen. El guard de forma lo exige en cada escritura ([enforcement.md § Forma de los work items](enforcement.md#forma-de-los-work-items)). La tabla de estimación la agrega quien ejecuta, en planning, y se mide como explica la sección siguiente.
 
+Cada proyecto declara sus **principios de planificación y estimación** en su `docs/requirements/README.md`: las medidas de referencia de sus trabajos habituales, lo que su framework ya resuelve y cada criterio que el dueño define al revisar un plan. La skill los lee antes de escribir y `/crew:doctor standard <ruta>` imprime dónde están. Cuando el dueño define un criterio nuevo en una revisión, el agente lo agrega a esa sección, con su fecha, en el mismo cambio que corrige el plan. La skill aporta el método común a todo proyecto: el modelo de datos de todo el plan como primer hito, estimar sobre lo que ya existe y nombrar la pieza reutilizada, una sola estimación integrada cuando opinan varios roles, pruebas y revisión dimensionadas una vez, justificar en la nota del hito lo que supera las medidas de referencia, y verificar en el repositorio antes de presentar.
+
 ## Ejecutar un plan
 
 ```

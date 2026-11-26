@@ -16,7 +16,7 @@ const PLUGIN = path.resolve(__dirname, "..", "..");
 function standard(root, target) {
   if (target) {
     const std = resolve(path.resolve(root, target), PLUGIN);
-    return std ? describe(std) : `${target} is not a story or requirement under docs/stories or docs/requirements.`;
+    return std ? describe(std, path.resolve(root, target)) :`${target} is not a story or requirement under docs/stories or docs/requirements.`;
   }
   const lines = [];
   for (const file of workItems(root)) {

@@ -13,7 +13,24 @@ const { resolve } = require("../hooks/lib/standards");
 const { problems, deprecations } = require("../hooks/lib/shape");
 const { LEGACY_COLUMNS } = require("../hooks/lib/standards");
 
-function describe(std) {
+// The project's own planning principles: a section of its requirements README
+// whose heading names principles of planning or estimation, in English or
+// Spanish, and that holds at least one list item. Returns where it is.
+function planningPrinciples(target) {
+  const cut = target.replace(/\\/g, "/").search(/\/docs\/(stories|requirements)\//);
+  if (cut < 0) return null;
+  const file = resolvePath(target.slice(0, cut), "docs", "requirements", "README.md");
+  if (!existsSync(file)) return null;
+  const parts = readFileSync(file, "utf8").replace(/\r\n/g, "\n").split(/^(?=#{1,3}[ \t])/m);
+  for (const part of parts) {
+    const heading = (part.match(/^#{2,3}[ \t]+([^\n]+)/) || [])[1] || "";
+    if (!/principles|principios/i.test(heading) || !/plan|estima/i.test(heading)) continue;
+    if (/^\s*(?:\d+\.|[-*])\s+\S/m.test(part)) return { file, heading: heading.trim() };
+  }
+  return null;
+}
+
+function describe(std, target) {
   const lines = [
     `Effective standard: ${std.kind} — source: ${std.source === "project" ? "project template" : "crew template"} (${std.template})`,
     `Header fields: ${std.header.join(", ") || "(none)"}`,
@@ -29,6 +46,13 @@ function describe(std) {
     lines.push(`Deviation applied: ${d.action} ${d.scope || ""} ${d.target} — ${d.reason}`.replace(/\s+/g, " "));
   }
   for (const bad of std.invalid) lines.push(`Deviation ignored (no rationale or unknown grammar): ${bad}`);
+  const own = target && planningPrinciples(target);
+  if (own) {
+    lines.push(
+      `Planning principles of this project: ${own.file} § ${own.heading}. Read them before writing the plan; ` +
+        "a criterion the owner defines while reviewing it is added there, dated, in the same change.",
+    );
+  }
   return lines.join("\n");
 }
 
@@ -68,7 +92,7 @@ function main(argv) {
       continue;
     }
     if (!check) {
-      console.log(describe(std));
+      console.log(describe(std, target));
       continue;
     }
     if (!existsSync(target)) {
@@ -86,4 +110,4 @@ function main(argv) {
 }
 
 if (require.main === module) process.exit(main(process.argv.slice(2)));
-module.exports = { describe, estimationNotes, main };
+module.exports = { describe, estimationNotes, planningPrinciples, main };

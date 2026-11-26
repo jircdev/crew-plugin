@@ -89,6 +89,25 @@ test('Codex apply_patch reaches the same shape decision; conformance.js reports 
   assert.match(cli.stdout, /does not conform/);
 });
 
+test('conformance.js prints where the project declares its planning principles, once it holds one', t => {
+  const dir = fixture(t);
+  const item = path.join(dir, 'docs/stories/f/001-x.md');
+  const show = () => spawnSync(process.execPath, [path.join(root, 'scripts/conformance.js'), item], { encoding: 'utf8' }).stdout;
+  assert.doesNotMatch(show(), /Planning principles/, 'no requirements README');
+  const scaffold = fs.readFileSync(path.join(root, 'templates/docs/requirements/README.md'), 'utf8');
+  const readme = put(dir, 'docs/requirements/README.md', scaffold);
+  assert.match(scaffold, /^## Planning and estimation principles$/m);
+  assert.doesNotMatch(show(), /Planning principles/, 'the scaffolded section is empty');
+  assert.ok(resolve(path.join(dir, 'docs/requirements/p/001-x.md'), root).tables.Estimation, 'the template still parses');
+  fs.writeFileSync(readme, PROJECT_TEMPLATE + '\n## Principios de planificación y estimación\n\n1. **El modelo de datos es un hito propio.** (2026-11-25)\n\n## Convenciones\n\n- otra cosa\n');
+  const out = show();
+  assert.ok(out.includes(`Planning principles of this project: ${readme} § Principios de planificación y estimación.`), out);
+  assert.match(out, /dated, in the same change/);
+  const skill = fs.readFileSync(path.join(root, 'skills/planning/SKILL.md'), 'utf8');
+  assert.match(skill, /Read that section before writing a line/);
+  assert.match(skill, /in the same change|in the change that fixes the plan/);
+});
+
 test('off-repo plan nudge: notice for an hours table, silent when it links its work items or only reads', t => {
   const dir = fixture(t);
   const call = (tool_name, tool_input) => run('hooks/nudge-offrepo-plan.js', { cwd: dir, tool_name, tool_input });
