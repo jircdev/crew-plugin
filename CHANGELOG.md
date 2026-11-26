@@ -4,6 +4,10 @@ All notable changes to the crew plugin. Format: [Keep a Changelog](https://keepa
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-11-26
+
+Requirements reach factory at the commit that carries them, with no agent having to remember the load. Captured time survives a refused token and says so, and agent work in turns the person did not type counts.
+
 A token factory stops accepting no longer loses time in silence. On 2026-11-15 a 401 deleted the local queue and paused capture; for four days nothing reached factory and the only sign was one line at session start. That night the factory and jad repositories moved from factory dev to prod, and a token sent to the factory that did not issue it gets the same 401 "unknown token" as a revoked one.
 
 ### Fixed

@@ -126,6 +126,13 @@
       "title": "Every hour carries a task; replies arrive once",
       "summary": "Editing a story or requirement linked to a factory activity asks the agent to declare that task, and after a commit the agent asks whether it closes the task, proposing task, package and person hours in one message. The Stop hook that rewrote long replies is gone, so a reply no longer shows twice; the baseline asks for the minimum necessary. Nothing to configure.",
       "doc": "CHANGELOG.md"
+    },
+    {
+      "version": "1.7.0",
+      "required": false,
+      "title": "Requirements load into factory at commit",
+      "summary": "In a repository linked to factory, committing a requirement file loads or updates it in factory with its milestones, both estimates and its status, and writes the Factory activity link in the file; factory.subcenter in crew.json names the default cost center. A refused or expired token keeps the captured time and alerts on every prompt; worktrees use their repository's link; agent turns the person did not type count as agent time. The load needs the factory version that serves POST /activity/requirements; until then the commit goes on and the file waits in a local queue.",
+      "doc": "CHANGELOG.md"
     }
   ]
 }
