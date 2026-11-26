@@ -105,4 +105,21 @@ function milestoneOf(cell, ordinal) {
   return m ? { code: m[1], title: m[2].trim() || m[1] } : { code: `#${ordinal}`, title: text || `#${ordinal}` };
 }
 
-module.exports = { git, posix, walk, stamp, hoursOf, blame, tableRows, milestoneOf, UNCOMMITTED, ITEM, TOTAL_ROW };
+// The milestones of an estimation table in order, each with its row: the
+// **Total** row is left out, and a code repeated in the same table (which
+// would make the requirement invalid in factory) takes its ordinal.
+function milestoneRows(table) {
+  const seen = new Set();
+  const out = [];
+  table.rows.forEach((row, index) => {
+    if (TOTAL_ROW.test(row.cells[0] || "")) return;
+    const milestone = milestoneOf(row.cells[0] || "", index + 1);
+    if (seen.has(milestone.code)) milestone.code = `${milestone.code}#${index + 1}`;
+    seen.add(milestone.code);
+    const get = (field) => (table.at[field] === null || table.at[field] === undefined ? "" : row.cells[table.at[field]] || "");
+    out.push({ code: milestone.code, title: milestone.title.slice(0, 200), row, get });
+  });
+  return out;
+}
+
+module.exports = { git, posix, walk, stamp, hoursOf, blame, tableRows, milestoneOf, milestoneRows, UNCOMMITTED, ITEM, TOTAL_ROW };

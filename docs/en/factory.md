@@ -233,6 +233,34 @@ Factory still owns the management: assignee, sprint, priority and hours. What th
 
 A developer can also move the status from factory's MCP. To see where the `Status` and factory disagree, the `sync-stories` skill has `drift.mjs`: it lists the differences, changes nothing, and a person decides.
 
+## Requirements load at commit
+
+In a repository linked to factory, a requirement reaches factory when its file enters a commit. Nobody has to remember to load it, and no agent instruction is involved: a step of the commit hook does it.
+
+- **What triggers it:** `git commit` (by hand, by an agent, or through the commit-cut skill) with a file `docs/requirements/<plan>/NNN-*.md` among the committed files. Stories keep their own path, the story sync.
+- **What is sent:** the title, the file's text, the plan status from the header, each row of the `## Estimation` table as a milestone with its two estimates (`Est. hours` and `Est. AI hours`) and its state (not started, started, finished, from the `Started` and `Finished` cells), the cost center, and where the file lives. It goes to the factory `crew.json` points at, in the name of the person whose token is on the machine.
+- **What comes back:** the activity's id. The step writes `- **Factory activity:** <id>` in the header, in the commit itself and in the file on disk. Committing the same file again updates the activity; it never creates a second one.
+- **Proposed, then approved:** a requirement is born `Draft`, and factory holds it as a proposed plan (Backlog). The person's approval is the move of `Status` to `Ready` (`Approved` is accepted too; in Spanish, `Propuesto` and `Aprobado`); the commit that carries it moves the activity to Por hacer. A commit only moves the activity forward: one a person paused or cancelled in factory stays as it is.
+- **The cost center** comes from a header line of the file (`- **Subcenter:** MVP`; `**Subcentro:**` is accepted too) and, without one, from `factory.subcenter` in `crew.json`. With neither, factory uses the project's main one.
+
+| What happens | The commit | What you see |
+|---|---|---|
+| Factory takes the file | goes on, with the link in it | one line naming the activity |
+| Factory does not answer (offline, a timeout, an error on its side, or a factory not yet updated to take requirements) | goes on | a notice; the file waits in a local queue and is retried at the next commit and at session start. When it gets through, the link is written in the file for you to commit |
+| Factory refuses the file (a cost center it does not have, a repository not registered on the project, no permission) | stops | factory's reason; fix it and commit again |
+| The machine has no token, or factory no longer accepts it | stops when the file has no link yet; goes on, queued, when it has one | `Run /crew:factory login` |
+| The file carries a recognizable secret (an API key, a private key) | stops, and nothing is sent | the line and the kind of secret, masked |
+
+**A requirement without its link does not enter a commit** while factory is reachable. The closing gate still asks for the link, and by then the commit has written it.
+
+**Keeping one file out.** A requirement on a sensitive subject (a person, pay, health, hiring, a security incident) stays out of factory with one header line: `- **Factory:** skip`. Nothing of it is sent, and the line stands in for the link. What does go to factory is visible to everyone on the project there, so decide before the first commit.
+
+**Turning it off.** Removing `factory` from `crew.json` turns it off for the repository. `CREW_REQUIREMENT_SYNC=off` in your environment turns it off for you, on this machine.
+
+**Where it runs.** The step is its own line in `.git/hooks/pre-commit`, apart from the code-quality gate. Session start puts it there in a repository linked to factory and follows the plugin when an update moves it. With a hook manager (Lefthook, husky, a custom hooks path) crew prints the line to add and writes nothing. The queue is `~/.crew/requirements/queue.json`: the repository folder, the file's path and a fingerprint of its content, never its text and never the token. The folder is readable only by you; on Windows that protection is the access list of your user profile.
+
+The factory side (who may load, what factory checks, what each actor sees) is in factory's guide "Carga automática de requerimientos".
+
 ## Pausing capture
 
 Any one of these is enough:

@@ -59,4 +59,4 @@ function statusOf(file) {
   }
 }
 
-module.exports = { readPlan, readItem, isDone, statusOf };
+module.exports = { readPlan, readItem, isDone, statusOf, header };

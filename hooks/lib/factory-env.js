@@ -30,6 +30,9 @@ function normalizeFactory(raw) {
     url: str(raw.url) ? trimSlash(str(raw.url)) : null,
     web: str(raw.web) ? trimSlash(str(raw.web)) : null,
     capture: raw.capture !== false,
+    // The cost center a requirement of this repository is loaded into when its
+    // own header names none: a name of the factory project, or its id.
+    subcenter: str(raw.subcenter),
     unknown,
   };
 }

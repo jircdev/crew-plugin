@@ -233,6 +233,34 @@ Factory sigue siendo dueño de la gestión: responsable, sprint, prioridad y hor
 
 Quien desarrolla también puede mover el estado desde el MCP de factory. Para ver dónde el `Status` y factory dicen cosas distintas, el skill `sync-stories` trae `drift.mjs`: lista las diferencias, no cambia nada, y decide una persona.
 
+## Los requerimientos se cargan al commitear
+
+En un repositorio vinculado a factory, un requerimiento llega a factory cuando su archivo entra en un commit. Nadie tiene que acordarse de cargarlo y ninguna instrucción para agentes participa: lo hace un paso del gancho de commit.
+
+- **Qué lo dispara:** `git commit` (a mano, por un agente o con el skill commit-cut) con un archivo `docs/requirements/<plan>/NNN-*.md` entre los archivos del commit. Las historias siguen por su propio camino, la sincronización de historias.
+- **Qué se envía:** el título, el texto del archivo, el estado del plan que dice la cabecera, cada fila de la tabla `## Estimation` como un hito con sus dos estimaciones (`Est. hours` y `Est. AI hours`) y su estado (sin empezar, empezado o terminado, según las celdas `Started` y `Finished`), el subcentro y dónde vive el archivo. Va al factory que indica `crew.json`, a nombre de la persona cuyo token está en la máquina.
+- **Qué vuelve:** el identificador de la actividad. El paso escribe `- **Factory activity:** <id>` en la cabecera, dentro del mismo commit y en el archivo en disco. Commitear otra vez el mismo archivo actualiza la actividad y nunca crea una segunda.
+- **Propuesto y después aprobado:** un requerimiento nace `Draft`, y factory lo guarda como plan propuesto (Backlog). La aprobación de la persona es el paso de `Status` a `Ready` (también se aceptan `Approved`, `Propuesto` y `Aprobado`); el commit que lo lleva pasa la actividad a Por hacer. Un commit solo hace avanzar la actividad: una que alguien puso en pausa o canceló en factory queda como está.
+- **El subcentro** sale de una línea de cabecera del archivo (`- **Subcentro:** MVP`; también `**Subcenter:**`) y, si no la tiene, de `factory.subcenter` en `crew.json`. Sin ninguno de los dos, factory usa el principal del proyecto.
+
+| Qué pasa | El commit | Qué se ve |
+|---|---|---|
+| Factory toma el archivo | sigue, con el vínculo adentro | una línea que nombra la actividad |
+| Factory no responde (sin conexión, demora, un error de su lado, o un factory todavía sin actualizar para recibir requerimientos) | sigue | un aviso; el archivo queda en una cola local y se reintenta en el próximo commit y al iniciar sesión. Cuando pasa, el vínculo queda escrito en el archivo para commitearlo |
+| Factory rechaza el archivo (un subcentro que no tiene, un repositorio sin registrar en el proyecto, falta de permiso) | se frena | el motivo que da factory; se corrige y se commitea otra vez |
+| La máquina no tiene token, o factory ya no lo acepta | se frena si el archivo todavía no tiene vínculo; sigue, en cola, si ya lo tiene | `Run /crew:factory login` |
+| El archivo trae un secreto reconocible (una clave de API, una clave privada) | se frena y no se envía nada | la línea y el tipo de secreto, enmascarado |
+
+**Un requerimiento sin vínculo no entra en un commit** mientras factory responda. La puerta de cierre sigue pidiendo el vínculo, y para ese momento el commit ya lo escribió.
+
+**Dejar un archivo afuera.** Un requerimiento de tema sensible (una persona, sueldos, salud, contratación, un incidente de seguridad) queda fuera de factory con una línea de cabecera: `- **Factory:** skip`. De ese archivo no se envía nada, y la línea vale como vínculo. Lo que sí llega a factory lo ve toda la gente del proyecto, así que conviene decidirlo antes del primer commit.
+
+**Apagarlo.** Quitar `factory` de `crew.json` lo apaga para el repositorio. `CREW_REQUIREMENT_SYNC=off` en el entorno lo apaga para una persona, en su máquina.
+
+**Dónde corre.** El paso es una línea propia en `.git/hooks/pre-commit`, aparte de la verificación de calidad de código. El inicio de sesión la coloca en un repositorio vinculado a factory y la actualiza cuando una actualización del plugin lo cambia de carpeta. Con un gestor de ganchos (Lefthook, husky, una ruta de ganchos propia) crew muestra la línea para agregar y deja el archivo del gestor como está. La cola es `~/.crew/requirements/queue.json`: la carpeta del repositorio, la ruta del archivo y una huella de su contenido; el texto y el token quedan fuera. La carpeta solo la puede leer su dueño; en Windows esa protección es la lista de acceso del perfil de usuario.
+
+El lado de factory (quién puede cargar, qué verifica factory, qué ve cada actor) está en la guía de factory «Carga automática de requerimientos».
+
 ## Pausar la captura
 
 Cualquiera de estas alcanza:

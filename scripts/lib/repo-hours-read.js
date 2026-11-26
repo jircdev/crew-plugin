@@ -4,7 +4,7 @@
 const { readFileSync } = require("node:fs");
 const { createHash } = require("node:crypto");
 const { join, relative, dirname, resolve, basename } = require("node:path");
-const { git, posix, walk, stamp, hoursOf, blame, tableRows, milestoneOf, UNCOMMITTED, ITEM, TOTAL_ROW } = require("./repo-hours");
+const { git, posix, walk, stamp, hoursOf, blame, tableRows, milestoneRows, UNCOMMITTED, ITEM } = require("./repo-hours");
 
 const MAX_CODE = 60;
 
@@ -27,13 +27,9 @@ function readItem(root, file, repo, notes) {
   const authors = blame(root, rel);
   const milestones = [];
   const rows = [];
-  table.rows.forEach((row, index) => {
-    const get = (field) => (table.at[field] === null || table.at[field] === undefined ? "" : row.cells[table.at[field]] || "");
-    if (TOTAL_ROW.test(row.cells[0] || "")) return;
-    const milestone = milestoneOf(row.cells[0] || "", index + 1);
-    // A code repeated in the same table would make the requirement invalid.
-    if (milestones.some((m) => m.code === milestone.code)) milestone.code = `${milestone.code}#${index + 1}`;
-    milestones.push({ code: milestone.code, title: milestone.title.slice(0, 200), estimatedHours: hoursOf(get("est")) });
+  milestoneRows(table).forEach((milestone) => {
+    const { row, get } = milestone;
+    milestones.push({ code: milestone.code, title: milestone.title, estimatedHours: hoursOf(get("est")) });
     const start = stamp(get("started"));
     const end = stamp(get("finished"), start && start.iso.slice(0, 10));
     if (!start || !end) return;

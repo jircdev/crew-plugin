@@ -40,7 +40,8 @@ const reason = (out) => out?.hookSpecificOutput?.permissionDecisionReason || '';
 test('crew.json factory block normalizes url, environment, capture and a missing projectId', t => {
   const full = loadConfig(fixture(t, { factory: { projectId: PROJECT, url: 'https://x/api/v1/', capture: false } }));
   assert.deepEqual(full.factory, { projectId: PROJECT, environment: null, url: 'https://x/api/v1', web: null,
-    capture: false, unknown: [] });
+    capture: false, subcenter: null, unknown: [] });
+  assert.equal(loadConfig(fixture(t, { factory: { ...FACTORY, subcenter: ' MVP ' } })).factory.subcenter, 'MVP');
   const bare = loadConfig(fixture(t, { factory: FACTORY }));
   assert.equal(bare.factory.url, null);
   assert.equal(bare.factory.capture, true);

@@ -33,7 +33,7 @@ Two consequences. First, the plugin has **no hidden defaults**: the friendlier v
 | `audit` | `true` \| `false` | `false` | Log of guard decisions in `.crew/audit.log`, team mode only; see [Audit trail](#audit-trail-audit). |
 | `scope` | `{ "protected": [globs] }` | none | Paths whose first edit in a session asks the person; see [Protected reach](#protected-reach-scope). |
 | `telemetry` | `false` | no effect | Can only forbid catalog usage recording for the whole team. Each person turns it on locally; see [Catalog usage](#catalog-usage-telemetry). |
-| `factory` | object (`projectId`, `environment`, `url`, `web`, `capture`) | `null` | Tasks, estimates and work time live in factory; see [Factory mode](#factory-mode). |
+| `factory` | object (`projectId`, `environment`, `url`, `web`, `capture`, `subcenter`) | `null` | Tasks, estimates and work time live in factory; see [Factory mode](#factory-mode). |
 
 Absent fields normalize to the legacy-equivalent value in the third column — a `crew.json` containing only `{"mode": "solo"}` is valid and means solo, no metrics, quality enforce, default ceilings.
 
@@ -236,10 +236,11 @@ A project whose activities and work time are managed in factory declares it with
 | `url` | no | — | A full API base for any other host (a local factory, for instance). It takes the place of `environment`. |
 | `web` | no | — | The web base where people approve `/crew:factory login`, when `url` points somewhere without a known web address. |
 | `capture` | no | `true` | Whether the activity hooks record work time for this project. `false` pauses capture for everyone working in the repository and silences the reminder to link it. |
+| `subcenter` | no | — | The cost center a requirement of this repository is loaded into when its own header names none: a name of the factory project (`"MVP"`) or its id. Without it, factory uses the project's main one. See [Requirements load at commit](factory.md#requirements-load-at-commit). |
 
 A person can point their own machine elsewhere without editing the shared file: `CREW_FACTORY_ENV` (`prod` or `dev`) or `CREW_FACTORY_URL` (a full API base), plus `CREW_FACTORY_WEB_URL` for the web. Machine variables win over `crew.json`.
 
-**What changes when the block is present.** The story or requirement keeps the spec and the criteria. The task (estimate, state, time) lives in factory and is linked from the work item by a `**Factory activity:** <uuid>` header line (`**Factory task:**` is accepted too). The estimation gate asks for that header in place of an `## Estimation` table, the timestamps guard stands down because the capture hooks keep the clock, and `/crew:metrics` reads the backlog from factory. Details in [enforcement.md](enforcement.md#factory-mode) and [metrics.md](metrics.md#factory-mode).
+**What changes when the block is present.** The story or requirement keeps the spec and the criteria. The task (estimate, state, time) lives in factory and is linked from the work item by a `**Factory activity:** <uuid>` header line (`**Factory task:**` is accepted too). A requirement gets that line by itself when its file is committed ([factory.md](factory.md#requirements-load-at-commit)). The estimation gate asks for that header in place of an `## Estimation` table, the timestamps guard stands down because the capture hooks keep the clock, and `/crew:metrics` reads the backlog from factory. Details in [enforcement.md](enforcement.md#factory-mode) and [metrics.md](metrics.md#factory-mode).
 
 **The token is personal and stays out of the repository.** Each person connects their machine with `/crew:factory login` ([factory.md](factory.md#setting-it-up)), which stores the token in `~/.crew/factory-token`, readable only by them. The `FACTORY_TOKEN` environment variable takes precedence when set. `crew.json` is versioned and shared, so it has no token field.
 

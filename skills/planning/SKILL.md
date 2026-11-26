@@ -60,14 +60,25 @@ These apply in every project; the project's own principles refine them.
 - **Hours go to what is specific.** A milestone above the project's reference sizes names in `Notes` the rule that makes this work different. Where the project declares no reference sizes, the longest milestones carry that note all the same.
 - **Verify before presenting.** Whatever can be checked by reading the repository and its installed dependencies is checked before the plan is delivered. What stays as a risk needs production, a third party or a decision of the owner, and says which.
 
-## 6. Delegating to subagents
+## 6. In a repository linked to factory, the commit loads the plan
+
+When `crew.json` declares `factory`, a requirement reaches factory by being committed: a step of the commit hook loads the file with its milestones, both estimates and its plan status, and writes the `**Factory activity:**` link into the header. Loading it is nobody's task to remember, so plan for the flow:
+
+- **Commit the requirement when it is written**, with `Status: Draft`. Factory holds it as a proposed plan from that commit on.
+- **The person's approval is the move to `Ready`.** Change the header when they approve, and commit: factory moves the plan to approved. `Ready` is written on the person's word, never on your own judgment.
+- **Leave the `**Factory activity:**` line to the commit.** Call `upsert_requirement` by hand only when the commit step is unavailable, and say so.
+- **Name the cost center when it is not the repository's default** (`factory.subcenter` in `crew.json`), with a `**Subcenter:**` header line.
+- **A sensitive subject stays out**: a requirement about a person, pay, health, hiring or a security incident carries `- **Factory:** skip`. Ask the person before the first commit when you are unsure.
+- **A stopped commit names its reason.** Fix what factory refused or have the person sign in (`/crew:factory login`), and commit again with the hook in place.
+
+## 7. Delegating to subagents
 
 When you ask a role to estimate or draft work items, give it **the path of the standard** (or the `conformance.js` output) — and the path of the project's planning principles when it has them, never a table format of your own. Ask each role for its judgment of the work; the hours you publish are the integrated estimate of section 5. A role that receives a format contradicting the effective standard applies the standard and reports the requested deviation.
 
-## 7. When the project has no delivery circuit
+## 8. When the project has no delivery circuit
 
 In `solo` mode, or when the project has no `docs/requirements/` or `docs/stories/`, do not scaffold ceremony on your own. Say what is missing and ask where the plan should live before creating structure. The answer is the project's to give.
 
-## 8. Seal
+## 9. Seal
 
 End with one line: which standard was applied (project template at `<path>`, crew template, or deviation N of `docs/DEVIATIONS.md`), which planning principles were read (the project's section, or section 5 alone), what was checked (`conformance.js --check` on each file, the reuse verified in the repository), and what stayed unverified.

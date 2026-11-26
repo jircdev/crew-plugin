@@ -19,6 +19,8 @@ docs/requirements/
 Draft → Ready → In progress → Delivered → Closed
 ```
 
+`Draft` is a proposed plan; `Ready` is the plan its owner approved. In a repository linked to factory (`factory` in `crew.json`), committing the file loads the requirement into factory with its milestones and both estimates, and writes its `**Factory activity:**` link: proposed while `Draft`, approved from `Ready` on. `- **Factory:** skip` in the header keeps a requirement on a sensitive subject out of factory.
+
 Same semantics as stories, minus functional validation: a requirement is verified by its **expected deliverable** (does the artifact exist and behave as specified?), typically by the authoring architect role or `QA` in verdict mode. From Closed on, the file is immutable.
 
 ## Rules
